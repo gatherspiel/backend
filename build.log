@@ -1,0 +1,41 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 341B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/openjdk:17
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 115B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 2/4] WORKDIR /app
+#5 CACHED
+
+#6 [stage-1 3/4] RUN ls
+#6 CACHED
+
+#7 [stage-1 4/4] COPY -from=build  /app/target/app.jar .
+#7 ERROR: failed to calculate checksum of ref ee7e4e41-76d9-4632-8bf1-1a13c02fd151::28jpsesxgb51o1jxuc9jw1hl5: "/-from=build": not found
+
+#8 [stage-1 1/4] FROM docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8
+#8 resolve docker.io/library/openjdk:17@sha256:528707081fdb9562eb819128a9f85ae7fe000e2fbaeaf9f87662e7b3f38cb7d8 0.0s done
+#8 DONE 0.0s
+------
+ > [stage-1 4/4] COPY -from=build  /app/target/app.jar .:
+------
+Dockerfile:14
+--------------------
+  12 |     
+  13 |     RUN ls
+  14 | >>> COPY -from=build  /app/target/app.jar .
+  15 |     # This is the port that your javalin application will listen on
+  16 |     EXPOSE 7070
+--------------------
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref ee7e4e41-76d9-4632-8bf1-1a13c02fd151::28jpsesxgb51o1jxuc9jw1hl5: "/-from=build": not found
