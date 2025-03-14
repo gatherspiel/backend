@@ -1,5 +1,4 @@
-FROM eclipse-temurin:17-alpine
+FROM eclipse-temurin:11-alpine
 COPY target/app.jar /app.jar
-# This is the port that your javalin application will listen on
-EXPOSE 7070
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+EXPOSE 7000
+CMD ["java", "-jar", "/app.jar"]
