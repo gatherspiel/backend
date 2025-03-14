@@ -1,3 +1,3 @@
-api/.idea/
-api/.mvn/
-api/target/
+.idea/
+.mvn/
+target/
