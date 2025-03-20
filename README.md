@@ -13,3 +13,8 @@ Data will be stored in PostgreSQL using Supabase.
 - Run using `java -jar target/app.jar`
 
 The API will be available at http://localhost:7070/
+
+
+### Production deployments
+
+Production deployments will run with the latest changes from the release branch. Once a build image has been created, a deployment will then be manually triggered using the Digital Ocean app platform.
