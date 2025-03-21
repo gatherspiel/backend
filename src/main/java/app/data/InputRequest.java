@@ -1,7 +1,7 @@
-package service;
+package app.data;
 
 public class InputRequest {
-    private String data;
+    private Data data;
     private String email;
     private String password;
 
@@ -17,11 +17,11 @@ public class InputRequest {
         this.email = email;
     }
 
-    public String getData() {
+    public Data getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Data data) {
         this.data = data;
     }
 

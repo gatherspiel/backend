@@ -1,9 +1,10 @@
 package app;
 import io.javalin.Javalin;
 import service.AuthService;
-import service.InputRequest;
+import app.data.InputRequest;
+import service.BulkUpdateService;
 import service.TestService;
-import com.fasterxml.jackson.databind.*;
+
 public class Main {
     public static void main(String[] args) {
         var app = Javalin.create(config -> {
@@ -29,6 +30,9 @@ public class Main {
             authService.validate(data);
             System.out.println(data);
             ctx.result("Test");
+
+            var bulkUpdateService = new BulkUpdateService();
+            bulkUpdateService.bulkUpdate(data.getData());
         });
     }
 }
