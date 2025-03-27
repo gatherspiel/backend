@@ -28,7 +28,6 @@ public class Main {
 
             var data = ctx.bodyAsClass(InputRequest.class);
             authService.validate(data);
-            System.out.println(data);
             ctx.result("Test");
 
             var bulkUpdateService = new BulkUpdateService();
