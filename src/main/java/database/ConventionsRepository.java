@@ -15,7 +15,8 @@ public class ConventionsRepository {
         for (Convention convention: conventions) {
             System.out.println(convention.getTitle());
 
-            if (!eventRepository.hasEvent(convention.getTitle(), convention.getLink(), conn)) {
+            int eventId = eventRepository.getEvent(convention.getTitle(), convention.getLink(), conn);
+            if (eventId == -1) {
                 String query = "INSERT INTO events (url, name, is_convention) VALUES(?, ?, true) returning id";
                 PreparedStatement insert = conn.prepareStatement(query);
                 insert.clearBatch();
@@ -24,7 +25,10 @@ public class ConventionsRepository {
                 ResultSet rs = insert.executeQuery();
                 rs.next();
                 convention.setId(rs.getInt(1));
+            } else {
+                convention.setId(eventId);
             }
+
 
             // Date values should be formated similar to the following date: 3/22/2025
             for(String date: convention.getDays()){

@@ -20,8 +20,8 @@ public class EventRepository {
             int groupId = groupsRepository.getGroupId(group, conn);
             for(Event event: group.events){
 
-                if(!hasEvent(event.getTitle(),  group.link,conn)) {
-                    int eventId;
+                int eventId = getEvent(event.getTitle(),  group.link,conn);
+                if(eventId == -1) {
                     if (!Validator.isValidAddress(event.getLocation())){
                         String query = "INSERT INTO events(description, name, url) values(?,?,?) returning id";
                         PreparedStatement insert = conn.prepareStatement(query);
@@ -50,6 +50,7 @@ public class EventRepository {
                     }
                     updateEventGroupMap(groupId, eventId, conn);
                     event.setId(eventId);
+                    System.out.println(eventId);
                     eventTimeRepository.setEventDay(event, conn);
 
                 }
@@ -58,13 +59,16 @@ public class EventRepository {
         }
     }
 
-    public boolean hasEvent(String eventTitle, String url, Connection conn) throws Exception {
+    public int getEvent(String eventTitle, String url, Connection conn) throws Exception {
         String query = "SELECT * from events where name = ? and url=?";
         PreparedStatement select = conn.prepareStatement(query);
         select.setString(1, eventTitle);
         select.setString(2, url);
         ResultSet rs = select.executeQuery();
-        return rs.next();
+        if(rs.next()) {
+            return rs.getInt(1);
+        }
+        return -1;
 
     }
 

@@ -24,6 +24,8 @@ public class BulkUpdateService {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error inserting groups");
+            System.exit(1);
+
         }
 
 
@@ -33,6 +35,8 @@ public class BulkUpdateService {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error inserting conventions");
+            System.exit(1);
+
         }
 
 
@@ -42,6 +46,8 @@ public class BulkUpdateService {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error inserting game stores");
+            System.exit(1);
+
         }
 
         try {
@@ -50,6 +56,8 @@ public class BulkUpdateService {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error inserting game restaurants");
+            System.exit(1);
+
         }
 
         try {
@@ -59,6 +67,8 @@ public class BulkUpdateService {
         } catch(Exception e){
             e.printStackTrace();
             System.out.println("Error inserting events");
+            System.exit(1);
+
         }
 
 
