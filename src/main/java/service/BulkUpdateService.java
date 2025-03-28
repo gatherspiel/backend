@@ -1,11 +1,7 @@
 package service;
 
 import app.data.Data;
-import app.data.Group;
-import database.ConventionsRepository;
-import database.GameStoreRepository;
-import database.GroupsRepository;
-import database.RepositoryUtils;
+import database.*;
 
 import java.sql.Connection;
 
@@ -21,11 +17,11 @@ public class BulkUpdateService {
         Connection conn =  RepositoryUtils.getDatabaseConnection();
         conn.setAutoCommit(false);
 
-        /*
         try {
             GroupsRepository groupsRepository = new GroupsRepository();
             groupsRepository.insertGroups(data.getGroups(), conn);
         } catch(Exception e){
+            e.printStackTrace();
             System.out.println("Error inserting groups");
         }
 
@@ -37,7 +33,7 @@ public class BulkUpdateService {
             e.printStackTrace();
             System.out.println("Error inserting conventions");
         }
-        */
+
 
         try {
             GameStoreRepository gameStoreRepository = new GameStoreRepository();
@@ -47,16 +43,32 @@ public class BulkUpdateService {
             System.out.println("Error inserting game stores");
         }
 
+        try {
+            GameRestaurantRepository gameRestaurantRepository = new GameRestaurantRepository();
+            gameRestaurantRepository.insertGameRestaurants(data.getGameRestaurants(), conn);
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error inserting game restaurants");
+        }
+
+        try {
+            EventRepository eventRepository = new EventRepository();
+            eventRepository.addEvents(data.getGroups(), conn);
+            System.out.println("Inserted events");
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error inserting events");
+        }
+
+
         conn.commit();
         conn.close();
 
+        System.out.println("Done");
         /*
-
-        -Make sure game restaurant data is saved
-        -Add group event information.
         -Update locations group_map table
-        -Add event_group_map table
-        -Update convention days table
+        -Update convention times
+        -Update event times
          */
 
     }
