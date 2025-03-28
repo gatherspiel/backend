@@ -1,5 +1,7 @@
 package database;
 
+import database.utils.RepositoryUtils;
+
 import java.sql.*;
 
 public class TestRepository {

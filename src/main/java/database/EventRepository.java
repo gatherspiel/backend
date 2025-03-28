@@ -14,11 +14,14 @@ public class EventRepository {
 
         GroupsRepository groupsRepository = new GroupsRepository();
         LocationsRepository locationsRepository = new LocationsRepository();
+        EventTimeRepository eventTimeRepository = new EventTimeRepository();
+
         for(Group group: groups) {
             int groupId = groupsRepository.getGroupId(group, conn);
             for(Event event: group.events){
 
                 if(!hasEvent(event.getTitle(),  group.link,conn)) {
+                    int eventId;
                     if (!Validator.isValidAddress(event.getLocation())){
                         String query = "INSERT INTO events(description, name, url) values(?,?,?) returning id";
                         PreparedStatement insert = conn.prepareStatement(query);
@@ -29,9 +32,9 @@ public class EventRepository {
                         ResultSet rs = insert.executeQuery();
                         rs.next();
 
-                        updateEventGroupMap(groupId, rs.getInt(1), conn);
+                        eventId = rs.getInt(1);
 
-                    }else {
+                    } else {
                         int location_id = locationsRepository.insertLocation(event.getLocation(), conn);
                         String query = "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
                         PreparedStatement insert = conn.prepareStatement(query);
@@ -42,8 +45,13 @@ public class EventRepository {
 
                         ResultSet rs = insert.executeQuery();
                         rs.next();
-                        updateEventGroupMap(groupId, rs.getInt(1),conn);
+                        eventId = rs.getInt(1);
+
                     }
+                    updateEventGroupMap(groupId, eventId, conn);
+                    event.setId(eventId);
+                    eventTimeRepository.setEventDay(event, conn);
+
                 }
 
             }
