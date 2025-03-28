@@ -14,10 +14,16 @@ public class GroupsRepository {
     public void insertGroups(Group[] groups, Connection conn) throws Exception{
 
         LocationsRepository locationsRepository = new LocationsRepository();
-        Set<String> ulrsInDb = getGroupsInDatabase(groups, conn);
+        Set<String> urlsInDb = getGroupsInDatabase(groups, conn);
         for (Group group: groups) {
 
-            if (!ulrsInDb.contains(group.link)){
+            if (!urlsInDb.contains(group.link)){
+
+                urlsInDb.add(group.link);
+
+                System.out.println(Arrays.toString(urlsInDb.toArray()));
+                System.out.println(urlsInDb.size());
+
                 String query = "INSERT INTO groups (name, url, summary) VALUES(?, ?, ?) returning id";
                 PreparedStatement insert = conn.prepareStatement(query);
                 insert.setString(1, group.title);
@@ -36,6 +42,9 @@ public class GroupsRepository {
                         groupLocationInsert.executeUpdate();
                     }
                 }else {
+                    System.out.println(Arrays.toString(urlsInDb.toArray()));
+                    System.out.println(urlsInDb.size());
+                    System.out.println("Error inserting groups");
                     throw new Exception();
                 }
 
@@ -48,6 +57,7 @@ public class GroupsRepository {
         String query = "SELECT url from groups WHERE url IN (?)";
 
         String[] urls = Arrays.stream(groups).map(group->group.link).toArray(String[]::new);
+        System.out.println(Arrays.toString(urls));
         PreparedStatement select = conn.prepareStatement(query);
         select.setString(1, String.join(",", urls));
 
@@ -57,6 +67,7 @@ public class GroupsRepository {
         while(rs.next()){
             urlsInDb.add(rs.getString(1));
         }
+        System.out.println(urlsInDb.size());
         return urlsInDb;
     }
 

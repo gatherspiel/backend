@@ -26,7 +26,7 @@ public class LocationsRepository {
         insert.setString(1, city);;
         ResultSet insertRs = insert.executeQuery();
         if(insertRs.next()){
-            return rs.getInt(1);
+            return insertRs.getInt(1);
         }
         System.out.println("Insert did not succeed");
         throw new Exception();
