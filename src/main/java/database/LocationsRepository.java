@@ -9,6 +9,28 @@ import java.sql.ResultSet;
 
 public class LocationsRepository {
 
+    /*
+    Retrieves a location id for the city. The city will be saved in the database if it is not already there.
+     */
+    public int getLocationIdForCity(String city, Connection conn) throws Exception{
+        String query = "SELECT * from locations where city = ? ";
+        PreparedStatement select = conn.prepareStatement(query);
+        select.setString(1, city);
+        ResultSet rs = select.executeQuery();
+        if(rs.next()){
+            return rs.getInt(1);
+        }
+
+        String query2 = "INSERT INTO locations (city) VALUES(?) returning id";
+        PreparedStatement insert = conn.prepareStatement(query2);
+        insert.setString(1, city);;
+        ResultSet insertRs = insert.executeQuery();
+        if(insertRs.next()){
+            return rs.getInt(1);
+        }
+        System.out.println("Insert did not succeed");
+        throw new Exception();
+    }
 
     public int insertLocation(String address, Connection conn) throws Exception{
 

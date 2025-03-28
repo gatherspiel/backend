@@ -13,17 +13,33 @@ public class GroupsRepository {
 
     public void insertGroups(Group[] groups, Connection conn) throws Exception{
 
+        LocationsRepository locationsRepository = new LocationsRepository();
         Set<String> ulrsInDb = getGroupsInDatabase(groups, conn);
         for (Group group: groups) {
 
             if (!ulrsInDb.contains(group.link)){
-                String query = "INSERT INTO groups (name, url) VALUES(?, ?)";
+                String query = "INSERT INTO groups (name, url, summary) VALUES(?, ?, ?) returning id";
                 PreparedStatement insert = conn.prepareStatement(query);
                 insert.setString(1, group.title);
                 insert.setString(2, group.link);
-                insert.executeUpdate();
-            }
+                insert.setString(3, group.summary);
+                ResultSet rs = insert.executeQuery();
+                if(rs.next()){
+                    int groupId = rs.getInt(1);
+                    for(String location: group.getLocations().split(",")){
+                        int locationId = locationsRepository.getLocationIdForCity(location.trim(),conn);
 
+                        String groupLocationQuery = "INSERT INTO location_group_map(location_id, group_id) VALUES(?, ?)";
+                        PreparedStatement groupLocationInsert = conn.prepareStatement(groupLocationQuery);
+                        groupLocationInsert.setInt(1, locationId);
+                        groupLocationInsert.setInt(2, groupId);
+                        groupLocationInsert.executeUpdate();
+                    }
+                }else {
+                    throw new Exception();
+                }
+
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 package app.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Event {
 
     private Integer id;
@@ -50,5 +52,6 @@ public class Event {
     public void setTitle(String title){
         this.title= title;
     }
+
 
 }
