@@ -1,6 +1,5 @@
 package app.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Event {
 
@@ -22,11 +21,11 @@ public class Event {
     }
 
     public String getDay() {
-        return day;
+        return day.toLowerCase();
     }
 
     public void setDay(String day) {
-        this.day = day;
+        this.day = day.toLowerCase();
     }
 
     public String getLocation(){

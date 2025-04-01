@@ -21,9 +21,6 @@ public class GroupsRepository {
 
                 urlsInDb.add(group.link);
 
-                System.out.println(Arrays.toString(urlsInDb.toArray()));
-                System.out.println(urlsInDb.size());
-
                 String query = "INSERT INTO groups (name, url, summary) VALUES(?, ?, ?) returning id";
                 PreparedStatement insert = conn.prepareStatement(query);
                 insert.setString(1, group.title);
@@ -42,8 +39,6 @@ public class GroupsRepository {
                         groupLocationInsert.executeUpdate();
                     }
                 }else {
-                    System.out.println(Arrays.toString(urlsInDb.toArray()));
-                    System.out.println(urlsInDb.size());
                     System.out.println("Error inserting groups");
                     throw new Exception();
                 }
@@ -53,21 +48,17 @@ public class GroupsRepository {
     }
 
     // This is a workaround for an issue related to using prepared statements with duplicates.
+    // TODO: Use SQL in clause to optimize performance.
     public Set<String> getGroupsInDatabase(Group[] groups, Connection conn) throws Exception {
-        String query = "SELECT url from groups WHERE url IN (?)";
+        String query = "SELECT url from groups";
 
-        String[] urls = Arrays.stream(groups).map(group->group.link).toArray(String[]::new);
-        System.out.println(Arrays.toString(urls));
         PreparedStatement select = conn.prepareStatement(query);
-        select.setString(1, String.join(",", urls));
-
         ResultSet rs = select.executeQuery();
 
         Set<String> urlsInDb = new HashSet<String>();
         while(rs.next()){
             urlsInDb.add(rs.getString(1));
         }
-        System.out.println(urlsInDb.size());
         return urlsInDb;
     }
 

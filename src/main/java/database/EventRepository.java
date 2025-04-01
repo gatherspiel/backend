@@ -48,12 +48,10 @@ public class EventRepository {
                         eventId = rs.getInt(1);
 
                     }
-                    updateEventGroupMap(groupId, eventId, conn);
-                    event.setId(eventId);
-                    System.out.println(eventId);
-                    eventTimeRepository.setEventDay(event, conn);
-
                 }
+                updateEventGroupMap(groupId, eventId, conn);
+                event.setId(eventId);
+                eventTimeRepository.setEventDay(event, conn);
 
             }
         }
@@ -73,6 +71,17 @@ public class EventRepository {
     }
 
     private void updateEventGroupMap(int groupId, int locationId, Connection conn) throws Exception{
+
+        /*TODO: Add unique index to enable an ON CONFLICT DO NOTHING clause on the insert query instead of a
+        select query.*/
+        String exists = "SELECT * from event_group_map where group_id=? AND event_id=?";
+        PreparedStatement select = conn.prepareStatement(exists);
+        select.setInt(1, groupId);
+        select.setInt(2, locationId);
+        ResultSet rs = select.executeQuery();
+        if(rs.next()){
+            return;
+        }
         String query = "INSERT INTO event_group_map(group_id, event_id) values(?,?)";
         PreparedStatement insert = conn.prepareStatement(query);
         insert.setInt(1, groupId);

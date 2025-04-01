@@ -1,6 +1,8 @@
 package database;
 
 import app.data.Convention;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +10,19 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 
 public class ConventionsRepository {
+
+    Logger logger;
+
+    public ConventionsRepository(){
+        logger = LogUtils.getLogger();
+    }
     public void insertConventions(Convention[] conventions, Connection conn) throws Exception{
 
         EventRepository eventRepository = new EventRepository();
         EventTimeRepository eventTimeRepository = new EventTimeRepository();
         for (Convention convention: conventions) {
-            System.out.println(convention.getTitle());
+
+            logger.debug(convention.getTitle());
 
             int eventId = eventRepository.getEvent(convention.getTitle(), convention.getLink(), conn);
             if (eventId == -1) {
