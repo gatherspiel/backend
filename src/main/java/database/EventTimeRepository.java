@@ -1,6 +1,9 @@
 package database;
 
 import app.data.Event;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.postgresql.util.PSQLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,28 +13,38 @@ import java.time.LocalDate;
 
 public class EventTimeRepository {
 
+    private static final Logger logger = LogManager.getLogger(EventTimeRepository.class);
+
     public void setEventDay(Event event, Connection conn) throws Exception {
 
         if(!hasEventDay(event, conn)){
             String day = event.getDay();
-            String query = "INSERT into event_time (day_of_week, event_id) VALUES(?, ?)";
+            String query = "INSERT into event_time (day_of_week, event_id) VALUES(cast(? AS dayofweek), ?)";
             PreparedStatement insert = conn.prepareStatement(query);
             insert.setString(1, day);
             insert.setInt(2, event.getId());
-            insert.executeQuery();
+            insert.executeUpdate();
         }
 
     }
 
     public boolean hasEventDay(Event event, Connection conn) throws Exception {
-        String day = event.getDay();
-        String query = "SELECT * event_time where day_of_week = ? and event_id = ?";
-        PreparedStatement select = conn.prepareStatement(query);
-        select.setString(1, day);
-        select.setInt(2, event.getId());
-        ResultSet rs = select.executeQuery();
 
-        return rs.next();
+        try {
+            String day = event.getDay();
+            String query = "SELECT * from event_time where day_of_week = cast(? AS dayofweek) AND event_id = ?";
+            PreparedStatement select = conn.prepareStatement(query);
+            select.setString(1, day);
+            select.setInt(2, event.getId());
+            ResultSet rs = select.executeQuery();
+
+            return rs.next();
+        } catch(PSQLException e) {
+
+            logger.error("Query error in hasEventDay");
+            throw e;
+        }
+
     }
 
     public void setEventDate(int eventId, LocalDate date, Connection conn) throws Exception {

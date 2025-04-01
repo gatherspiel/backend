@@ -17,7 +17,6 @@ public class TestRepository {
 
             while(rs.next()) {
                 count = rs.getInt(1);
-                System.out.println("Count:"+count);
             }
             connection.close();
             st.close();;

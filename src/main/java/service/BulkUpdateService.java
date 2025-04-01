@@ -3,17 +3,18 @@ package service;
 import app.data.Data;
 import database.*;
 import database.utils.RepositoryUtils;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
 
 import java.sql.Connection;
 
 public class BulkUpdateService {
+
+    Logger logger;
+    public BulkUpdateService(){
+        logger = LogUtils.getLogger();
+    }
     public void bulkUpdate(Data data) throws Exception{
-
-
-        System.out.println(data.getGroups());
-        System.out.println(data.getConventions());
-        System.out.println(data.getGameStores());
-        System.out.println(data.getGameRestaurants());
 
         Connection conn =  RepositoryUtils.getDatabaseConnection();
         conn.setAutoCommit(false);
@@ -22,10 +23,8 @@ public class BulkUpdateService {
             GroupsRepository groupsRepository = new GroupsRepository();
             groupsRepository.insertGroups(data.getGroups(), conn);
         } catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error inserting groups");
-            System.exit(1);
-
+            logger.error("Error inserting groups");
+            throw e;
         }
 
 
@@ -33,9 +32,8 @@ public class BulkUpdateService {
             ConventionsRepository conventionsRepository = new ConventionsRepository();
             conventionsRepository.insertConventions(data.getConventions(), conn);
         } catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error inserting conventions");
-            System.exit(1);
+            logger.error("Error inserting conventions");
+            throw e;
 
         }
 
@@ -75,7 +73,7 @@ public class BulkUpdateService {
         conn.commit();
         conn.close();
 
-        System.out.println("Done");
+        Logger.info("Done with bulk update");
         /*
         -Update locations group_map table
         -Update convention times

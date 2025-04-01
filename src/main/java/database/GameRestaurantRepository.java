@@ -2,23 +2,30 @@ package database;
 
 import app.data.GameRestaurant;
 import app.data.GameStore;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class GameRestaurantRepository {
+
+    Logger logger;
+
+    public GameRestaurantRepository() {
+        logger = LogUtils.getLogger();
+    }
     public void insertGameRestaurants(GameRestaurant[] gameRestaurants, Connection conn) throws Exception{
 
         LocationsRepository locationRepository = new LocationsRepository();
 
         for (GameRestaurant gameRestaurant: gameRestaurants) {
 
-
             int location_id = locationRepository.insertLocation(gameRestaurant.getLocation(), conn);
 
             if (!hasGameRestaurant(gameRestaurant, location_id, conn)) {
-                System.out.println(gameRestaurant.getName());
+                logger.debug(gameRestaurant.getName());
                 String query = "INSERT INTO game_restaurants (url, name, location_id) VALUES(?, ?, ?)";
                 PreparedStatement insert = conn.prepareStatement(query);
                 insert.clearBatch();
