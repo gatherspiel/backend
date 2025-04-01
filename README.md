@@ -7,3 +7,8 @@
 - Run using `java -jar target/app.jar`
 
 The API will be available at http://localhost:7070/
+
+
+### Code formatter
+
+- Run `mvn prettier:write`.
