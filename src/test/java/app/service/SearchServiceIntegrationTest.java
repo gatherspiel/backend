@@ -1,8 +1,5 @@
 package app.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import app.database.utils.DbUtils;
 import app.database.utils.TestConnectionProvider;
 import java.sql.Connection;
@@ -16,7 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import service.SearchParameterException;
 import service.SearchService;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SearchServiceIntegrationTest {
 
@@ -84,11 +84,71 @@ public class SearchServiceIntegrationTest {
     );
   }
 
-    /*
+  @ParameterizedTest
+  @CsvSource({
+      "Alexandria, Sunday, 0,0",
+      "Alexandria, Monday, 2,2",
+      "Manassas, Sunday, 1, 1",
+      "Manassas, Saturday, 0, 0"
 
-        Add test for searches that have location and day as parameters.
-        Add test for case where no results are returned
-        Run unit tests to make sure default test case works.
+  })
+
+  public void testEventsAreReturned_WithLocationAndDayAsSearchParam(
+      String location,
+      String day,
+      int expectedEvents,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.LOCATION, location);
+    params.put(GroupSearchParams.DAY_OF_WEEK, day);
+
+    GroupSearchResult searchResult = searchService.getGroups(params, testConnectionProvider);
+    Assertions.assertAll(
+        ()->    assertEquals(expectedEvents, searchResult.countEvents()),
+        () ->     assertEquals(expectedGroups, searchResult.countGroups())
+    );
+  }
+
+  public void testInvalidDayReturnsValidationError() {
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.DAY_OF_WEEK, "test");
+
+    Exception exception = assertThrows(SearchParameterException.class, ()->{
+      GroupSearchResult searchResult = searchService.getGroups(params, testConnectionProvider);
+
+    });
+    assertTrue(exception.getMessage().contains("Invalid day"));
+  }
+
+  @Test
+  public void testInvalidLocationReturnsEmptyResult() throws Exception{
+
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.LOCATION, "test");
+
+    GroupSearchResult searchResult = searchService.getGroups(params, testConnectionProvider);
+    assertEquals(0,searchResult.countEvents());
+  }
+
+  @Test
+  public void testSearchResultReturnsValidResultWithExtraParameter() throws Exception{
+
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put("Test parameter", "test");
+    params.put(GroupSearchParams.LOCATION,"College Park");
+
+    GroupSearchResult searchResult = searchService.getGroups(params, testConnectionProvider);
+    assertEquals(2,searchResult.countEvents());
+    assertEquals(1,searchResult.countGroups());
+
+  }
+
+
+    /*
+        TODO:
+
+
         Make sure search works with filters.
         Create API endpoint.
 
