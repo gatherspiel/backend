@@ -1,5 +1,8 @@
 package database.search;
 
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -11,19 +14,29 @@ public class GroupSearchParams {
   public static final String LOCATION = "location";
 
   private final LinkedHashMap<String, String> params;
-
   private static final HashMap<String, String> paramQueryMap;
+
+  private Logger logger;
+
   static {
     paramQueryMap = new HashMap<String,String>();
-    paramQueryMap.put(DAY_OF_WEEK,"WHERE day_of_week = cast(? AS dayofweek)");
-    paramQueryMap.put(LOCATION, "WHERE COALESCE(locs.city, locations.city) = ?");
+    paramQueryMap.put(DAY_OF_WEEK,"day_of_week = cast(? AS dayofweek)");
+    paramQueryMap.put(LOCATION, "COALESCE(locations.city,locs.city) = ?");
   }
 
-
-
-
   public GroupSearchParams(LinkedHashMap<String, String> params) {
-    this.params = params;
+
+    this.logger = LogUtils.getLogger();
+    this.params = new LinkedHashMap<String, String>();
+    params.keySet().forEach(param->{
+      if(param == DAY_OF_WEEK){
+        this.params.put(param, params.get(param).toLowerCase());
+      } else if(param == LOCATION) {
+        this.params.put(param, params.get(param));
+      } else {
+        logger.warn("Invalid parameter submitted. It will not be used in the search query");
+      }
+    });
   }
 
   public PreparedStatement generateSearchQuery(Connection conn) throws Exception {
@@ -35,16 +48,22 @@ public class GroupSearchParams {
       whereClauses.add(paramQueryMap.get(param));
     }
 
-    query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
+    if (!whereClauses.isEmpty()) {
+      query = query + " WHERE ";
+      query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-    PreparedStatement select = conn.prepareStatement(query);
+      System.out.println("Query:"+query);
+      PreparedStatement select = conn.prepareStatement(query);
+      int i = 1;
+      for(String param: params.keySet()){
+        select.setString(i, params.get(param));
+        i++;
+      }
+      return select;
 
-    int i = 1;
-    for(String param: params.keySet()){
-      select.setString(i, params.get(param));
-      i++;
+    } else {
+      return conn.prepareStatement(query);
     }
-    return select;
   }
 
   private static String getQueryForAllResults() {
@@ -62,7 +81,8 @@ public class GroupSearchParams {
                     locations.state,
                     locations.street_address,
                     locations.zip_code,
-                    COALESCE(locs.city, locations.city) as city
+                    locations.city as city,
+                    locs.city as groupCity
                   FROM groups
                   LEFT JOIN event_group_map on groups.id = event_group_map.group_id
                   LEFT JOIN  events on event_group_map.event_id = events.id

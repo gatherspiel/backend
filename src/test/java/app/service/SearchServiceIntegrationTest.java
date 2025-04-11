@@ -146,12 +146,7 @@ public class SearchServiceIntegrationTest {
 
 
     /*
-        TODO:
-
-
-        Make sure search works with filters.
         Create API endpoint.
-
      */
 
 
