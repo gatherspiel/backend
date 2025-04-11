@@ -1,5 +1,6 @@
 package database.search;
 
+import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
 import service.SearchParameterException;
 import service.SearchParameterValidator;
@@ -102,4 +103,22 @@ public class GroupSearchParams {
         """;
     return query;
   }
+
+  public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
+    LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
+
+
+    String day = ctx.queryParam(GroupSearchParams.DAY_OF_WEEK);
+    if(day != null && !day.isEmpty()){
+      paramMap.put(GroupSearchParams.DAY_OF_WEEK, day);
+    }
+
+    String location = ctx.queryParam(GroupSearchParams.LOCATION);
+    if(location!=null && !location.isEmpty()){
+      paramMap.put(GroupSearchParams.LOCATION, location);
+    }
+    return paramMap;
+  }
 }
+
+
