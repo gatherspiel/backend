@@ -35,6 +35,19 @@ public class Main {
       }
     );
 
+    app.get(
+        "/searchEvents/",
+        ctx -> {
+
+
+          //TODO: Add logic and read query parameters
+
+          System.out.println("Finished");
+          ctx.status(200);
+          ctx.result("Test");
+        }
+    );
+
     app.post(
       "/admin/saveData",
       ctx -> {

@@ -5,7 +5,7 @@ import app.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import service.Validator;
+import service.SearchParameterValidator;
 
 public class EventRepository {
 
@@ -19,7 +19,7 @@ public class EventRepository {
       for (Event event : group.events) {
         int eventId = getEvent(event.getName(), group.url, conn);
         if (eventId == -1) {
-          if (!Validator.isValidAddress(event.getLocation())) {
+          if (!SearchParameterValidator.isValidAddress(event.getLocation())) {
             String query =
               "INSERT INTO events(description, name, url) values(?,?,?) returning id";
             PreparedStatement insert = conn.prepareStatement(query);

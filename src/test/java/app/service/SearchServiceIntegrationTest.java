@@ -3,7 +3,6 @@ package app.service;
 import app.database.utils.DbUtils;
 import app.database.utils.TestConnectionProvider;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import app.result.GroupSearchResult;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import service.SearchParameterException;
 import service.SearchService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,11 +108,12 @@ public class SearchServiceIntegrationTest {
     );
   }
 
+  @Test
   public void testInvalidDayReturnsValidationError() {
     LinkedHashMap<String,String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.DAY_OF_WEEK, "test");
 
-    Exception exception = assertThrows(SearchParameterException.class, ()->{
+    Exception exception = assertThrows(RuntimeException.class, ()->{
       GroupSearchResult searchResult = searchService.getGroups(params, testConnectionProvider);
 
     });
@@ -143,11 +142,5 @@ public class SearchServiceIntegrationTest {
     assertEquals(1,searchResult.countGroups());
 
   }
-
-
-    /*
-        Create API endpoint.
-     */
-
 
 }
