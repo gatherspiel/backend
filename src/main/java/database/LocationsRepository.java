@@ -1,10 +1,9 @@
 package database;
 
-import app.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import service.Validator;
+import service.SearchParameterValidator;
 
 public class LocationsRepository {
 
@@ -33,7 +32,7 @@ public class LocationsRepository {
   }
 
   public int insertLocation(String address, Connection conn) throws Exception {
-    if (!Validator.isValidAddress(address)) {
+    if (!SearchParameterValidator.isValidAddress(address)) {
       System.out.println("Invalid address:" + address);
       throw new Exception();
     }

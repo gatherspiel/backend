@@ -1,6 +1,8 @@
 package database.search;
 
 import org.apache.logging.log4j.Logger;
+import service.SearchParameterException;
+import service.SearchParameterValidator;
 import utils.LogUtils;
 
 import java.sql.Connection;
@@ -24,12 +26,19 @@ public class GroupSearchParams {
     paramQueryMap.put(LOCATION, "COALESCE(locations.city,locs.city) = ?");
   }
 
-  public GroupSearchParams(LinkedHashMap<String, String> params) {
+  public GroupSearchParams(LinkedHashMap<String, String> params) throws SearchParameterException {
 
     this.logger = LogUtils.getLogger();
     this.params = new LinkedHashMap<String, String>();
     params.keySet().forEach(param->{
       if(param == DAY_OF_WEEK){
+
+        try {
+          SearchParameterValidator.validateDay(params.get(param));
+        } catch (SearchParameterException e) {
+          throw new RuntimeException(e);
+        }
+
         this.params.put(param, params.get(param).toLowerCase());
       } else if(param == LOCATION) {
         this.params.put(param, params.get(param));
@@ -52,7 +61,6 @@ public class GroupSearchParams {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-      System.out.println("Query:"+query);
       PreparedStatement select = conn.prepareStatement(query);
       int i = 1;
       for(String param: params.keySet()){
