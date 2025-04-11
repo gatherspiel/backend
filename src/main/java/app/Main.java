@@ -1,11 +1,15 @@
 package app;
 
 import app.data.InputRequest;
+import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import service.AuthService;
 import service.BulkUpdateService;
+import service.SearchService;
 import service.TestService;
+
+import java.util.LinkedHashMap;
 
 public class Main {
 
@@ -36,15 +40,23 @@ public class Main {
     );
 
     app.get(
-        "/searchEvents/",
+        "/searchEvents",
         ctx -> {
 
 
           //TODO: Add logic and read query parameters
 
-          System.out.println("Finished");
+          var connectionProvider = new ConnectionProvider();
+          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(ctx);
+          var searchService = new SearchService();
+
+          var groupSearchResult = searchService.getGroups(searchParams, connectionProvider);
+
+          ctx.json(groupSearchResult);
           ctx.status(200);
-          ctx.result("Test");
+
+          System.out.println("Finished");
+
         }
     );
 

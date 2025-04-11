@@ -3,12 +3,15 @@ package app.result;
 import app.data.Event;
 import app.data.Group;
 import java.util.HashMap;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
 public class GroupSearchResult {
   private HashMap<Integer, Group> groupData;
 
+  @JsonIgnore
   Logger logger;
 
   public GroupSearchResult() {
@@ -65,5 +68,9 @@ public class GroupSearchResult {
       events+=group.countEvents();
     }
     return events;
+  }
+
+  public HashMap<Integer, Group> getGroupData(){
+    return groupData;
   }
 }
