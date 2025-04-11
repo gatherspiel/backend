@@ -4,8 +4,8 @@ import app.result.GroupSearchResult;
 import database.search.GroupSearchParams;
 import database.search.SearchRepository;
 import database.utils.ConnectionProvider;
+
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class SearchService {
