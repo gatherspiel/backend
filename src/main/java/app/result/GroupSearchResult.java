@@ -19,7 +19,7 @@ public class GroupSearchResult {
     logger = LogUtils.getLogger();
   }
 
-  public void addGroup(Integer id, String name, String url, String summary) {
+  public void addGroup(Integer id, String name, String url, String summary, String groupCity) {
     if (!groupData.containsKey(id)) {
 
       Group group = new Group();
@@ -27,6 +27,7 @@ public class GroupSearchResult {
       group.setName(name);
       group.setUrl(url);
       group.setSummary(summary);
+      group.addCity(groupCity);
       groupData.put(id, group);
     }
   }
@@ -37,7 +38,8 @@ public class GroupSearchResult {
     String name,
     String description,
     String dayOfWeek,
-    String address
+    String address,
+    String city
   ) {
     if (!groupData.containsKey(groupId)) {
       logger.warn(
@@ -48,7 +50,7 @@ public class GroupSearchResult {
     }
 
     Group group = groupData.get(groupId);
-
+    group.addCity(city);
     Event event = new Event();
     event.setName(name);
     event.setSummary(description);

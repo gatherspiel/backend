@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class GroupSearchParams {
-  public static final String DAY_OF_WEEK = "day_of_week";
-  public static final String LOCATION = "location";
+  public static final String DAY_OF_WEEK = "day";
+  public static final String CITY = "city";
 
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
@@ -24,7 +24,7 @@ public class GroupSearchParams {
   static {
     paramQueryMap = new HashMap<String,String>();
     paramQueryMap.put(DAY_OF_WEEK,"day_of_week = cast(? AS dayofweek)");
-    paramQueryMap.put(LOCATION, "COALESCE(locations.city,locs.city) = ?");
+    paramQueryMap.put(CITY, "COALESCE(locations.city,locs.city) = ?");
   }
 
   public GroupSearchParams(LinkedHashMap<String, String> params) throws SearchParameterException {
@@ -41,7 +41,7 @@ public class GroupSearchParams {
         }
 
         this.params.put(param, params.get(param).toLowerCase());
-      } else if(param == LOCATION) {
+      } else if(param == CITY) {
         this.params.put(param, params.get(param));
       } else {
         logger.warn("Invalid parameter submitted. It will not be used in the search query");
@@ -107,15 +107,15 @@ public class GroupSearchParams {
   public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
     LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
 
-
+    System.out.println(ctx.queryString());
     String day = ctx.queryParam(GroupSearchParams.DAY_OF_WEEK);
     if(day != null && !day.isEmpty()){
       paramMap.put(GroupSearchParams.DAY_OF_WEEK, day);
     }
 
-    String location = ctx.queryParam(GroupSearchParams.LOCATION);
+    String location = ctx.queryParam(GroupSearchParams.CITY);
     if(location!=null && !location.isEmpty()){
-      paramMap.put(GroupSearchParams.LOCATION, location);
+      paramMap.put(GroupSearchParams.CITY, location);
     }
     return paramMap;
   }

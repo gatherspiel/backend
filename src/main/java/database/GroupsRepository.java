@@ -4,8 +4,6 @@ import app.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +27,7 @@ public class GroupsRepository {
         ResultSet rs = insert.executeQuery();
         if (rs.next()) {
           int groupId = rs.getInt(1);
-          for (String location : group.getLocations().split(",")) {
+          for (String location : group.getCities()) {
             int locationId = locationsRepository.getLocationIdForCity(
               location.trim(),
               conn

@@ -4,7 +4,7 @@ public class Group {
   public Event[] events;
   public int id;
   public String url;
-  public String locations;
+  public String[] cities;
   public String summary;
   public String name;
 
@@ -26,12 +26,12 @@ public class Group {
     this.url = url;
   }
 
-  public void setLocations(String locations) {
-    this.locations = locations;
+  public void setCities(String[] cities) {
+    this.cities = cities;
   }
 
-  public String getLocations() {
-    return locations;
+  public String[] getCities() {
+    return cities;
   }
 
   public void setSummary(String summary) {
@@ -65,8 +65,8 @@ public class Group {
       "url:" +
       url +
       "\n" +
-      "locations:" +
-      locations +
+      "cities:" +
+      cities +
       "\n" +
       "summary:" +
       summary +
@@ -92,5 +92,17 @@ public class Group {
     System.arraycopy(events, 0, updated, 0, events.length);
     updated[events.length] = event;
     events = updated;
+  }
+
+  public void addCity(String city){
+    if(cities == null){
+      cities = new String[]{city};
+      return;
+    }
+    String[] updated = new String[cities.length+1];
+    System.arraycopy(cities, 0, updated, 0, cities.length);
+    updated[cities.length] = city;
+    cities = updated;
+
   }
 }
