@@ -22,7 +22,8 @@ public class SearchRepository {
       String groupName = rs.getString("name");
       String url = rs.getString("url");
       String groupSummary = rs.getString("summary");
-      searchResult.addGroup(groupId, groupName, url, groupSummary);
+      String groupCity = rs.getString("groupCity");
+      searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
 
       Integer eventId = rs.getInt("eventId");
       String eventName = rs.getString("eventname");
@@ -37,13 +38,18 @@ public class SearchRepository {
       if(eventId != 0) {
         String address =
             streetAddress + ", " + city + ", " + state + " " + zipCode;
+
+        if(streetAddress == null || city == null || state == null || zipCode == null) {
+          address = "";
+        }
         searchResult.addEvent(
             groupId,
             eventId,
             eventName,
             description,
             dayOfWeek,
-            address
+            address,
+            city
 
         );
       }

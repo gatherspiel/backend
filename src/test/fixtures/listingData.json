@@ -183,7 +183,7 @@
         ],
         "id": 3,
         "url": "https://www.meetup.com/board-games-at/",
-        "locations": "Alexandria",
+        "cities": ["Alexandria"],
         "summary": "Like playing board games after meeting new people? Then we are the group for you. We are a friendly group and all are welcome. Feel free to bring your own games to play or just join in on the fun. Join us for dinner before hand if you like and then we will start games around 630pm. Glory days has $6 burgers on Monday’s and half price appetizers after 9pm. So come and join us for food, friends and games.",
         "name": "Alexandria Board Game Group"
       },
@@ -191,7 +191,7 @@
         "events": [],
         "id": 10,
         "url": "https://www.meetup.com/alexandria-board-gaming/",
-        "locations": "Alexandria",
+        "cities": ["Alexandria"],
         "summary": "This is a group for playing a variety of modern board games. Feel free to come empty-handed as I will bring my copy of the scheduled game. Each event will be limited attendance based on how many people can play each game.. ",
         "name": "Alexandria Board Gaming"
       },
@@ -207,7 +207,7 @@
         ],
         "id": 9,
         "url": "https://www.meetup.com/AARGGH/",
-        "locations": "Arlington",
+        "cities": ["Arlington"],
         "summary": "The Alexandria-Arlington Regional Gaming Group or AARGGH exists to provide a community for gaming enthusiasts in the DC Metro area, with an emphasis in NoVA. ",
         "name": "Alexandria-Arlington Regional Gaming Group"
       },
@@ -244,7 +244,7 @@
         ],
         "id": 1,
         "url": "https://www.meetup.com/beerbogglers/",
-        "locations": "Arlington, DC",
+        "cities": ["Arlington", "DC"],
         "summary": "Hi! This is a group for fun-loving, non-competitive people who enjoy playing party and board games. We have several wonderful venues where we can enjoy food and drinks while playing a few games. Don’t hesitate to bring any games you'd like to play (or feel free to come empty-handed).",
         "name": "Beer & Board Games"
       },
@@ -260,7 +260,7 @@
         ],
         "id": 29,
         "url": "https://www.meetup.com/boardgames-food-friends/",
-        "locations": "Alexandria",
+        "cities": ["Alexandria"],
         "summary": "We are a fun group of people who enjoy meeting friends for some good food and boardgames of all types.",
         "name": "Boardgames, Food & Friends"
       },
@@ -276,7 +276,7 @@
         ],
         "id": 31,
         "url": "https://www.meetup.com/manassas-eat-chat-and-game-group/",
-        "locations": "Chantilly",
+        "cities": ["Chantilly"],
         "summary": "We are a fun group of people who enjoy meeting friends for some good food and boardgames of all types.",
         "name": "Chantilly Tabletop Gaming Group"
       },
@@ -284,7 +284,7 @@
         "events": [],
         "id": 27,
         "url": "https://www.meetup.com/county-center-board-tabletop-games/",
-        "locations": "Woodbridge",
+        "cities": ["Woodbridge"],
         "summary": "Welcome! This group is for those interested in playing board and tabletop games. Events will be held at a private home near County Center, Woodbridge, VA (in Prince William County). Board games are my hobby and I started this group to play more games. If you are sociable, respectful, and like modern board games (or want to learn) then this group is possibly for you.",
         "name": "County Center Board and Tabletop Games"
       },
@@ -292,7 +292,7 @@
         "events": [],
         "id": 18,
         "url": "https://www.meetup.com/dc-gaming-group",
-        "locations": "Brentwood,DC",
+        "cities": ["Brentwood","DC"],
         "summary": "DC Gaming Group (DCGG) is a club organization created to foster connections within the DMV gaming community. Together, we can explore new games, support independent game developers, and check out local events.",
         "name": "DC Gaming Group"
       },
@@ -300,7 +300,7 @@
         "events": [],
         "id": 19,
         "url": "https://www.meetup.com/fairfax-home-tabletop-board-games",
-        "locations": "Fairfax",
+        "cities": ["Fairfax"],
         "summary": "Let's play some games! This is a small group event for board games at our house. We can host up to two tables worth of games, up to 8 additional people depending on the game player count. We have a medium library of about 70 games that vary in complexity, player count and type. You are also welcome to bring your own games. Light drinks and snacks will be provided!",
         "name": "Fairfax Home Tabletop Board Games"
       },
@@ -308,7 +308,7 @@
         "events": [],
         "id": 7,
         "url": "https://www.meetup.com/fantasy-and-legacy-board-games-the-board-room-clarendon/",
-        "locations": "Arlington",
+        "cities": ["Arlington"],
         "summary": "This meetup is dedicated to  fantasy and / or legacy games going @ The Board Room in Arlington, VA. We typically meet on Sunday evenings at 6:30pm. \nGames we have been playing include:\n\n• Lovecraft: Arkham Horror, Eldritch Horror, Arkham Card Game, etc... anything with Cthulhu!!\n• Pandemic \n• Twilight Imperium\n• Dead of Winter\n• Battlestar Galactica\n\nAnd, if anyone is interested in playing a game, please let me know. We are always welcome to new adventures! ",
         "name": "Fantasy and Fun Board Games @ The Board Room (Clarendon)"
       },
@@ -324,7 +324,7 @@
         ],
         "id": 14,
         "url": "https://www.meetup.com/Fun-Times-In-the-DMV/",
-        "locations": "Arlington",
+        "cities": ["Arlington"],
         "summary": "When was the last time you had a FUN TIME? No hoops. No struggle. Just genuine FUN time with people interested in meeting you? As you may have already guessed, this group is all about having a fun time, and while this group is not about board games, I've found that board games are the universal tool for FUN. As a result, this group will host a variety of FUN, SIMPLE, and JUDGEMENT FREE events throughout the DMV that will most likely include board games in some capacity to break the ice. SIMPLE GAMES. So if you love to laugh and are down to have fun with a bunch of ppl looking forward to meeting you, then welcome to your new MeetUp group! ",
         "name": "Fun Times in the DMV"
       },
@@ -340,7 +340,7 @@
         ],
         "id": 33,
         "url": "https://www.meetup.com/Gaithersburg-Board-Games-Meetup-Group/",
-        "locations": "Gaithersburg",
+        "cities": ["Gaithersburg"],
         "summary": "We are looking to make friends, have fun, and play board games! We have a wide selection and all our members are welcome to bring their own games. We are willing to teach and learn as needed and usually we have at least two and sometimes three games going at once. We also enjoy having themed game nights and even do occasional field trips to movies, game taverns, and more! ",
         "name": "Gaithersburg Board Games Meetup Group"
       },
@@ -391,7 +391,7 @@
         ],
         "id": 26,
         "url": "https://www.meetup.com/Game-Nights-at-Crossroads/",
-        "locations": "Manassas",
+        "cities": ["Manassas"],
         "summary": "Crossroads Tabletop Tavern is a home away from home for tabletop gamers of all kinds...and to the gamer in everyone!",
         "name": "Game Nights at Crossroads"
       },
@@ -399,7 +399,7 @@
         "events": [],
         "id": 24,
         "url": "https://www.meetup.com/gamers-of-the-abyss/",
-        "locations": "Greenbelt,Silver Spring",
+        "cities": ["Greenbelt","Silver Spring"],
         "summary": "Forget all the kiddie board games you used to play at grandma's house and join me in playing the games you Really want to play, like Return to Dark Tower, Tainted Grail (requires a continued group of players through chapters), Human Punishment, Let's Summon Demons, Obsidia, Zombicide, Steamwatchers, Apex, and plenty more!",
         "name": "Gamers of the Abyss"
       },
@@ -415,7 +415,7 @@
         ],
         "id": 20,
         "url": "https://www.meetup.com/games-comics-pair-odice-game-center/",
-        "locations": "Fairfax",
+        "cities": ["Fairfax"],
         "summary": "If you are into Games and Comics, then our game center can be your paradise! Your home away from home. Friendly people, free tables, and growing communities. This group is for all who want to know whats going on at the Game Center, find more chances to play and connect with the Fairfax gaming & comics communities. We love working with the community to put on even more events, so please come to us with your ideas for events.",
         "name": "Games & Comics Pair O'Dice Game Center"
       },
@@ -423,7 +423,7 @@
         "events": [],
         "id": 34,
         "url": "https://gcom.clubexpress.com/",
-        "locations": "Maryland",
+        "cities": ["Maryland"],
         "summary": "The Games Club of Maryland encourages game playing as a hobby. We play all sorts of games - European Strategy board games, card games, deck-builder games, RPG's, wargames. We play in person at local gaming groups across the Mid-Atlantic region and online, and we host or sponsor many gaming events each year. Our main goal is to have fun! We welcome all gamers from novice to experienced, and we have members of all ages and from various gaming and online backgrounds.",
         "name": "Games Club of Maryland"
       },
@@ -439,7 +439,7 @@
         ],
         "id": 8,
         "url": "https://www.meetup.com/hyattsville-gaming-conclave/",
-        "locations": "Hyattsville",
+        "cities": ["Hyattsville"],
         "summary": "This group is dedicated to organizing gaming sessions, running the gamut from Eurogames to Wargames, with party games not unwelcome. Eurogames \"are a broad class of tabletop games that generally have simple rules, short to medium playing times, high levels of player interaction, and attractive physical components. The games emphasise strategy, downplay luck and conflict, lean towards economic rather than military themes, and usually keep all the players in the game until it ends... T\" ",
         "name": "Hyattsville Gaming Conclave"
       },
@@ -447,7 +447,7 @@
         "events": [],
         "id": 39,
         "url": "https://groups.io/g/kgb",
-        "locations": "Alexandria",
+        "cities": ["Alexandria"],
         "summary": "Historical (war) boardgaming! If you like GMT, Columbia, Axis & Allies, SPI, AH, etc. games we meet 2-3x a month at the Kingstowne Center for Active Adults",
         "name": "Kingstowne Gaming Bridage"
       },
@@ -455,7 +455,7 @@
         "events": [],
         "id": 23,
         "url": "https://www.meetup.com/leagueofextraordinarygamers",
-        "locations": "Ashburn",
+        "cities": ["Ashburn"],
         "summary": "Meet fellow game players in Northern VA...and really from all around the MD/DC area!\n\nCome to a League Meetup to play old and new favorites. We'll teach you everything we know and feed you too :)\n\nWe like being social and we like everything from social games to euro games to strategy games",
         "name": "League of Extraordinary Gamers"
       },
@@ -499,7 +499,7 @@
         ],
         "id": 16,
         "url": "https://www.meetup.com/dcgamenight/",
-        "locations": "Brunswick,College Park,Gaithersburg,Rockville",
+        "cities": ["Brunswick","College Park","Gaithersburg","Rockville"],
         "summary": "Make new friends and enjoy a wide variety of games ranging from classic party games to social non-commercial games to strategy games to games our members have invented themselves. Come share laughter and fun as we build friendships and memories!",
         "name": "Maryland and DC Area Game Night"
       },
@@ -507,7 +507,7 @@
         "events": [],
         "id": 6,
         "url": "https://www.meetup.com/mega-meeple-group/",
-        "locations": "Alexandria",
+        "cities": ["Alexandria"],
         "summary": "This group is for experienced Euro style board gamers only. We play games like Terraforming Mars, Ark Nova, Obsession, Tapestry, Eclipse, Scythe, Forgotten Waters, Spirit Island with the average game around 2-4 hrs. This event is held at a members spacoise house in Alexandria and the address will be provided the day before the event. There is also a friendly dog in the house. Below are some important logistical details.Arrive on time! - we will typically wait about 15 minutes to begin playing. If you come much later than that games will be in progress and there is a high probability you won't be able to join a game.Ring the doorbell and if no one answers come in take off your shoes and make your way to the basement. You can also send a message on Meet up if you would prefer for someone to let you in. Light snacks and water will be available but feel free to bring something to share or drink. If you are new to a game that is being played please try and watch a how to play video ahead of time if you get a chance. Looking forward to meeting more gamers and playing more games. ",
         "name": "Meeple Board Game Group"
       },
@@ -515,7 +515,7 @@
         "events": [],
         "id": 38,
         "url": "http://novaboardgamegroup.com/2025-Winter-OpenGameSessions.pdf",
-        "locations": "Falls Church, Arlington",
+        "cities": ["Falls Church", "Arlington"],
         "summary": "Northern Virginia Board Game Group hosts public board game events in Arlington and Falls Church.",
         "name": "NOVA BoardGame Group"
       },
@@ -538,7 +538,7 @@
         ],
         "id": 2,
         "url": "https://www.meetup.com/nontraditional-board-games/",
-        "locations": "Silver Spring",
+        "cities": ["Silver Spring"],
         "summary": "We are all about board games here. NonTraditional Board Games (NTBoardGames for short) is a group for people to come together, play board games, have fun, and meet new friends.\n\nThere's nothing wrong with Monopoly or Scattergories, but this group is focused on games you might've not heard before. Some of the games you can expect to play are Lords of Xidit, Tortuga 1667, Eldritch Horror, and many more.\n\nLet's Play Some Games!",
         "name": "NonTraditional Board Games"
       },
@@ -554,7 +554,7 @@
         ],
         "id": 25,
         "url": "https://www.meetup.com/olney-board-games-meetup-group/",
-        "locations": "Olney",
+        "cities": ["Olney"],
         "summary": "The goal of this group is to bring people together through games. This is a social group to meet other adults who enjoy board games. Typical play is nontraditional board and card games. Join us to learn new games and share some of your favorites. We will provide some games but ask that you also bring games that you would like to teach and play. The Meetup will be at Brew Belly in Olney on Monday evenings. Food and drink are available for purchase and help support the kind folks at this restaurant who are willing to set aside tables for us to play.",
         "name": "Olney Board Games Meetup Group"
       },
@@ -562,7 +562,7 @@
         "events": [],
         "id": 37,
         "url": "https://www.meetup.com/potomac-tea-and-knife-society/",
-        "locations": "Washington, DC",
+        "cities": ["Washington, DC"],
         "summary": "The Potomac Tea and Knife Society is a local gaming group which focuses mostly on organizing Diplomacy games. Generally, we have Diplomacy games about once a month (though Diplomacy is definitely not the only game we play and enjoy during these get-togethers).\n\nWe are located all throughout Washington DC, Maryland, and Northern Virginia.\n\nAny and all interested players are welcome and invited! Whether you are an old hand looking to get into a game, or just interested in learning how to play, come to one of our gaming events.",
         "name": "Potomac Tea and Knife Society"
       },
@@ -578,7 +578,7 @@
         ],
         "id": 35,
         "url": "https://www.meetup.com/round-hill-gaming/",
-        "locations": "Purcellville",
+        "cities": ["Purcellville"],
         "summary": "Find people in and around western Loudoun County to play in person board games, table top role playing games, and other games. Join the Discord to be able to participate in choosing which games we play, and participate in more ad-hoc game sessions (sometimes people say \"hey I'm free tomorrow let's get together and game!",
         "name": "RTTG - Western Loudon Tabletop Games"
       },
@@ -601,7 +601,7 @@
         ],
         "id": 21,
         "url": "https://www.meetup.com/Reston-Gaming-Meetup-Group/",
-        "locations": "Ashburn,Reston",
+        "cities":["Ashburn","Reston"],
         "summary": "Greetings and Salutations to all of you game lovers out there! Our purpose is to get groups together frequently to play games of any kind. Board games, card games, video games, computer games, or whatever we decide. I would like to emphasize the playing of board or card games that incorporate a lot of social interaction, so we can all have a great time!",
         "name": "Reston Gaming Meetup Group"
       },
@@ -617,7 +617,7 @@
         ],
         "id": 4,
         "url": "https://www.meetup.com/rockville-gamers-we-have-cake/",
-        "locations": "Rockville",
+        "cities": ["Rockville"],
         "summary": "We're looking for some fun people to play games with! We welcome any local gamers of any age, in the Rockville, Silver Spring, Gaithersburg area.  We are primarily for playing in person, but we will adapt to online play as necessary.",
         "name": "Rockville Gamers - we have cake!"
       },
@@ -625,7 +625,7 @@
         "events": [],
         "id": 13,
         "url": "https://www.meetup.com/rockville-strategy-games/",
-        "locations": "Rockville",
+        "cities": ["Rockville"],
         "summary": "This group is looking to build a community of friends and players that favor strategy games. The games run the gamut of gamedom: RPGs, card games, miniature wargames, board games, and video games. Basically all game types, except for gambling :P. On one side, we play RPGs which use pen and paper and require careful study of the rules system to craft a worthy character. At the middle of the road, we play commonly known board games which can cater to a casual audience. And yet on the other side, we play fast arcade style video games where one can easily pick up the control scheme. Bonus points for those with a penchant for game development, as some of the games are created in house and there are plans for a kickstarter campaign.\n\nI have been running gaming groups of different types since high school, and I've built up a plethora of niche gaming options. However, folks are still welcome to bring their own games, be it a board game or a video game, to break up the regular routine. There are no charges for game materials or entrance fees. You just have to show up!",
         "name": "Rockville Strategy Games"
       },
@@ -648,7 +648,7 @@
         ],
         "id": 30,
         "url": "https://www.meetup.com/table-games-meetup/",
-        "locations": "Alexandria,Frederick",
+        "cities": ["Alexandria","Frederick"],
         "summary": "We are a fun group of people who enjoy meeting friends for some good food and boardgames of all types.",
         "name": "Table Games Meetup"
       },
@@ -656,7 +656,7 @@
         "events": [],
         "id": 11,
         "url": "https://www.meetup.com/dc-area-board-games/",
-        "locations": "Arlington,Falls Church",
+        "cities": ["Arlington","Falls Church"],
         "summary": "This club is about bringing small groups of people together and playing some funpetitive games. Your organizer will lead in the fun while you relax and enjoy getting to know some new and interesting people. If you're an open-minded, fun-loving adult who values quality friendships then this is the Meetup group for you!",
         "name": "The DC Area Board Game Club"
       },
@@ -664,8 +664,8 @@
         "events": [],
         "id": 15,
         "url": "https://www.meetup.com/boardgames-383/",
-        "locations": "Springfield",
-        "summary": "Come meet other nearby game players who also enjoy this hobby! \nEvents will be held in Fairfax County. Meeting locations include public libraries, homes, and friendly local game stores. Whether you prefer Catan, Risk, Ticket to Ride, Pandemic, or something else, join us for games and socializing.",
+        "cities": ["Springfield"],
+        "summary": "Come meet other nearby game players who also enjoy this hobby! \nEvents will be held in Fairfax County. Meeting cities include public libraries, homes, and friendly local game stores. Whether you prefer Catan, Risk, Ticket to Ride, Pandemic, or something else, join us for games and socializing.",
         "name": "The Fairfax Board Game Group"
       },
       {
@@ -687,7 +687,7 @@
         ],
         "id": 22,
         "url": "https://www.meetup.com/herndonboardgamegroup",
-        "locations": "Ashburn,Herndon",
+        "cities": ["Ashburn","Herndon"],
         "summary": "Heya Gamerinos!\n\nWe love boardgames of all types.  Not familiar with non-traditional board games? Check out the BoardGameGeek Wiki! https://boardgamegeek.com/wiki/page/Eurogame",
         "name": "The Herndon Boardgame Group"
       },
@@ -695,7 +695,7 @@
         "events": [],
         "id": 28,
         "url": "https://www.meetup.com/boardgamegroup/",
-        "locations": "Woodbridge",
+        "cities": ["Woodbridge"],
         "summary": "This group is for anyone interested in playing board games, party games, card games, classic games, Euro games, etc. We're a pretty laid back group so we may play a lot of Euro games at one event and lots of party games at another. It just depends on what people want to play at that event. Go with the flow. We also try to do events that either mix games with something else or just something else for fun. Singles or couples, all are welcome.",
         "name": "The Prince William Boardgames Meetup Group"
       },
@@ -703,7 +703,7 @@
         "events": [],
         "id": 17,
         "url": "https://www.meetup.com/northern-virginia-weeknight-euros-and-more/",
-        "locations": "Arlington",
+        "cities": ["Arlington"],
         "summary": "If you're a friendly person who enjoys medium and heavy weight European style strategy games, like Lisboa, Agricola, Terraforming Mars, Great Western Trail, and other games that get better with repeated plays, this may be the group for you. If you're someone who also enjoys thematic American style games like Eldritch Horror, Dune, and others? You should definitely join. And finally, if you're looking to try some war games, 18xx or even a legacy style game you've been dying to get to the table: welcome! Looking forward to meeting you! Over the next few months, we'll play games by modern masters Vital Lacerda, Uwe Rosenberg, Daniele Tascini, Alexander Pfister, as well as games by lesser known, but also great designers like Alexander Huemer. Plus, other fun stuff you want to play",
         "name": "Trains, Trade, Trouble: Eurogames and more"
       },
@@ -726,7 +726,7 @@
         ],
         "id": 36,
         "url": "https://lu.ma/ts.gamenights",
-        "locations": "Sheperdstown",
+        "cities": ["Sheperdstown"],
         "summary": "In-person gaming events in the WV-VA-MD tristate intersection. Since 2020",
         "name": "Tri-State Game Nights"
       },
@@ -734,7 +734,7 @@
         "events": [],
         "id": 12,
         "url": "https://www.meetup.com/wr-board-game-friends-dc/",
-        "locations": "DC",
+        "cities": ["DC"],
         "summary": "If you've ever wanted to join a game night without having to round up players or read the rules ahead of time, this group is for you!\n\nI’ll be hosting game nights and other activities in the D.C. area, and you’re welcome to RSVP and join in. You’ll get to hang out with me and some friends I've met through other board game groups, and we’re always excited to meet new people.\nSome game nights will be open to everyone, while others may have attendance limits depending on the game. My goal is to keep the calendar full so you can pick and choose the events that work best for you",
         "name": "WR Board Game Friends (NOMA, DC)"
       },
@@ -750,7 +750,7 @@
         ],
         "id": 32,
         "url": "https://www.meetup.com/woodbridge-tabletop-game-night/",
-        "locations": "Woodbridge",
+        "cities": ["Woodbridge"],
         "summary": "We are looking to make friends, have fun, and play board games! We have a wide selection and all our members are welcome to bring their own games. We are willing to teach and learn as needed and usually we have at least two and sometimes three games going at once. We also enjoy having themed game nights and even do occasional field trips to movies, game taverns, and more! ",
         "name": "Woodbridge Tabletop Game Night"
       }
