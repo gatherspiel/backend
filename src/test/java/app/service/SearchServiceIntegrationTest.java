@@ -2,12 +2,17 @@ package app.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import app.data.Group;
 import app.database.utils.DbUtils;
 import app.database.utils.TestConnectionProvider;
 import app.result.GroupSearchResult;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -128,6 +133,36 @@ public class SearchServiceIntegrationTest {
       () -> assertEquals(expectedEvents, searchResult.countEvents()),
       () -> assertEquals(expectedGroups, searchResult.countGroups())
     );
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+      {
+          "Arlington",
+          "Alexandria"
+      }
+  )
+  public void testDuplicateAndNull_LocationResultsAreNotShown(String city) throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, city);
+    GroupSearchResult searchResult = searchService.getGroups(
+        params,
+        testConnectionProvider
+    );
+
+    Map<Integer, Group> groupData = searchResult.getGroupData();
+
+    for(Integer groupId: groupData.keySet()) {
+      Group group = groupData.get(groupId);
+      Set<String> cities = new HashSet<String>();
+      for(String groupCity: group.getCities()){
+        if(groupCity != null) {
+          cities.add(groupCity);
+        }
+      }
+      assertEquals(group.getCities().length,cities.size());
+
+    }
   }
 
   @Test

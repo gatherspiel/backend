@@ -96,10 +96,23 @@ public class Group {
   }
 
   public void addCity(String city) {
+
+    if(city == null){
+      return;
+    }
+
     if (cities == null) {
       cities = new String[] { city };
       return;
     }
+
+    //TODO: Consider using set to improve efficiency.
+    for(String existing: cities){
+      if(existing.equals(city)){
+        return;
+      }
+    }
+
     String[] updated = new String[cities.length + 1];
     System.arraycopy(cities, 0, updated, 0, cities.length);
     updated[cities.length] = city;
