@@ -3,10 +3,10 @@ package app.data;
 public class Group {
   public Event[] events;
   public int id;
-  public String link;
-  public String locations;
+  public String url;
+  public String[] cities;
   public String summary;
-  public String title;
+  public String name;
 
   public Group() {}
 
@@ -18,28 +18,32 @@ public class Group {
     this.id = id;
   }
 
-  public String getLink() {
-    return link;
+  public String getUrl() {
+    return url;
   }
 
-  public void setLocations(String locations) {
-    this.locations = locations;
+  public void setUrl(String url) {
+    this.url = url;
   }
 
-  public String getLocations() {
-    return locations;
+  public void setCities(String[] cities) {
+    this.cities = cities;
+  }
+
+  public String[] getCities() {
+    return cities;
   }
 
   public void setSummary(String summary) {
     this.summary = summary;
   }
 
-  public String getTitle() {
-    return title;
+  public String getName() {
+    return name;
   }
 
-  public void setTitle(String title) {
-    this.title = title;
+  public void setName(String name) {
+    this.name = name;
   }
 
   public void setEvents(Event[] events) {
@@ -48,5 +52,57 @@ public class Group {
 
   public Event[] getEvents() {
     return events;
+  }
+
+  public String toString() {
+    return (
+      "Events:" +
+      events +
+      "\n" +
+      "id:" +
+      id +
+      "\n" +
+      "url:" +
+      url +
+      "\n" +
+      "cities:" +
+      cities +
+      "\n" +
+      "summary:" +
+      summary +
+      "\n" +
+      "name:" +
+      name +
+      "\n"
+    );
+  }
+
+  public int countEvents() {
+    if (events == null) {
+      return 0;
+    }
+    return events.length;
+  }
+
+  public void addEvent(Event event) {
+    if (events == null) {
+      events = new Event[] { event };
+      return;
+    }
+    Event[] updated = new Event[events.length + 1];
+    System.arraycopy(events, 0, updated, 0, events.length);
+    updated[events.length] = event;
+    events = updated;
+  }
+
+  public void addCity(String city) {
+    if (cities == null) {
+      cities = new String[] { city };
+      return;
+    }
+    String[] updated = new String[cities.length + 1];
+    System.arraycopy(cities, 0, updated, 0, cities.length);
+    updated[cities.length] = city;
+    cities = updated;
   }
 }
