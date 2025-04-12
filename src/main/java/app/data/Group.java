@@ -83,9 +83,10 @@ public class Group {
     }
     return events.length;
   }
+
   public void addEvent(Event event) {
-    if(events == null) {
-      events = new Event[]{event};
+    if (events == null) {
+      events = new Event[] { event };
       return;
     }
     Event[] updated = new Event[events.length + 1];
@@ -94,15 +95,14 @@ public class Group {
     events = updated;
   }
 
-  public void addCity(String city){
-    if(cities == null){
-      cities = new String[]{city};
+  public void addCity(String city) {
+    if (cities == null) {
+      cities = new String[] { city };
       return;
     }
-    String[] updated = new String[cities.length+1];
+    String[] updated = new String[cities.length + 1];
     System.arraycopy(cities, 0, updated, 0, cities.length);
     updated[cities.length] = city;
     cities = updated;
-
   }
 }

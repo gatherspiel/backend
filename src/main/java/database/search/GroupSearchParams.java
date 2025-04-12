@@ -107,7 +107,6 @@ public class GroupSearchParams {
   public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
     LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
 
-    System.out.println(ctx.queryString());
     String day = ctx.queryParam(GroupSearchParams.DAY_OF_WEEK);
     if(day != null && !day.isEmpty()){
       paramMap.put(GroupSearchParams.DAY_OF_WEEK, day);

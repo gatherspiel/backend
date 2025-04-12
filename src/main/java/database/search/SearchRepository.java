@@ -35,22 +35,26 @@ public class SearchRepository {
       String state = rs.getString("state");
       String zipCode = rs.getString("zip_code");
 
-      if(eventId != 0) {
+      if (eventId != 0) {
         String address =
-            streetAddress + ", " + city + ", " + state + " " + zipCode;
+          streetAddress + ", " + city + ", " + state + " " + zipCode;
 
-        if(streetAddress == null || city == null || state == null || zipCode == null) {
+        if (
+          streetAddress == null ||
+          city == null ||
+          state == null ||
+          zipCode == null
+        ) {
           address = "";
         }
         searchResult.addEvent(
-            groupId,
-            eventId,
-            eventName,
-            description,
-            dayOfWeek,
-            address,
-            city
-
+          groupId,
+          eventId,
+          eventName,
+          description,
+          dayOfWeek,
+          address,
+          city
         );
       }
     }
