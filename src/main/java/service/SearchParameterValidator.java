@@ -10,14 +10,11 @@ public class SearchParameterValidator {
   }
 
   public static void validateDay(String day) throws SearchParameterException {
-
-    System.out.println(day);
-    for(DayOfWeek validDay: DayOfWeek.values()){
-       if(day.toLowerCase().equals(validDay.name().toLowerCase())){
-         return;
-       }
+    for (DayOfWeek validDay : DayOfWeek.values()) {
+      if (day.toLowerCase().equals(validDay.name().toLowerCase())) {
+        return;
+      }
     }
     throw new SearchParameterException("Invalid day");
   }
 }
-

@@ -1,6 +1,9 @@
 package database;
 
 import app.data.Group;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +12,7 @@ import java.util.Set;
 
 public class GroupsRepository {
 
+  private static Logger logger = LogUtils.getLogger();
   public void insertGroups(Group[] groups, Connection conn) throws Exception {
     LocationsRepository locationsRepository = new LocationsRepository();
     Set<String> urlsInDb = getGroupsInDatabase(groups, conn);
@@ -43,7 +47,7 @@ public class GroupsRepository {
             groupLocationInsert.executeUpdate();
           }
         } else {
-          System.out.println("Error inserting groups");
+          logger.error("Error inserting groups");
           throw new Exception();
         }
       }

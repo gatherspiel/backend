@@ -2,9 +2,8 @@ package app.result;
 
 import app.data.Event;
 import app.data.Group;
-import java.util.HashMap;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashMap;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -19,9 +18,14 @@ public class GroupSearchResult {
     logger = LogUtils.getLogger();
   }
 
-  public void addGroup(Integer id, String name, String url, String summary, String groupCity) {
+  public void addGroup(
+    Integer id,
+    String name,
+    String url,
+    String summary,
+    String groupCity
+  ) {
     if (!groupData.containsKey(id)) {
-
       Group group = new Group();
       group.setId(id);
       group.setName(name);
@@ -60,19 +64,19 @@ public class GroupSearchResult {
     group.addEvent(event);
   }
 
-  public int countGroups(){
+  public int countGroups() {
     return groupData.size();
   }
 
   public int countEvents() {
     int events = 0;
-    for(Group group: groupData.values()){
-      events+=group.countEvents();
+    for (Group group : groupData.values()) {
+      events += group.countEvents();
     }
     return events;
   }
 
-  public HashMap<Integer, Group> getGroupData(){
+  public HashMap<Integer, Group> getGroupData() {
     return groupData;
   }
 }

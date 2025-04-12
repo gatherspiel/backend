@@ -26,11 +26,10 @@ public class DbUtils {
       }
       String query = stringBuilder.toString();
 
-      System.out.println("Query:" + query);
       stat.execute(query);
-      System.out.println("Created tables");
+      System.out.println("Created tables for integration ftests");
     } catch (Exception e) {
-      System.out.println("Error creating tables:" + e.getMessage());
+      System.out.println("Error creating tables for integration tests:" + e.getMessage());
       throw e;
     }
   }

@@ -4,15 +4,13 @@ import app.data.InputRequest;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
-import service.AuthService;
-import service.BulkUpdateService;
-import service.SearchService;
-import service.TestService;
-
-import java.util.LinkedHashMap;
+import org.apache.logging.log4j.Logger;
+import service.*;
+import utils.LogUtils;
 
 public class Main {
 
+  public static Logger logger = LogUtils.getLogger();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -40,24 +38,30 @@ public class Main {
     );
 
     app.get(
-        "/searchEvents",
-        ctx -> {
+      "/searchEvents",
+      ctx -> {
 
-
-          //TODO: Add logic and read query parameters
-
+        try {
           var connectionProvider = new ConnectionProvider();
-          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(ctx);
+          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+            ctx
+          );
           var searchService = new SearchService();
 
-          var groupSearchResult = searchService.getGroups(searchParams, connectionProvider);
+          var groupSearchResult = searchService.getGroups(
+            searchParams,
+            connectionProvider
+          );
 
           ctx.json(groupSearchResult);
           ctx.status(200);
 
-          System.out.println("Finished");
-
+          logger.info("Finished search");
+        } catch (Exception e) {
+          ctx.result("Invalid search parameter");
+          ctx.status(400);
         }
+      }
     );
 
     app.post(

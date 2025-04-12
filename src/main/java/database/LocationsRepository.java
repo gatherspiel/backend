@@ -3,10 +3,19 @@ package database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+import org.apache.logging.log4j.Logger;
+import service.SearchParameterException;
 import service.SearchParameterValidator;
+import utils.LogUtils;
 
 public class LocationsRepository {
 
+  Logger logger;
+
+  public LocationsRepository(){
+    logger = LogUtils.getLogger();
+  }
   /*
     Retrieves a location id for the city. The city will be saved in the database if it is not already there.
      */
@@ -27,14 +36,14 @@ public class LocationsRepository {
     if (insertRs.next()) {
       return insertRs.getInt(1);
     }
-    System.out.println("Insert did not succeed");
+    logger.error("Insert did not succeed");
     throw new Exception();
   }
 
   public int insertLocation(String address, Connection conn) throws Exception {
     if (!SearchParameterValidator.isValidAddress(address)) {
-      System.out.println("Invalid address:" + address);
-      throw new Exception();
+      logger.error("Invalid address:" + address);
+      throw new SearchParameterException("Invalid address");
     }
 
     String[] data = address.split(",");
@@ -44,9 +53,6 @@ public class LocationsRepository {
     String state = data[2].trim().split(" ")[0];
     String zipCode = data[2].trim().split(" ")[1];
 
-    if (state == null || state.length() == 0) {
-      System.out.println("Inserting:" + address);
-    }
 
     int locationId = getLocation(streetAddress, city, state, zipCode, conn);
     if (locationId == -1) {
@@ -61,7 +67,7 @@ public class LocationsRepository {
       if (rs.next()) {
         return rs.getInt(1);
       }
-      System.out.println("Insert did not succeed");
+      logger.error("Insert did not succeed");
       throw new Exception();
     }
     return locationId;
