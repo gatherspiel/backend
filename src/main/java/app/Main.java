@@ -1,13 +1,16 @@
 package app;
 
 import app.data.InputRequest;
+import database.search.GroupSearchParams;
+import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
-import service.AuthService;
-import service.BulkUpdateService;
-import service.TestService;
+import org.apache.logging.log4j.Logger;
+import service.*;
+import utils.LogUtils;
 
 public class Main {
 
+  public static Logger logger = LogUtils.getLogger();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -34,6 +37,33 @@ public class Main {
       }
     );
 
+    app.get(
+      "/searchEvents",
+      ctx -> {
+
+        try {
+          var connectionProvider = new ConnectionProvider();
+          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+            ctx
+          );
+          var searchService = new SearchService();
+
+          var groupSearchResult = searchService.getGroups(
+            searchParams,
+            connectionProvider
+          );
+
+          ctx.json(groupSearchResult);
+          ctx.status(200);
+
+          logger.info("Finished search");
+        } catch (Exception e) {
+          ctx.result("Invalid search parameter");
+          ctx.status(400);
+        }
+      }
+    );
+
     app.post(
       "/admin/saveData",
       ctx -> {
@@ -43,8 +73,9 @@ public class Main {
         authService.validate(data);
         ctx.result("Test");
 
+        var connectionProvider = new ConnectionProvider();
         var bulkUpdateService = new BulkUpdateService();
-        bulkUpdateService.bulkUpdate(data.getData());
+        bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
     );
   }
