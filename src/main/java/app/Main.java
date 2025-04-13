@@ -4,6 +4,7 @@ import app.data.InputRequest;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import utils.LogUtils;
@@ -41,6 +42,7 @@ public class Main {
       "/searchEvents",
       ctx -> {
 
+        long start = System.currentTimeMillis();
         try {
           var connectionProvider = new ConnectionProvider();
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
@@ -53,10 +55,14 @@ public class Main {
             connectionProvider
           );
 
+          long end = System.currentTimeMillis();
+
+          logger.info("Search time:"+((end-start)/100));
           ctx.json(groupSearchResult);
           ctx.status(200);
 
           logger.info("Finished search");
+
         } catch (Exception e) {
           ctx.result("Invalid search parameter");
           ctx.status(400);
