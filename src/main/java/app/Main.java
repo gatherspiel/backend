@@ -41,6 +41,7 @@ public class Main {
       "/searchEvents",
       ctx -> {
 
+        long start = System.currentTimeMillis();
         try {
           var connectionProvider = new ConnectionProvider();
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
@@ -53,10 +54,14 @@ public class Main {
             connectionProvider
           );
 
+          long end = System.currentTimeMillis();
+
+          logger.info("Search time:"+((end-start)/100));
           ctx.json(groupSearchResult);
           ctx.status(200);
 
           logger.info("Finished search");
+
         } catch (Exception e) {
           ctx.result("Invalid search parameter");
           ctx.status(400);
