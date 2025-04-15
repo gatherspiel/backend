@@ -5,6 +5,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -15,6 +19,49 @@ public class ConventionsRepository {
     logger = LogUtils.getLogger();
   }
 
+  public HashMap<Integer, Convention> getConventions(Connection conn) throws Exception{
+    String query = "SELECT * from conventions";
+    PreparedStatement select = conn.prepareStatement(query);
+
+    ResultSet rs = select.executeQuery();
+
+    HashMap<Integer, Convention> conventions = new HashMap<Integer, Convention>();
+
+    HashMap<Integer, Integer> conventionDays = new HashMap<Integer, Integer>();
+    while(rs.next()){
+
+      int conventionId = rs.getInt("event_id");
+      if(!conventions.containsKey(conventionId)){
+        Convention convention = new Convention();
+        convention.setId(conventionId);
+        convention.setUrl(rs.getString("url"));
+        convention.setName(rs.getString("name"));
+
+        String date = rs.getTimestamp("start_time")
+            .toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .toString();
+        convention.setDays(new String[]{date});
+        conventionDays.put(
+            conventionId,
+            1
+        );
+        conventions.put(conventionId, convention);
+      }
+      else {
+        conventionDays.put(conventionId, conventionDays.get(conventionId) + 1);
+      }
+    }
+
+    for(Integer conventionId: conventionDays.keySet()){
+      int days = conventionDays.get(conventionDays);
+      if(days > 1){
+        conventions.get(conventionId).addDays(days - 1);
+      }
+    }
+    return conventions;
+  }
   public void insertConventions(Convention[] conventions, Connection conn)
     throws Exception {
     EventRepository eventRepository = new EventRepository();

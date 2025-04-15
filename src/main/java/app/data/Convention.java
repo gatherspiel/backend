@@ -1,5 +1,10 @@
 package app.data;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+
 public class Convention {
   String[] days;
   Integer id;
@@ -39,4 +44,25 @@ public class Convention {
   public void setName(String name) {
     this.name = name;
   }
+
+  public void addDays(int days){
+    String oldLastDay = this.days[this.days.length - 1];
+
+    LocalDate date = LocalDate.parse(oldLastDay);
+    String[] updates = new String[days];
+    for(int i = 0; i<days; i++){
+      updates[i] = date.plusDays(i+1).toString();
+    }
+
+    String[] updated = new String[this.days.length+days];
+    int i = 0;
+    while(i<this.days.length){
+      updated[i] = this.days[i];
+    }
+    for(int j=0;j<updates.length; j++){
+      updated[i+j] = updates[j];
+    }
+    this.days = updated;
+  }
+
 }
