@@ -4,11 +4,13 @@ import app.data.Convention;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.bytebuddy.asm.Advice;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -19,10 +21,14 @@ public class ConventionsRepository {
     logger = LogUtils.getLogger();
   }
 
-  public HashMap<Integer, Convention> getConventions(Connection conn) throws Exception{
-    String query = "SELECT * from conventions";
-    PreparedStatement select = conn.prepareStatement(query);
+  public HashMap<Integer, Convention> getConventions(Connection conn, LocalDate searchStartDate) throws Exception{
+    String query = "SELECT * from events\n" +
+        "JOIN event_time on event_time.event_id = events.id\n" +
+        "WHERE is_convention is TRUE\n" +
+        "AND start_time >= ?";
 
+    PreparedStatement select = conn.prepareStatement(query);
+    select.setTimestamp(1, Timestamp.valueOf(searchStartDate.atStartOfDay()));
     ResultSet rs = select.executeQuery();
 
     HashMap<Integer, Convention> conventions = new HashMap<Integer, Convention>();
@@ -54,8 +60,10 @@ public class ConventionsRepository {
       }
     }
 
+    logger.info("Found conventions");
+
     for(Integer conventionId: conventionDays.keySet()){
-      int days = conventionDays.get(conventionDays);
+      int days = conventionDays.get(conventionId);
       if(days > 1){
         conventions.get(conventionId).addDays(days - 1);
       }

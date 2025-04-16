@@ -58,6 +58,7 @@ public class Convention {
     int i = 0;
     while(i<this.days.length){
       updated[i] = this.days[i];
+      i++;
     }
     for(int j=0;j<updates.length; j++){
       updated[i+j] = updates[j];
