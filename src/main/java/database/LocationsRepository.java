@@ -3,6 +3,7 @@ package database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 import org.apache.logging.log4j.Logger;
 import service.SearchParameterException;
@@ -94,5 +95,18 @@ public class LocationsRepository {
       return rs.getInt(1);
     }
     return -1;
+  }
+
+  public ArrayList<String> listALlLocationCities(Connection conn) throws Exception {
+    String query = "SELECT DISTINCT city from locations";
+
+    PreparedStatement select = conn.prepareStatement(query);
+    ResultSet rs = select.executeQuery();
+
+    ArrayList<String> data = new ArrayList<>();
+    while(rs.next()){
+      data.add(rs.getString(1));
+    }
+    return data;
   }
 }
