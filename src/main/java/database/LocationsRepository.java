@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
 import service.SearchParameterException;
 import service.SearchParameterValidator;
@@ -17,11 +18,15 @@ public class LocationsRepository {
   public LocationsRepository(){
     logger = LogUtils.getLogger();
   }
+
   /*
     Retrieves a location id for the city. The city will be saved in the database if it is not already there.
      */
   public int getLocationIdForCity(String city, Connection conn)
     throws Exception {
+
+    city = SameLocationData.getDatabaseCityName(city);
+
     String query = "SELECT * from locations where city = ? ";
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, city);
@@ -81,7 +86,10 @@ public class LocationsRepository {
     String zipCode,
     Connection conn
   )
-    throws Exception {
+    throws Exception
+  {
+
+    city = SameLocationData.getDatabaseCityName(city);
     String query =
       "SELECT * from locations where city = ? and state = ? and street_address=? and zip_code=?";
     PreparedStatement select = conn.prepareStatement(query);
