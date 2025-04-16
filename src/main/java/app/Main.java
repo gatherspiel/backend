@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import service.*;
 import utils.LogUtils;
 
+import java.time.LocalDate;
+
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
@@ -70,12 +72,18 @@ public class Main {
     );
 
     app.get(
-        "searchLocations",
+        "/searchLocations",
         ctx->{
-          /*
-          TODO: Add logic
-          Create API test and make sure no conventions after current day are returned.
-           */
+
+          var connectionProvider = new ConnectionProvider();
+          GameLocationsService gameLocationsService = new GameLocationsService();
+
+          var gameLocationData = gameLocationsService.getGameLocations(connectionProvider, LocalDate.now());
+          logger.info("Retrieved game location data");
+
+          ctx.json(gameLocationData);
+          ctx.status(200);
+
         });
 
     app.post(
