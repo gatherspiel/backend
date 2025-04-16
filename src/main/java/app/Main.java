@@ -69,6 +69,15 @@ public class Main {
       }
     );
 
+    app.get(
+        "searchLocations",
+        ctx->{
+          /*
+          TODO: Add logic
+          Create API test and make sure no conventions after current day are returned.
+           */
+        });
+
     app.post(
       "/admin/saveData",
       ctx -> {
