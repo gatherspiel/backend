@@ -80,7 +80,6 @@ public class LocationServiceIntegrationTest {
   @Test
   public void testListAllEventCities() throws Exception{
     ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider);
-
     assertEquals(32, eventCities.size());
   }
 }
