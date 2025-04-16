@@ -11,7 +11,7 @@ import service.GameLocationsService;
 
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,6 +77,10 @@ public class LocationServiceIntegrationTest {
     );
   }
 
+  @Test
+  public void testListAllEventCities() throws Exception{
+    ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider);
 
-  //Test search date change
+    assertEquals(34, eventCities.size());
+  }
 }

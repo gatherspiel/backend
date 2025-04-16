@@ -7,12 +7,14 @@ import app.result.GameLocationData;
 import database.ConventionsRepository;
 import database.GameRestaurantRepository;
 import database.GameStoreRepository;
+import database.LocationsRepository;
 import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameLocationsService {
@@ -48,5 +50,12 @@ public class GameLocationsService {
     locationData.setGameStores(gameStores);
 
     return locationData;
+  }
+
+  public ArrayList<String> getAllEventLocations(ConnectionProvider connectionProvider) throws Exception{
+    LocationsRepository locationsRepository = new LocationsRepository();
+    Connection connection = connectionProvider.getDatabaseConnection();
+
+    return locationsRepository.listALlLocationCities(connection);
   }
 }

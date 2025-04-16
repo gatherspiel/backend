@@ -86,6 +86,18 @@ public class Main {
 
         });
 
+    app.get(
+        "/listCities",
+        ctx->{
+          var connectionProvider = new ConnectionProvider();
+          GameLocationsService gameLocationsService = new GameLocationsService();
+
+          var cities = gameLocationsService.getAllEventLocations(connectionProvider);
+          logger.info("Retrieved event cities");
+          ctx.json(cities);
+          ctx.status(200);
+        });
+
     app.post(
       "/admin/saveData",
       ctx -> {
