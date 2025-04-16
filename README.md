@@ -20,7 +20,7 @@ To compile without running unit tests, run `mvn clean package -DskipTests`
 
 - Download and run a Postgres Docker container with `./startTestDatabase.sh`
 - Run tests in the app.database folder.
-- 
+  
 ### Code formatter
 
 - Run `mvn prettier:write`.
