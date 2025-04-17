@@ -28,6 +28,8 @@ public class AuthService {
     final HttpClient httpClient = HttpClients.createDefault();
 
     AuthRequest authRequest = new AuthRequest();
+
+    System.out.println(request.getPassword());
     authRequest.setPassword(request.getPassword());
     authRequest.setEmail(request.getEmail());
 

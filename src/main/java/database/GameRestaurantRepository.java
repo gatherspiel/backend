@@ -5,6 +5,8 @@ import app.data.GameStore;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -15,6 +17,31 @@ public class GameRestaurantRepository {
     logger = LogUtils.getLogger();
   }
 
+  public HashMap<Integer, GameRestaurant> getGameRestauarants(Connection conn) throws Exception{
+    String query =
+        "SELECT * from game_restaurants JOIN locations on game_restaurants.location_id = locations.id";
+    PreparedStatement select = conn.prepareStatement(query);
+
+    ResultSet rs = select.executeQuery();
+    HashMap<Integer, GameRestaurant> restaurants = new HashMap<Integer,GameRestaurant>();
+    while(rs.next()){
+      GameRestaurant gameRestaurant = new GameRestaurant();
+      gameRestaurant.setName(rs.getString("name"));
+      gameRestaurant.setId(rs.getInt("id"));
+      gameRestaurant.setUrl(rs.getString("url"));
+
+      String city = rs.getString("city");
+      String state = rs.getString("state");
+      String streetAddress = rs.getString("street_address");
+      String zipCode = rs.getString("zip_code");
+      String addressStr = streetAddress +", "+ city + ", "+state+" "+zipCode;
+      gameRestaurant.setLocation(addressStr);
+
+      restaurants.put(gameRestaurant.getId(), gameRestaurant);
+    }
+    return restaurants;
+
+  }
   public void insertGameRestaurants(
     GameRestaurant[] gameRestaurants,
     Connection conn
