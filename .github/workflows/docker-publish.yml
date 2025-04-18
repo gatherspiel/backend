@@ -43,8 +43,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+     
 
       - name: Download DB image
         run: sudo docker pull postgres
@@ -52,7 +51,9 @@ jobs:
       - name: Run test database
         run: sudo docker run --name test-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
 
-      
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+        
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
