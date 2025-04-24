@@ -1,11 +1,13 @@
-This repo contains backend services for dmvboardgames.com.
+This repo contains backend services for dmvboardgames.com. Data is stored in PostgreSQL using Supabase.
 
+## Contribution guidelines
 
-The API can be accessed at https://api.dmvboardgames.com/
+Go to the following page to view general development guidelines for the project: https://github.com/Create-Third-Places
 
-
-Data will be stored in PostgreSQL using Supabase.
-
+Also, follow the guidelines below:
+- If you are updating the structure of an existing endpoint, or adding a new endpoint, make sure it is covered by a API test. The API tests are for verifying that the API is returning responses with the correct structure and response code. API tests should be added to the [api-testing repo](https://github.com/Create-Third-Places/api-testing)
+- Logic should be covered by unit or integration tests. 
+  
 ### Running locally in Linux
 
 - Compile the API using `mvn clean package`. 
@@ -16,7 +18,7 @@ The API will be available at http://localhost:7070/
 
 To compile without running unit tests, run `mvn clean package -DskipTests`
 
-### Running database integration tests
+### Running integration tests
 
 - Download and run a Postgres Docker container with `./startTestDatabase.sh`
 - Run tests in the app.database folder.
