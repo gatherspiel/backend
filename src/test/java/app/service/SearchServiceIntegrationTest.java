@@ -222,12 +222,24 @@ public class SearchServiceIntegrationTest {
         String currName = current.getName();
         if (prevName != null && currName != null) {
           assertTrue(
-            prevName.compareTo(currName) <= 0,
-            "Groups out of order: " + prevName + " after " + currName
+              prevName.compareTo(currName) <= 0,
+              "Groups out of order: " + prevName + " after " + currName
           );
         }
       }
       previous[0] = current;
+
     });
+  }
+  //TODO: Add logic
+  @Test
+  public void testSearchResultResponse_DMV_location_parameter(){
+
+  }
+
+  //TODO: Add logic
+  @Test
+  public void testSearchResultResponse_unknownLocation_noResults(){
+
   }
 }

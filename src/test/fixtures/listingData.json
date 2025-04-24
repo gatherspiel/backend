@@ -754,5 +754,25 @@
         "summary": "We are looking to make friends, have fun, and play board games! We have a wide selection and all our members are welcome to bring their own games. We are willing to teach and learn as needed and usually we have at least two and sometimes three games going at once. We also enjoy having themed game nights and even do occasional field trips to movies, game taverns, and more! ",
         "name": "Woodbridge Tabletop Game Night"
       }
+    ],
+    "locationTags": [
+      {
+        "name": "DMV",
+        "locations": [
+          "Dulles",
+          "Silver Spring",
+          "Leesburg",
+          "Olney",
+          "Gaithersburg",
+          "Springfield",
+          "Chantilly",
+          "Lake Ridge",
+          "Jefferson County",
+          "Rockville",
+          "Germantown",
+          "Greenbelt",
+          "Fairfax","Sheperdstown","Charles Town","Washington","Falls Church","Alexandria","Brunswick","Manassas","Reston","Maryland","College Park","Herndon","Hyattsville","Brentwood","Woodbridge","Purcellville","Frederick","Ashburn","Annapolis","Arlington"]
+
+      }
     ]
  }

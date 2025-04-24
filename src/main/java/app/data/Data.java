@@ -6,6 +6,7 @@ public class Data {
   private GameStore[] gameStores;
   private GameRestaurant[] gameRestaurants;
 
+  //TODO: Add data for location map
   public Data() {}
 
   public Group[] getGroups() {

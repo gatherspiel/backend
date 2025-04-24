@@ -75,6 +75,7 @@ public class Main {
         "/searchLocations",
         ctx->{
 
+          //TODO: Add optional location tag parameter.
           var connectionProvider = new ConnectionProvider();
           GameLocationsService gameLocationsService = new GameLocationsService();
 
