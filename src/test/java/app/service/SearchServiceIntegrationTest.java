@@ -210,24 +210,20 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
-  public void testGroupsAreOrderedAlphabetically() {
+  public void testGroupsAreOrderedAlphabetically() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
-    
-    List<String> groupNames = result.getGroupData().values().stream()
-        .map(Group::getName)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    
-    if (groupNames.size() < 2) {
-        return; // Not enough groups to check order
+
+    Group[] groups = result.getGroupData().values().toArray(new Group[0]);
+    for (int i = 1; i < groups.length; i++) {
+        String prevName = groups[i - 1].getName();
+        String currName = groups[i].getName();
+        if (prevName != null && currName != null) {
+            assertTrue(
+                prevName.compareToIgnoreCase(currName) <= 0,
+                "Groups out of order: " + prevName + " after " + currName
+            );
+        }
     }
-    
-    for (int i = 1; i < groupNames.size(); i++) {
-        assertTrue(
-            groupNames.get(i - 1).compareToIgnoreCase(groupNames.get(i)) <= 0,
-            "Groups out of order: " + groupNames.get(i - 1) + " after " + groupNames.get(i)
-        );
-    }
-  }
+}
 }
