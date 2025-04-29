@@ -214,16 +214,19 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
 
-    Group[] groups = result.getGroupData().values().toArray(new Group[0]);
-    for (int i = 1; i < groups.length; i++) {
-        String prevName = groups[i - 1].getName();
-        String currName = groups[i].getName();
+    Iterator<Group> iterator = result.getGroupData().values().iterator();
+    Group prev = iterator.hasNext() ? iterator.next() : null;
+    while (iterator.hasNext()) {
+        Group curr = iterator.next();
+        String prevName = prev.getName();
+        String currName = curr.getName();
         if (prevName != null && currName != null) {
             assertTrue(
                 prevName.compareToIgnoreCase(currName) <= 0,
                 "Groups out of order: " + prevName + " after " + currName
             );
         }
+        prev = curr;
     }
 }
 }
