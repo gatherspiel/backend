@@ -20,9 +20,10 @@ public class BulkUpdateService {
     conn.setAutoCommit(false);
 
     try {
-      logger.info("Number of groups to insert:" + data.getGroups().length);
       GroupsRepository groupsRepository = new GroupsRepository();
       groupsRepository.insertGroups(data.getGroups(), conn);
+      logger.info("Number of groups to insert:" + data.getGroups().length);
+
     } catch (Exception e) {
       logger.error("Error inserting groups");
       throw e;
