@@ -19,6 +19,7 @@ public class GroupSearchParams {
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
 
+  private static final String SORT_ORDER = " ORDER BY groups.name ASC ";
   private Logger logger;
 
   static {
@@ -61,7 +62,7 @@ public class GroupSearchParams {
     if (!whereClauses.isEmpty()) {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
-
+      query = query + SORT_ORDER;
       PreparedStatement select = conn.prepareStatement(query);
       int i = 1;
       for(String param: params.keySet()){
@@ -71,6 +72,7 @@ public class GroupSearchParams {
       return select;
 
     } else {
+      query = query + SORT_ORDER;
       return conn.prepareStatement(query);
     }
   }
@@ -99,7 +101,6 @@ public class GroupSearchParams {
                   LEFT JOIN  locations on events.location_id = locations.id
                   LEFT JOIN location_group_map on groups.id = location_group_map.group_id
                   LEFT JOIN locations as locs on location_group_map.location_id = locs.id
-                  ORDER BY groups.name ASC
           
         """;
     return query;
