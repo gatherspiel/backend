@@ -9,6 +9,9 @@ public class Data {
   public Data() {}
 
   public Group[] getGroups() {
+    if(groups == null){
+      return new Group[0];
+    }
     return groups;
   }
 
@@ -17,6 +20,9 @@ public class Data {
   }
 
   public Convention[] getConventions() {
+    if(conventions == null){
+      return new Convention[0];
+    }
     return conventions;
   }
 
@@ -25,6 +31,9 @@ public class Data {
   }
 
   public GameStore[] getGameStores() {
+    if(gameStores == null){
+      return new GameStore[0];
+    }
     return gameStores;
   }
 
@@ -33,6 +42,9 @@ public class Data {
   }
 
   public GameRestaurant[] getGameRestaurants() {
+    if(gameRestaurants == null){
+      return new GameRestaurant[0];
+    }
     return gameRestaurants;
   }
 
