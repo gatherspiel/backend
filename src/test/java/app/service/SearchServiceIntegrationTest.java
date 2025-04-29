@@ -222,7 +222,7 @@ public class SearchServiceIntegrationTest {
         String currName = current.getName();
         if (prevName != null && currName != null) {
           assertTrue(
-            prevName.compareToIgnoreCase(currName) <= 0,
+            prevName.compareTo(currName) <= 0,
             "Groups out of order: " + prevName + " after " + currName
           );
         }
