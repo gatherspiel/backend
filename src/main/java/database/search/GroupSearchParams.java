@@ -19,7 +19,7 @@ public class GroupSearchParams {
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
 
-  private static final String SORT_ORDER = " ORDER BY groups.name ASC ";
+  private static final String SORT_ORDER = " ORDER BY groups.name, groups.id, events.id ASC ";
   private Logger logger;
 
   static {
@@ -80,7 +80,7 @@ public class GroupSearchParams {
   private static String getQueryForAllResults() {
       String query = """
            SELECT
-                   DISTINCT ON (events.id, groups.id)
+                   DISTINCT ON (events.id, groups.id, groups.name)
                     events.id as eventId,
                     groups.id as groupId,
                     groups.name,
