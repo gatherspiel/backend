@@ -93,7 +93,9 @@ public class Main {
           var connectionProvider = new ConnectionProvider();
           GameLocationsService gameLocationsService = new GameLocationsService();
 
-          var cities = gameLocationsService.getAllEventLocations(connectionProvider);
+          String areaFilter = ctx.queryParam("area");
+
+          var cities = gameLocationsService.getAllEventLocations(connectionProvider, areaFilter);
           logger.info("Retrieved event cities");
           ctx.json(cities);
           ctx.status(200);
