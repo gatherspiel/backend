@@ -52,10 +52,12 @@ public class GameLocationsService {
     return locationData;
   }
 
-  public ArrayList<String> getAllEventLocations(ConnectionProvider connectionProvider) throws Exception{
+  public ArrayList<String> getAllEventLocations(
+      ConnectionProvider connectionProvider,
+      String areaFilter) throws Exception{
     LocationsRepository locationsRepository = new LocationsRepository();
     Connection connection = connectionProvider.getDatabaseConnection();
 
-    return locationsRepository.listALlLocationCities(connection);
+    return locationsRepository.listALlLocationCities(connection,areaFilter);
   }
 }
