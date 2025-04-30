@@ -93,14 +93,14 @@ create table if not exists location_tag (
   id serial not null,
   name character varying not null,
   constraint location_tag_pkey primary key (id)
-)
+);
 
 create table if not exists location_tag_mapping (
   location_tag_id integer null,
   location_id integer null,
   constraint location_tag_mapping_location_id_fkey foreign KEY (location_id) references locations (id),
   constraint location_tag_mapping_location_tag_id_fkey foreign KEY (location_tag_id) references location_tag (id)
-)
+);
 
 
 

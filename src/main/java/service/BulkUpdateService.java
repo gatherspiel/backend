@@ -64,6 +64,14 @@ public class BulkUpdateService {
       throw e;
     }
 
+    try {
+      LocationTagRepository locationTagRepository = new LocationTagRepository();
+      locationTagRepository.insertLocationTags(data.getLocationTags(), conn);
+    } catch (Exception e) {
+      logger.error("Error inserting locationTags");
+      throw e;
+    }
+
     conn.commit();
     conn.close();
 

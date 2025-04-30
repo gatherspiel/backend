@@ -27,7 +27,7 @@ public class LocationsRepository {
 
     city = SameLocationData.getDatabaseCityName(city);
 
-    String query = "SELECT * from locations where city = ? ";
+    String query = "SELECT * from locations where city = ? AND state IS null AND street_address IS null AND zip_code IS null";
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, city);
     ResultSet rs = select.executeQuery();
