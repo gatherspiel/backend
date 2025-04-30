@@ -49,9 +49,10 @@ public class GroupSearchParams {
       } else if(param == CITY) {
         this.params.put(param, params.get(param));
       } else if (param == AREA) {
+
         locationGroupFilter = params.get(param);
       } else {
-        logger.warn("Invalid parameter submitted. It will not be used in the search query");
+        logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
       }
     });
   }
@@ -146,7 +147,7 @@ public class GroupSearchParams {
 
     String area = ctx.queryParam(GroupSearchParams.AREA);
     if(area!=null && !area.isEmpty()){
-      paramMap.put(GroupSearchParams.AREA, location);
+      paramMap.put(GroupSearchParams.AREA, area);
     }
 
     return paramMap;
