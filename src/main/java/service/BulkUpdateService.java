@@ -20,9 +20,10 @@ public class BulkUpdateService {
     conn.setAutoCommit(false);
 
     try {
-      logger.info("Number of groups to insert:" + data.getGroups().length);
       GroupsRepository groupsRepository = new GroupsRepository();
       groupsRepository.insertGroups(data.getGroups(), conn);
+      logger.info("Number of groups to insert:" + data.getGroups().length);
+
     } catch (Exception e) {
       logger.error("Error inserting groups");
       throw e;
@@ -60,6 +61,14 @@ public class BulkUpdateService {
       eventRepository.addEvents(data.getGroups(), conn);
     } catch (Exception e) {
       logger.error("Error inserting events");
+      throw e;
+    }
+
+    try {
+      LocationTagRepository locationTagRepository = new LocationTagRepository();
+      locationTagRepository.insertLocationTags(data.getLocationTags(), conn);
+    } catch (Exception e) {
+      logger.error("Error inserting locationTags");
       throw e;
     }
 

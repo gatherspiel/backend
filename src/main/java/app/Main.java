@@ -65,6 +65,7 @@ public class Main {
           logger.info("Finished search");
 
         } catch (Exception e) {
+          e.printStackTrace();
           ctx.result("Invalid search parameter");
           ctx.status(400);
         }

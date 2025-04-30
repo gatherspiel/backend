@@ -40,21 +40,21 @@ public class SearchServiceIntegrationTest {
 
   @Test
   public void testAllGroupsAreReturned_NoSearchParams() throws Exception {
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
       new LinkedHashMap<>(),
       testConnectionProvider
     );
-    assertEquals(38, searchResult.countGroups());
+    assertEquals(38, result.countGroups());
   }
 
   @Test
   public void testAllEventsAreReturned_NoSearchParams() throws Exception {
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
       new LinkedHashMap<String, String>(),
       testConnectionProvider
     );
 
-    assertEquals(37, searchResult.countEvents());
+    assertEquals(37, result.countEvents());
   }
 
   @ParameterizedTest
@@ -77,11 +77,11 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.DAY_OF_WEEK, day);
 
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
       params,
       testConnectionProvider
     );
-    assertEquals(expected, searchResult.countEvents());
+    assertEquals(expected, result.countEvents());
   }
 
   @ParameterizedTest
@@ -95,13 +95,13 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, location);
 
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
       params,
       testConnectionProvider
     );
     Assertions.assertAll(
-      () -> assertEquals(expectedEvents, searchResult.countEvents()),
-      () -> assertEquals(expectedGroups, searchResult.countGroups())
+      () -> assertEquals(expectedEvents, result.countEvents()),
+      () -> assertEquals(expectedGroups, result.countGroups())
     );
   }
 
@@ -145,12 +145,12 @@ public class SearchServiceIntegrationTest {
   public void testDuplicateAndNull_LocationResultsAreNotShown(String city) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, city);
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
         params,
         testConnectionProvider
     );
 
-    Map<Integer, Group> groupData = searchResult.getGroupData();
+    Map<Integer, Group> groupData = result.getGroupData();
 
     for(Integer groupId: groupData.keySet()) {
       Group group = groupData.get(groupId);
@@ -173,7 +173,7 @@ public class SearchServiceIntegrationTest {
     Exception exception = assertThrows(
       RuntimeException.class,
       () -> {
-        GroupSearchResult searchResult = searchService.getGroups(
+        GroupSearchResult result = searchService.getGroups(
           params,
           testConnectionProvider
         );
@@ -201,11 +201,58 @@ public class SearchServiceIntegrationTest {
     params.put("Test parameter", "test");
     params.put(GroupSearchParams.CITY, "College Park");
 
-    GroupSearchResult searchResult = searchService.getGroups(
+    GroupSearchResult result = searchService.getGroups(
       params,
       testConnectionProvider
     );
-    assertEquals(2, searchResult.countEvents());
-    assertEquals(1, searchResult.countGroups());
+    assertEquals(2, result.countEvents());
+    assertEquals(1, result.countGroups());
+  }
+
+  @Test
+  public void testGroupsAreOrderedAlphabetically() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+
+    Group[] previous = new Group[1];
+
+    result.getGroupData().forEach((id, current) -> {
+      if (previous[0] != null) {
+        String prevName = previous[0].getName();
+        String currName = current.getName();
+        if (prevName != null && currName != null) {
+          assertTrue(
+              prevName.compareTo(currName) <= 0,
+              "Groups out of order: " + prevName + " after " + currName
+          );
+        }
+      }
+      previous[0] = current;
+
+    });
+  }
+
+  @Test
+  public void testSearchResultResponse_DMV_location_parameter() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "DMV");
+    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    assertEquals(37, result.countEvents());
+  }
+
+  @Test
+  public void testSearchResultResponse_dmv_location_parameter() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    assertEquals(37, result.countEvents());
+  }
+
+  @Test
+  public void testSearchResultResponse_unknownLocation_noResults() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "test");
+    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    assertEquals(0, result.countEvents());
   }
 }
