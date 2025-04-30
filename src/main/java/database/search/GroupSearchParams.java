@@ -15,9 +15,13 @@ import java.util.LinkedHashMap;
 public class GroupSearchParams {
   public static final String DAY_OF_WEEK = "day";
   public static final String CITY = "city";
+  public static final String AREA = "area";
 
+  //Query parameters for filtering results by a specific field value
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
+
+  private String locationGroupFilter = "";
 
   private static final String SORT_ORDER = " ORDER BY groups.name, groups.id, events.id ASC ";
   private Logger logger;
@@ -44,13 +48,17 @@ public class GroupSearchParams {
         this.params.put(param, params.get(param).toLowerCase());
       } else if(param == CITY) {
         this.params.put(param, params.get(param));
+      } else if (param == AREA) {
+
+        locationGroupFilter = params.get(param);
       } else {
-        logger.warn("Invalid parameter submitted. It will not be used in the search query");
+        logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
       }
     });
   }
 
-  public PreparedStatement generateSearchQuery(Connection conn) throws Exception {
+  //TODO: Generate second query for filtering by location tag
+  public PreparedStatement generateSearchQuery(Connection connection) throws Exception {
     String query = getQueryForAllResults();
 
     ArrayList<String> whereClauses = new ArrayList<>();
@@ -63,7 +71,7 @@ public class GroupSearchParams {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
       query = query + SORT_ORDER;
-      PreparedStatement select = conn.prepareStatement(query);
+      PreparedStatement select = connection.prepareStatement(query);
       int i = 1;
       for(String param: params.keySet()){
         select.setString(i, params.get(param));
@@ -73,7 +81,7 @@ public class GroupSearchParams {
 
     } else {
       query = query + SORT_ORDER;
-      return conn.prepareStatement(query);
+      return connection.prepareStatement(query);
     }
   }
 
@@ -106,6 +114,24 @@ public class GroupSearchParams {
     return query;
   }
 
+  public boolean hasLocationGroupParam(){
+    return !locationGroupFilter.isEmpty();
+  }
+  //TODO: Rename method to indicate that only cities can be part of location groups
+  public PreparedStatement getQueryForLocationGroups(Connection connection) throws Exception {
+
+    String query = """
+                       SELECT city, name from locations
+                       LEFT JOIN location_tag_mapping on locations.id = location_tag_mapping.location_id
+                       LEFT JOIN location_tag on location_tag.id = location_tag_mapping.location_tag_id
+                       WHERE name = ?
+                   """;
+
+    PreparedStatement select = connection.prepareStatement(query);
+    select.setString(1, locationGroupFilter.toLowerCase());
+    return select;
+  }
+
   public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
     LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
 
@@ -118,6 +144,12 @@ public class GroupSearchParams {
     if(location!=null && !location.isEmpty()){
       paramMap.put(GroupSearchParams.CITY, location);
     }
+
+    String area = ctx.queryParam(GroupSearchParams.AREA);
+    if(area!=null && !area.isEmpty()){
+      paramMap.put(GroupSearchParams.AREA, area);
+    }
+
     return paramMap;
   }
 }

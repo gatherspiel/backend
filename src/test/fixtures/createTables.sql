@@ -80,22 +80,6 @@ create table if not exists event_time (
 );
 
 
-DO $$ BEGIN
-    create type event_tag as enum (
-        'boardgame'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-create table if not exists event_tag_map (
-  id serial not null,
-  event_id integer null,
-  tag event_tag null,
-  constraint event_tag_map_pkey primary key (id),
-  constraint unique_event_tag_map unique (event_id, tag),
-  constraint event_tag_map_event_id_fkey foreign KEY (event_id) references locations (id)
-);
 
 create table if not exists event_group_map (
   group_id integer null,
@@ -104,4 +88,19 @@ create table if not exists event_group_map (
   constraint event_group_map_event_id_fkey foreign KEY (event_id) references events (id),
   constraint event_group_map_group_id_fkey foreign KEY (group_id) references groups (id)
 );
+
+create table if not exists location_tag (
+  id serial not null,
+  name character varying not null,
+  constraint location_tag_pkey primary key (id)
+);
+
+create table if not exists location_tag_mapping (
+  location_tag_id integer null,
+  location_id integer null,
+  constraint location_tag_mapping_location_id_fkey foreign KEY (location_id) references locations (id),
+  constraint location_tag_mapping_location_tag_id_fkey foreign KEY (location_tag_id) references location_tag (id)
+);
+
+
 
