@@ -4,6 +4,8 @@ import app.data.Event;
 import app.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
+import java.util.Set;
+
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -79,4 +81,6 @@ public class GroupSearchResult {
   public HashMap<Integer, Group> getGroupData() {
     return groupData;
   }
+
+
 }

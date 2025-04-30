@@ -231,14 +231,13 @@ public class SearchServiceIntegrationTest {
 
     });
   }
-  //TODO: Add logic
 
   @Test
   public void testSearchResultResponse_DMV_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "DMV");
     GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
-    assertEquals(36, result.countEvents());
+    assertEquals(37, result.countEvents());
   }
 
   @Test
@@ -246,7 +245,7 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
-    assertEquals(36, result.countEvents());
+    assertEquals(37, result.countEvents());
   }
 
   @Test

@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-
 public class LocationTagRepository {
 
   Logger logger;
@@ -16,6 +15,7 @@ public class LocationTagRepository {
   public LocationTagRepository(){
     logger = LogUtils.getLogger();
   }
+
 
   public void insertLocationTags(LocationTag[] locationTags, Connection conn) throws Exception{
     for(LocationTag locationTag: locationTags) {
@@ -39,7 +39,7 @@ public class LocationTagRepository {
     if(locationTagId == null){
       String locationTagQuery = "INSERT into location_tag(name) VALUES(?) returning id";
       PreparedStatement locationTagInsert = conn.prepareStatement(locationTagQuery);
-      locationTagInsert.setString(1, locationTag);
+      locationTagInsert.setString(1, locationTag.toLowerCase());
 
       ResultSet rs = locationTagInsert.executeQuery();
       if (rs.next()){
