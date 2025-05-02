@@ -83,6 +83,7 @@ public class GroupsRepository {
     return rs.getInt(1);
   }
 
+  // TODO: Consider deleting this function.
   public GroupPageData getGroupPageData(String groupName, String locationTag, Connection conn) throws Exception{
 
     String query = """

@@ -1,6 +1,8 @@
 package app;
 
+import app.data.Group;
 import app.data.InputRequest;
+import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -114,6 +116,28 @@ public class Main {
         var bulkUpdateService = new BulkUpdateService();
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
+    );
+
+    app.get(
+        "/groups/",
+        ctx -> {
+
+          try {
+            var connectionProvider = new ConnectionProvider();
+            var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+                ctx
+            );
+            var searchService = new SearchService();
+            var groupService = new GroupService(searchService);
+
+            GroupPageData pageData = groupService.getGroupPageData()
+
+
+            //TODO: Set success response and add data to response.
+          } catch (Exception e) {
+            //TODO: Set error response.
+          }
+        }
     );
   }
 }

@@ -26,6 +26,7 @@ public class GroupSearchParams {
   private static final String SORT_ORDER = " ORDER BY groups.name, groups.id, events.id ASC ";
   private Logger logger;
 
+  //TODO: Add query for selecting by group name.
   static {
     paramQueryMap = new HashMap<String,String>();
     paramQueryMap.put(DAY_OF_WEEK,"day_of_week = cast(? AS dayofweek)");
