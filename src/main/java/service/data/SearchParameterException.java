@@ -1,4 +1,4 @@
-package service;
+package service.data;
 
 public class SearchParameterException extends Exception {
 

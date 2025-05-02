@@ -39,8 +39,6 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testGameLocationsAreReturned() throws Exception {
-
-    System.out.println("Hi");
     GameLocationData data = gameLocationsService.getGameLocations(testConnectionProvider, LocalDate.of(2025,1,1));
     Assertions.assertAll(
         () -> assertEquals(5, data.getConventions().size()),

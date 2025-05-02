@@ -2,8 +2,8 @@ package database.search;
 
 import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
-import service.SearchParameterException;
-import service.SearchParameterValidator;
+import service.data.SearchParameterException;
+import service.data.SearchParameterValidator;
 import utils.LogUtils;
 
 import java.sql.Connection;
@@ -102,6 +102,8 @@ public class GroupSearchParams {
                   ORDER BY groups.name ASC
           
         """;
+
+    System.out.println("Hi");
     return query;
   }
 

@@ -5,7 +5,7 @@ import app.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import service.SearchParameterValidator;
+import service.data.SearchParameterValidator;
 
 public class EventRepository {
 
@@ -92,5 +92,9 @@ public class EventRepository {
     insert.setInt(1, groupId);
     insert.setInt(2, locationId);
     insert.executeUpdate();
+  }
+
+  public Event getEvents() {
+    return null;
   }
 }
