@@ -27,7 +27,7 @@ public class LocationsRepository {
 
     city = SameLocationData.getDatabaseCityName(city);
 
-    String query = "SELECT * from locations where city = ? ";
+    String query = "SELECT * from locations where city = ? AND state IS null AND street_address IS null AND zip_code IS null";
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, city);
     ResultSet rs = select.executeQuery();
@@ -105,15 +105,31 @@ public class LocationsRepository {
     return -1;
   }
 
-  public ArrayList<String> listALlLocationCities(Connection conn) throws Exception {
-    String query = "SELECT DISTINCT city from locations";
+  public ArrayList<String> listALlLocationCities(Connection conn, String location) throws Exception {
 
-    PreparedStatement select = conn.prepareStatement(query);
-    ResultSet rs = select.executeQuery();
+
+    ResultSet rs;
+
+    if(location != null) {
+      String query = """
+          SELECT city, name from locations
+          LEFT JOIN location_tag_mapping on locations.id = location_tag_mapping.location_id
+          LEFT JOIN location_tag on location_tag.id = location_tag_mapping.location_tag_id
+          WHERE name = ?
+          """;
+      PreparedStatement select = conn.prepareStatement(query);
+      select.setString(1, location.toLowerCase());
+      rs = select.executeQuery();
+    }
+    else{
+      String query = "SELECT DISTINCT city from locations";
+      PreparedStatement select = conn.prepareStatement(query);
+      rs = select.executeQuery();
+    }
 
     ArrayList<String> data = new ArrayList<>();
     while(rs.next()){
-      data.add(rs.getString(1));
+      data.add(rs.getString("city"));
     }
     return data;
   }

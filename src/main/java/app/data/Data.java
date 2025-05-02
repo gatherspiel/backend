@@ -5,7 +5,8 @@ public class Data {
   private Convention[] conventions;
   private GameStore[] gameStores;
   private GameRestaurant[] gameRestaurants;
-
+  private LocationTag[] locationTags;
+  //TODO: Add data for location map
   public Data() {}
 
   public Group[] getGroups() {
@@ -50,5 +51,17 @@ public class Data {
 
   public void setGameRestaurants(GameRestaurant[] gameRestaurants) {
     this.gameRestaurants = gameRestaurants;
+  }
+
+
+  public LocationTag[] getLocationTags() {
+    if(locationTags == null){
+      return new LocationTag[0];
+    }
+    return locationTags;
+  }
+
+  public void setLocationTags(LocationTag[] locationTags) {
+    this.locationTags = locationTags;
   }
 }
