@@ -21,15 +21,5 @@ public class SearchService {
     return searchRepository.getGroups(params, conn);
   }
 
-  //TODO: Add logic
-  public GroupSearchResult getGroup(
-      ConnectionProvider connectionProvider
-  ) throws Exception
-  {
-    /**
-     * TODO
-     * -Create search parameters object and call getGroups method.
-     */
-    return null;
-  }
+
 }

@@ -82,43 +82,4 @@ public class GroupsRepository {
     }
     return rs.getInt(1);
   }
-
-  // TODO: Consider deleting this function.
-  public GroupPageData getGroupPageData(String groupName, String locationTag, Connection conn) throws Exception{
-
-    String query = """
-       SELECT
-        
-         groups.id,
-         groups.name,
-         groups.url,
-         groups.summary
-        
-        
-        from groups
-        LEFT JOIN location_group_map on location_group_map.group_id = groups.id
-        LEFT JOIN locations on locations.id = location_group_map.location_id
-        LEFT JOIN location_tag_mapping on location_tag_mapping.location_id = locations.id
-        LEFT JOIN location_tag on location_tag.id = location_tag_mapping.location_tag_id
-        WHERE groups.name = ?
-        AND location_tag.name = ?
-        
-      """;
-    PreparedStatement select = conn.prepareStatement(query);
-    select.setString(1, groupName.replace('_', ' '));
-    select.setString(2, locationTag.toLowerCase());
-
-    ResultSet rs = select.executeQuery();
-    if(!rs.next()){
-      throw new Exception("Group with submitted name and tag does not exist");
-    }
-    GroupPageData groupPageData = new GroupPageData(
-        rs.getInt("id"),
-        rs.getString("name"),
-        rs.getString("url"),
-        rs.getString("summary")
-    );
-    return groupPageData;
-
-  }
 }

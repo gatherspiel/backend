@@ -66,6 +66,12 @@ public class GroupSearchResult {
     group.addEvent(event);
   }
 
+  public Group getFirstGroup() {
+    if(groupData.isEmpty()){
+      return null;
+    }
+    return groupData.get(groupData.keySet().toArray()[0]);
+  }
   public int countGroups() {
     return groupData.size();
   }

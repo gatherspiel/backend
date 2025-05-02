@@ -1,8 +1,11 @@
 package service;
 
+import app.data.Group;
 import app.result.GroupSearchResult;
 import app.result.groupPage.GroupPageData;
 import database.utils.ConnectionProvider;
+
+import java.util.LinkedHashMap;
 
 public class GroupService {
 
@@ -12,18 +15,21 @@ public class GroupService {
     this.searchService = searchService;
   }
 
-  public GroupPageData getGroupPageData(ConnectionProvider connectionProvider) throws Exception{
+  public GroupPageData getGroupPageData(LinkedHashMap<String, String> params,
+                                        ConnectionProvider connectionProvider) throws Exception{
 
-    GroupSearchResult groupSearchResult = searchService.getGroup();
+    GroupSearchResult groupSearchResult = searchService.getGroups(params, connectionProvider);
 
-    /*
-      TODO
+    if(groupSearchResult.countGroups() > 1 ){
+      throw new Exception("Multiple groups were found");
+    }
 
-      - Convert groupSearchResult into GroupPageEventData object. For recurring events, show all events that are within
-      the next 30 days. For other events, only show events that are within the next 30 days.
+    System.out.println(params);
+    Group group = groupSearchResult.getFirstGroup();
+    if(group == null){
+      throw new Exception("No group found");
+    }
+    return GroupPageData.createFromSearchResult(group);
 
-      - Update return statement;
-     */
-    return null;
   }
 }

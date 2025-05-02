@@ -16,6 +16,7 @@ public class GroupSearchParams {
   public static final String DAY_OF_WEEK = "day";
   public static final String CITY = "city";
   public static final String AREA = "area";
+  public static final String NAME = "name";
 
   //Query parameters for filtering results by a specific field value
   private final LinkedHashMap<String, String> params;
@@ -31,6 +32,7 @@ public class GroupSearchParams {
     paramQueryMap = new HashMap<String,String>();
     paramQueryMap.put(DAY_OF_WEEK,"day_of_week = cast(? AS dayofweek)");
     paramQueryMap.put(CITY, "COALESCE(locations.city,locs.city) = ?");
+    paramQueryMap.put(NAME, "groups.name = ?");
   }
 
   public GroupSearchParams(LinkedHashMap<String, String> params) throws SearchParameterException {
@@ -50,15 +52,15 @@ public class GroupSearchParams {
       } else if(param == CITY) {
         this.params.put(param, params.get(param));
       } else if (param == AREA) {
-
         locationGroupFilter = params.get(param);
-      } else {
+      } if (param == NAME){
+        this.params.put(param, params.get(param).replace("_", " "));
+      }else {
         logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
       }
     });
   }
 
-  //TODO: Generate second query for filtering by location tag
   public PreparedStatement generateSearchQuery(Connection connection) throws Exception {
     String query = getQueryForAllResults();
 
@@ -82,6 +84,7 @@ public class GroupSearchParams {
 
     } else {
       query = query + SORT_ORDER;
+
       return connection.prepareStatement(query);
     }
   }
@@ -150,6 +153,11 @@ public class GroupSearchParams {
     String area = ctx.queryParam(GroupSearchParams.AREA);
     if(area!=null && !area.isEmpty()){
       paramMap.put(GroupSearchParams.AREA, area);
+    }
+
+    String name = ctx.queryParam(GroupSearchParams.NAME);
+    if(name!=null && !name.isEmpty()){
+      paramMap.put(GroupSearchParams.NAME, name);
     }
 
     return paramMap;

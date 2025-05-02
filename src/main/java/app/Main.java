@@ -127,10 +127,11 @@ public class Main {
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
+
             var searchService = new SearchService();
             var groupService = new GroupService(searchService);
 
-            GroupPageData pageData = groupService.getGroupPageData()
+            GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
 
 
             //TODO: Set success response and add data to response.

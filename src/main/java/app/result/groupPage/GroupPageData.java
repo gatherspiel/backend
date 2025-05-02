@@ -1,25 +1,97 @@
 package app.result.groupPage;
 
+import app.data.Event;
+import app.data.Group;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.TreeSet;
 
 
 
 public class GroupPageData {
 
-  private final int id;
-  private final String name;
-  private final String url;
-  private final String summary;
+  private static final int TIME_RANGE_DAYS = 30;
+  private int id;
+  private String name;
+  private String url;
+  private String summary;
 
   private TreeSet<GroupPageEventData> groupPageEventData;
 
-  public GroupPageData(int id, String name, String url, String summary){
+  private GroupPageData(int id, String name, String url, String summary){
     this.id = id;
     this.name = name;
     this.url = url;
     this.summary = summary;
 
     this.groupPageEventData = new TreeSet<GroupPageEventData>(new GroupPageEventDataComparator());
+  }
+
+  public int getId(){
+    return id;
+  }
+
+  public void setId(int id){
+    this.id = id;
+  }
+
+  public String getName(){
+    return name;
+  }
+
+  public void setName(String name){
+    this.name = name;
+  }
+
+  public String getUrl(){
+    return url;
+  }
+
+  public void setUrl(String url){
+    this.url = url;
+  }
+
+  public String getSummary(){
+    return summary;
+  }
+
+  public void setSummary(String summary){
+    this.summary = summary;
+  }
+
+
+  public Set<GroupPageEventData> getEventData(){
+    return this.groupPageEventData;
+  }
+
+  public void addEventData(LocalDate date, String name, String description, String link, int id){
+    GroupPageEventData eventData = new GroupPageEventData(date, name, description, link, id);
+    groupPageEventData.add(eventData);
+  }
+
+  public static GroupPageData createFromSearchResult(Group group) {
+    GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getSummary());
+
+    LocalDate currentDate = LocalDate.now();
+
+    for(Event event: group.getEvents()) {
+
+      //TODO: Handle case where events are not recurring
+      String day = event.getDay();
+      LocalDate nextEventDate = currentDate.with(TemporalAdjusters.next(DayOfWeek.valueOf(day.toUpperCase())));
+      while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
+        data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
+        System.out.println(nextEventDate);
+        nextEventDate = nextEventDate.plusDays(7);
+      }
+    }
+
+    System.out.println("Done");
+    return data;
   }
 }
