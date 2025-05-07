@@ -44,7 +44,7 @@ public class SearchServiceIntegrationTest {
       new LinkedHashMap<>(),
       testConnectionProvider
     );
-    assertEquals(38, result.countGroups());
+    assertEquals(39, result.countGroups());
   }
 
   @Test
@@ -220,6 +220,7 @@ public class SearchServiceIntegrationTest {
       if (previous[0] != null) {
         String prevName = previous[0].getName();
         String currName = current.getName();
+
         if (prevName != null && currName != null) {
           assertTrue(
               prevName.compareTo(currName) <= 0,

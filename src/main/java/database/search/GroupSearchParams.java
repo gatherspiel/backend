@@ -73,7 +73,7 @@ public class GroupSearchParams {
     if (!whereClauses.isEmpty()) {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
-      query = query + SORT_ORDER;
+
       PreparedStatement select = connection.prepareStatement(query);
       int i = 1;
       for(String param: params.keySet()){
@@ -83,8 +83,6 @@ public class GroupSearchParams {
       return select;
 
     } else {
-      query = query + SORT_ORDER;
-
       return connection.prepareStatement(query);
     }
   }

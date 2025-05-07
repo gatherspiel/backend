@@ -38,7 +38,7 @@ public class Main {
       "/countLocations",
       ctx -> {
         var testService = new TestService();
-        ctx.result("" + testService.countLocations());
+        ctx.result("Number of locations:" + testService.countLocations());
       }
     );
 
