@@ -12,12 +12,14 @@ public class SearchService {
   public GroupSearchResult getGroups(
     LinkedHashMap<String, String> searchParams,
     ConnectionProvider connectionProvider
-  )
-    throws Exception {
+  ) throws Exception
+  {
     GroupSearchParams params = new GroupSearchParams(searchParams);
     Connection conn = connectionProvider.getDatabaseConnection();
 
     SearchRepository searchRepository = new SearchRepository();
     return searchRepository.getGroups(params, conn);
   }
+
+
 }

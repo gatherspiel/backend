@@ -12,6 +12,7 @@ import service.GameLocationsService;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +40,6 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testGameLocationsAreReturned() throws Exception {
-
     GameLocationData data = gameLocationsService.getGameLocations(testConnectionProvider, LocalDate.of(2025,1,1));
     Assertions.assertAll(
         () -> assertEquals(5, data.getConventions().size()),
@@ -78,25 +78,25 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testListAllEventCities() throws Exception{
-    ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, null);
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, null);
     assertEquals(33, eventCities.size());
   }
 
   @Test
   public void testList_DMV_Cities() throws Exception{
-    ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "DMV");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "DMV");
     assertEquals(32, eventCities.size());
   }
 
   @Test
   public void testList_dmv_Cities() throws Exception{
-    ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv");
     assertEquals(32, eventCities.size());
   }
 
   @Test
   public void testList_Cities_invalidArea() throws Exception {
-    ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "Antarctica");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "Antarctica");
     assertEquals(0, eventCities.size());
   }
 }

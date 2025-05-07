@@ -16,6 +16,9 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class GameLocationsService {
 
@@ -52,12 +55,29 @@ public class GameLocationsService {
     return locationData;
   }
 
-  public ArrayList<String> getAllEventLocations(
+  public void insertAddress(ConnectionProvider connectionProvider, String address) throws Exception{
+    LocationsRepository locationsRepository = new LocationsRepository();
+    locationsRepository.insertLocation(address, connectionProvider.getDatabaseConnection());
+  }
+
+  public int countLocations(ConnectionProvider connectionProvider) throws  Exception{
+    LocationsRepository locationsRepository = new LocationsRepository();
+    return locationsRepository.countLocations(connectionProvider.getDatabaseConnection());
+  }
+
+  public TreeSet<String> getAllEventLocations(
       ConnectionProvider connectionProvider,
       String areaFilter) throws Exception{
     LocationsRepository locationsRepository = new LocationsRepository();
     Connection connection = connectionProvider.getDatabaseConnection();
 
-    return locationsRepository.listALlLocationCities(connection,areaFilter);
+    ArrayList<String> cities = locationsRepository.listALlLocationCities(areaFilter, connection);
+
+    return new TreeSet<>(cities);
+  }
+
+  public int addCity(ConnectionProvider connectionProvider, String cityName) throws Exception {
+    LocationsRepository locationsRepository = new LocationsRepository();
+    return locationsRepository.getLocationIdForCity(cityName, connectionProvider.getDatabaseConnection());
   }
 }

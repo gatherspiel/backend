@@ -1,11 +1,14 @@
 package app;
 
+import app.data.Group;
 import app.data.InputRequest;
+import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
+import service.data.SearchParameterException;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -114,6 +117,33 @@ public class Main {
         var bulkUpdateService = new BulkUpdateService();
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
+    );
+
+    app.get(
+        "/groups",
+        ctx -> {
+
+          try {
+            var connectionProvider = new ConnectionProvider();
+            var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+                ctx
+            );
+
+            var searchService = new SearchService();
+            var groupService = new GroupService(searchService);
+
+            GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
+            logger.info("Retrieved group data");
+            ctx.json(pageData);
+            ctx.status(200);
+          } catch (SearchParameterException e) {
+            e.printStackTrace();
+            ctx.status(404);
+          } catch(Exception e){
+            e.printStackTrace();
+            ctx.status(500);
+          }
+        }
     );
   }
 }

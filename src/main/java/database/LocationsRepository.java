@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
-import service.SearchParameterException;
-import service.SearchParameterValidator;
+import service.data.SearchParameterException;
+import service.data.SearchParameterValidator;
 import utils.LogUtils;
 
 public class LocationsRepository {
@@ -105,7 +105,7 @@ public class LocationsRepository {
     return -1;
   }
 
-  public ArrayList<String> listALlLocationCities(Connection conn, String location) throws Exception {
+  public ArrayList<String> listALlLocationCities(String location, Connection conn) throws Exception {
 
 
     ResultSet rs;
@@ -132,5 +132,20 @@ public class LocationsRepository {
       data.add(rs.getString("city"));
     }
     return data;
+  }
+
+  public int countLocations(Connection conn)throws Exception{
+
+    try {
+      String query = "SELECT COUNT(*) from locations";
+      PreparedStatement select = conn.prepareStatement(query);
+
+      ResultSet rs = select.executeQuery();
+      rs.next();
+      return rs.getInt(1);
+    } catch (Exception e){
+      throw e;
+    }
+
   }
 }
