@@ -801,43 +801,5 @@
           "Arlington"]
 
       }
-    ],
-    "locationTags": [
-      {
-        "name": "DMV",
-        "locations": [
-          "Dulles",
-          "Silver Spring",
-          "Leesburg",
-          "Olney",
-          "Gaithersburg",
-          "Springfield",
-          "Chantilly",
-          "Lake Ridge",
-          "Jefferson County",
-          "Rockville",
-          "Germantown",
-          "Greenbelt",
-          "Fairfax",
-          "Sheperdstown",
-          "Charles Town",
-          "Washington",
-          "Falls Church",
-          "Alexandria",
-          "Brunswick",
-          "Manassas",
-          "Reston",
-          "Maryland",
-          "College Park",
-          "Herndon",
-          "Hyattsville",
-          "Brentwood",
-          "Woodbridge",
-          "Purcellville",
-          "Frederick",
-          "Ashburn",
-          "Arlington"]
-
-      }
     ]
  }
