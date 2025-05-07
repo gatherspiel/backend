@@ -79,19 +79,19 @@ public class LocationServiceIntegrationTest {
   @Test
   public void testListAllEventCities() throws Exception{
     ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, null);
-    assertEquals(32, eventCities.size());
+    assertEquals(33, eventCities.size());
   }
 
   @Test
   public void testList_DMV_Cities() throws Exception{
     ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "DMV");
-    assertEquals(31, eventCities.size());
+    assertEquals(32, eventCities.size());
   }
 
   @Test
   public void testList_dmv_Cities() throws Exception{
     ArrayList<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv");
-    assertEquals(31, eventCities.size());
+    assertEquals(32, eventCities.size());
   }
 
   @Test
