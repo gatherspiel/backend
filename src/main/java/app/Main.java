@@ -8,6 +8,7 @@ import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
+import service.data.SearchParameterException;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -119,7 +120,7 @@ public class Main {
     );
 
     app.get(
-        "/groups/",
+        "/groups",
         ctx -> {
 
           try {
@@ -132,11 +133,15 @@ public class Main {
             var groupService = new GroupService(searchService);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
-
-
-            //TODO: Set success response and add data to response.
-          } catch (Exception e) {
-            //TODO: Set error response.
+            logger.info("Retrieved group data");
+            ctx.json(pageData);
+            ctx.status(200);
+          } catch (SearchParameterException e) {
+            e.printStackTrace();
+            ctx.status(404);
+          } catch(Exception e){
+            e.printStackTrace();
+            ctx.status(500);
           }
         }
     );

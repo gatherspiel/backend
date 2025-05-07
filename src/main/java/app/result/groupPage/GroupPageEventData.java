@@ -1,10 +1,11 @@
 package app.result.groupPage;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 
 class GroupPageEventDataComparator implements Comparator<GroupPageEventData> {
-
   public int compare(GroupPageEventData eventData1, GroupPageEventData eventData2) {
     return eventData1.getEventDate().compareTo(eventData2.getEventDate());
   }
@@ -28,6 +29,12 @@ public class GroupPageEventData {
     this.location = location;
     this.id = id;
   }
+
+  @JsonGetter("eventDate")
+  public String getSerializedDate(){
+    return eventDate.toString();
+  }
+
   public LocalDate getEventDate(){
     return eventDate;
   }

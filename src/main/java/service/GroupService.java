@@ -4,6 +4,7 @@ import app.data.Group;
 import app.result.GroupSearchResult;
 import app.result.groupPage.GroupPageData;
 import database.utils.ConnectionProvider;
+import service.data.SearchParameterException;
 
 import java.util.LinkedHashMap;
 
@@ -27,7 +28,7 @@ public class GroupService {
     System.out.println(params);
     Group group = groupSearchResult.getFirstGroup();
     if(group == null){
-      throw new Exception("No group found");
+      throw new SearchParameterException("No group found");
     }
     return GroupPageData.createFromSearchResult(group);
 
