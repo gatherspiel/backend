@@ -3,20 +3,28 @@ package app.result;
 import app.data.Event;
 import app.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashMap;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
+class GroupResutlComparator implements Comparator<Group> {
+  public int compare(Group group1, Group group2){
+    return group1.getName().compareTo(group2.getName());
+  }
+}
 public class GroupSearchResult {
-  private HashMap<Integer, Group> groupData;
+
+  //TODO: Update data structure
+  private LinkedHashMap<Integer, Group> groupData;
 
   @JsonIgnore
   Logger logger;
 
   public GroupSearchResult() {
-    groupData = new HashMap<Integer, Group>();
+    groupData = new LinkedHashMap<Integer, Group>();
     logger = LogUtils.getLogger();
   }
 
@@ -28,6 +36,7 @@ public class GroupSearchResult {
     String groupCity
   ) {
     if (!groupData.containsKey(id)) {
+      System.out.println(name);
       Group group = new Group();
       group.setId(id);
       group.setName(name);
@@ -78,8 +87,13 @@ public class GroupSearchResult {
     return events;
   }
 
-  public HashMap<Integer, Group> getGroupData() {
-    return groupData;
+  public LinkedHashMap<Integer, Group> getGroupData() {
+
+    /*Results are sorted here instead of in the database query due to the fact that the database isn't configured
+    to correctly sort '-' characters*/
+    return groupData.entrySet().stream().sorted(Map.Entry.comparingByValue(new GroupResutlComparator())).collect(
+        Collectors.toMap(
+            Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
   }
 
 

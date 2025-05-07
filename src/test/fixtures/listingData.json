@@ -753,6 +753,14 @@
         "cities": ["Woodbridge"],
         "summary": "We are looking to make friends, have fun, and play board games! We have a wide selection and all our members are welcome to bring their own games. We are willing to teach and learn as needed and usually we have at least two and sometimes three games going at once. We also enjoy having themed game nights and even do occasional field trips to movies, game taverns, and more! ",
         "name": "Woodbridge Tabletop Game Night"
+      },
+      {
+        "events": [
+        ],
+        "url": "https://www.meetup.com/bowie-board-games-meetup-group/",
+        "cities": ["Bowie"],
+        "summary": "Welcome, board game fans! Anyone who enjoys tabletop games or role-playing games should feel welcome to join this group. There are no dues or fees.",
+        "name": "Bowie Board Games and RPG Meetup Group"
       }
     ],
     "locationTags": [
@@ -769,6 +777,7 @@
           "Lake Ridge",
           "Jefferson County",
           "Rockville",
+          "Bowie",
           "Germantown",
           "Greenbelt",
           "Fairfax",
