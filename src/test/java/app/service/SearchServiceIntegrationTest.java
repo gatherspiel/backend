@@ -220,10 +220,8 @@ public class SearchServiceIntegrationTest {
       if (previous[0] != null) {
         String prevName = previous[0].getName();
         String currName = current.getName();
-        System.out.println(prevName+":"+currName);
-        if (prevName != null && currName != null) {
 
-          //
+        if (prevName != null && currName != null) {
           assertTrue(
               prevName.compareTo(currName) <= 0,
               "Groups out of order: " + prevName + " after " + currName
