@@ -1,6 +1,7 @@
 package database;
 
 import app.data.Group;
+import app.result.groupPage.GroupPageData;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

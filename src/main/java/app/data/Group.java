@@ -38,6 +38,10 @@ public class Group {
     this.summary = summary;
   }
 
+  public String getSummary(){
+    return summary;
+  }
+
   public String getName() {
     return name;
   }
