@@ -72,6 +72,7 @@ public class LocationsRepository {
       ResultSet rs = insert.executeQuery();
       if (rs.next()) {
         return rs.getInt(1);
+
       }
       logger.error("Insert did not succeed");
       throw new Exception();

@@ -72,11 +72,12 @@ public class LocationUpdateIntegrationTest {
 
     int locationsCountA = gameLocationsService.countLocations(testConnectionProvider);
 
-    gameLocationsService.insertAddress(testConnectionProvider,"123 Main Street, Alexandria, Virginia 12345");
+    gameLocationsService.insertAddress(testConnectionProvider,"123 Main Street, Arlington, Virginia 12345");
+
     assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
 
     int eventLocationsCountA = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
-    gameLocationsService.addCity(testConnectionProvider,"456 Main Street, Alexandria, Virginia 12345");
+    gameLocationsService.addCity(testConnectionProvider,"456 Main Street, Arlington, Virginia 12345");
     assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+2);
 
     int eventLocationsCountB = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
