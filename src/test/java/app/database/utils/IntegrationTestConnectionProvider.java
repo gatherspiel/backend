@@ -1,6 +1,7 @@
 package app.database.utils;
 
-import database.utils.ConnectionProvider;
+import database.utils.LocalConnectionProvider;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 

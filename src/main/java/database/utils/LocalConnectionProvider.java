@@ -1,5 +1,4 @@
-package app.database.utils;
-import database.utils.ConnectionProvider;
+package database.utils;
 
 import java.sql.Connection;
 

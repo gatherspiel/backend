@@ -1,6 +1,5 @@
-package app.database.utils.local;
+package database.utils;
 
-import app.database.utils.LocalConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
