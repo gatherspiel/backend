@@ -1,28 +1,23 @@
 package app.service;
 
-import app.data.Convention;
 import app.database.utils.DbUtils;
-import app.database.utils.TestConnectionProvider;
-import app.result.GameLocationData;
-import org.junit.jupiter.api.Assertions;
+import app.database.utils.IntegrationTestConnectionProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.GameLocationsService;
 
 import java.sql.Connection;
-import java.time.LocalDate;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LocationUpdateIntegrationTest {
 
   private static GameLocationsService gameLocationsService;
-  private static TestConnectionProvider testConnectionProvider;
+  private static IntegrationTestConnectionProvider testConnectionProvider;
 
   @BeforeAll
   static void setup() {
-    testConnectionProvider = new TestConnectionProvider();
+    testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
 

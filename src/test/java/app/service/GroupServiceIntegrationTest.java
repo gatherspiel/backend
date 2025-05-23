@@ -1,15 +1,13 @@
 package app.service;
 
 import app.database.utils.DbUtils;
-import app.database.utils.TestConnectionProvider;
-import app.result.GroupSearchResult;
+import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.groupPage.GroupPageData;
 import app.result.groupPage.GroupPageEventData;
 import database.search.GroupSearchParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.GameLocationsService;
 import service.GroupService;
 import service.SearchService;
 
@@ -24,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GroupServiceIntegrationTest {
 
   private static GroupService groupService;
-  private static TestConnectionProvider testConnectionProvider;
+  private static IntegrationTestConnectionProvider testConnectionProvider;
 
   @BeforeAll
   static void setup() {
-    testConnectionProvider = new TestConnectionProvider();
+    testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
 

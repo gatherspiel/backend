@@ -1,10 +1,11 @@
 package app.database.utils;
 
-import database.utils.ConnectionProvider;
+import database.utils.LocalConnectionProvider;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class TestConnectionProvider extends ConnectionProvider {
+public class IntegrationTestConnectionProvider extends LocalConnectionProvider {
 
   public Connection getDatabaseConnection() throws Exception {
     Class.forName("org.postgresql.Driver");

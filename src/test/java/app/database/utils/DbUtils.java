@@ -3,13 +3,11 @@ package app.database.utils;
 import app.data.Data;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Scanner;
-import org.junit.jupiter.api.Test;
+
+import database.utils.LocalConnectionProvider;
 import service.BulkUpdateService;
 
 public class DbUtils {
@@ -35,7 +33,7 @@ public class DbUtils {
   }
 
   public static void initializeData(
-    TestConnectionProvider testConnectionProvider
+    LocalConnectionProvider testConnectionProvider
   )
     throws Exception {
     try {
