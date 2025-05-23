@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import app.data.Group;
 import app.database.utils.DbUtils;
-import app.database.utils.TestConnectionProvider;
+import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.GroupSearchResult;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
@@ -22,11 +22,11 @@ import service.SearchService;
 
 public class SearchServiceIntegrationTest {
   private static SearchService searchService;
-  private static TestConnectionProvider testConnectionProvider;
+  private static IntegrationTestConnectionProvider testConnectionProvider;
 
   @BeforeAll
   static void setup() {
-    testConnectionProvider = new TestConnectionProvider();
+    testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
