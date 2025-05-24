@@ -15,7 +15,7 @@ public class ConnectionProvider {
       throw new RuntimeException(e);
     }
     var password = System.getenv("DB_PASSWORD");
-    if(password.isBlank()){
+    if(password == null || password.isBlank()){
       System.out.println("DB Password:"+System.getenv("DB_PASSWORD"));
 
       var connectionProvider = new LocalDevConnectionProvider();
