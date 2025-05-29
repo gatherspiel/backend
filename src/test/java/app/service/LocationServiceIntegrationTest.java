@@ -7,7 +7,7 @@ import app.result.GameLocationData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.GameLocationsService;
+import service.read.GameLocationsService;
 
 import java.sql.Connection;
 import java.time.LocalDate;

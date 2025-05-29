@@ -1,4 +1,4 @@
-package service;
+package service.read;
 
 import app.result.GroupSearchResult;
 import database.search.GroupSearchParams;

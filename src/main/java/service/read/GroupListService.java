@@ -1,4 +1,4 @@
-package service;
+package service.read;
 
 import app.data.Group;
 import app.result.GroupSearchResult;
@@ -8,11 +8,11 @@ import service.data.SearchParameterException;
 
 import java.util.LinkedHashMap;
 
-public class GroupService {
+public class GroupListService {
 
   SearchService searchService;
 
-  public GroupService(SearchService searchService){
+  public GroupListService(SearchService searchService){
     this.searchService = searchService;
   }
 

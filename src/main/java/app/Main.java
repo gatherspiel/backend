@@ -1,6 +1,5 @@
 package app;
 
-import app.data.Group;
 import app.data.InputRequest;
 import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
@@ -9,6 +8,9 @@ import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.data.SearchParameterException;
+import service.read.GameLocationsService;
+import service.read.GroupListService;
+import service.read.SearchService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -130,7 +132,7 @@ public class Main {
             );
 
             var searchService = new SearchService();
-            var groupService = new GroupService(searchService);
+            var groupService = new GroupListService(searchService);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");

@@ -1,4 +1,4 @@
-package service;
+package service.read;
 
 import app.data.Convention;
 import app.data.GameRestaurant;
@@ -16,9 +16,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 public class GameLocationsService {
 

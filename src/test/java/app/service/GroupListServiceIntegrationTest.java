@@ -8,8 +8,8 @@ import database.search.GroupSearchParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.GroupService;
-import service.SearchService;
+import service.read.GroupListService;
+import service.read.SearchService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
@@ -19,9 +19,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GroupServiceIntegrationTest {
+public class GroupListServiceIntegrationTest {
 
-  private static GroupService groupService;
+  private static GroupListService groupListService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
   @BeforeAll
@@ -34,7 +34,7 @@ public class GroupServiceIntegrationTest {
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
-      groupService = new GroupService(new SearchService());
+      groupListService = new GroupListService(new SearchService());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -50,7 +50,7 @@ public class GroupServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          GroupPageData result = groupService.getGroupPageData(
+          GroupPageData result = groupListService.getGroupPageData(
               params,
               testConnectionProvider
           );
@@ -68,7 +68,7 @@ public class GroupServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          GroupPageData result = groupService.getGroupPageData(
+          GroupPageData result = groupListService.getGroupPageData(
               params,
               testConnectionProvider
           );
@@ -86,7 +86,7 @@ public class GroupServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          GroupPageData result = groupService.getGroupPageData(
+          GroupPageData result = groupListService.getGroupPageData(
               params,
               testConnectionProvider
           );
@@ -103,7 +103,7 @@ public class GroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
 
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = groupListService.getGroupPageData(
         params,
         testConnectionProvider
     );
@@ -121,7 +121,7 @@ public class GroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = groupListService.getGroupPageData(
         params,
         testConnectionProvider
     );
@@ -156,7 +156,7 @@ public class GroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = groupListService.getGroupPageData(
         params,
         testConnectionProvider
     );
@@ -176,6 +176,31 @@ public class GroupServiceIntegrationTest {
     }
 
     assertTrue(eventData.size()<=16 || eventData.size()<=20);
+  }
+
+  @Test
+  public void testGetGroupData_showsEditPermissionsForAdminUser(){
+
+  }
+
+  @Test
+  public void testGetGroupData_doesNotShowEditPermissions_whenRegularUserIsLoggedIn(){
+
+  }
+
+  @Test
+  public void testGetGroupData_showsEditPermissions_whenUserIsGroupAdmin(){
+
+  }
+
+  @Test
+  public void testGetGroupData_showsEditPermissions_whenUserIsGroupModerator(){
+
+  }
+
+
+  @Test
+  public void testGetGroupData_doesNotShowEditPermissions_whenUserIsNotLoggedIn(){
 
   }
 
