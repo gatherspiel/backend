@@ -34,27 +34,20 @@ public class EditPermissionServiceIntegrationTest {
     }
   }
   @Test
-  public void testSiteAdmin_canEdit_groupPermissionLevelForUser(){
+  public void testSiteAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
     User admin =createUserService.createAdmin(ADMIN_EMAIL);
     User user = createUserService.createStandardUser(USER_EMAIL);
 
-    Group group = CreateGroupUtils.createRandomGroup();
-    editPermissionService.setGroupAdmin(user, admin, group.getUUID());
+    Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);
+    editPermissionService.setGroupAdmin(user, group.getId(), testConnectionProvider);
 
-    assertTrue(groupEditService.canEditGroup(user, group.getUUID()));
+    assertTrue(groupEditService.canEditGroup(user, group.getUUID(), testConnectionProvider));
 
+    //TODO: Test permission removed
   }
 
   //TODO: Add logic to tests.
-  @Test
-  public void testGroupAdmin_updateGroupAdmin_previousGroupAdminBecomesModerator(){
 
-  }
-
-  @Test
-  public void testSiteAdmin_updateGroupAdmin_previousGroupAdminBecomesModerator(){
-
-  }
 
   @Test
   public void testGroupAdmin_canEdit_groupPermissionLevelForUser(){

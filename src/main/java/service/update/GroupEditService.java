@@ -2,12 +2,22 @@ package service.update;
 
 import app.data.Group;
 import app.data.auth.User;
+import database.content.GroupsRepository;
+import database.utils.ConnectionProvider;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
 
+import java.sql.Connection;
 import java.util.UUID;
 
 public class GroupEditService {
 
-
+  Logger logger;
+  GroupsRepository groupsRepository;
+  public GroupEditService() {
+    logger = LogUtils.getLogger();
+    groupsRepository = new GroupsRepository();
+  }
 
   public boolean canEditGroup(User user, UUID groupId) {
 
@@ -19,13 +29,15 @@ public class GroupEditService {
     return null;
   }
 
-  public Group createGroup(Group groupToCreate){
-      /*
-    TODO: Add logic here
+  public Group insertGroup(User user, Group groupToInsert, Connection conn) throws Exception{
 
-    If a user has permissions to edit or the group, edit the group and return the modified group.
-    If a user does not have permission to edit or delete the group, return an error without modifying the group.
-   */
+    if(!user.isLoggedInUser()){
+      var message = "Cannot insert group. User is not logged in";
+      logger.error(message);
+      throw new Exception(message);
+    }
+
+    groupsRepository.insertGroup(user, groupToInsert, conn);
     return null;
   }
 

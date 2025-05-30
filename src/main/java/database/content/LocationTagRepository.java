@@ -1,4 +1,4 @@
-package database;
+package database.content;
 
 import app.data.LocationTag;
 import org.apache.logging.log4j.Logger;

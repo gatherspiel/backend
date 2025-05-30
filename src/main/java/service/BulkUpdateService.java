@@ -1,7 +1,7 @@
 package service;
 
 import app.request.BulkUpdateRequest;
-import database.*;
+import database.content.*;
 import database.utils.ConnectionProvider;
 import java.sql.Connection;
 import org.apache.logging.log4j.Logger;

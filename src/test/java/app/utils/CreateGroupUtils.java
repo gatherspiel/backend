@@ -1,11 +1,20 @@
 package app.utils;
 
 import app.data.Group;
+import app.data.auth.User;
+import database.utils.ConnectionProvider;
+import service.update.GroupEditService;
 
 public class CreateGroupUtils {
-  public static Group createRandomGroup(){
+  public static Group createGroup(User user, ConnectionProvider testConnectionProvider) throws Exception{
 
-    //TODO: Create group with random name, save it to the database and return it.
-    return null;
+    Group group = new Group();
+    GroupEditService groupEditService = new GroupEditService();
+
+    group.setName("group_"+group.getUUID().toString());
+
+    groupEditService.insertGroup(user, group, testConnectionProvider);
+
+    return group;
   }
 }

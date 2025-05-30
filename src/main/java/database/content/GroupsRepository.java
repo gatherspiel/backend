@@ -1,7 +1,8 @@
-package database;
+package database.content;
 
 import app.data.Group;
-import app.result.groupPage.GroupPageData;
+import app.data.auth.User;
+import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -81,5 +82,31 @@ public class GroupsRepository {
       return -1;
     }
     return rs.getInt(1);
+  }
+
+  public void insertGroup(User groupAdmin, Group groupToInsert, Connection conn) throws Exception{
+
+    String query =
+        """
+          DO $$
+         
+          DECLARE
+            new_group_id INTEGER;
+          BEGIN
+            INSERT INTO groups (name, url, summary)
+            VALUES(?,?,?)
+            returning id INTO new_group_id;
+            
+            INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+            VALUES(?, new_group_id, 'group_admin)
+          END $$;
+         """;
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setString(1, groupToInsert.getName());
+    insert.setString(2, groupToInsert.getUrl());
+    insert.setString(3, groupToInsert.getSummary());
+    insert.setInt(4, groupAdmin.getId());
+
+    insert.executeUpdate();
   }
 }
