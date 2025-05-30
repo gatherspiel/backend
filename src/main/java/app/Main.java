@@ -1,6 +1,6 @@
 package app;
 
-import app.data.InputRequest;
+import app.request.BulkUpdateInputRequest;
 import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -18,6 +18,7 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
+  public static AuthService authService = new AuthService();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -111,8 +112,8 @@ public class Main {
       ctx -> {
         var authService = new AuthService();
 
-        var data = ctx.bodyAsClass(InputRequest.class);
-        authService.validate(data);
+        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
+        authService.validateBulkUpdateInputRequest(data);
         ctx.result("Test");
 
         var connectionProvider = new ConnectionProvider();
@@ -131,7 +132,11 @@ public class Main {
                 ctx
             );
 
+            var email = authService.getEmailFromRequest(ctx);
+
             var searchService = new SearchService();
+
+            //TODO: Pass email as constructor argument
             var groupService = new GroupListService(searchService);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);

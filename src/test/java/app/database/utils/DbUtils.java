@@ -1,6 +1,6 @@
 package app.database.utils;
 
-import app.data.Data;
+import app.request.BulkUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -39,7 +39,7 @@ public class DbUtils {
     try {
       File file = new File("src/test/fixtures/listingData.json");
       ObjectMapper mapper = new ObjectMapper();
-      Data data = mapper.readValue(file, Data.class);
+      BulkUpdateRequest data = mapper.readValue(file, BulkUpdateRequest.class);
 
       BulkUpdateService bulkUpdateService = new BulkUpdateService();
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);

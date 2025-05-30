@@ -1,6 +1,6 @@
 package service;
 
-import app.data.Data;
+import app.request.BulkUpdateRequest;
 import database.*;
 import database.utils.ConnectionProvider;
 import java.sql.Connection;
@@ -14,7 +14,7 @@ public class BulkUpdateService {
     logger = LogUtils.getLogger();
   }
 
-  public void bulkUpdate(Data data, ConnectionProvider connectionProvider)
+  public void bulkUpdate(BulkUpdateRequest data, ConnectionProvider connectionProvider)
     throws Exception {
     Connection conn = connectionProvider.getDatabaseConnection();
     conn.setAutoCommit(false);
