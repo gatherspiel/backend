@@ -1,4 +1,4 @@
-package service;
+package service.auth;
 
 import app.request.BulkUpdateInputRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;

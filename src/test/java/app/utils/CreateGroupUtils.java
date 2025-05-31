@@ -12,7 +12,7 @@ public class CreateGroupUtils {
     GroupEditService groupEditService = new GroupEditService();
 
     group.setName("group_"+group.getUUID().toString());
-    group.setUrl("localhost");
+    group.setUrl("localhost:1234/"+group.getName());
 
     return groupEditService.insertGroup(user, group, testConnectionProvider);
   }

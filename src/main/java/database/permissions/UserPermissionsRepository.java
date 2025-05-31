@@ -17,7 +17,8 @@ public class UserPermissionsRepository
   public UserPermissionsRepository(){
     logger = LogUtils.getLogger();
   }
-  public void setGroupAdmin(User currentUser, int groupId, Connection conn) throws Exception{
+
+  public void setGroupAdmin(User userToUpdate, int groupId, Connection conn) throws Exception{
     String query = """
             UPDATE group_admin_data
               SET user_id = ?
@@ -26,11 +27,44 @@ public class UserPermissionsRepository
         """;
 
     PreparedStatement insert = conn.prepareStatement(query);
-    insert.setInt(1, currentUser.getId());
+    insert.setInt(1, userToUpdate.getId());
     insert.setInt(2, groupId);
     insert.setString(3, GroupAdminType.GROUP_ADMIN.toString());
 
     insert.executeUpdate();
+  }
+
+  public void addGroupModerator(User currentUser, int groupId, Connection conn) throws Exception{
+
+    String query = """
+            INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+          VALUES(?, ?, cast(? as group_admin_level))
+        """;
+
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, currentUser.getId());
+    insert.setInt(2, groupId);
+    insert.setString(3, GroupAdminType.GROUP_MODERATOR.toString());
+
+    insert.executeUpdate();
+  }
+
+  public boolean canUpdateGroupAdmin(User user, int groupId, Connection conn) throws Exception {
+    String query =  """
+                      SELECT (group_admin_level)
+                      FROM group_admin_data 
+                      WHERE user_id = ?
+                      AND group_id = ?
+                      AND group_admin_level = cast(? as group_admin_level)
+                    """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+    select.setInt(1, user.getId());
+    select.setInt(2, groupId);
+    select.setString(3, GroupAdminType.GROUP_ADMIN.toString());
+
+    ResultSet rs = select.executeQuery();
+    return rs.next();
   }
 
   public boolean canEditGroup(User user, int groupId, Connection conn) throws Exception {

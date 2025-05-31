@@ -7,6 +7,7 @@ import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
+import service.auth.AuthService;
 import service.data.SearchParameterException;
 import service.read.GameLocationsService;
 import service.read.GroupListService;
