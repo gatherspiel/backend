@@ -19,17 +19,14 @@ public class GroupEditService {
     groupsRepository = new GroupsRepository();
   }
 
-  public boolean canEditGroup(User user, UUID groupId) {
 
-    return false;
-  }
 
   public Group editGroup(){
 
     return null;
   }
 
-  public Group insertGroup(User user, Group groupToInsert, Connection conn) throws Exception{
+  public Group insertGroup(User user, Group groupToInsert, ConnectionProvider connectionProvider) throws Exception{
 
     if(!user.isLoggedInUser()){
       var message = "Cannot insert group. User is not logged in";
@@ -37,8 +34,7 @@ public class GroupEditService {
       throw new Exception(message);
     }
 
-    groupsRepository.insertGroup(user, groupToInsert, conn);
-    return null;
+    return groupsRepository.insertGroup(user, groupToInsert, connectionProvider.getDatabaseConnection());
   }
 
   public Group deleteGroup(UUID groupId){

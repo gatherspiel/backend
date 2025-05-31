@@ -1,13 +1,12 @@
 package app.data.auth;
 
-public enum UserType {
-  SITE_ADMIN("site_admin"),
-  TESTER("tester"),
-  USER("user");
+public enum GroupAdminType {
+  GROUP_ADMIN("group_admin"),
+  GROUP_MODERATOR("group_moderator");
 
   private String name;
 
-  UserType(String name){
+  GroupAdminType(String name){
     this.name = name;
   }
 

@@ -31,7 +31,7 @@ public class GameLocationsService {
     logger.info("Retrieving game locations");
     Connection connection = connectionProvider.getDatabaseConnection();
     ConventionsRepository conventionsRepository = new ConventionsRepository();
-    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(connection, date);
+    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date, connection);
 
     logger.info("Retrieving game restaurants");
 

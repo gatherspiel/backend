@@ -2,32 +2,38 @@ package app.service.edit.permissions;
 
 import app.data.Group;
 import app.data.auth.User;
+import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.update.GroupEditService;
-import service.update.permissions.EditPermissionService;
+import service.update.permissions.GroupPermissionService;
 import service.user.CreateUserService;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import java.sql.Connection;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EditPermissionServiceIntegrationTest {
 
   private static final String ADMIN_EMAIL = "unitTest@test";
-  private static final String USER_EMAIL ="user@test";
+  private static final String USER_EMAIL = "user@test";
+  private static final String USER_EMAIL_2 = "user2@test";
   private static CreateUserService createUserService;
-  private static EditPermissionService editPermissionService;
+  private static GroupPermissionService groupPermissionService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
-  private static GroupEditService groupEditService;
   @BeforeAll
   static void setup(){
     testConnectionProvider = new IntegrationTestConnectionProvider();
-    editPermissionService = new EditPermissionService();
-    groupEditService = new GroupEditService();
+    groupPermissionService = new GroupPermissionService();
+    createUserService = new CreateUserService();
     try {
-
+      Connection conn = testConnectionProvider.getDatabaseConnection();
+      System.out.println("Creating tables");
+      DbUtils.createTables(conn);
+      System.out.println("Initializing data");
+      DbUtils.initializeData(testConnectionProvider);
     } catch(Exception e){
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -35,14 +41,19 @@ public class EditPermissionServiceIntegrationTest {
   }
   @Test
   public void testSiteAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
-    User admin =createUserService.createAdmin(ADMIN_EMAIL);
-    User user = createUserService.createStandardUser(USER_EMAIL);
+    User admin = createUserService.createAdmin(ADMIN_EMAIL, testConnectionProvider);
+    User user = createUserService.createStandardUser(USER_EMAIL, testConnectionProvider);
+    User user2 = createUserService.createStandardUser(USER_EMAIL_2, testConnectionProvider);
 
     Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);
-    editPermissionService.setGroupAdmin(user, group.getId(), testConnectionProvider);
 
-    assertTrue(groupEditService.canEditGroup(user, group.getUUID(), testConnectionProvider));
+    groupPermissionService.setGroupAdmin(user, group.getId(), testConnectionProvider);
+    assertTrue(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider));
+    assertFalse(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
 
+    groupPermissionService.setGroupAdmin(user2, group.getId(), testConnectionProvider);
+    assertFalse(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider));
+    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
     //TODO: Test permission removed
   }
 

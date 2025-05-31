@@ -1,9 +1,6 @@
 package app.service.edit;
 
-import app.database.utils.IntegrationTestConnectionProvider;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.update.permissions.EditPermissionService;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

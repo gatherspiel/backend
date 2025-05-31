@@ -20,11 +20,11 @@ public class CreateUserRepository {
 
   public User createAdmin(String email, Connection conn) throws Exception{
       String query =
-          "INSERT INTO user_role_data(email, user_role_level) returning user_id";
+          "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
 
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setString(1, email);
-    insert.setString(2, "admin");
+    insert.setString(2, UserType.SITE_ADMIN.toString());
 
     ResultSet rs = insert.executeQuery();
     if(!rs.next()) {
@@ -39,7 +39,7 @@ public class CreateUserRepository {
 
   public User createStandardUser(String email, Connection conn) throws Exception{
     String query =
-        "INSERT INTO user_role_data(email, user_role_level) returning user_id";
+        "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
 
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setString(1, email);

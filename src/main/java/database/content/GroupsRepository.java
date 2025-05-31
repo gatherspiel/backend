@@ -84,29 +84,38 @@ public class GroupsRepository {
     return rs.getInt(1);
   }
 
-  public void insertGroup(User groupAdmin, Group groupToInsert, Connection conn) throws Exception{
+  public Group insertGroup(User groupAdmin, Group groupToInsert, Connection conn) throws Exception{
 
-    String query =
+    String groupInsertQuery=
         """
-          DO $$
-         
-          DECLARE
-            new_group_id INTEGER;
-          BEGIN
             INSERT INTO groups (name, url, summary)
             VALUES(?,?,?)
-            returning id INTO new_group_id;
-            
-            INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
-            VALUES(?, new_group_id, 'group_admin)
-          END $$;
-         """;
-    PreparedStatement insert = conn.prepareStatement(query);
-    insert.setString(1, groupToInsert.getName());
-    insert.setString(2, groupToInsert.getUrl());
-    insert.setString(3, groupToInsert.getSummary());
-    insert.setInt(4, groupAdmin.getId());
+            returning id;
+        """;
 
-    insert.executeUpdate();
+    PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
+    groupInsert.setString(1, groupToInsert.getName());
+    groupInsert.setString(2, groupToInsert.getUrl());
+    groupInsert.setString(3, groupToInsert.getSummary());
+    ResultSet rs = groupInsert.executeQuery();
+
+    if(!rs.next()){
+      throw new Exception("Failed to insert group");
+    }
+
+    int groupId = rs.getInt(1);
+
+    String groupPermissionInsertQuery = """
+        INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+        VALUES(?, ?, 'group_admin')
+     """;
+    PreparedStatement groupPermissionInsert = conn.prepareStatement(groupPermissionInsertQuery);
+    groupPermissionInsert.setInt(1, groupAdmin.getId());
+    groupPermissionInsert.setInt(2, groupId);
+
+    groupPermissionInsert.executeUpdate();
+    groupToInsert.setId(groupId);
+
+    return groupToInsert;
   }
 }

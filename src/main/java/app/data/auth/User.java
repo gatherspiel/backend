@@ -18,6 +18,13 @@ public class User {
     return id;
   }
 
+  public String getAdminLevel(){
+    return userType.name();
+  }
+
+  public boolean isSiteAdmin(){
+    return userType.equals(UserType.SITE_ADMIN);
+  }
 
 
 }
