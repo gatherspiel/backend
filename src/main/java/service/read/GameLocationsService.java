@@ -1,13 +1,13 @@
-package service;
+package service.read;
 
 import app.data.Convention;
 import app.data.GameRestaurant;
 import app.data.GameStore;
 import app.result.GameLocationData;
-import database.ConventionsRepository;
-import database.GameRestaurantRepository;
-import database.GameStoreRepository;
-import database.LocationsRepository;
+import database.content.ConventionsRepository;
+import database.content.GameRestaurantRepository;
+import database.content.GameStoreRepository;
+import database.content.LocationsRepository;
 import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -16,9 +16,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 public class GameLocationsService {
 
@@ -33,7 +31,7 @@ public class GameLocationsService {
     logger.info("Retrieving game locations");
     Connection connection = connectionProvider.getDatabaseConnection();
     ConventionsRepository conventionsRepository = new ConventionsRepository();
-    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(connection, date);
+    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date, connection);
 
     logger.info("Retrieving game restaurants");
 

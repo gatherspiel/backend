@@ -1,8 +1,9 @@
-package service;
+package service.auth;
 
-import app.data.InputRequest;
+import app.request.BulkUpdateInputRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.javalin.http.Context;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -21,7 +22,24 @@ public class AuthService {
   final String URL =
     "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/token?grant_type=password";
 
-  public boolean validate(InputRequest request) throws Exception {
+
+  /*
+   Make sure the token is valid. If the token is invalid, throw an error.
+   If the token has expired, print a warning message
+   */
+  private boolean validateToken() throws Exception{
+   return false;
+  }
+
+  public String getEmailFromRequest(Context ctx) throws Exception{
+    if(!this.validateToken()){
+      return null;
+    }
+    //TODO: Update logic
+    return "test";
+  }
+
+  public boolean validateBulkUpdateInputRequest(BulkUpdateInputRequest request) throws Exception {
     final HttpPost httpPost = new HttpPost(URL);
     httpPost.setHeader("Content-type", "application/json");
     httpPost.setHeader("apikey", API_KEY);

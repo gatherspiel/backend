@@ -37,7 +37,6 @@ public class GroupSearchResult {
     String groupCity
   ) {
     if (!groupData.containsKey(id)) {
-      System.out.println(name);
       Group group = new Group();
       group.setId(id);
       group.setName(name);

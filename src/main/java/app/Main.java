@@ -1,14 +1,17 @@
 package app;
 
-import app.data.Group;
-import app.data.InputRequest;
+import app.request.BulkUpdateInputRequest;
 import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
+import service.auth.AuthService;
 import service.data.SearchParameterException;
+import service.read.GameLocationsService;
+import service.read.GroupListService;
+import service.read.SearchService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -16,6 +19,7 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
+  public static AuthService authService = new AuthService();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -109,8 +113,8 @@ public class Main {
       ctx -> {
         var authService = new AuthService();
 
-        var data = ctx.bodyAsClass(InputRequest.class);
-        authService.validate(data);
+        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
+        authService.validateBulkUpdateInputRequest(data);
         ctx.result("Test");
 
         var connectionProvider = new ConnectionProvider();
@@ -129,8 +133,12 @@ public class Main {
                 ctx
             );
 
+            var email = authService.getEmailFromRequest(ctx);
+
             var searchService = new SearchService();
-            var groupService = new GroupService(searchService);
+
+            //TODO: Pass email as constructor argument
+            var groupService = new GroupListService(searchService);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");

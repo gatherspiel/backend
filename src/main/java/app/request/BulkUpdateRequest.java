@@ -1,13 +1,15 @@
-package app.data;
+package app.request;
 
-public class Data {
+import app.data.*;
+
+public class BulkUpdateRequest {
   private Group[] groups;
   private Convention[] conventions;
   private GameStore[] gameStores;
   private GameRestaurant[] gameRestaurants;
   private LocationTag[] locationTags;
   //TODO: Add data for location map
-  public Data() {}
+  public BulkUpdateRequest() {}
 
   public Group[] getGroups() {
     if(groups == null){

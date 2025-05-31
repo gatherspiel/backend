@@ -1,4 +1,4 @@
-package database;
+package database.content;
 
 import app.data.Event;
 import java.sql.Connection;

@@ -1,20 +1,23 @@
-package service;
+package service.read;
 
 import app.data.Group;
 import app.result.GroupSearchResult;
 import app.result.groupPage.GroupPageData;
 import database.utils.ConnectionProvider;
+import service.ContentItemService;
 import service.data.SearchParameterException;
 
 import java.util.LinkedHashMap;
 
-public class GroupService {
+public class GroupListService extends ContentItemService {
 
   SearchService searchService;
 
-  public GroupService(SearchService searchService){
+  public GroupListService(SearchService searchService){
     this.searchService = searchService;
   }
+
+
 
   public GroupPageData getGroupPageData(LinkedHashMap<String, String> params,
                                         ConnectionProvider connectionProvider) throws Exception{

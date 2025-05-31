@@ -1,6 +1,6 @@
 package utils;
 
-import database.GameStoreRepository;
+import database.content.GameStoreRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

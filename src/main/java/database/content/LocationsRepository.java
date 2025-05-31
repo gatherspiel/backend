@@ -1,4 +1,4 @@
-package database;
+package database.content;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

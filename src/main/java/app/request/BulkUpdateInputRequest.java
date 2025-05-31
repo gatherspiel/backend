@@ -1,11 +1,11 @@
-package app.data;
+package app.request;
 
-public class InputRequest {
-  private Data data;
+public class BulkUpdateInputRequest {
+  private BulkUpdateRequest data;
   private String email;
   private String password;
 
-  public InputRequest() {}
+  public BulkUpdateInputRequest() {}
 
   public String getEmail() {
     return email;
@@ -15,11 +15,11 @@ public class InputRequest {
     this.email = email;
   }
 
-  public Data getData() {
+  public BulkUpdateRequest getData() {
     return data;
   }
 
-  public void setData(Data data) {
+  public void setData(BulkUpdateRequest data) {
     this.data = data;
   }
 

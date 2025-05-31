@@ -1,6 +1,6 @@
 package app.data;
 
-public class Group {
+public class Group extends ContentItem {
   public Event[] events;
   public int id;
   public String url;
@@ -8,7 +8,9 @@ public class Group {
   public String summary;
   public String name;
 
-  public Group() {}
+  public Group() {
+    super(ContentType.GROUP);
+  }
 
   public Integer getId() {
     return id;

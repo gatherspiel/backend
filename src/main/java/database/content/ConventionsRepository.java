@@ -1,4 +1,4 @@
-package database;
+package database.content;
 
 import app.data.Convention;
 import java.sql.Connection;
@@ -19,7 +19,7 @@ public class ConventionsRepository {
     logger = LogUtils.getLogger();
   }
 
-  public HashMap<Integer, Convention> getConventions(Connection conn, LocalDate searchStartDate) throws Exception{
+  public HashMap<Integer, Convention> getConventions(LocalDate searchStartDate,Connection conn) throws Exception{
     String query = "SELECT * from events\n" +
         "JOIN event_time on event_time.event_id = events.id\n" +
         "WHERE is_convention is TRUE\n" +
