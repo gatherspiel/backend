@@ -7,8 +7,7 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.update.GroupEditService;
-import service.update.permissions.GroupPermissionService;
+import service.permissions.GroupPermissionService;
 import service.user.CreateUserService;
 
 import java.sql.Connection;

@@ -1,14 +1,12 @@
 package app.data.auth;
 
-public enum UserType {
-  SITE_ADMIN("site_admin"),
-  TESTER("tester"),
-  READONLY("read_ony"),
-  USER("user");
+public enum PermissionName {
+
+  USER_CAN_EDIT("userCanEdit");
 
   private String name;
 
-  UserType(String name){
+  PermissionName(String name){
     this.name = name;
   }
 

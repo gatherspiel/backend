@@ -1,5 +1,7 @@
 package service.auth;
 
+import app.data.auth.User;
+import app.data.auth.UserType;
 import app.request.BulkUpdateInputRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -21,6 +23,16 @@ public class AuthService {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcnF5c2t1dWRudmZ4b2h3a29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5ODQ5NjgsImV4cCI6MjA1NzU2MDk2OH0.TR-Pn6dknOTtqS9y-gxK_S1-nw6TX-sL3gRH2kXJY_I";
   final String URL =
     "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/token?grant_type=password";
+
+  /**
+   *
+   * @return Returns currently logged in user, or read only user if the user is not logged in.
+   */
+  public User getCurrentUser(){
+    //TODO: Get current user from token
+    User user = new User("reader@dmvboardgames.com", UserType.READONLY, 123);
+    return user;
+  }
 
 
   /*

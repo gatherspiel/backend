@@ -10,7 +10,7 @@ import service.*;
 import service.auth.AuthService;
 import service.data.SearchParameterException;
 import service.read.GameLocationsService;
-import service.read.GroupListService;
+import service.read.ReadGroupService;
 import service.read.SearchService;
 import utils.LogUtils;
 
@@ -56,7 +56,8 @@ public class Main {
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
-          var searchService = new SearchService();
+
+          var searchService = new SearchService(authService.getCurrentUser());
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -134,11 +135,12 @@ public class Main {
             );
 
             var email = authService.getEmailFromRequest(ctx);
+            var currentUser = authService.getCurrentUser();
 
-            var searchService = new SearchService();
+            var searchService = new SearchService(currentUser);
 
             //TODO: Pass email as constructor argument
-            var groupService = new GroupListService(searchService);
+            var groupService = new ReadGroupService(searchService, currentUser);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");
