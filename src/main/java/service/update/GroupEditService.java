@@ -28,6 +28,7 @@ public class GroupEditService {
 
   public Group insertGroup(User user, Group groupToInsert, ConnectionProvider connectionProvider) throws Exception{
 
+    validateGroupData(groupToInsert);
     if(!user.isLoggedInUser()){
       var message = "Cannot insert group. User is not logged in";
       logger.error(message);
@@ -39,5 +40,13 @@ public class GroupEditService {
 
   public Group deleteGroup(UUID groupId){
     return null;
+  }
+
+  private void validateGroupData(Group group) throws Exception{
+    if(group.getName().contains("_")){
+      var message = "Group name cannot have _ characters";
+      logger.info(message);
+      throw new Exception(message);
+    }
   }
 }

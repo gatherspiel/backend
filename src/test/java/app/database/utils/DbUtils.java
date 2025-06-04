@@ -42,6 +42,7 @@ public class DbUtils {
       BulkUpdateRequest data = mapper.readValue(file, BulkUpdateRequest.class);
 
       BulkUpdateService bulkUpdateService = new BulkUpdateService();
+      bulkUpdateService.deleteUsers(testConnectionProvider);
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);
     } catch (Exception e) {
       System.out.println("Error initializing data:" + e.getMessage());

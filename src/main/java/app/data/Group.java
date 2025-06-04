@@ -61,6 +61,10 @@ public class Group extends ContentItem {
   }
 
   public Event[] getEvents() {
+
+    if(events == null || events.length == 0){
+      return new Event[0];
+    }
     return events;
   }
 

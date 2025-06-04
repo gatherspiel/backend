@@ -5,21 +5,23 @@ import app.data.auth.PermissionName;
 import app.data.auth.User;
 import app.result.groupPage.GroupPageData;
 import database.utils.ConnectionProvider;
-import service.ContentService;
 import service.data.SearchParameterException;
 import service.permissions.GroupPermissionService;
+import service.provider.ReadGroupDataProvider;
 
 import java.util.LinkedHashMap;
 
-public class ReadGroupService extends ContentService {
+public class ReadGroupService{
+
 
   SearchService searchService;
   GroupPermissionService groupPermissionService;
+  User currentUser;
 
-  public ReadGroupService(SearchService searchService, User currentUser, GroupPermissionService groupPermissionService){
-    super(currentUser);
-    this.searchService = searchService;
-    this.groupPermissionService = groupPermissionService;
+  public ReadGroupService(ReadGroupDataProvider dataProvider) {
+    this.searchService = dataProvider.getSearchService();
+    this.groupPermissionService = dataProvider.getGroupPermissionService();
+    this.currentUser = dataProvider.getUser();
   }
 
   public GroupPageData getGroupPageData(
@@ -28,7 +30,7 @@ public class ReadGroupService extends ContentService {
 
     Group group = searchService.getSingleGroup(params, connectionProvider);
     if(group == null){
-      throw new SearchParameterException("No group found");
+      throw new SearchParameterException("No group found with parameters:"+params);
     }
     GroupPageData groupPageData = GroupPageData.createFromSearchResult(group);
 

@@ -102,20 +102,27 @@ public class GroupsRepository {
     if(!rs.next()){
       throw new Exception("Failed to insert group");
     }
-
     int groupId = rs.getInt(1);
 
-    String groupPermissionInsertQuery = """
-        INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
-        VALUES(?, ?, 'group_admin')
-     """;
-    PreparedStatement groupPermissionInsert = conn.prepareStatement(groupPermissionInsertQuery);
-    groupPermissionInsert.setInt(1, groupAdmin.getId());
-    groupPermissionInsert.setInt(2, groupId);
+    try {
 
-    groupPermissionInsert.executeUpdate();
-    groupToInsert.setId(groupId);
 
-    return groupToInsert;
+      String groupPermissionInsertQuery = """
+             INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+             VALUES(?, ?, 'group_admin')
+          """;
+      PreparedStatement groupPermissionInsert = conn.prepareStatement(groupPermissionInsertQuery);
+      groupPermissionInsert.setInt(1, groupAdmin.getId());
+      groupPermissionInsert.setInt(2, groupId);
+
+      groupPermissionInsert.executeUpdate();
+      groupToInsert.setId(groupId);
+
+      logger.info("Created group with name:"+groupToInsert.getName());
+      return groupToInsert;
+    } catch(Exception e) {
+      logger.error("Failed to set user:"+groupAdmin.getEmail() + "with id:" + groupAdmin.getId() + " as group admin");
+      throw e;
+    }
   }
 }

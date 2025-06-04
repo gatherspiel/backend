@@ -81,16 +81,19 @@ public class GroupPageData {
 
     LocalDate currentDate = LocalDate.now();
 
-    for(Event event: group.getEvents()) {
+    if(group.getEvents() != null){
+      for(Event event: group.getEvents()) {
 
-      //TODO: Handle case where events are not recurring
-      String day = event.getDay();
-      LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
-      while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
-        data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
-        nextEventDate = nextEventDate.plusDays(7);
+        //TODO: Handle case where events are not recurring
+        String day = event.getDay();
+        LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
+        while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
+          data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
+          nextEventDate = nextEventDate.plusDays(7);
+        }
       }
     }
+
     return data;
   }
 

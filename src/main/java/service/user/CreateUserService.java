@@ -2,15 +2,15 @@ package service.user;
 
 
 import app.data.auth.User;
-import database.user.CreateUserRepository;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 
 public class CreateUserService {
 
-  CreateUserRepository createUserRepository;
+  UserRepository createUserRepository;
 
   public CreateUserService(){
-    this.createUserRepository = new CreateUserRepository();
+    this.createUserRepository = new UserRepository();
   }
 
   /*
@@ -24,7 +24,4 @@ public class CreateUserService {
   public User createStandardUser(String email, ConnectionProvider connectionProvider) throws Exception{
     return createUserRepository.createStandardUser(email, connectionProvider.getDatabaseConnection());
   }
-
-
-
 }

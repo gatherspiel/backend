@@ -79,6 +79,8 @@ public class GroupSearchParams {
         select.setString(i, params.get(param));
         i++;
       }
+
+      System.out.println("Select query:"+select);
       return select;
 
     } else {
