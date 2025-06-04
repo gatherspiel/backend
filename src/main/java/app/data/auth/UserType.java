@@ -16,4 +16,15 @@ public enum UserType {
   public String toString(){
     return name;
   }
+
+  public static UserType fromDatabaseString(String dbString) throws Exception{
+    for(UserType userType: UserType.values()){
+      if(userType.toString().equals(dbString)){
+        return userType;
+      }
+    }
+    throw new Exception("Invalid string:"+dbString +" for UserType enum");
+  }
+
+
 }

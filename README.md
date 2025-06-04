@@ -11,6 +11,8 @@ Also, follow the guidelines below:
 ### Running locally in Linux
 
 - Compile the API using `mvn clean package`. 
+- Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
+
 - Clone the [database repo](https://github.com/free-gather/database), setup the Supabase cli, and then run 
    `npx supabase start` to start the database.
 - In the UI .env file and set the following values

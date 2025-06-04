@@ -32,6 +32,7 @@ public class UserRepository {
       throw new Exception(message);
     }
 
+    logger.info("Created admin with email:"+email);
     return new User(email, UserType.SITE_ADMIN, rs.getInt(1));
   }
 
@@ -54,6 +55,28 @@ public class UserRepository {
     int userId = rs.getInt(1);
     logger.info("Created user with id:"+userId);
     return new User(email, UserType.USER, userId);
+  }
+
+  public User getUserFromEmail(String email, Connection conn) throws Exception {
+
+    String query = "SELECT * from users where email = ?";
+    PreparedStatement select = conn.prepareStatement(query);
+    select.setString(1, email);
+
+    ResultSet rs = select.executeQuery();
+
+    if(!rs.next()){
+      logger.info("Did not find user with email:"+email);
+      return null;
+    }
+
+    logger.info(rs.getString("email"));
+    User user = new User(
+        email,
+        UserType.fromDatabaseString(rs.getString("user_role_level")),
+        rs.getInt("id")
+    );
+    return user;
   }
 
   public void deleteAllUsers(Connection connection) throws Exception {

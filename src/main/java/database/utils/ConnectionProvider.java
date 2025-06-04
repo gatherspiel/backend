@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
+import utils.Params;
 
 public class ConnectionProvider {
   private static Logger logger = LogUtils.getLogger();
@@ -14,10 +15,10 @@ public class ConnectionProvider {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-    var password = System.getenv("DB_PASSWORD");
-    if(password == null || password.isBlank()){
-      System.out.println("DB Password:"+System.getenv("DB_PASSWORD"));
+    var dbPassword = Params.getDatabasePassword();
 
+    if(!dbPassword.isPresent()){
+      logger.info("Using local database connection provider");
       var connectionProvider = new LocalDevConnectionProvider();
       return connectionProvider.getDatabaseConnection();
     }
@@ -27,7 +28,7 @@ public class ConnectionProvider {
           "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?" +
               "user=postgres.karqyskuudnvfxohwkok&" +
               "password=" +
-              System.getenv("DB_PASSWORD");
+              dbPassword.get();
       Connection connection = DriverManager.getConnection(url);
       return connection;
     }

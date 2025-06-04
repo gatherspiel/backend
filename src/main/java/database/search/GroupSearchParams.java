@@ -80,7 +80,6 @@ public class GroupSearchParams {
         i++;
       }
 
-      System.out.println("Select query:"+select);
       return select;
 
     } else {

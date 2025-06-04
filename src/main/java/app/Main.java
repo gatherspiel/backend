@@ -136,9 +136,8 @@ public class Main {
                 ctx
             );
 
-            var email = authService.getEmailFromRequest(ctx);
-            var currentUser = authService.getCurrentUser();
-
+            var currentUser = authService.getCurrentUser(ctx, connectionProvider);
+            logger.info("Current user:"+currentUser);
 
             var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
             var groupService = new ReadGroupService(readGroupDataProvider);

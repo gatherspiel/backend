@@ -16,7 +16,7 @@ import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
 import service.update.GroupEditService;
-import service.user.CreateUserService;
+import service.user.UserService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
@@ -53,7 +53,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void invalidNameAndTag() throws Exception{
+  public void testInvalidNameAndTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "test");
     params.put(GroupSearchParams.NAME, "test2");
@@ -71,7 +71,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void invalidNameAndValidTag() throws Exception{
+  public void testInvalidNameAndValidTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "test2");
@@ -89,7 +89,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void validNameAndInvalidTag() throws Exception{
+  public void testValidNameAndInvalidTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "test");
     params.put(GroupSearchParams.NAME, "Game_Nights_at_Crossroads");
@@ -108,7 +108,7 @@ public class ReadGroupServiceIntegrationTest {
 
 
   @Test
-  public void validNameAndValidTag_correctGroupInformation() throws Exception{
+  public void testValidNameAndValidTag_correctGroupInformation() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
@@ -127,7 +127,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void validNameAndValidTag_Group_ValidEventsWithOneEventEachWeek() throws Exception{
+  public void testValidNameAndValidTag_Group_ValidEventsWithOneEventEachWeek() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
@@ -162,7 +162,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void validNameAndValidTag_Group_CorrectNumberOfEventsWithFourEventsEachWeek() throws Exception{
+  public void testValidNameAndValidTag_Group_CorrectNumberOfEventsWithFourEventsEachWeek() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
@@ -192,7 +192,7 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_showsEditPermissionsForAdminUser() throws Exception{
 
-    User admin = new CreateUserService().createAdmin("test_1", testConnectionProvider);
+    User admin = new UserService().createAdmin("test_1", testConnectionProvider);
 
     groupService = new ReadGroupService(ReadGroupDataProvider.create(admin, testConnectionProvider));
 
@@ -208,7 +208,7 @@ public class ReadGroupServiceIntegrationTest {
 
   @Test
   public void testGetGroupData_doesNotShowEditPermissions_whenRegularUserIsLoggedIn() throws Exception{
-    User standardUser = new CreateUserService().createStandardUser("test_2", testConnectionProvider);
+    User standardUser = new UserService().createStandardUser("test_2", testConnectionProvider);
 
     groupService = new ReadGroupService(ReadGroupDataProvider.create(standardUser, testConnectionProvider));
 
@@ -224,8 +224,8 @@ public class ReadGroupServiceIntegrationTest {
 
   @Test
   public void testGetGroupData_onlyShowsEditPermissions_forStandardUser_whoIsGroupAdmin() throws Exception{
-    User standardUser = new CreateUserService().createStandardUser("test_3", testConnectionProvider);
-    User standardUser2 = new CreateUserService().createStandardUser("test_4", testConnectionProvider);
+    User standardUser = new UserService().createStandardUser("test_3", testConnectionProvider);
+    User standardUser2 = new UserService().createStandardUser("test_4", testConnectionProvider);
 
     GroupEditService groupEditService = new GroupEditService();
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
@@ -249,8 +249,8 @@ public class ReadGroupServiceIntegrationTest {
 
   @Test
   public void testGetGroupData_showsEditPermissions_whenUserIsGroupModerator() throws Exception{
-    User standardUser = new CreateUserService().createStandardUser("test_5", testConnectionProvider);
-    User standardUser2 = new CreateUserService().createStandardUser("test_6", testConnectionProvider);
+    User standardUser = new UserService().createStandardUser("test_5", testConnectionProvider);
+    User standardUser2 = new UserService().createStandardUser("test_6", testConnectionProvider);
 
     GroupPermissionService groupPermissionService = new GroupPermissionService();
 
@@ -270,7 +270,7 @@ public class ReadGroupServiceIntegrationTest {
 
   @Test
   public void testGetGroupData_doesNotShowEditPermissions_whenUserIsNotLoggedIn() throws Exception{
-    User standardUser = new CreateUserService().createStandardUser("test_7", testConnectionProvider);
+    User standardUser = new UserService().createStandardUser("test_7", testConnectionProvider);
 
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
