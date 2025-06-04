@@ -18,7 +18,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import service.SearchService;
+import service.auth.AuthService;
+import service.read.SearchService;
 
 public class SearchServiceIntegrationTest {
   private static SearchService searchService;
@@ -28,10 +29,11 @@ public class SearchServiceIntegrationTest {
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
+      AuthService authService = new AuthService();
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService();
+      searchService = new SearchService(authService.getCurrentUser());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());

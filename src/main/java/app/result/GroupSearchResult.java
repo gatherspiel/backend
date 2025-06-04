@@ -37,7 +37,6 @@ public class GroupSearchResult {
     String groupCity
   ) {
     if (!groupData.containsKey(id)) {
-      System.out.println(name);
       Group group = new Group();
       group.setId(id);
       group.setName(name);
@@ -103,5 +102,8 @@ public class GroupSearchResult {
             Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
   }
 
+  public void setCanEdit(Group group, boolean canEdit){
+    //TODO: Add logic.
+  }
 
 }

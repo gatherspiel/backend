@@ -1,7 +1,8 @@
-package database;
+package database.content;
 
 import app.data.Group;
-import app.result.groupPage.GroupPageData;
+import app.data.auth.User;
+import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -81,5 +82,47 @@ public class GroupsRepository {
       return -1;
     }
     return rs.getInt(1);
+  }
+
+  public Group insertGroup(User groupAdmin, Group groupToInsert, Connection conn) throws Exception{
+
+    String groupInsertQuery=
+        """
+            INSERT INTO groups (name, url, summary)
+            VALUES(?,?,?)
+            returning id;
+        """;
+
+    PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
+    groupInsert.setString(1, groupToInsert.getName());
+    groupInsert.setString(2, groupToInsert.getUrl());
+    groupInsert.setString(3, groupToInsert.getSummary());
+    ResultSet rs = groupInsert.executeQuery();
+
+    if(!rs.next()){
+      throw new Exception("Failed to insert group");
+    }
+    int groupId = rs.getInt(1);
+
+    try {
+
+
+      String groupPermissionInsertQuery = """
+             INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+             VALUES(?, ?, 'group_admin')
+          """;
+      PreparedStatement groupPermissionInsert = conn.prepareStatement(groupPermissionInsertQuery);
+      groupPermissionInsert.setInt(1, groupAdmin.getId());
+      groupPermissionInsert.setInt(2, groupId);
+
+      groupPermissionInsert.executeUpdate();
+      groupToInsert.setId(groupId);
+
+      logger.info("Created group with name:"+groupToInsert.getName());
+      return groupToInsert;
+    } catch(Exception e) {
+      logger.error("Failed to set user:"+groupAdmin.getEmail() + "with id:" + groupAdmin.getId() + " as group admin");
+      throw e;
+    }
   }
 }

@@ -1,14 +1,19 @@
 package app;
 
-import app.data.Group;
-import app.data.InputRequest;
+import app.request.BulkUpdateInputRequest;
 import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
+import service.auth.AuthService;
 import service.data.SearchParameterException;
+import service.permissions.GroupPermissionService;
+import service.provider.ReadGroupDataProvider;
+import service.read.GameLocationsService;
+import service.read.ReadGroupService;
+import service.read.SearchService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -16,6 +21,7 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
+  public static AuthService authService = new AuthService();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -52,7 +58,8 @@ public class Main {
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
-          var searchService = new SearchService();
+
+          var searchService = new SearchService(authService.getCurrentUser());
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -109,8 +116,8 @@ public class Main {
       ctx -> {
         var authService = new AuthService();
 
-        var data = ctx.bodyAsClass(InputRequest.class);
-        authService.validate(data);
+        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
+        authService.validateBulkUpdateInputRequest(data);
         ctx.result("Test");
 
         var connectionProvider = new ConnectionProvider();
@@ -129,8 +136,11 @@ public class Main {
                 ctx
             );
 
-            var searchService = new SearchService();
-            var groupService = new GroupService(searchService);
+            var currentUser = authService.getCurrentUser(ctx, connectionProvider);
+            logger.info("Current user:"+currentUser);
+
+            var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
+            var groupService = new ReadGroupService(readGroupDataProvider);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");

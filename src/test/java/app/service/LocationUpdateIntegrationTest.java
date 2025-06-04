@@ -4,7 +4,7 @@ import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.GameLocationsService;
+import service.read.GameLocationsService;
 
 import java.sql.Connection;
 

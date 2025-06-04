@@ -11,12 +11,25 @@ Also, follow the guidelines below:
 ### Running locally in Linux
 
 - Compile the API using `mvn clean package`. 
-- Make sure the database password is set in your `.bashrc` file
+- Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
+
+- Clone the [database repo](https://github.com/free-gather/database), setup the Supabase cli, and then run 
+   `npx supabase start` to start the database.
+- In the UI .env file and set the following values
+    VITE_LOCAL_AUTH_KEY: `service_role_key` value that appears when starting the database.
+    VITE_LOCAL_AUTH_URL: `"http://localhost:54321"`
+- Run src/test/java/app/database/utils/local/InitLocalDb.java. This will initialize a test database.
 - Run using `java -jar target/app.jar`
 
 The API will be available at http://localhost:7070/
 
 To compile without running unit tests, run `mvn clean package -DskipTests`
+
+
+### Creating a new user
+
+- Navigate to http://localhost:54323
+- Go to the authentication dashboard and create a new user with the email `test@freegather.org` and the password `test`
 
 ### Running integration tests
 

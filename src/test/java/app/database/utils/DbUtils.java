@@ -1,6 +1,6 @@
 package app.database.utils;
 
-import app.data.Data;
+import app.request.BulkUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -9,8 +9,11 @@ import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;
 import service.BulkUpdateService;
+import service.user.UserService;
 
 public class DbUtils {
+
+  public static final String TEST_USER_EMAIL = "test@freegather.org";
 
   public static void createTables(Connection conn) throws Exception {
     Statement stat = conn.createStatement();
@@ -39,10 +42,14 @@ public class DbUtils {
     try {
       File file = new File("src/test/fixtures/listingData.json");
       ObjectMapper mapper = new ObjectMapper();
-      Data data = mapper.readValue(file, Data.class);
+      BulkUpdateRequest data = mapper.readValue(file, BulkUpdateRequest.class);
 
       BulkUpdateService bulkUpdateService = new BulkUpdateService();
+      bulkUpdateService.deleteUsers(testConnectionProvider);
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);
+
+      UserService createUserService = new UserService();
+      createUserService.createAdmin(TEST_USER_EMAIL, testConnectionProvider);
     } catch (Exception e) {
       System.out.println("Error initializing data:" + e.getMessage());
       throw e;

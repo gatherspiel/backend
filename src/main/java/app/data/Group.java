@@ -1,6 +1,10 @@
 package app.data;
 
-public class Group {
+import app.data.auth.PermissionName;
+
+import java.util.HashMap;
+
+public class Group extends ContentItem {
   public Event[] events;
   public int id;
   public String url;
@@ -8,7 +12,9 @@ public class Group {
   public String summary;
   public String name;
 
-  public Group() {}
+  public Group() {
+    super(ContentType.GROUP);
+  }
 
   public Integer getId() {
     return id;
@@ -55,8 +61,13 @@ public class Group {
   }
 
   public Event[] getEvents() {
+
+    if(events == null || events.length == 0){
+      return new Event[0];
+    }
     return events;
   }
+
 
   public String toString() {
     return (
@@ -124,4 +135,5 @@ public class Group {
     updated[cities.length] = city;
     cities = updated;
   }
+
 }

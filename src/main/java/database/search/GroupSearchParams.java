@@ -79,6 +79,7 @@ public class GroupSearchParams {
         select.setString(i, params.get(param));
         i++;
       }
+
       return select;
 
     } else {

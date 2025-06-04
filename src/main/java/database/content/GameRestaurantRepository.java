@@ -1,7 +1,7 @@
-package database;
+package database.content;
 
 import app.data.GameRestaurant;
-import app.data.GameStore;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
