@@ -7,9 +7,8 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.update.GroupEditService;
-import service.update.permissions.GroupPermissionService;
-import service.user.CreateUserService;
+import service.permissions.GroupPermissionService;
+import service.user.UserService;
 
 import java.sql.Connection;
 
@@ -23,7 +22,7 @@ public class EditPermissionServiceIntegrationTest {
   private static final String USER_EMAIL_3 = "user3@test";
   private static final String USER_EMAIL_4 = "user4@test";
 
-  private static CreateUserService createUserService;
+  private static UserService createUserService;
   private static GroupPermissionService groupPermissionService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
@@ -38,7 +37,7 @@ public class EditPermissionServiceIntegrationTest {
   static void setup(){
     testConnectionProvider = new IntegrationTestConnectionProvider();
     groupPermissionService = new GroupPermissionService();
-    createUserService = new CreateUserService();
+    createUserService = new UserService();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       System.out.println("Creating tables");

@@ -1,5 +1,9 @@
 package app.data;
 
+import app.data.auth.PermissionName;
+
+import java.util.HashMap;
+
 public class Group extends ContentItem {
   public Event[] events;
   public int id;
@@ -57,8 +61,13 @@ public class Group extends ContentItem {
   }
 
   public Event[] getEvents() {
+
+    if(events == null || events.length == 0){
+      return new Event[0];
+    }
     return events;
   }
+
 
   public String toString() {
     return (
@@ -126,4 +135,5 @@ public class Group extends ContentItem {
     updated[cities.length] = city;
     cities = updated;
   }
+
 }

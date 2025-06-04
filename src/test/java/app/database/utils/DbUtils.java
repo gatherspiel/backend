@@ -9,8 +9,11 @@ import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;
 import service.BulkUpdateService;
+import service.user.UserService;
 
 public class DbUtils {
+
+  public static final String TEST_USER_EMAIL = "test@freegather.org";
 
   public static void createTables(Connection conn) throws Exception {
     Statement stat = conn.createStatement();
@@ -42,7 +45,11 @@ public class DbUtils {
       BulkUpdateRequest data = mapper.readValue(file, BulkUpdateRequest.class);
 
       BulkUpdateService bulkUpdateService = new BulkUpdateService();
+      bulkUpdateService.deleteUsers(testConnectionProvider);
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);
+
+      UserService createUserService = new UserService();
+      createUserService.createAdmin(TEST_USER_EMAIL, testConnectionProvider);
     } catch (Exception e) {
       System.out.println("Error initializing data:" + e.getMessage());
       throw e;

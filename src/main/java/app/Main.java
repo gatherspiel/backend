@@ -9,8 +9,10 @@ import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
 import service.data.SearchParameterException;
+import service.permissions.GroupPermissionService;
+import service.provider.ReadGroupDataProvider;
 import service.read.GameLocationsService;
-import service.read.GroupListService;
+import service.read.ReadGroupService;
 import service.read.SearchService;
 import utils.LogUtils;
 
@@ -56,7 +58,8 @@ public class Main {
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
-          var searchService = new SearchService();
+
+          var searchService = new SearchService(authService.getCurrentUser());
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -133,12 +136,11 @@ public class Main {
                 ctx
             );
 
-            var email = authService.getEmailFromRequest(ctx);
+            var currentUser = authService.getCurrentUser(ctx, connectionProvider);
+            logger.info("Current user:"+currentUser);
 
-            var searchService = new SearchService();
-
-            //TODO: Pass email as constructor argument
-            var groupService = new GroupListService(searchService);
+            var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
+            var groupService = new ReadGroupService(readGroupDataProvider);
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");

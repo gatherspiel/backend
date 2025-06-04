@@ -1,4 +1,4 @@
-package service.update.permissions;
+package service.permissions;
 
 import app.data.auth.User;
 import database.permissions.UserPermissionsRepository;

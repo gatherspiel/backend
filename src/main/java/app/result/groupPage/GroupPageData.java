@@ -2,12 +2,14 @@ package app.result.groupPage;
 
 import app.data.Event;
 import app.data.Group;
+import app.data.auth.PermissionName;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -20,7 +22,7 @@ public class GroupPageData {
   private String name;
   private String url;
   private String summary;
-
+  private HashMap<String, Boolean> permissions;
   private TreeSet<GroupPageEventData> groupPageEventData;
 
   private GroupPageData(int id, String name, String url, String summary){
@@ -28,7 +30,7 @@ public class GroupPageData {
     this.name = name;
     this.url = url;
     this.summary = summary;
-
+    this.permissions = new HashMap<>();
     this.groupPageEventData = new TreeSet<GroupPageEventData>(new GroupPageEventDataComparator());
   }
 
@@ -79,16 +81,39 @@ public class GroupPageData {
 
     LocalDate currentDate = LocalDate.now();
 
-    for(Event event: group.getEvents()) {
+    if(group.getEvents() != null){
+      for(Event event: group.getEvents()) {
 
-      //TODO: Handle case where events are not recurring
-      String day = event.getDay();
-      LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
-      while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
-        data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
-        nextEventDate = nextEventDate.plusDays(7);
+        //TODO: Handle case where events are not recurring
+        String day = event.getDay();
+        LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
+        while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
+          data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
+          nextEventDate = nextEventDate.plusDays(7);
+        }
       }
     }
+
     return data;
+  }
+
+
+  public HashMap<String,Boolean> getPermissions(){
+    return permissions;
+  }
+
+  public void setPermissions(HashMap<String, Boolean> permissions){
+    this.permissions = permissions;
+  }
+
+  public void enablePermission(String permissionName, boolean isEnabled){
+    this.permissions.put(permissionName, isEnabled);
+  }
+
+  public boolean userCanEdit(){
+    if(permissions == null) {
+      return false;
+    }
+    return permissions.getOrDefault(PermissionName.USER_CAN_EDIT.toString(), false);
   }
 }

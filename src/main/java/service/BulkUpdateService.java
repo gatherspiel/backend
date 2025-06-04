@@ -2,6 +2,7 @@ package service;
 
 import app.request.BulkUpdateRequest;
 import database.content.*;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import java.sql.Connection;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +13,11 @@ public class BulkUpdateService {
 
   public BulkUpdateService() {
     logger = LogUtils.getLogger();
+  }
+
+  public void deleteUsers(ConnectionProvider connectionProvider) throws Exception{
+    UserRepository userRepository = new UserRepository();
+    userRepository.deleteAllUsers(connectionProvider.getDatabaseConnection());
   }
 
   public void bulkUpdate(BulkUpdateRequest data, ConnectionProvider connectionProvider)

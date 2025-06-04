@@ -11,7 +11,7 @@ public class CreateGroupUtils {
     Group group = new Group();
     GroupEditService groupEditService = new GroupEditService();
 
-    group.setName("group_"+group.getUUID().toString());
+    group.setName("group-"+group.getUUID().toString());
     group.setUrl("localhost:1234/"+group.getName());
 
     return groupEditService.insertGroup(user, group, testConnectionProvider);
