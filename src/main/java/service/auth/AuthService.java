@@ -101,8 +101,8 @@ public class AuthService {
 
       return userService.getUser(email, connectionProvider);
     } catch (Exception e) {
-      logger.error("Authorization failed with error", e);
-      throw (e);
+      logger.info("Authorization failed with error", e);
+      return getCurrentUser();
     }
   }
 
