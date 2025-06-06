@@ -1,6 +1,5 @@
 package app;
 
-import app.data.Group;
 import app.request.BulkUpdateInputRequest;
 import app.result.groupPage.GroupPageData;
 import database.search.GroupSearchParams;
@@ -10,11 +9,11 @@ import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
 import service.data.SearchParameterException;
+import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.GameLocationsService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
-import service.update.GroupEditService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -60,7 +59,7 @@ public class Main {
             ctx
           );
 
-          var searchService = new SearchService(authService.getReadOnlyUser());
+          var searchService = new SearchService(authService.getCurrentUser());
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -137,7 +136,7 @@ public class Main {
                 ctx
             );
 
-            var currentUser = authService.getUser(ctx, connectionProvider);
+            var currentUser = authService.getCurrentUser(ctx, connectionProvider);
             logger.info("Current user:"+currentUser);
 
             var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
@@ -146,34 +145,6 @@ public class Main {
             GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
             logger.info("Retrieved group data");
             ctx.json(pageData);
-            ctx.status(200);
-          } catch (SearchParameterException e) {
-            e.printStackTrace();
-            ctx.status(404);
-          } catch(Exception e){
-            e.printStackTrace();
-            ctx.status(500);
-          }
-        }
-    );
-
-    app.put(
-        "/groups",
-        ctx -> {
-
-          try {
-            var connectionProvider = new ConnectionProvider();
-
-
-            var currentUser = authService.getUser(ctx, connectionProvider);
-            var groupEditService = new GroupEditService();
-
-            //TODO: Replace with logic that reads a request body.
-            var group = new Group();
-
-            groupEditService.editGroup(currentUser,group, connectionProvider);
-
-            logger.info("Retrieved group data");
             ctx.status(200);
           } catch (SearchParameterException e) {
             e.printStackTrace();

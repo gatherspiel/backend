@@ -16,11 +16,4 @@ public class CreateGroupUtils {
 
     return groupEditService.insertGroup(user, group, testConnectionProvider);
   }
-
-  public static Group createGroupObject(){
-    Group group = new Group();
-    group.setName("group-"+group.getUUID().toString());
-    group.setUrl("localhost:1234/"+group.getName());
-    return group;
-  }
 }

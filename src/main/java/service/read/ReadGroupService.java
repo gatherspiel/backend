@@ -4,7 +4,6 @@ import app.data.Group;
 import app.data.auth.PermissionName;
 import app.data.auth.User;
 import app.result.groupPage.GroupPageData;
-import database.content.GroupsRepository;
 import database.utils.ConnectionProvider;
 import service.data.SearchParameterException;
 import service.permissions.GroupPermissionService;
@@ -18,17 +17,13 @@ public class ReadGroupService{
   SearchService searchService;
   GroupPermissionService groupPermissionService;
   User currentUser;
-  GroupsRepository groupsRepository;
+
   public ReadGroupService(ReadGroupDataProvider dataProvider) {
     this.searchService = dataProvider.getSearchService();
     this.groupPermissionService = dataProvider.getGroupPermissionService();
     this.currentUser = dataProvider.getUser();
-    this.groupsRepository = dataProvider.getGroupsRepository();
   }
 
-  public Group getGroup(int groupId, ConnectionProvider connectionProvider) throws Exception{
-    return this.groupsRepository.getGroup(groupId, connectionProvider.getDatabaseConnection());
-  }
   public GroupPageData getGroupPageData(
       LinkedHashMap<String, String> params,
       ConnectionProvider connectionProvider) throws Exception{

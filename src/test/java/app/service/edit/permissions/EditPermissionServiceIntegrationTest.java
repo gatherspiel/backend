@@ -56,7 +56,6 @@ public class EditPermissionServiceIntegrationTest {
       fail("Error initializing database:" + e.getMessage());
     }
   }
-
   @Test
   public void testSiteAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
     Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);

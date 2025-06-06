@@ -33,7 +33,7 @@ public class SearchServiceIntegrationTest {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService(authService.getReadOnlyUser());
+      searchService = new SearchService(authService.getCurrentUser());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
