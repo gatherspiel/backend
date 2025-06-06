@@ -3,7 +3,6 @@ package service.update;
 import app.data.Group;
 import app.data.auth.User;
 import database.content.GroupsRepository;
-import database.permissions.UserPermissionsRepository;
 import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -15,20 +14,16 @@ public class GroupEditService {
 
   Logger logger;
   GroupsRepository groupsRepository;
-  UserPermissionsRepository userPermissionsRepository;
   public GroupEditService() {
     logger = LogUtils.getLogger();
     groupsRepository = new GroupsRepository();
-    userPermissionsRepository = new UserPermissionsRepository();
   }
 
 
-  public void editGroup(User user, Group groupToUpdate, ConnectionProvider connectionProvider) throws Exception{
 
-    if(!userPermissionsRepository.canEditGroup(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection())) {
-      throw new Exception("User does not have permissions to edit group");
-    }
-    groupsRepository.updateGroup(groupToUpdate, connectionProvider.getDatabaseConnection());
+  public Group editGroup(){
+
+    return null;
   }
 
   public Group insertGroup(User user, Group groupToInsert, ConnectionProvider connectionProvider) throws Exception{
