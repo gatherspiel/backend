@@ -75,7 +75,6 @@ public class AuthService {
 
   public User getUserFromToken(String token, ConnectionProvider connectionProvider) throws Exception {
 
-    var url = Params.getAuthUrl()+"user";
     final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");
     httpGet.setHeader("Authorization", "Bearer "+token);
 
