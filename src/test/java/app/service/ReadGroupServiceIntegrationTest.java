@@ -15,7 +15,6 @@ import service.auth.AuthService;
 import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
-import service.update.GroupEditService;
 import service.user.UserService;
 
 import java.sql.Connection;
@@ -38,7 +37,7 @@ public class ReadGroupServiceIntegrationTest {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
       AuthService authService = new AuthService();
-      user = authService.getCurrentUser();
+      user = authService.getReadOnlyUser();
       Connection conn = testConnectionProvider.getDatabaseConnection();
 
       System.out.println("Creating tables");
@@ -227,7 +226,6 @@ public class ReadGroupServiceIntegrationTest {
     User standardUser = new UserService().createStandardUser("test_3", testConnectionProvider);
     User standardUser2 = new UserService().createStandardUser("test_4", testConnectionProvider);
 
-    GroupEditService groupEditService = new GroupEditService();
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
     ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create(standardUser, testConnectionProvider));
@@ -274,7 +272,7 @@ public class ReadGroupServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    User readOnlyUser = new AuthService().getCurrentUser();
+    User readOnlyUser = new AuthService().getReadOnlyUser();
     ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create(readOnlyUser, testConnectionProvider));
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
