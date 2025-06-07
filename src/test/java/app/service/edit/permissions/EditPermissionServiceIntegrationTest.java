@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EditPermissionServiceIntegrationTest {
 
-  private static final String ADMIN_EMAIL = "unitTest@test";
-  private static final String USER_EMAIL = "user@test";
-  private static final String USER_EMAIL_2 = "user2@test";
-  private static final String USER_EMAIL_3 = "user3@test";
-  private static final String USER_EMAIL_4 = "user4@test";
+  private static final String ADMIN_USERNAME = "unitTest";
+  private static final String USERNAME_1 = "user";
+  private static final String USERNAME_2 = "user2";
+  private static final String USERNAME_3 = "user3";
+  private static final String USERNAME_4 = "user4";
 
   private static UserService createUserService;
   private static GroupPermissionService groupPermissionService;
@@ -45,11 +45,11 @@ public class EditPermissionServiceIntegrationTest {
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_EMAIL, testConnectionProvider);
-      user = createUserService.createStandardUser(USER_EMAIL, testConnectionProvider);
-      user2 = createUserService.createStandardUser(USER_EMAIL_2, testConnectionProvider);
-      user3 = createUserService.createStandardUser(USER_EMAIL_3, testConnectionProvider);
-      user4 = createUserService.createStandardUser(USER_EMAIL_4, testConnectionProvider);
+      admin = createUserService.createAdmin(ADMIN_USERNAME, testConnectionProvider);
+      user = createUserService.createStandardUser(USERNAME_1, testConnectionProvider);
+      user2 = createUserService.createStandardUser(USERNAME_2, testConnectionProvider);
+      user3 = createUserService.createStandardUser(USERNAME_3, testConnectionProvider);
+      user4 = createUserService.createStandardUser(USERNAME_4, testConnectionProvider);
 
     } catch(Exception e){
       e.printStackTrace();

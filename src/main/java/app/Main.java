@@ -164,12 +164,10 @@ public class Main {
           try {
             var connectionProvider = new ConnectionProvider();
 
-
             var currentUser = authService.getUser(ctx, connectionProvider);
             var groupEditService = new GroupEditService();
 
-            //TODO: Replace with logic that reads a request body.
-            var group = new Group();
+            var group = ctx.bodyAsClass(Group.class);
 
             groupEditService.editGroup(currentUser,group, connectionProvider);
 

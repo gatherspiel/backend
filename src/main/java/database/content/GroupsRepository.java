@@ -154,7 +154,7 @@ public class GroupsRepository {
       String updateQuery =    """
              UPDATE groups
               SET name = ?,
-              url = ?
+              url = ?,
               summary = ?
              WHERE id = ?    
           """;

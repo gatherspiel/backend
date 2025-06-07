@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;
@@ -28,7 +29,7 @@ public class DbUtils {
       String query = stringBuilder.toString();
 
       stat.execute(query);
-      System.out.println("Created tables for integration ftests");
+      System.out.println("Created tables for integration tests");
     } catch (Exception e) {
       System.out.println("Error creating tables for integration tests:" + e.getMessage());
       throw e;
