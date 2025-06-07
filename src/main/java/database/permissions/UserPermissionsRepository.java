@@ -70,25 +70,35 @@ public class UserPermissionsRepository
   public boolean canEditGroup(User user, int groupId, Connection conn) throws Exception {
 
     String query =  """
-                      SELECT (group_admin_level)
-                      FROM group_admin_data 
-                      WHERE user_id = ?
-                      AND group_id = ?
+                      SELECT * from groups
+                      FULL JOIN group_admin_data on group_admin_data.group_id = groups.id
+                      WHERE groups.id = ?
                     """;
 
     PreparedStatement select = conn.prepareStatement(query);
-    select.setInt(1, user.getId());
-    select.setInt(2, groupId);
+    select.setInt(1, groupId);
 
     ResultSet rs = select.executeQuery();
     if(!rs.next()){
-      logger.info("Did not find user "+user.getId() + " permission for group "+groupId);
-      return false;
+      var message = "Group "+groupId + " not found";
+      logger.error(message);
+      throw new Exception(message);
     }
-    var groupAdminLevel = rs.getString("group_admin_level");
+    while(true){
 
+      int user_id = rs.getInt("user_id");
+      String groupAdminLevel = rs.getString("group_admin_level");
 
-    return groupAdminLevel.equals(GroupAdminType.GROUP_ADMIN.toString()) ||
-        groupAdminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString());
+      if(user_id == user.getId()) {
+        if(groupAdminLevel.equals(GroupAdminType.GROUP_ADMIN.toString()) ||
+            groupAdminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString())){
+          return true;
+        }
+      }
+      if(!rs.next()){
+        return false;
+      }
+    }
+
   }
 }
