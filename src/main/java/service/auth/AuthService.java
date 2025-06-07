@@ -13,13 +13,10 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +26,6 @@ import utils.LogUtils;
 import utils.Params;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class AuthService {
   private static final Logger logger = LogUtils.getLogger();
@@ -47,7 +43,7 @@ public class AuthService {
    *
    * @return Returns currently logged in user, or read only user if the user is not logged in.
    */
-  public User getCurrentUser(Context ctx, ConnectionProvider connectionProvider) throws Exception{
+  public User getUser(Context ctx, ConnectionProvider connectionProvider) throws Exception{
     logger.info("Retrieving current user");
 
     return getUserFromToken(ctx.header("authToken"), connectionProvider);
@@ -57,7 +53,7 @@ public class AuthService {
    *
    * @return Returns read only user
    */
-  public User getCurrentUser(){
+  public User getReadOnlyUser(){
 
     //TODO: Get current user from token
     User user = new User("reader@dmvboardgames.com", UserType.READONLY, 123);
@@ -74,6 +70,7 @@ public class AuthService {
   }
 
   public User getUserFromToken(String token, ConnectionProvider connectionProvider) throws Exception {
+
     final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");
     httpGet.setHeader("Authorization", "Bearer "+token);
 
@@ -102,7 +99,7 @@ public class AuthService {
       return userService.getUser(email, connectionProvider);
     } catch (Exception e) {
       logger.info("Authorization failed with error", e);
-      return getCurrentUser();
+      return getReadOnlyUser();
     }
   }
 

@@ -125,4 +125,51 @@ public class GroupsRepository {
       throw e;
     }
   }
+
+  public Group getGroup(int groupId, Connection conn) throws Exception{
+    try {
+      String query = "SELECT * from groups where id = ?";
+      PreparedStatement statement = conn.prepareStatement(query);
+      statement.setInt(1, groupId);
+
+      ResultSet rs = statement.executeQuery();
+      if(!rs.next()) {
+        return null;
+      }
+
+      Group group = new Group();
+      group.setId(groupId);
+      group.setName(rs.getString("name"));
+      group.setUrl(rs.getString("url"));
+      group.setSummary(rs.getString("summary"));
+      return group;
+
+    } catch(Exception e){
+      logger.error("Error inserting group");
+      throw e;
+    }
+  }
+  public void updateGroup(Group groupToUpdate, Connection conn) throws Exception{
+    try {
+      String updateQuery =    """
+             UPDATE groups
+              SET name = ?,
+              url = ?,
+              summary = ?
+             WHERE id = ?    
+          """;
+
+      PreparedStatement update = conn.prepareStatement(updateQuery);
+      update.setString(1, groupToUpdate.getName());
+      update.setString(2, groupToUpdate.getUrl());
+      update.setString(3, groupToUpdate.getSummary());
+      update.setInt(4, groupToUpdate.getId());
+
+      update.executeUpdate();
+
+    } catch (Exception e){
+      logger.error("Failed to update group");
+      throw e;
+    }
+  }
 }
