@@ -2,7 +2,11 @@ package app;
 
 import app.data.Group;
 import app.request.BulkUpdateInputRequest;
+import app.result.error.GroupNotFoundError;
+import app.result.error.InvalidGroupRequestError;
+import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -161,23 +165,31 @@ public class Main {
         "/groups",
         ctx -> {
 
+          Group group = null;
           try {
             var connectionProvider = new ConnectionProvider();
 
             var currentUser = authService.getUser(ctx, connectionProvider);
             var groupEditService = new GroupEditService();
 
-            var group = ctx.bodyAsClass(Group.class);
+            group = ctx.bodyAsClass(Group.class);
 
             groupEditService.editGroup(currentUser,group, connectionProvider);
 
             logger.info("Retrieved group data");
             ctx.status(200);
-          } catch (SearchParameterException e) {
+          } catch (UnrecognizedPropertyException  | GroupNotFoundError | InvalidGroupRequestError e) {
+            logger.error(e.getMessage());
+            ctx.status(400);
+            ctx.result(e.getMessage());
+          } catch(PermissionError e) {
+            ctx.status(403);
+            logger.error(e.getMessage());
+            ctx.result(e.getMessage());
+          }
+          catch(Exception e){
             e.printStackTrace();
-            ctx.status(404);
-          } catch(Exception e){
-            e.printStackTrace();
+
             ctx.status(500);
           }
         }

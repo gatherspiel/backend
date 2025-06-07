@@ -71,6 +71,7 @@ public class AuthService {
 
   public User getUserFromToken(String token, ConnectionProvider connectionProvider) throws Exception {
 
+    System.out.println(Params.getAuthUrl());
     final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");
     httpGet.setHeader("Authorization", "Bearer "+token);
 
@@ -98,7 +99,7 @@ public class AuthService {
 
       return userService.getUser(email, connectionProvider);
     } catch (Exception e) {
-      logger.info("Authorization failed with error", e);
+      logger.error("[AuthService.java] Authorization failed with error", e.getMessage());
       return getReadOnlyUser();
     }
   }

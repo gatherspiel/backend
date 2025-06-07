@@ -113,6 +113,20 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @Test
+  public void testSiteAdminCanEditGroup() throws Exception{
+    Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
+
+    Group updated = CreateGroupUtils.createGroupObject();
+    updated.setId(group.getId());
+    groupEditService.editGroup(admin, updated, testConnectionProvider);
+
+    Group updatedFromDb = readGroupService.getGroup(group.getId(), testConnectionProvider);
+
+    assertGroupsAreEqual(updatedFromDb, updated);
+  }
+
+
+  @Test
   public void testGroupAdminCanEditGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
@@ -125,11 +139,10 @@ public class GroupEditServiceIntegrationTest {
     assertGroupsAreEqual(updatedFromDb, updated);
   }
 
-  //TODO: Update tests
   @Test
   public void testUserCannotEditGroupThatDoesNotExist() throws Exception{
     Group updated = CreateGroupUtils.createGroupObject();
-    updated.setId(-1);
+    updated.setId(999999999);
     Exception exception = assertThrows(
         Exception.class,
         ()->{

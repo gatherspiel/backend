@@ -17,7 +17,7 @@ Also, follow the guidelines below:
    `npx supabase start` to start the database.
 - In the UI .env file and set the following values
     VITE_LOCAL_AUTH_KEY: `service_role_key` value that appears when starting the database.
-    VITE_LOCAL_AUTH_URL: `"http://localhost:54321"`
+    AUTH_URL: `"http://localhost:54321"`
 - Run src/test/java/app/database/utils/local/InitLocalDb.java. This will initialize a test database.
 - Run using `java -jar target/app.jar`
 

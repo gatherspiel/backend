@@ -2,8 +2,7 @@ package database.permissions;
 
 import app.data.auth.GroupAdminType;
 import app.data.auth.User;
-import app.data.auth.UserType;
-import org.apache.hc.core5.http.HttpException;
+import app.result.error.GroupNotFoundError;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -82,7 +81,7 @@ public class UserPermissionsRepository
     if(!rs.next()){
       var message = "Group "+groupId + " not found";
       logger.error(message);
-      throw new Exception(message);
+      throw new GroupNotFoundError(message);
     }
     while(true){
 
