@@ -86,4 +86,16 @@ public class UserRepository {
     PreparedStatement statement = connection.prepareStatement(query);
     statement.executeUpdate();
   }
+
+  public void activateUser(String email, Connection connection) throws Exception {
+    String query = """
+        UPDATE users
+        SET is_active = TRUE
+        WHERE email = ?
+        """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+    statement.executeUpdate();
+  }
 }

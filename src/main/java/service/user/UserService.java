@@ -28,4 +28,8 @@ public class UserService {
   public User getUser(String email, ConnectionProvider connectionProvider) throws Exception{
     return userRepository.getUserFromEmail(email, connectionProvider.getDatabaseConnection());
   }
+
+  public void activateUser(String email, ConnectionProvider connectionProvider) throws Exception{
+    userRepository.activateUser(email, connectionProvider.getDatabaseConnection());
+  }
 }

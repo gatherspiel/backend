@@ -147,7 +147,6 @@ public class GroupEditServiceIntegrationTest {
           groupEditService.editGroup(admin, updated, testConnectionProvider);
         }
     );
-    System.out.println(exception.getMessage());
     assertTrue(exception.getMessage().contains("not found"));
 
   }

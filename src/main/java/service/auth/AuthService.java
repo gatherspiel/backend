@@ -33,6 +33,10 @@ public class AuthService {
     this.userRepository = userRepository;
   }
 
+  public void registerUser(String username, String password, ConnectionProvider connectionProvider, UserType userType){
+
+    //TODO: Add logic using authProvider
+  }
   /**
    *
    * @return Returns currently logged in user, or read only user if the user is not logged in.
