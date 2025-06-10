@@ -150,5 +150,5 @@ public class RegisterUserIntegrationTest {
     User authenticatedUser = authService.getUser(context, testConnectionProvider);
     assertEquals(user, authenticatedUser);
   }
-  
+
 }
