@@ -38,7 +38,6 @@ public class GroupEditServiceIntegrationTest {
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
-  private  static AuthService authService;
 
   private static void assertGroupsAreEqual(Group group1, Group group2){
     assertEquals(group1.id, group2.id);
@@ -53,7 +52,6 @@ public class GroupEditServiceIntegrationTest {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     groupEditService = new GroupEditService();
     createUserService = new UserService();
-    authService = new AuthService();
     groupPermissionService = new GroupPermissionService();
 
     ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create(admin, testConnectionProvider);
@@ -81,7 +79,7 @@ public class GroupEditServiceIntegrationTest {
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
     Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);
 
-    User readOnlyUser = authService.getReadOnlyUser();
+    User readOnlyUser = AuthService.getReadOnlyUser();
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -142,7 +140,7 @@ public class GroupEditServiceIntegrationTest {
   @Test
   public void testUserCannotEditGroupThatDoesNotExist() throws Exception{
     Group updated = CreateGroupUtils.createGroupObject();
-    updated.setId(999999999);
+    updated.setId((int)(Math.random()*999999));
     Exception exception = assertThrows(
         Exception.class,
         ()->{

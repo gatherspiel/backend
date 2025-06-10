@@ -27,9 +27,10 @@ public class GroupEditService {
   public void editGroup(User user, Group groupToUpdate, ConnectionProvider connectionProvider) throws Exception{
     validateGroupData(groupToUpdate);
 
-    if(!user.isSiteAdmin() && !userPermissionsRepository.canEditGroup(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection())) {
+    if(!userPermissionsRepository.canEditGroup(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to edit group: " + groupToUpdate.getName());
     }
+    System.out.println("User can edit group");
     groupsRepository.updateGroup(groupToUpdate, connectionProvider.getDatabaseConnection());
   }
 

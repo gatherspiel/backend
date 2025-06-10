@@ -29,11 +29,10 @@ public class SearchServiceIntegrationTest {
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
-      AuthService authService = new AuthService();
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService(authService.getReadOnlyUser());
+      searchService = new SearchService(AuthService.getReadOnlyUser());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());

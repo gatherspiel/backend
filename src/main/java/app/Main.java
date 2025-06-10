@@ -8,11 +8,13 @@ import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
+import service.auth.SupabaseAuthProvider;
 import service.data.SearchParameterException;
 import service.provider.ReadGroupDataProvider;
 import service.read.GameLocationsService;
@@ -26,7 +28,7 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
-  public static AuthService authService = new AuthService();
+  public static AuthService authService = new AuthService(new SupabaseAuthProvider(), new UserRepository());
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -119,11 +121,10 @@ public class Main {
     app.post(
       "/admin/saveData",
       ctx -> {
-        var authService = new AuthService();
 
         var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
         authService.validateBulkUpdateInputRequest(data);
-        ctx.result("Test");
+        ctx.result("Saved data");
 
         var connectionProvider = new ConnectionProvider();
         var bulkUpdateService = new BulkUpdateService();
