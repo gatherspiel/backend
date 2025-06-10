@@ -21,6 +21,7 @@ import service.read.GameLocationsService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.GroupEditService;
+import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
-  public static AuthService authService = new AuthService(new SupabaseAuthProvider(), new UserRepository());
+  public static AuthService authService = new AuthService(new SupabaseAuthProvider(), new UserService());
   public static void main(String[] args) {
     var app = Javalin
       .create(

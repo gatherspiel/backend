@@ -32,4 +32,9 @@ public class UserService {
   public void activateUser(String email, ConnectionProvider connectionProvider) throws Exception{
     userRepository.activateUser(email, connectionProvider.getDatabaseConnection());
   }
+
+  public boolean userExists(String email, ConnectionProvider connectionProvider) throws Exception {
+      User user = userRepository.getUserFromEmail(email, connectionProvider.getDatabaseConnection());
+      return !(user == null);
+  }
 }

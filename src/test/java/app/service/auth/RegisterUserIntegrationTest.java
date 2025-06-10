@@ -4,6 +4,7 @@ import app.data.auth.User;
 import app.data.auth.UserType;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.result.error.DuplicateUsernameException;
 import app.utils.CreateUserUtils;
 import database.user.UserRepository;
 import io.javalin.http.Context;
@@ -29,16 +30,15 @@ public class RegisterUserIntegrationTest {
   private static AuthService authServiceWithError;
 
   private static UserService userService;
-  private static Per
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
 
-      authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userRepository);
+      authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userService);
       userService = new UserService();
-      authService = new AuthService(new NoErrorMockAuthProvider(), userRepository);
+      authService = new AuthService(new NoErrorMockAuthProvider(), userService);
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
@@ -54,7 +54,10 @@ public class RegisterUserIntegrationTest {
   public void registerWithDuplicateUsername_throwsError_withNoDatabaseUpdate() throws Exception{
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    userRepository.createStandardUser(user.getEmail(), testConnectionProvider.getDatabaseConnection());
+
+    User user2 = CreateUserUtils.createUserObject(UserType.USER);
+
+    userService.createStandardUser(user2.getEmail(), testConnectionProvider);
 
     Exception exception = assertThrows(
         Exception.class,
@@ -62,7 +65,12 @@ public class RegisterUserIntegrationTest {
           authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
         }
     );
-    assertTrue(exception.getMessage().contains("Username already exists"));
+
+    Exception expected = new DuplicateUsernameException("Username already exists");
+    assertEquals(exception, expected);
+
+    boolean userSaved = userService.userExists(user2.getEmail(), testConnectionProvider);
+    assertFalse(userSaved);
   }
 
   @Test
@@ -74,21 +82,6 @@ public class RegisterUserIntegrationTest {
 
     User createdUser = userService.getUser(user.getEmail(), testConnectionProvider);
     assertEquals(user.getEmail(), createdUser.getEmail());
-  }
-
-  @Test
-  public void registerUserWithExistingUsername_throwsError() throws Exception {
-    User user = CreateUserUtils.createUserObject(UserType.USER);
-
-    userService.createStandardUser(user.getEmail(), testConnectionProvider);
-
-    Exception exception = assertThrows(
-        Exception.class,
-        ()->{
-          authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
-        }
-    );
-    assertTrue(exception.getMessage().contains("Username already exists"));
   }
 
   @Test

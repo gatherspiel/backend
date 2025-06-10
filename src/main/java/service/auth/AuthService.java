@@ -3,6 +3,7 @@ package service.auth;
 import app.data.auth.User;
 import app.data.auth.UserType;
 import app.request.BulkUpdateInputRequest;
+import app.result.error.DuplicateUsernameException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import database.user.UserRepository;
@@ -17,6 +18,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
 import service.data.AuthRequest;
+import service.user.UserService;
 import utils.LogUtils;
 import utils.Params;
 
@@ -25,16 +27,29 @@ import java.util.Optional;
 public class AuthService {
 
   private AuthProvider authProvider;
-  private UserRepository userRepository;
+  private UserService userService;
   private static final Logger logger = LogUtils.getLogger();
 
-  public AuthService(AuthProvider authProvider, UserRepository userRepository){
+  public AuthService(AuthProvider authProvider, UserService userService){
     this.authProvider = authProvider;
-    this.userRepository = userRepository;
+    this.userService = userService;
   }
 
-  public void registerUser(String username, String password, ConnectionProvider connectionProvider, UserType userType){
+  public void registerUser(String username, String password, ConnectionProvider connectionProvider, UserType userType) throws Exception{
 
+
+    authProvider.registerUser(username, password);
+
+    if(userService.userExists(username, connectionProvider)) {
+      throw new DuplicateUsernameException("Username already exists");
+    }
+
+    if(userType == UserType.USER) {
+      userService.createStandardUser(username, connectionProvider);
+    } else if(userType == UserType.SITE_ADMIN) {
+      userService.createAdmin(username, connectionProvider);
+    }
+    throw new Exception("Cannot create user with type:"+userType.toString());
     //TODO: Add logic using authProvider
   }
   /**
@@ -50,7 +65,7 @@ public class AuthService {
       return getReadOnlyUser();
     }
 
-    return userRepository.getUserFromEmail(username.get(), connectionProvider.getDatabaseConnection());
+    return userService.getUser(username.get(), connectionProvider);
   }
 
 
