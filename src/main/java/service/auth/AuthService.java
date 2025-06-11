@@ -53,6 +53,8 @@ public class AuthService {
       userService.createStandardUser(username);
     } else if(userType.equals(UserType.SITE_ADMIN)) {
       userService.createAdmin(username);
+    } else if(userType.equals(UserType.TESTER)) {
+      userService.createTester(username);
     } else {
       throw new Exception("Cannot create user with type:"+userType.toString());
     }
@@ -61,7 +63,6 @@ public class AuthService {
       authProvider.registerUser(username, password);
     } catch (Exception e) {
       userService.rollbackChanges();
-      System.out.println("Hi");
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
     }
 
@@ -72,7 +73,7 @@ public class AuthService {
    *
    * @return Returns currently logged in user, or read only user if the user is not logged in.
    */
-  public User getUser(Context ctx, ConnectionProvider connectionProvider) throws Exception{
+  public User getUser(Context ctx) throws Exception{
     logger.info("Retrieving current user");
 
     Optional<String> username =  authProvider.getUsernameFromToken(ctx.header("authToken"));
@@ -81,7 +82,11 @@ public class AuthService {
       return getReadOnlyUser();
     }
 
-    return userService.getUser(username.get());
+    User user = userService.getActiveUser(username.get());
+    if(user == null){
+      return AuthService.getReadOnlyUser();
+    }
+    return user;
   }
 
 

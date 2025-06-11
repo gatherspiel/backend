@@ -64,7 +64,6 @@ public class GroupEditServiceIntegrationTest {
       DbUtils.initializeData(testConnectionProvider);
 
       admin = createUserService.createAdmin(ADMIN_USERNAME);
-      System.out.println(admin);
       standardUser = createUserService.createStandardUser(USERNAME_2);
       standardUser2 = createUserService.createStandardUser(USERNAME_3);
       standardUser3 = createUserService.createStandardUser(USERNAME_4);

@@ -44,8 +44,17 @@ public class UserService {
     return dataProvider.getRepository().createStandardUser(email);
   }
 
+  public User createTester(String email) throws Exception{
+    return dataProvider.getRepository().createTester(email);
+  }
+
+
   public User getUser(String email) throws Exception{
     return dataProvider.getRepository().getUserFromEmail(email);
+  }
+
+  public User getActiveUser(String email) throws Exception {
+    return dataProvider.getRepository().getActiveUserFromEmail(email);
   }
 
   public void activateUser(String email) throws Exception{
@@ -61,13 +70,13 @@ public class UserService {
     return dataProvider.getRepository().countUsers();
   }
 
-  public void beginTransaction() throws Exception {
-    dataProvider.getRepository().beginTransaction();
-  }
+
   public void rollbackChanges() throws Exception{
     dataProvider.getRepository().rollbackChanges();
   }
   public void commitChanges() throws Exception {
     dataProvider.getRepository().commitChanges();
   }
+
+
 }

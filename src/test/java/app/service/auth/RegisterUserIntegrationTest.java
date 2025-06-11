@@ -111,10 +111,11 @@ public class RegisterUserIntegrationTest {
     authService.registerUser(user.getEmail(), "1234", UserType.USER);
 
     Context context = mock(Context.class);
-    User readOnly = authService.getUser(context, testConnectionProvider);
+    when(context.header("authToken")).thenReturn(user.getEmail());
+    User readOnly = authService.getUser(context);
 
     assertEquals(readOnly.getEmail(),AuthService.getReadOnlyUser().getEmail());
-    assertEquals(readOnly.getAdminLevel(),UserType.READONLY.toString());
+    assertEquals(readOnly.getAdminLevel(),UserType.READONLY.name());
   }
 
   @Test
@@ -124,13 +125,16 @@ public class RegisterUserIntegrationTest {
     User user2 = CreateUserUtils.createUserObject(UserType.TESTER);
 
     authService.registerUser(user.getEmail(), "1234", UserType.USER);
-    authService.registerUser(user2.getEmail(), "1234", UserType.USER);
+    authService.registerUser(user2.getEmail(), "1234", UserType.TESTER);
 
     User savedUser = userService.getUser(user.getEmail());
     User savedUser2 = userService.getUser(user2.getEmail());
 
-    assertEquals(user, savedUser);
-    assertEquals(user2, savedUser2);
+    assertEquals(user.getEmail(), savedUser.getEmail());
+    assertEquals(user.getAdminLevel(), savedUser.getAdminLevel());
+
+    assertEquals(user2.getEmail(), savedUser2.getEmail());
+    assertEquals(user2.getAdminLevel(), savedUser2.getAdminLevel());
   }
 
   @Test
@@ -141,8 +145,12 @@ public class RegisterUserIntegrationTest {
     userService.activateUser(user.getEmail());
 
     Context context = mock(Context.class);
-    User authenticatedUser = authService.getUser(context, testConnectionProvider);
-    assertEquals(user, authenticatedUser);
+    when(context.header("authToken")).thenReturn(user.getEmail());
+
+    User authenticatedUser = authService.getUser(context);
+    assertEquals(user.getEmail(), authenticatedUser.getEmail());
+    assertEquals(user.getAdminLevel(), authenticatedUser.getAdminLevel());
+
   }
 
 }

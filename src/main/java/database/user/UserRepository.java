@@ -37,7 +37,6 @@ public class UserRepository extends BaseRepository {
     return new User(email, UserType.SITE_ADMIN, rs.getInt(1));
   }
 
-
   public User createStandardUser(String email) throws Exception{
     String query =
         "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
@@ -57,6 +56,27 @@ public class UserRepository extends BaseRepository {
     logger.info("Created user with id:"+userId);
     return new User(email, UserType.USER, userId);
   }
+
+  public User createTester(String email) throws Exception{
+    String query =
+        "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
+
+    PreparedStatement insert = connection.prepareStatement(query);
+    insert.setString(1, email);
+    insert.setString(2, "tester");
+
+    ResultSet rs = insert.executeQuery();
+    if(!rs.next()) {
+      var message = "Failed to create admin user";
+      logger.error(message);
+      throw new Exception(message);
+    }
+
+    int userId = rs.getInt(1);
+    logger.info("Created user with id:"+userId);
+    return new User(email, UserType.TESTER, userId);
+  }
+
 
   public User getUserFromEmail(String email) throws Exception {
 
@@ -80,14 +100,35 @@ public class UserRepository extends BaseRepository {
     return user;
   }
 
+  public User getActiveUserFromEmail(String email) throws Exception {
+
+    String query = "SELECT * from users where email = ? and is_active = TRUE";
+    PreparedStatement select = connection.prepareStatement(query);
+    select.setString(1, email);
+
+    ResultSet rs = select.executeQuery();
+
+    if(!rs.next()){
+      logger.info("Did not find user with email:"+email);
+      return null;
+    }
+
+    logger.info(rs.getString("email"));
+    User user = new User(
+        email,
+        UserType.fromDatabaseString(rs.getString("user_role_level")),
+        rs.getInt("id")
+    );
+    return user;
+  }
+
+
   public void deleteAllUsers() throws Exception {
     logger.info("Deleting all users");
 
     String query = "TRUNCATE table users CASCADE";
     PreparedStatement statement = connection.prepareStatement(query);
     statement.executeUpdate();
-
-    System.out.println("HI");
   }
 
   public void activateUser(String email) throws Exception {

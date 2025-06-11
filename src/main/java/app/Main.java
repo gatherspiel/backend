@@ -144,7 +144,7 @@ public class Main {
             );
 
             var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
-            var currentUser = authService.getUser(ctx, connectionProvider);
+            var currentUser = authService.getUser(ctx);
             logger.info("Current user:"+currentUser);
 
             var readGroupDataProvider = ReadGroupDataProvider.create();
@@ -173,7 +173,7 @@ public class Main {
             var connectionProvider = new ConnectionProvider();
 
             var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
-            var currentUser = authService.getUser(ctx, connectionProvider);
+            var currentUser = authService.getUser(ctx);
             var groupEditService = new GroupEditService();
 
             group = ctx.bodyAsClass(Group.class);
