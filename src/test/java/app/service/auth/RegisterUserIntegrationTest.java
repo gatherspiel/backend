@@ -74,7 +74,7 @@ public class RegisterUserIntegrationTest {
 
     int userCount1 = userService.countUsers();
 
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request = RegisterUserRequest.createRequest(user.getEmail(), "1234");
     Exception exception = assertThrows(
         Exception.class,
         ()->{
@@ -94,7 +94,7 @@ public class RegisterUserIntegrationTest {
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
 
     var registerUserInfo = authService.registerUser(request, UserType.USER);
 
@@ -107,7 +107,7 @@ public class RegisterUserIntegrationTest {
   public void registerUser_authenticationError_userNotCreated() throws Exception {
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
     Exception exception = assertThrows(
         Exception.class,
         ()->{
@@ -125,7 +125,7 @@ public class RegisterUserIntegrationTest {
   public void testInactiveUserCannotAuthenticate() throws Exception{
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
 
     authService.registerUser(request, UserType.USER);
 
@@ -143,8 +143,8 @@ public class RegisterUserIntegrationTest {
     User user = CreateUserUtils.createUserObject(UserType.USER);
     User user2 = CreateUserUtils.createUserObject(UserType.TESTER);
 
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
-    RegisterUserRequest request2 = new RegisterUserRequest(user2.getEmail(), "1234");
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
+    RegisterUserRequest request2 =  RegisterUserRequest.createRequest(user2.getEmail(), "1234");
 
     authService.registerUser(request, UserType.USER);
     authService.registerUser(request2, UserType.TESTER);
@@ -162,7 +162,7 @@ public class RegisterUserIntegrationTest {
   @Test
   public void testActiveUserCanAuthenticate() throws Exception{
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
 
     authService.registerUser(request, UserType.USER);
     userService.activateUser(user.getEmail());

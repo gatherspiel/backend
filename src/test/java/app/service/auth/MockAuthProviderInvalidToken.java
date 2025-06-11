@@ -1,5 +1,6 @@
 package app.service.auth;
 
+import app.user.data.RegisterUserRequest;
 import app.user.data.RegisterUserResponse;
 import service.auth.AuthProvider;
 
@@ -13,7 +14,7 @@ public class MockAuthProviderInvalidToken implements AuthProvider {
   }
 
   @Override
-  public RegisterUserResponse registerUser(String username, String password) throws Exception{
+  public RegisterUserResponse registerUser(RegisterUserRequest request) throws Exception{
     throw new Exception("Error");
   }
 }

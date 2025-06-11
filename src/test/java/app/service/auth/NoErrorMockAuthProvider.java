@@ -1,5 +1,6 @@
 package app.service.auth;
 
+import app.user.data.RegisterUserRequest;
 import app.user.data.RegisterUserResponse;
 import service.auth.AuthProvider;
 
@@ -13,7 +14,7 @@ public class NoErrorMockAuthProvider implements AuthProvider {
   }
 
   @Override
-  public RegisterUserResponse registerUser(String username, String password) throws Exception{
-    return new RegisterUserResponse(username, "1-1-2025");
+  public RegisterUserResponse registerUser(RegisterUserRequest request) throws Exception{
+    return new RegisterUserResponse(request.getEmail(), "1-1-2025");
   }
 }

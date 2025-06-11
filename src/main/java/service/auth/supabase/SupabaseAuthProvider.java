@@ -28,13 +28,16 @@ public class SupabaseAuthProvider implements AuthProvider {
 
 
   @Override
-  public RegisterUserResponse registerUser(String username, String password) throws Exception{
+  public RegisterUserResponse registerUser(RegisterUserRequest request) throws Exception{
 
-    final HttpPost httpPost = new HttpPost(Params.getAuthUrl()+"signup");
+    String url = Params.getAuthUrl()+"signup";
+    final HttpPost httpPost = new HttpPost(url);
 
-    var registerUserRequest = new RegisterUserRequest(username, password);
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    String json = ow.writeValueAsString(registerUserRequest);
+    String json = ow.writeValueAsString(request);
+
+    logger.info("Register request JSON:"+json);
+
     HttpEntity stringEntity = new StringEntity(
         json,
         ContentType.APPLICATION_JSON
@@ -47,25 +50,38 @@ public class SupabaseAuthProvider implements AuthProvider {
       JsonNode httpResponse = httpClient.execute(httpPost, response ->{
         ObjectMapper objectMapper = new ObjectMapper();
 
+
+        final HttpEntity responseEntity = response.getEntity();
+
+        JsonNode result;
+        try (InputStream inputStream = responseEntity.getContent()) {
+          result = objectMapper.readTree(inputStream);
+        }
+
         if (response.getCode() >= 300) {
+
+          if(result != null){
+            throw new ClientProtocolException(result.toString());
+          }
           throw new ClientProtocolException(new StatusLine(response).toString());
         }
-        final HttpEntity responseEntity = response.getEntity();
-        try (InputStream inputStream = responseEntity.getContent()) {
-          return objectMapper.readTree(inputStream);
-        }
+        return result;
 
       });
 
 
-      String email = httpResponse.get("email").textValue();
-      String createdAt = httpResponse.get("created_at").textValue();
+      logger.info(httpResponse);
+
+      JsonNode userData = httpResponse.get("user");
+      String email = userData.get("email").textValue();
+      String createdAt = userData.get("created_at").textValue();
 
       //TODO: Send email confirmation
       return new RegisterUserResponse(email, createdAt);
 
     } catch (Exception e){
-      logger.error("Failed to register user");
+      logger.error("Failed to register user with url:"+url);
+      logger.error(e.getMessage());
       throw e;
     }
   }
@@ -81,16 +97,23 @@ public class SupabaseAuthProvider implements AuthProvider {
       ObjectMapper objectMapper = new ObjectMapper();
 
       JsonNode httpResponse = httpClient.execute(httpGet, response-> {
-        if (response.getCode() >= 300) {
-          throw new ClientProtocolException(new StatusLine(response).toString());
-        }
+
         final HttpEntity responseEntity = response.getEntity();
         if (responseEntity == null) {
           return null;
         }
+
+        JsonNode responseData;
         try (InputStream inputStream = responseEntity.getContent()) {
-          return objectMapper.readTree(inputStream);
+          responseData = objectMapper.readTree(inputStream);
         }
+
+        if (response.getCode() >= 300) {
+          logger.error(responseData.toPrettyString());
+          throw new ClientProtocolException(new StatusLine(response).toString());
+        }
+
+        return responseData;
       });
 
       httpClient.close();

@@ -61,12 +61,13 @@ public class AuthService {
     }
 
     try {
-      var registerUserResponse = authProvider.registerUser(request.getEmail(), request.getPassword());
+      var registerUserResponse = authProvider.registerUser(request);
       userService.commitChanges();
       logger.info("Created user with username:"+request.getEmail());
       return registerUserResponse;
     } catch (Exception e) {
       userService.rollbackChanges();
+      e.printStackTrace();
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
     }
 

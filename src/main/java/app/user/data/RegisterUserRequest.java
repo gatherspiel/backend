@@ -4,10 +4,7 @@ public class RegisterUserRequest {
   private String email;
   private String password;
 
-  public RegisterUserRequest(String email, String password){
-    this.email = email;
-    this.password = password;
-  }
+  public RegisterUserRequest(){}
 
   public String getEmail(){
     return email;
@@ -23,5 +20,12 @@ public class RegisterUserRequest {
 
   public void setPassword(String password){
     this.password = password;
+  }
+
+  public static RegisterUserRequest createRequest(String username, String password){
+    RegisterUserRequest request = new RegisterUserRequest();
+    request.setEmail(username);
+    request.setPassword(password);
+    return request;
   }
 }
