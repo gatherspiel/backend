@@ -48,13 +48,13 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @BeforeAll
-  static void setup(){
+  static void setup() throws Exception{
     testConnectionProvider = new IntegrationTestConnectionProvider();
     groupEditService = new GroupEditService();
-    createUserService = new UserService();
+    createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
     groupPermissionService = new GroupPermissionService();
 
-    ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create(admin, testConnectionProvider);
+    ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create();
     readGroupService = new ReadGroupService(dataProvider);
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
@@ -63,11 +63,11 @@ public class GroupEditServiceIntegrationTest {
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_USERNAME, testConnectionProvider);
+      admin = createUserService.createAdmin(ADMIN_USERNAME);
       System.out.println(admin);
-      standardUser = createUserService.createStandardUser(USERNAME_2, testConnectionProvider);
-      standardUser2 = createUserService.createStandardUser(USERNAME_3, testConnectionProvider);
-      standardUser3 = createUserService.createStandardUser(USERNAME_4, testConnectionProvider);
+      standardUser = createUserService.createStandardUser(USERNAME_2);
+      standardUser2 = createUserService.createStandardUser(USERNAME_3);
+      standardUser3 = createUserService.createStandardUser(USERNAME_4);
 
     } catch(Exception e){
       e.printStackTrace();

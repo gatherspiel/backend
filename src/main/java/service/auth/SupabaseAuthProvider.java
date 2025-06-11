@@ -22,6 +22,11 @@ public class SupabaseAuthProvider implements AuthProvider{
   private static final Logger logger = LogUtils.getLogger();
 
   @Override
+  public void registerUser(String username, String password) throws Exception{
+    return;
+  }
+
+  @Override
   public Optional<String> getUsernameFromToken(String token) throws Exception {
     System.out.println(Params.getAuthUrl());
     final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");

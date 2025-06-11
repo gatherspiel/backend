@@ -29,7 +29,6 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
-  public static AuthService authService = new AuthService(new SupabaseAuthProvider(), new UserService());
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -67,7 +66,7 @@ public class Main {
             ctx
           );
 
-          var searchService = new SearchService(authService.getReadOnlyUser());
+          var searchService = new SearchService();
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -123,11 +122,12 @@ public class Main {
       "/admin/saveData",
       ctx -> {
 
+        var connectionProvider = new ConnectionProvider();
+        var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
         var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
         authService.validateBulkUpdateInputRequest(data);
         ctx.result("Saved data");
 
-        var connectionProvider = new ConnectionProvider();
         var bulkUpdateService = new BulkUpdateService();
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
@@ -143,13 +143,14 @@ public class Main {
                 ctx
             );
 
+            var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
             var currentUser = authService.getUser(ctx, connectionProvider);
             logger.info("Current user:"+currentUser);
 
-            var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
+            var readGroupDataProvider = ReadGroupDataProvider.create();
             var groupService = new ReadGroupService(readGroupDataProvider);
 
-            GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
+            GroupPageData pageData = groupService.getGroupPageData(currentUser, searchParams, connectionProvider);
             logger.info("Retrieved group data");
             ctx.json(pageData);
             ctx.status(200);
@@ -171,6 +172,7 @@ public class Main {
           try {
             var connectionProvider = new ConnectionProvider();
 
+            var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
             var currentUser = authService.getUser(ctx, connectionProvider);
             var groupEditService = new GroupEditService();
 

@@ -36,13 +36,18 @@ public class RegisterUserIntegrationTest {
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
 
-      authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userService);
-      userService = new UserService();
-      authService = new AuthService(new NoErrorMockAuthProvider(), userService);
+      Connection transactionConn = testConnectionProvider.getConnectionWithManualCommit();
+
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
+
+      userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn));
+
+      authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userService);
+      authService = new AuthService(new NoErrorMockAuthProvider(), userService);
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -54,23 +59,21 @@ public class RegisterUserIntegrationTest {
   public void registerWithDuplicateUsername_throwsError_withNoDatabaseUpdate() throws Exception{
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
+    userService.createStandardUser(user.getEmail());
 
-    User user2 = CreateUserUtils.createUserObject(UserType.USER);
-
-    userService.createStandardUser(user2.getEmail(), testConnectionProvider);
-
+    int userCount1 = userService.countUsers();
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
+          authService.registerUser(user.getEmail(), "1234", UserType.USER);
         }
     );
 
-    Exception expected = new DuplicateUsernameException("Username already exists");
-    assertEquals(exception, expected);
+    assertEquals(exception.getMessage(), "Username: " +user.getEmail()+ " already exists");
+    assertTrue(exception instanceof DuplicateUsernameException);
 
-    boolean userSaved = userService.userExists(user2.getEmail(), testConnectionProvider);
-    assertFalse(userSaved);
+    int userCount2 = userService.countUsers();
+    assertEquals(userCount1, userCount2);
   }
 
   @Test
@@ -78,9 +81,9 @@ public class RegisterUserIntegrationTest {
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
-    authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
+    authService.registerUser(user.getEmail(), "1234", UserType.USER);
 
-    User createdUser = userService.getUser(user.getEmail(), testConnectionProvider);
+    User createdUser = userService.getUser(user.getEmail());
     assertEquals(user.getEmail(), createdUser.getEmail());
   }
 
@@ -88,17 +91,15 @@ public class RegisterUserIntegrationTest {
   public void registerUser_authenticationError_userNotCreated() throws Exception {
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
-    userService.createStandardUser(user.getEmail(), testConnectionProvider);
-
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          authServiceWithError.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
+          authServiceWithError.registerUser(user.getEmail(), "1234", UserType.USER);
         }
     );
-    assertTrue(exception.getMessage().contains("Failed to create user"));
-
-    User savedUser = userService.getUser(user.getEmail(), testConnectionProvider);
+    assertTrue(exception.getMessage().contains("Failed to create user"), exception.getMessage());
+    assertTrue(exception instanceof AuthService.RegisterUserException,exception.getClass().getName());
+    User savedUser = userService.getUser(user.getEmail());
     assertNull(savedUser);
   }
 
@@ -107,7 +108,7 @@ public class RegisterUserIntegrationTest {
   public void testInactiveUserCannotAuthenticate() throws Exception{
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
+    authService.registerUser(user.getEmail(), "1234", UserType.USER);
 
     Context context = mock(Context.class);
     User readOnly = authService.getUser(context, testConnectionProvider);
@@ -122,11 +123,11 @@ public class RegisterUserIntegrationTest {
     User user = CreateUserUtils.createUserObject(UserType.USER);
     User user2 = CreateUserUtils.createUserObject(UserType.TESTER);
 
-    authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
-    authService.registerUser(user2.getEmail(), "1234", testConnectionProvider, UserType.USER);
+    authService.registerUser(user.getEmail(), "1234", UserType.USER);
+    authService.registerUser(user2.getEmail(), "1234", UserType.USER);
 
-    User savedUser = userService.getUser(user.getEmail(), testConnectionProvider);
-    User savedUser2 = userService.getUser(user2.getEmail(), testConnectionProvider);
+    User savedUser = userService.getUser(user.getEmail());
+    User savedUser2 = userService.getUser(user2.getEmail());
 
     assertEquals(user, savedUser);
     assertEquals(user2, savedUser2);
@@ -135,9 +136,9 @@ public class RegisterUserIntegrationTest {
   @Test
   public void testActiveUserCanAuthenticate() throws Exception{
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    authService.registerUser(user.getEmail(), "1234", testConnectionProvider, UserType.USER);
+    authService.registerUser(user.getEmail(), "1234", UserType.USER);
 
-    userService.activateUser(user.getEmail(), testConnectionProvider);
+    userService.activateUser(user.getEmail());
 
     Context context = mock(Context.class);
     User authenticatedUser = authService.getUser(context, testConnectionProvider);

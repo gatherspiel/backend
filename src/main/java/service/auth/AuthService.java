@@ -22,6 +22,7 @@ import service.user.UserService;
 import utils.LogUtils;
 import utils.Params;
 
+import java.sql.Connection;
 import java.util.Optional;
 
 public class AuthService {
@@ -35,22 +36,37 @@ public class AuthService {
     this.userService = userService;
   }
 
-  public void registerUser(String username, String password, ConnectionProvider connectionProvider, UserType userType) throws Exception{
-
-
-    authProvider.registerUser(username, password);
-
-    if(userService.userExists(username, connectionProvider)) {
-      throw new DuplicateUsernameException("Username already exists");
+  public class RegisterUserException extends RuntimeException {
+    public RegisterUserException(String message) {
+      super(message);
     }
 
-    if(userType == UserType.USER) {
-      userService.createStandardUser(username, connectionProvider);
-    } else if(userType == UserType.SITE_ADMIN) {
-      userService.createAdmin(username, connectionProvider);
+  }
+
+  public void registerUser(String username, String password, UserType userType) throws Exception{
+
+    if(userService.userExists(username)) {
+      throw new DuplicateUsernameException("Username: " + username + " already exists");
     }
-    throw new Exception("Cannot create user with type:"+userType.toString());
-    //TODO: Add logic using authProvider
+
+    if(userType.equals(UserType.USER)) {
+      userService.createStandardUser(username);
+    } else if(userType.equals(UserType.SITE_ADMIN)) {
+      userService.createAdmin(username);
+    } else {
+      throw new Exception("Cannot create user with type:"+userType.toString());
+    }
+
+    try {
+      authProvider.registerUser(username, password);
+    } catch (Exception e) {
+      userService.rollbackChanges();
+      System.out.println("Hi");
+      throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
+    }
+
+    userService.commitChanges();
+    logger.info("Created user with username:"+username);
   }
   /**
    *
@@ -65,7 +81,7 @@ public class AuthService {
       return getReadOnlyUser();
     }
 
-    return userService.getUser(username.get(), connectionProvider);
+    return userService.getUser(username.get());
   }
 
 
@@ -123,5 +139,12 @@ public class AuthService {
     }
     logger.info("Authorized");
     return true;
+  }
+
+  public static AuthService createSupabaseAuthService(Connection conn){
+
+    UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+    SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
+    return new AuthService(supabaseAuthProvider, userService);
   }
 }

@@ -17,8 +17,12 @@ public class DbUtils {
   public static final String TEST_USER_EMAIL = "test@freegather.org";
 
   public static void createTables(Connection conn) throws Exception {
+
+    System.out.println("Hi");
     Statement stat = conn.createStatement();
     try {
+      System.out.println("Hi");
+
       Scanner scanner = new Scanner(
         new File("src/test/fixtures/createTables.sql")
       );
@@ -27,8 +31,10 @@ public class DbUtils {
         stringBuilder.append(scanner.nextLine() + " ");
       }
       String query = stringBuilder.toString();
+      System.out.println("Hi");
 
       stat.execute(query);
+      System.out.println("Done");
       System.out.println("Created tables for integration tests");
     } catch (Exception e) {
       System.out.println("Error creating tables for integration tests:" + e.getMessage());
@@ -49,8 +55,8 @@ public class DbUtils {
       bulkUpdateService.deleteUsers(testConnectionProvider);
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);
 
-      UserService createUserService = new UserService();
-      createUserService.createAdmin(TEST_USER_EMAIL, testConnectionProvider);
+      UserService createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
+      createUserService.createAdmin(TEST_USER_EMAIL);
     } catch (Exception e) {
       System.out.println("Error initializing data:" + e.getMessage());
       throw e;

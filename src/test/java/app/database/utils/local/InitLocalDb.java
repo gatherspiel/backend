@@ -17,8 +17,8 @@ public class InitLocalDb {
       DbUtils.createTables(conn);
       DbUtils.initializeData(localConnectionProvider);
 
-      UserService userService = new UserService();
-      System.out.println(userService.getUser(DbUtils.TEST_USER_EMAIL, localConnectionProvider));
+      UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+      System.out.println(userService.getUser(DbUtils.TEST_USER_EMAIL));
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());

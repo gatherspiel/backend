@@ -34,10 +34,10 @@ public class EditPermissionServiceIntegrationTest {
   private static User user4;
 
   @BeforeAll
-  static void setup(){
+  static void setup() throws Exception{
     testConnectionProvider = new IntegrationTestConnectionProvider();
     groupPermissionService = new GroupPermissionService();
-    createUserService = new UserService();
+    createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       System.out.println("Creating tables");
@@ -45,11 +45,11 @@ public class EditPermissionServiceIntegrationTest {
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_USERNAME, testConnectionProvider);
-      user = createUserService.createStandardUser(USERNAME_1, testConnectionProvider);
-      user2 = createUserService.createStandardUser(USERNAME_2, testConnectionProvider);
-      user3 = createUserService.createStandardUser(USERNAME_3, testConnectionProvider);
-      user4 = createUserService.createStandardUser(USERNAME_4, testConnectionProvider);
+      admin = createUserService.createAdmin(ADMIN_USERNAME);
+      user = createUserService.createStandardUser(USERNAME_1);
+      user2 = createUserService.createStandardUser(USERNAME_2);
+      user3 = createUserService.createStandardUser(USERNAME_3);
+      user4 = createUserService.createStandardUser(USERNAME_4);
 
     } catch(Exception e){
       e.printStackTrace();

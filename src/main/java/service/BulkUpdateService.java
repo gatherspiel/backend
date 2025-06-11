@@ -16,8 +16,8 @@ public class BulkUpdateService {
   }
 
   public void deleteUsers(ConnectionProvider connectionProvider) throws Exception{
-    UserRepository userRepository = new UserRepository();
-    userRepository.deleteAllUsers(connectionProvider.getDatabaseConnection());
+    UserRepository userRepository = new UserRepository(connectionProvider.getDatabaseConnection());
+    userRepository.deleteAllUsers();
   }
 
   public void bulkUpdate(BulkUpdateRequest data, ConnectionProvider connectionProvider)
