@@ -9,6 +9,7 @@ import app.utils.CreateUserUtils;
 import database.user.UserRepository;
 import io.javalin.http.Context;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.auth.AuthService;
@@ -30,13 +31,16 @@ public class RegisterUserIntegrationTest {
   private static AuthService authServiceWithError;
 
   private static UserService userService;
+
+  private static Connection conn;
+  private static Connection transactionConn;
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
-      Connection conn = testConnectionProvider.getDatabaseConnection();
+      conn = testConnectionProvider.getDatabaseConnection();
 
-      Connection transactionConn = testConnectionProvider.getConnectionWithManualCommit();
+      transactionConn = testConnectionProvider.getConnectionWithManualCommit();
 
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
@@ -52,6 +56,12 @@ public class RegisterUserIntegrationTest {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
     }
+  }
+
+  @AfterAll
+  static void cleanup() throws Exception{
+    conn.close();
+    transactionConn.close();
   }
 
 
