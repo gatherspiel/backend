@@ -2,6 +2,7 @@ package app.service;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.read.GameLocationsService;
@@ -31,6 +32,7 @@ public class LocationUpdateIntegrationTest {
       fail("Error initializing database:" + e.getMessage());
     }
   }
+
 
   @Test
   public void testLocationInsertSameAddress_NoDuplicatesListCities() throws Exception {

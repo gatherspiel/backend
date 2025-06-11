@@ -13,10 +13,9 @@ import service.permissions.GroupPermissionService;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
 
-public class SearchService extends ContentService {
+public class SearchService {
 
-  public SearchService(User currentUser){
-    super(currentUser);
+  public SearchService(){
   }
 
   public GroupSearchResult getGroups(
@@ -50,8 +49,4 @@ public class SearchService extends ContentService {
     }
     return groups.getFirstGroup();
   }
-
-
-
-
 }

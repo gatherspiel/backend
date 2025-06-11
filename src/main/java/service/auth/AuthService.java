@@ -3,111 +3,113 @@ package service.auth;
 import app.data.auth.User;
 import app.data.auth.UserType;
 import app.request.BulkUpdateInputRequest;
-import com.fasterxml.jackson.databind.JsonNode;
+import app.result.error.DuplicateUsernameException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.http.Context;
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.Logger;
 import service.data.AuthRequest;
 import service.user.UserService;
 import utils.LogUtils;
 import utils.Params;
 
-import java.io.InputStream;
+import java.sql.Connection;
+import java.util.Optional;
 
 public class AuthService {
-  private static final Logger logger = LogUtils.getLogger();
-  final String API_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcnF5c2t1dWRudmZ4b2h3a29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5ODQ5NjgsImV4cCI6MjA1NzU2MDk2OH0.TR-Pn6dknOTtqS9y-gxK_S1-nw6TX-sL3gRH2kXJY_I";
-  final String URL =
-    "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/token?grant_type=password";
 
+  private AuthProvider authProvider;
   private UserService userService;
+  private static final Logger logger = LogUtils.getLogger();
 
-  public AuthService(){
-    userService = new UserService();
+  public AuthService(AuthProvider authProvider, UserService userService){
+    this.authProvider = authProvider;
+    this.userService = userService;
+  }
+
+  public class RegisterUserException extends RuntimeException {
+    public RegisterUserException(String message) {
+      super(message);
+    }
+
+  }
+
+  public void registerUser(String username, String password, UserType userType) throws Exception{
+
+    if(userService.userExists(username)) {
+      throw new DuplicateUsernameException("Username: " + username + " already exists");
+    }
+
+    if(userType.equals(UserType.USER)) {
+      userService.createStandardUser(username);
+    } else if(userType.equals(UserType.SITE_ADMIN)) {
+      userService.createAdmin(username);
+    } else if(userType.equals(UserType.TESTER)) {
+      userService.createTester(username);
+    } else {
+      throw new Exception("Cannot create user with type:"+userType.toString());
+    }
+
+    try {
+      authProvider.registerUser(username, password);
+    } catch (Exception e) {
+      userService.rollbackChanges();
+      throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
+    }
+
+    userService.commitChanges();
+    logger.info("Created user with username:"+username);
   }
   /**
    *
    * @return Returns currently logged in user, or read only user if the user is not logged in.
    */
-  public User getUser(Context ctx, ConnectionProvider connectionProvider) throws Exception{
+  public User getUser(Context ctx) throws Exception{
     logger.info("Retrieving current user");
 
-    return getUserFromToken(ctx.header("authToken"), connectionProvider);
+    Optional<String> username =  authProvider.getUsernameFromToken(ctx.header("authToken"));
+
+    if(!username.isPresent()){
+      return getReadOnlyUser();
+    }
+
+    User user = userService.getActiveUser(username.get());
+    if(user == null){
+      return AuthService.getReadOnlyUser();
+    }
+    return user;
   }
+
 
   /**
    *
    * @return Returns read only user
    */
-  public User getReadOnlyUser(){
-
-    //TODO: Get current user from token
+  public static User getReadOnlyUser(){
     User user = new User("reader@dmvboardgames.com", UserType.READONLY, 123);
     return user;
   }
 
 
-  /*
-   Make sure the token is valid. If the token is invalid, throw an error.
-   If the token has expired, print a warning message
+  /**
+   * Validate bulk update request used for internet testing
+   * @param request
+   * @return
+   * @throws Exception
    */
-  private boolean validateToken() throws Exception{
-   return false;
-  }
-
-  public User getUserFromToken(String token, ConnectionProvider connectionProvider) throws Exception {
-
-    final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");
-    httpGet.setHeader("Authorization", "Bearer "+token);
-
-    try {
-      CloseableHttpClient httpClient = HttpClients.createDefault();
-      ObjectMapper objectMapper = new ObjectMapper();
-
-      JsonNode httpResponse = httpClient.execute(httpGet, response-> {
-        if (response.getCode() >= 300) {
-          throw new ClientProtocolException(new StatusLine(response).toString());
-        }
-        final HttpEntity responseEntity = response.getEntity();
-        if (responseEntity == null) {
-          return null;
-        }
-        try (InputStream inputStream = responseEntity.getContent()) {
-          return objectMapper.readTree(inputStream);
-        }
-      });
-
-      httpClient.close();
-
-      logger.info("Authorized");
-      String email = httpResponse.get("email").textValue();
-
-      return userService.getUser(email, connectionProvider);
-    } catch (Exception e) {
-      logger.info("Authorization failed with error", e);
-      return getReadOnlyUser();
-    }
-  }
-
-
   public boolean validateBulkUpdateInputRequest(BulkUpdateInputRequest request) throws Exception {
-    final HttpPost httpPost = new HttpPost(URL);
+    final HttpPost httpPost = new HttpPost(Params.getSupabasePasswordCheckUrl());
     httpPost.setHeader("Content-type", "application/json");
-    httpPost.setHeader("apikey", API_KEY);
+    httpPost.setHeader("apikey", Params.getSupabaseApiKey());
     final HttpClient httpClient = HttpClients.createDefault();
 
     AuthRequest authRequest = new AuthRequest();
@@ -142,5 +144,12 @@ public class AuthService {
     }
     logger.info("Authorized");
     return true;
+  }
+
+  public static AuthService createSupabaseAuthService(Connection conn){
+
+    UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+    SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
+    return new AuthService(supabaseAuthProvider, userService);
   }
 }

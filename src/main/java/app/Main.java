@@ -2,19 +2,26 @@ package app;
 
 import app.data.Group;
 import app.request.BulkUpdateInputRequest;
+import app.result.error.GroupNotFoundError;
+import app.result.error.InvalidGroupRequestError;
+import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
+import service.auth.SupabaseAuthProvider;
 import service.data.SearchParameterException;
 import service.provider.ReadGroupDataProvider;
 import service.read.GameLocationsService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.GroupEditService;
+import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -22,7 +29,6 @@ import java.time.LocalDate;
 public class Main {
 
   public static Logger logger = LogUtils.getLogger();
-  public static AuthService authService = new AuthService();
   public static void main(String[] args) {
     var app = Javalin
       .create(
@@ -60,7 +66,7 @@ public class Main {
             ctx
           );
 
-          var searchService = new SearchService(authService.getReadOnlyUser());
+          var searchService = new SearchService();
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -115,13 +121,13 @@ public class Main {
     app.post(
       "/admin/saveData",
       ctx -> {
-        var authService = new AuthService();
-
-        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
-        authService.validateBulkUpdateInputRequest(data);
-        ctx.result("Test");
 
         var connectionProvider = new ConnectionProvider();
+        var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
+        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
+        authService.validateBulkUpdateInputRequest(data);
+        ctx.result("Saved data");
+
         var bulkUpdateService = new BulkUpdateService();
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
@@ -137,13 +143,14 @@ public class Main {
                 ctx
             );
 
-            var currentUser = authService.getUser(ctx, connectionProvider);
+            var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
+            var currentUser = authService.getUser(ctx);
             logger.info("Current user:"+currentUser);
 
-            var readGroupDataProvider = ReadGroupDataProvider.create(currentUser, connectionProvider);
+            var readGroupDataProvider = ReadGroupDataProvider.create();
             var groupService = new ReadGroupService(readGroupDataProvider);
 
-            GroupPageData pageData = groupService.getGroupPageData(searchParams, connectionProvider);
+            GroupPageData pageData = groupService.getGroupPageData(currentUser, searchParams, connectionProvider);
             logger.info("Retrieved group data");
             ctx.json(pageData);
             ctx.status(200);
@@ -161,23 +168,32 @@ public class Main {
         "/groups",
         ctx -> {
 
+          Group group = null;
           try {
             var connectionProvider = new ConnectionProvider();
 
-            var currentUser = authService.getUser(ctx, connectionProvider);
+            var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
+            var currentUser = authService.getUser(ctx);
             var groupEditService = new GroupEditService();
 
-            var group = ctx.bodyAsClass(Group.class);
+            group = ctx.bodyAsClass(Group.class);
 
             groupEditService.editGroup(currentUser,group, connectionProvider);
 
             logger.info("Retrieved group data");
             ctx.status(200);
-          } catch (SearchParameterException e) {
+          } catch (UnrecognizedPropertyException  | GroupNotFoundError | InvalidGroupRequestError e) {
+            logger.error(e.getMessage());
+            ctx.status(400);
+            ctx.result(e.getMessage());
+          } catch(PermissionError e) {
+            ctx.status(403);
+            logger.error(e.getMessage());
+            ctx.result(e.getMessage());
+          }
+          catch(Exception e){
             e.printStackTrace();
-            ctx.status(404);
-          } catch(Exception e){
-            e.printStackTrace();
+
             ctx.status(500);
           }
         }

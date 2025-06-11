@@ -17,12 +17,11 @@ public class ReadGroupService{
 
   SearchService searchService;
   GroupPermissionService groupPermissionService;
-  User currentUser;
   GroupsRepository groupsRepository;
+
   public ReadGroupService(ReadGroupDataProvider dataProvider) {
     this.searchService = dataProvider.getSearchService();
     this.groupPermissionService = dataProvider.getGroupPermissionService();
-    this.currentUser = dataProvider.getUser();
     this.groupsRepository = dataProvider.getGroupsRepository();
   }
 
@@ -30,6 +29,7 @@ public class ReadGroupService{
     return this.groupsRepository.getGroup(groupId, connectionProvider.getDatabaseConnection());
   }
   public GroupPageData getGroupPageData(
+      User currentUser,
       LinkedHashMap<String, String> params,
       ConnectionProvider connectionProvider) throws Exception{
 

@@ -2,6 +2,7 @@ package database.user;
 
 import app.data.auth.User;
 import app.data.auth.UserType;
+import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -9,19 +10,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-
-public class UserRepository {
+public class UserRepository extends BaseRepository {
 
   Logger logger;
-  public UserRepository(){
+  public UserRepository(Connection connection){
+    super(connection);
     logger = LogUtils.getLogger();
   }
 
-  public User createAdmin(String email, Connection conn) throws Exception{
+  public User createAdmin(String email) throws Exception{
       String query =
           "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
 
-    PreparedStatement insert = conn.prepareStatement(query);
+    PreparedStatement insert = connection.prepareStatement(query);
     insert.setString(1, email);
     insert.setString(2, UserType.SITE_ADMIN.toString());
 
@@ -36,12 +37,11 @@ public class UserRepository {
     return new User(email, UserType.SITE_ADMIN, rs.getInt(1));
   }
 
-
-  public User createStandardUser(String email, Connection conn) throws Exception{
+  public User createStandardUser(String email) throws Exception{
     String query =
         "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
 
-    PreparedStatement insert = conn.prepareStatement(query);
+    PreparedStatement insert = connection.prepareStatement(query);
     insert.setString(1, email);
     insert.setString(2, "user");
 
@@ -57,10 +57,31 @@ public class UserRepository {
     return new User(email, UserType.USER, userId);
   }
 
-  public User getUserFromEmail(String email, Connection conn) throws Exception {
+  public User createTester(String email) throws Exception{
+    String query =
+        "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
+
+    PreparedStatement insert = connection.prepareStatement(query);
+    insert.setString(1, email);
+    insert.setString(2, "tester");
+
+    ResultSet rs = insert.executeQuery();
+    if(!rs.next()) {
+      var message = "Failed to create admin user";
+      logger.error(message);
+      throw new Exception(message);
+    }
+
+    int userId = rs.getInt(1);
+    logger.info("Created user with id:"+userId);
+    return new User(email, UserType.TESTER, userId);
+  }
+
+
+  public User getUserFromEmail(String email) throws Exception {
 
     String query = "SELECT * from users where email = ?";
-    PreparedStatement select = conn.prepareStatement(query);
+    PreparedStatement select = connection.prepareStatement(query);
     select.setString(1, email);
 
     ResultSet rs = select.executeQuery();
@@ -79,11 +100,59 @@ public class UserRepository {
     return user;
   }
 
-  public void deleteAllUsers(Connection connection) throws Exception {
+  public User getActiveUserFromEmail(String email) throws Exception {
+
+    String query = "SELECT * from users where email = ? and is_active = TRUE";
+    PreparedStatement select = connection.prepareStatement(query);
+    select.setString(1, email);
+
+    ResultSet rs = select.executeQuery();
+
+    if(!rs.next()){
+      logger.info("Did not find user with email:"+email);
+      return null;
+    }
+
+    logger.info(rs.getString("email"));
+    User user = new User(
+        email,
+        UserType.fromDatabaseString(rs.getString("user_role_level")),
+        rs.getInt("id")
+    );
+    return user;
+  }
+
+
+  public void deleteAllUsers() throws Exception {
     logger.info("Deleting all users");
 
     String query = "TRUNCATE table users CASCADE";
     PreparedStatement statement = connection.prepareStatement(query);
     statement.executeUpdate();
+  }
+
+  public void activateUser(String email) throws Exception {
+    String query = """
+        UPDATE users
+        SET is_active = TRUE
+        WHERE email = ?
+        """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+    statement.executeUpdate();
+  }
+
+  public int countUsers() throws Exception{
+    String query = """
+         SELECT COUNT(id)
+         FROM users
+         """;
+    PreparedStatement statement = connection.prepareStatement(query);
+
+    ResultSet rs = statement.executeQuery();
+    rs.next();
+
+    return rs.getInt(1);
   }
 }
