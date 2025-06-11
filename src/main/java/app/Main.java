@@ -6,22 +6,20 @@ import app.result.error.GroupNotFoundError;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
+import app.user.UserApi;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
-import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
-import service.auth.SupabaseAuthProvider;
 import service.data.SearchParameterException;
 import service.provider.ReadGroupDataProvider;
 import service.read.GameLocationsService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.GroupEditService;
-import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -46,6 +44,8 @@ public class Main {
       )
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
+
+    UserApi.createUserEndpoints(app);
 
     app.get(
       "/countLocations",

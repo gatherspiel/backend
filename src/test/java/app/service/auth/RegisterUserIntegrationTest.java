@@ -5,8 +5,9 @@ import app.data.auth.UserType;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.error.DuplicateUsernameException;
+import app.user.data.RegisterUserRequest;
+import app.user.data.RegisterUserResponse;
 import app.utils.CreateUserUtils;
-import database.user.UserRepository;
 import io.javalin.http.Context;
 
 import org.junit.jupiter.api.AfterAll;
@@ -72,10 +73,12 @@ public class RegisterUserIntegrationTest {
     userService.createStandardUser(user.getEmail());
 
     int userCount1 = userService.countUsers();
+
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          authService.registerUser(user.getEmail(), "1234", UserType.USER);
+          authService.registerUser(request, UserType.USER);
         }
     );
 
@@ -91,9 +94,12 @@ public class RegisterUserIntegrationTest {
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
-    authService.registerUser(user.getEmail(), "1234", UserType.USER);
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+
+    var registerUserInfo = authService.registerUser(request, UserType.USER);
 
     User createdUser = userService.getUser(user.getEmail());
+    assertEquals(registerUserInfo.getEmail(), user.getEmail());
     assertEquals(user.getEmail(), createdUser.getEmail());
   }
 
@@ -101,10 +107,11 @@ public class RegisterUserIntegrationTest {
   public void registerUser_authenticationError_userNotCreated() throws Exception {
     User user = CreateUserUtils.createUserObject(UserType.USER);
 
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          authServiceWithError.registerUser(user.getEmail(), "1234", UserType.USER);
+          authServiceWithError.registerUser(request, UserType.USER);
         }
     );
     assertTrue(exception.getMessage().contains("Failed to create user"), exception.getMessage());
@@ -118,7 +125,9 @@ public class RegisterUserIntegrationTest {
   public void testInactiveUserCannotAuthenticate() throws Exception{
 
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    authService.registerUser(user.getEmail(), "1234", UserType.USER);
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+
+    authService.registerUser(request, UserType.USER);
 
     Context context = mock(Context.class);
     when(context.header("authToken")).thenReturn(user.getEmail());
@@ -134,8 +143,11 @@ public class RegisterUserIntegrationTest {
     User user = CreateUserUtils.createUserObject(UserType.USER);
     User user2 = CreateUserUtils.createUserObject(UserType.TESTER);
 
-    authService.registerUser(user.getEmail(), "1234", UserType.USER);
-    authService.registerUser(user2.getEmail(), "1234", UserType.TESTER);
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
+    RegisterUserRequest request2 = new RegisterUserRequest(user2.getEmail(), "1234");
+
+    authService.registerUser(request, UserType.USER);
+    authService.registerUser(request2, UserType.TESTER);
 
     User savedUser = userService.getUser(user.getEmail());
     User savedUser2 = userService.getUser(user2.getEmail());
@@ -150,8 +162,9 @@ public class RegisterUserIntegrationTest {
   @Test
   public void testActiveUserCanAuthenticate() throws Exception{
     User user = CreateUserUtils.createUserObject(UserType.USER);
-    authService.registerUser(user.getEmail(), "1234", UserType.USER);
+    RegisterUserRequest request = new RegisterUserRequest(user.getEmail(), "1234");
 
+    authService.registerUser(request, UserType.USER);
     userService.activateUser(user.getEmail());
 
     Context context = mock(Context.class);
