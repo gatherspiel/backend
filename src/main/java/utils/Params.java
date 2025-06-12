@@ -24,7 +24,7 @@ public class Params {
   }
 
   public static String getSupabaseApiKey(){
-    if(System.getenv("ENV").equals("prod")) {
+    if(("prod").equals(System.getenv("ENV"))) {
       return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcnF5c2t1dWRudmZ4b2h3a29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE5ODQ5NjgsImV4cCI6MjA1NzU2MDk2OH0.TR-Pn6dknOTtqS9y-gxK_S1-nw6TX-sL3gRH2kXJY_I";
     }
     return "";
