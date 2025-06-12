@@ -48,7 +48,7 @@ public class AuthService {
       super(message);
     }
   }
-  
+
   public RegisterUserResponse registerUser(RegisterUserRequest request, UserType userType) throws Exception{
 
     validateRegisterUserRequest(request);
