@@ -2,6 +2,7 @@ package app.user;
 
 import app.data.auth.UserType;
 import app.user.data.RegisterUserRequest;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
@@ -13,14 +14,12 @@ public class UserApi {
 
   public static void createUserEndpoints(Javalin app){
     app.post(
-        "/user/register",
+        "/users/register",
         ctx -> {
 
           try {
             var connectionProvider = new ConnectionProvider();
             var authService = AuthService.createSupabaseAuthService(connectionProvider.getConnectionWithManualCommit());
-
-            System.out.println(ctx.body());
 
             var data = ctx.bodyAsClass(RegisterUserRequest.class);
             var response = authService.registerUser(data, UserType.USER);
@@ -28,8 +27,21 @@ public class UserApi {
             logger.info("User created successfully");
             ctx.status(200);
             ctx.json(response);
-          } catch (Exception e){
+          } catch(AuthService.RegisterUserInvalidDataException e){
+            ctx.status(400);
+            ctx.result(e.getMessage());
+          }
+          catch(MismatchedInputException e){
+            if(e.getMessage().contains("app.user.data.RegisterUserRequest")){
+              ctx.result(ctx.body() + " is not valid input for the POST /users/register endpoint");
+              ctx.status(400);
+            } else {
+              ctx.result(e.getMessage());
+              ctx.status(500);
+            }
+          }catch (Exception e){
             e.printStackTrace();
+            ctx.result(e.getMessage());
             ctx.status(500);
           }
         }
