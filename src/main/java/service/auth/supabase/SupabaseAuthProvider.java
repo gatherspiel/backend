@@ -70,8 +70,8 @@ public class SupabaseAuthProvider implements AuthProvider {
       });
 
 
-      logger.info(httpResponse);
 
+      logger.info(httpResponse.fieldNames());
       JsonNode userData = httpResponse.get("user");
       String email = userData.get("email").textValue();
       String createdAt = userData.get("created_at").textValue();
@@ -79,7 +79,7 @@ public class SupabaseAuthProvider implements AuthProvider {
       return new RegisterUserResponse(email, createdAt);
 
     } catch (Exception e){
-      logger.error("Failed to register user with url:"+url);
+      logger.error("Failed to register user with url:{}", url);
       logger.error(e.getMessage());
       throw e;
     }
