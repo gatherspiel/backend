@@ -26,7 +26,6 @@ public class SupabaseAuthProvider implements AuthProvider {
 
   private static final Logger logger = LogUtils.getLogger();
 
-
   @Override
   public RegisterUserResponse registerUser(RegisterUserRequest request) throws Exception{
 
@@ -76,7 +75,6 @@ public class SupabaseAuthProvider implements AuthProvider {
       String email = userData.get("email").textValue();
       String createdAt = userData.get("created_at").textValue();
 
-      //TODO: Send email confirmation
       return new RegisterUserResponse(email, createdAt);
 
     } catch (Exception e){
