@@ -20,14 +20,18 @@ public class UserApi {
           try {
             var connectionProvider = new ConnectionProvider();
             var authService = AuthService.createSupabaseAuthService(connectionProvider.getConnectionWithManualCommit());
-            
+
             var data = ctx.bodyAsClass(RegisterUserRequest.class);
             var response = authService.registerUser(data, UserType.USER);
 
             logger.info("User created successfully");
             ctx.status(200);
             ctx.json(response);
-          } catch(MismatchedInputException e){
+          } catch(AuthService.RegisterUserInvalidDataException e){
+            ctx.status(400);
+            ctx.result(e.getMessage());
+          }
+          catch(MismatchedInputException e){
             if(e.getMessage().contains("app.user.data.RegisterUserRequest")){
               ctx.result(ctx.body() + " is not valid input for the POST /users/register endpoint");
               ctx.status(400);

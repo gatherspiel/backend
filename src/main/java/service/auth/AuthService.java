@@ -41,11 +41,17 @@ public class AuthService {
     public RegisterUserException(String message) {
       super(message);
     }
-
   }
 
+  public class RegisterUserInvalidDataException extends RuntimeException {
+    public RegisterUserInvalidDataException(String message) {
+      super(message);
+    }
+  }
+  
   public RegisterUserResponse registerUser(RegisterUserRequest request, UserType userType) throws Exception{
 
+    validateRegisterUserRequest(request);
     if(userService.userExists(request.getEmail())) {
       throw new DuplicateUsernameException("Username: " + request.getEmail() + " already exists");
     }
@@ -70,8 +76,15 @@ public class AuthService {
       e.printStackTrace();
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
     }
+  }
 
-
+  private void validateRegisterUserRequest(RegisterUserRequest request){
+    if(request.getEmail() == null ||request.getEmail().isBlank()){
+      throw new RegisterUserInvalidDataException("Invalid email");
+    }
+    if(request.getPassword() == null ||request.getPassword().isBlank()){
+      throw new RegisterUserInvalidDataException("Invalid password");
+    }
   }
   /**
    *
