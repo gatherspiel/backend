@@ -31,6 +31,7 @@ public class SupabaseAuthProvider implements AuthProvider {
 
     String url = Params.getAuthUrl()+"signup";
     final HttpPost httpPost = new HttpPost(url);
+    httpPost.setHeader("apikey", Params.getSupabaseApiKey());
 
     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     String json = ow.writeValueAsString(request);
