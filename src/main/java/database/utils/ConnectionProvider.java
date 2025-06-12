@@ -33,4 +33,10 @@ public class ConnectionProvider {
       return connection;
     }
   }
+
+  public Connection getConnectionWithManualCommit() throws Exception {
+    Connection connection = getDatabaseConnection();
+    connection.setAutoCommit(false);
+    return connection;
+  }
 }

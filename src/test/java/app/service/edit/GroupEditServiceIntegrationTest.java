@@ -38,7 +38,6 @@ public class GroupEditServiceIntegrationTest {
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
-  private  static AuthService authService;
 
   private static void assertGroupsAreEqual(Group group1, Group group2){
     assertEquals(group1.id, group2.id);
@@ -49,14 +48,13 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @BeforeAll
-  static void setup(){
+  static void setup() throws Exception{
     testConnectionProvider = new IntegrationTestConnectionProvider();
     groupEditService = new GroupEditService();
-    createUserService = new UserService();
-    authService = new AuthService();
+    createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
     groupPermissionService = new GroupPermissionService();
 
-    ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create(admin, testConnectionProvider);
+    ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create();
     readGroupService = new ReadGroupService(dataProvider);
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
@@ -65,11 +63,10 @@ public class GroupEditServiceIntegrationTest {
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_USERNAME, testConnectionProvider);
-      System.out.println(admin);
-      standardUser = createUserService.createStandardUser(USERNAME_2, testConnectionProvider);
-      standardUser2 = createUserService.createStandardUser(USERNAME_3, testConnectionProvider);
-      standardUser3 = createUserService.createStandardUser(USERNAME_4, testConnectionProvider);
+      admin = createUserService.createAdmin(ADMIN_USERNAME);
+      standardUser = createUserService.createStandardUser(USERNAME_2);
+      standardUser2 = createUserService.createStandardUser(USERNAME_3);
+      standardUser3 = createUserService.createStandardUser(USERNAME_4);
 
     } catch(Exception e){
       e.printStackTrace();
@@ -81,7 +78,7 @@ public class GroupEditServiceIntegrationTest {
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
     Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);
 
-    User readOnlyUser = authService.getReadOnlyUser();
+    User readOnlyUser = AuthService.getReadOnlyUser();
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -113,6 +110,20 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @Test
+  public void testSiteAdminCanEditGroup() throws Exception{
+    Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
+
+    Group updated = CreateGroupUtils.createGroupObject();
+    updated.setId(group.getId());
+    groupEditService.editGroup(admin, updated, testConnectionProvider);
+
+    Group updatedFromDb = readGroupService.getGroup(group.getId(), testConnectionProvider);
+
+    assertGroupsAreEqual(updatedFromDb, updated);
+  }
+
+
+  @Test
   public void testGroupAdminCanEditGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
@@ -125,18 +136,16 @@ public class GroupEditServiceIntegrationTest {
     assertGroupsAreEqual(updatedFromDb, updated);
   }
 
-  //TODO: Update tests
   @Test
   public void testUserCannotEditGroupThatDoesNotExist() throws Exception{
     Group updated = CreateGroupUtils.createGroupObject();
-    updated.setId(-1);
+    updated.setId((int)(Math.random()*999999));
     Exception exception = assertThrows(
         Exception.class,
         ()->{
           groupEditService.editGroup(admin, updated, testConnectionProvider);
         }
     );
-    System.out.println(exception.getMessage());
     assertTrue(exception.getMessage().contains("not found"));
 
   }

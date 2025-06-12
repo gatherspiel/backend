@@ -3,16 +3,13 @@ package service.provider;
 import app.data.auth.User;
 import database.utils.ConnectionProvider;
 
+import java.sql.Connection;
+
 public abstract class DataProvider {
-  protected User user;
-  protected ConnectionProvider connectionProvider;
+  protected Connection connection;
 
-  protected DataProvider(User user, ConnectionProvider connectionProvider){
-    this.user = user;
-    this.connectionProvider = connectionProvider;
+  protected DataProvider(Connection connection){
+    this.connection = connection;
   }
 
-  public User getUser(){
-    return user;
-  }
 }

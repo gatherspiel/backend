@@ -125,6 +125,7 @@ create table if not exists users (
   id serial not null,
   email varchar unique,
   user_role_level user_role_level null,
+  is_active boolean,
   constraint users_pkey primary key (id)
 );
 

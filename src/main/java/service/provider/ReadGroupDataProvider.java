@@ -7,18 +7,16 @@ import service.permissions.GroupPermissionService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 
-public class ReadGroupDataProvider extends DataProvider {
+public class ReadGroupDataProvider {
 
   protected SearchService searchService;
   protected GroupPermissionService groupPermissionService;
   protected GroupsRepository groupsRepository;
+
   private ReadGroupDataProvider(
-      User currentUser,
-      ConnectionProvider connectionProvider,
       SearchService searchService,
       GroupPermissionService groupPermissionService,
       GroupsRepository groupsRepository){
-    super(currentUser, connectionProvider);
     this.searchService = searchService;
     this.groupPermissionService = groupPermissionService;
     this.groupsRepository = groupsRepository;
@@ -36,12 +34,11 @@ public class ReadGroupDataProvider extends DataProvider {
     return groupPermissionService;
   }
 
-  public static ReadGroupDataProvider create(User currentUser,
-                       ConnectionProvider connectionProvider){
+  public static ReadGroupDataProvider create(){
 
-    var searchService = new SearchService(currentUser);
+    var searchService = new SearchService();
     var groupPermissionService = new GroupPermissionService();
     var groupRepository = new GroupsRepository();
-    return new ReadGroupDataProvider(currentUser, connectionProvider, searchService,groupPermissionService, groupRepository);
+    return new ReadGroupDataProvider(searchService,groupPermissionService, groupRepository);
   }
 }

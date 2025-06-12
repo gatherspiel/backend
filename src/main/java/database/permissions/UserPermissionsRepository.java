@@ -2,8 +2,7 @@ package database.permissions;
 
 import app.data.auth.GroupAdminType;
 import app.data.auth.User;
-import app.data.auth.UserType;
-import org.apache.hc.core5.http.HttpException;
+import app.result.error.GroupNotFoundError;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -69,6 +68,7 @@ public class UserPermissionsRepository
 
   public boolean canEditGroup(User user, int groupId, Connection conn) throws Exception {
 
+    System.out.println("Can edit?");
     String query =  """
                       SELECT * from groups
                       FULL JOIN group_admin_data on group_admin_data.group_id = groups.id
@@ -82,8 +82,9 @@ public class UserPermissionsRepository
     if(!rs.next()){
       var message = "Group "+groupId + " not found";
       logger.error(message);
-      throw new Exception(message);
+      throw new GroupNotFoundError(message);
     }
+    System.out.println("Found group with id "+groupId);
     while(true){
 
       int user_id = rs.getInt("user_id");
