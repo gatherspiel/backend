@@ -69,9 +69,8 @@ public class SupabaseAuthProvider implements AuthProvider {
 
       });
 
-
-
-      logger.info(httpResponse.fieldNames());
+      logger.info("Printing response fields from register user request");
+      httpResponse.fieldNames().forEachRemaining(item->logger.info(item));
       JsonNode userData = httpResponse.get("user");
       String email = userData.get("email").textValue();
       String createdAt = userData.get("created_at").textValue();
