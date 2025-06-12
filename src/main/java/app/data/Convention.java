@@ -1,9 +1,6 @@
 package app.data;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
 
 public class Convention {
   String[] days;

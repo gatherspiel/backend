@@ -8,7 +8,6 @@ import app.result.groupPage.GroupPageData;
 import app.result.groupPage.GroupPageEventData;
 import app.utils.CreateGroupUtils;
 import database.search.GroupSearchParams;
-import database.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -4,10 +4,10 @@ import app.data.auth.User;
 import app.data.auth.UserType;
 import app.request.BulkUpdateInputRequest;
 import app.result.error.DuplicateUsernameException;
+import app.user.data.RegisterUserRequest;
+import app.user.data.RegisterUserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import database.user.UserRepository;
-import database.utils.ConnectionProvider;
 import io.javalin.http.Context;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -17,6 +17,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
+import service.auth.supabase.SupabaseAuthProvider;
 import service.data.AuthRequest;
 import service.user.UserService;
 import utils.LogUtils;
@@ -43,31 +44,34 @@ public class AuthService {
 
   }
 
-  public void registerUser(String username, String password, UserType userType) throws Exception{
+  public RegisterUserResponse registerUser(RegisterUserRequest request, UserType userType) throws Exception{
 
-    if(userService.userExists(username)) {
-      throw new DuplicateUsernameException("Username: " + username + " already exists");
+    if(userService.userExists(request.getEmail())) {
+      throw new DuplicateUsernameException("Username: " + request.getEmail() + " already exists");
     }
 
     if(userType.equals(UserType.USER)) {
-      userService.createStandardUser(username);
+      userService.createStandardUser(request.getEmail());
     } else if(userType.equals(UserType.SITE_ADMIN)) {
-      userService.createAdmin(username);
+      userService.createAdmin(request.getEmail());
     } else if(userType.equals(UserType.TESTER)) {
-      userService.createTester(username);
+      userService.createTester(request.getEmail());
     } else {
       throw new Exception("Cannot create user with type:"+userType.toString());
     }
 
     try {
-      authProvider.registerUser(username, password);
+      var registerUserResponse = authProvider.registerUser(request);
+      userService.commitChanges();
+      logger.info("Created user with username:"+request.getEmail());
+      return registerUserResponse;
     } catch (Exception e) {
       userService.rollbackChanges();
+      e.printStackTrace();
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
     }
 
-    userService.commitChanges();
-    logger.info("Created user with username:"+username);
+
   }
   /**
    *

@@ -25,7 +25,9 @@ The API will be available at http://localhost:7070/
 
 To compile without running unit tests, run `mvn clean package -DskipTests`
 
+### Viewing automated emails related to authentication
 
+Navigate to local mail server at http://localhost:54324
 ### Creating a new user
 
 - Navigate to http://localhost:54323
