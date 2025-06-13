@@ -18,6 +18,9 @@ public class InitLocalDb {
       DbUtils.initializeData(localConnectionProvider);
 
       UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+      userService.createAdmin("test@freegather.org");
+      userService.activateUser("test@freegather.org");
+
       System.out.println(userService.getUser(DbUtils.TEST_USER_EMAIL));
     } catch (Exception e) {
       e.printStackTrace();
