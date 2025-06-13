@@ -9,8 +9,10 @@ import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
+import service.auth.supabase.SupabaseAuthProvider;
 import service.read.GameLocationsService;
 import service.read.SearchService;
+import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -109,12 +111,16 @@ public class Main {
           ctx.status(200);
         });
 
+    //TODO: Consider deleting this endpoint.
     app.post(
       "/admin/saveData",
       ctx -> {
 
         var connectionProvider = new ConnectionProvider();
-        var authService = AuthService.createSupabaseAuthService(connectionProvider.getDatabaseConnection());
+        UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getDatabaseConnection()));
+        SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
+
+        AuthService authService = new AuthService(supabaseAuthProvider, userService);
         var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
         authService.validateBulkUpdateInputRequest(data);
         ctx.result("Saved data");

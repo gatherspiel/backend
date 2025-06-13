@@ -165,7 +165,6 @@ public class AuthService {
   }
 
   //TODO: Consider moving this function and the one below it outside of AuthService.
-  
   public static User getUser(Connection conn, Context ctx) throws Exception{
 
     UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
