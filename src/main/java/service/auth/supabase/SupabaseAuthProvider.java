@@ -71,9 +71,20 @@ public class SupabaseAuthProvider implements AuthProvider {
 
       logger.info("Printing response fields from register user request");
       httpResponse.fieldNames().forEachRemaining(item->logger.info(item));
-      JsonNode userData = httpResponse.get("user");
-      String email = userData.get("email").textValue();
-      String createdAt = userData.get("created_at").textValue();
+
+      String email;
+      String createdAt;
+
+      // In prod, the Supabase auth API returns a response with a different structure for the /signup endpoint
+      if(httpResponse.has("user")){
+        JsonNode userData = httpResponse.get("user");
+        email = userData.get("email").textValue();
+        createdAt = userData.get("created_at").textValue();
+      } else {
+        email = httpResponse.get("email").textValue();
+        createdAt = httpResponse.get("created_at").textValue();
+      }
+
 
       return new RegisterUserResponse(email, createdAt);
 
