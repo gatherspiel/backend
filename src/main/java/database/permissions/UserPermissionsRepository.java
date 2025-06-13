@@ -68,7 +68,6 @@ public class UserPermissionsRepository
 
   public boolean canEditGroup(User user, int groupId, Connection conn) throws Exception {
 
-    System.out.println("Can edit?");
     String query =  """
                       SELECT * from groups
                       FULL JOIN group_admin_data on group_admin_data.group_id = groups.id
