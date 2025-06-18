@@ -2,9 +2,11 @@ package app.groups;
 
 import app.groups.data.Group;
 import app.result.error.GroupNotFoundError;
+import app.result.error.InvalidGroupParameterError;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -87,32 +89,33 @@ public class GroupsApi {
       }
     );
 
-
     app.post(
         "/groups",
         ctx -> {
 
-          Group groupToCreate = null;
           try {
-            var connectionProvider = new ConnectionProvider();
+            Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
+            var connectionProvider = new ConnectionProvider();
             var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
             var groupEditService = new GroupEditService();
-
-            groupToCreate = ctx.bodyAsClass(Group.class);
 
             Group createdGroup = groupEditService.insertGroup(currentUser,groupToCreate, connectionProvider);
 
             logger.info("Created group group with id:"+createdGroup.id);
             ctx.json(createdGroup);
             ctx.status(200);
-          } catch (UnrecognizedPropertyException | GroupNotFoundError | InvalidGroupRequestError e) {
+          } catch (GroupNotFoundError | InvalidGroupRequestError e) {
             logger.error(e.getMessage());
             ctx.status(400);
             ctx.result(e.getMessage());
           } catch(PermissionError e) {
             ctx.status(403);
             logger.error(e.getMessage());
+            ctx.result(e.getMessage());
+          } catch (InvalidGroupParameterError e) {
+            logger.error(e.getMessage());
+            ctx.status(400);
             ctx.result(e.getMessage());
           }
           catch(Exception e){
