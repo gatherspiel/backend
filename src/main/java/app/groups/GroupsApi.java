@@ -6,7 +6,6 @@ import app.result.error.InvalidGroupParameterError;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.result.groupPage.GroupPageData;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -22,9 +21,9 @@ import utils.LogUtils;
 public class GroupsApi {
 
   public static Logger logger = LogUtils.getLogger();
-  public static String GROUP_ID_PARAM = "group_id";
+  public static String GROUP_ID_PARAM = "id";
 
-  public static void createEndpoints(Javalin app) {
+  public static void groupEndpoints(Javalin app) {
     app.get(
         "/groups",
         ctx -> {
@@ -50,6 +49,7 @@ public class GroupsApi {
             ctx.status(404);
           } catch(Exception e){
             e.printStackTrace();
+            ctx.result(e.getMessage());
             ctx.status(500);
           }
         }
@@ -120,7 +120,7 @@ public class GroupsApi {
           }
           catch(Exception e){
             e.printStackTrace();
-
+            ctx.result(e.getMessage());
             ctx.status(500);
           }
         }
@@ -144,6 +144,7 @@ public class GroupsApi {
       }
       catch(Exception e){
         e.printStackTrace();
+        ctx.result(e.getMessage());
         ctx.status(500);
       }
     }

@@ -39,7 +39,7 @@ public class Main {
       .start(7070);
 
     UsersApi.createEndpoints(app);
-    GroupsApi.createEndpoints(app);
+    GroupsApi.groupEndpoints(app);
     app.get(
       "/countLocations",
       ctx -> {
