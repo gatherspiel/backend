@@ -23,6 +23,10 @@ public class GroupEditService {
 
 
   public void editGroup(User user, Group groupToUpdate, ConnectionProvider connectionProvider) throws Exception{
+
+    if(groupToUpdate.getId() <=0) {
+      throw new InvalidGroupRequestError("Invalid group id: "+groupToUpdate.getId());
+    }
     validateGroupData(groupToUpdate);
 
     if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
@@ -61,8 +65,6 @@ public class GroupEditService {
       throw new Exception(message);
     }
 
-    if(group.getId() <=0) {
-      throw new InvalidGroupRequestError("Invalid group id: "+group.getId());
-    }
+
   }
 }
