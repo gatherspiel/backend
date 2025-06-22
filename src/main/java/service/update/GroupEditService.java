@@ -1,6 +1,6 @@
 package service.update;
 
-import app.data.Group;
+import app.groups.data.Group;
 import app.data.auth.User;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
@@ -9,8 +9,6 @@ import database.permissions.UserPermissionsRepository;
 import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
-
-import java.util.UUID;
 
 public class GroupEditService {
 
@@ -25,9 +23,13 @@ public class GroupEditService {
 
 
   public void editGroup(User user, Group groupToUpdate, ConnectionProvider connectionProvider) throws Exception{
+
+    if(groupToUpdate.getId() <=0) {
+      throw new InvalidGroupRequestError("Invalid group id: "+groupToUpdate.getId());
+    }
     validateGroupData(groupToUpdate);
 
-    if(!userPermissionsRepository.canEditGroup(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
+    if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to edit group: " + groupToUpdate.getName());
     }
     System.out.println("User can edit group");
@@ -46,8 +48,13 @@ public class GroupEditService {
     return groupsRepository.insertGroup(user, groupToInsert, connectionProvider.getDatabaseConnection());
   }
 
-  public Group deleteGroup(UUID groupId){
-    return null;
+  public void deleteGroup(User user, int groupId, ConnectionProvider connectionProvider) throws Exception {
+
+    if(!userPermissionsRepository.isGroupAdmin(user, groupId, connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
+      throw new PermissionError("User does not have permissions to delete group: " + groupId);
+    }
+
+    groupsRepository.deleteGroup(groupId, connectionProvider.getDatabaseConnection());
   }
 
   private void validateGroupData(Group group) throws Exception{
@@ -58,8 +65,6 @@ public class GroupEditService {
       throw new Exception(message);
     }
 
-    if(group.getId() <=0) {
-      throw new InvalidGroupRequestError("Invalid group id: "+group.getId());
-    }
+
   }
 }

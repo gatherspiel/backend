@@ -1,7 +1,7 @@
 package service.auth.supabase;
 
-import app.user.data.RegisterUserRequest;
-import app.user.data.RegisterUserResponse;
+import app.users.data.RegisterUserRequest;
+import app.users.data.RegisterUserResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -97,7 +97,6 @@ public class SupabaseAuthProvider implements AuthProvider {
 
   @Override
   public Optional<String> getUsernameFromToken(String token) throws Exception {
-    System.out.println(Params.getAuthUrl());
     final HttpGet httpGet = new HttpGet(Params.getAuthUrl()+"user");
     httpGet.setHeader("apikey", Params.getSupabaseApiKey());
     httpGet.setHeader("Authorization", "Bearer "+token);
