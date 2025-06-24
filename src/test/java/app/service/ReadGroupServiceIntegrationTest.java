@@ -125,6 +125,7 @@ public class ReadGroupServiceIntegrationTest {
         testConnectionProvider
     );
 
+    //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
@@ -154,6 +155,8 @@ public class ReadGroupServiceIntegrationTest {
         assertTrue(data.getEventDate().isAfter(prevDate));
       }
       eventCount++;
+
+      //TODO: Verify event ids.
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
