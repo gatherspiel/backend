@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReadGroupServiceIntegrationTest {
 
@@ -124,8 +125,7 @@ public class ReadGroupServiceIntegrationTest {
         params,
         testConnectionProvider
     );
-
-    //TODO: Verify event id;
+        //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
