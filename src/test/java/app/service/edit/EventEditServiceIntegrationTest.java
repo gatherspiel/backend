@@ -114,11 +114,16 @@ public class EventEditServiceIntegrationTest {
 
   @BeforeEach
   public void createGroup() throws Exception{
-    CreateGroupUtils.createGroup(groupAdmin, testConnectionProvider);
+    Group group = CreateGroupUtils.createGroup(groupAdmin, testConnectionProvider);
+    System.out.println(group.id);
   }
+
   @Test
   public void testCreateOneEvent() throws Exception{
-    Event event = eventEditService.addEvent(event1, 1, admin);
+
+    Group group = CreateGroupUtils.createGroup(groupAdmin, testConnectionProvider);
+
+    Event event = eventEditService.addEvent(event1, group.getId(), admin);
     Event eventFromDb = eventEditService.getEvent(event.getId()).get();
 
     assertEquals(EVENT_NAME_1, eventFromDb.getName());
@@ -303,11 +308,11 @@ public class EventEditServiceIntegrationTest {
   @AfterEach
   public void deleteAllEvents() throws Exception{
     String deleteEventQuery =
-        "TRUNCATE TABLE events";
+        "TRUNCATE TABLE events CASCADE";
     String deleteEventGroupMapQuery =
-        "TRUNCATE TABLE events";
+        "TRUNCATE TABLE events CASCADE";
     String deleteGroupQuery =
-        "TRUNCATE TABLE groups";
+        "TRUNCATE TABLE groups CASCADE";
 
     PreparedStatement query1 = conn.prepareStatement(deleteEventQuery);
     PreparedStatement query2 = conn.prepareStatement(deleteEventGroupMapQuery);

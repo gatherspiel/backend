@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.util.PSQLException;
@@ -61,6 +63,20 @@ public class EventTimeRepository {
       insert.setTimestamp(3, Timestamp.valueOf(date.atStartOfDay()));
       insert.executeUpdate();
     }
+  }
+
+  public void setEventDate(int eventId, String  start, String end, Connection conn)
+      throws Exception {
+
+      String query =
+          "INSERT into event_time (event_id, start_time, end_time) VALUES(?, ?, ?)";
+      PreparedStatement insert = conn.prepareStatement(query);
+      insert.setInt(1, eventId);
+      insert.setTimestamp(2, Timestamp.valueOf(LocalDateTime.parse(start)));
+    insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.parse(end)));
+
+    insert.executeUpdate();
+
   }
 
   public boolean hasEventDate(int eventId, LocalDate date, Connection conn)

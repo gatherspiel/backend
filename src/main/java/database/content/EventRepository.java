@@ -86,7 +86,7 @@ public class EventRepository {
 
     updateEventGroupMap(groupId, eventId, conn);
     event.setId(eventId);
-    eventTimeRepository.setEventDay(event, conn);
+    eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime(),  conn);
     return event;
   }
 
@@ -94,7 +94,7 @@ public class EventRepository {
     EventTimeRepository eventTimeRepository = new EventTimeRepository();
     eventTimeRepository.deleteEventTimeInfo(event, conn);
 
-    deleteEventGroupMapItem(groupId, event.getLocation(), conn);
+    deleteEventGroupMapItem(groupId, event.getId(), conn);
 
     String query =
         "DELETE FROM events where id = ?";
@@ -141,14 +141,12 @@ public class EventRepository {
       -Add date column.
    */
   public Optional<Event> getEvent(int id, Connection conn) throws Exception{
-
-
     String query = """
         
         SELECT * from events
         LEFT JOIN event_time on event_time.event_id = events.id
         LEFT JOIN  locations on events.location_id = locations.id
-        where id = ? 
+        where events.id = ? 
         
         """;
     PreparedStatement select = conn.prepareStatement(query);
@@ -159,8 +157,10 @@ public class EventRepository {
       Event event = new Event();
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("name"));
-      event.setSummary(rs.getString("summary"));
-      event.setDay(rs.getString("day_of_week"));
+      event.setSummary(rs.getString("description"));
+      event.setStartTime(rs.getTimestamp("start_time").toString());
+      event.setEndTime(rs.getTimestamp("end_time").toString());
+
       return Optional.of(event);
     }
 
@@ -182,7 +182,7 @@ public class EventRepository {
 
   private void updateEventGroupMap(
     int groupId,
-    int locationId,
+    int eventId,
     Connection conn
   )
     throws Exception {
@@ -192,7 +192,7 @@ public class EventRepository {
       "SELECT * from event_group_map where group_id=? AND event_id=?";
     PreparedStatement select = conn.prepareStatement(exists);
     select.setInt(1, groupId);
-    select.setInt(2, locationId);
+    select.setInt(2, eventId);
     ResultSet rs = select.executeQuery();
     if (rs.next()) {
       return;
@@ -201,12 +201,20 @@ public class EventRepository {
       "INSERT INTO event_group_map(group_id, event_id) values(?,?)";
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setInt(1, groupId);
-    insert.setInt(2, locationId);
+    insert.setInt(2, eventId);
     insert.executeUpdate();
   }
 
   //TODO: Update
-  private void deleteEventGroupMapItem(int groupId, String location, Connection conn) {
+  private void deleteEventGroupMapItem(int groupId, int eventId, Connection conn) throws Exception {
+    String query =
+        "DELETE from event_group_map WHERE group_id = ? AND event_id = ?";
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, groupId);
+    delete.setInt(2, eventId);
+
+    delete.executeUpdate();
+
 
   }
 
