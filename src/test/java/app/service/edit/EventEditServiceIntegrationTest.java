@@ -1,15 +1,18 @@
 package app.service.edit;
 
-import app.data.Event;
+import app.data.event.Event;
 import app.data.auth.User;
+import app.data.event.EventLocation;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.groups.data.Group;
 import app.utils.CreateGroupUtils;
+import database.content.EventRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
 import service.update.EventEditService;
@@ -17,6 +20,7 @@ import service.user.UserService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -58,18 +62,42 @@ public class EventEditServiceIntegrationTest {
   private static User groupAdmin;
   private static User standardUser;
 
+  private static LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
+  private static LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
+
+  private static LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
+  private static LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
+
+  private static EventLocation location1;
+  private static EventLocation location2;
 
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
+
     try {
 
       conn = testConnectionProvider.getDatabaseConnection();
-      eventEditService = new EventEditService();
+      eventEditService = new EventEditService(testConnectionProvider.getDatabaseConnection(), new EventRepository(), new GroupPermissionService());
       DbUtils.createTables(conn);
 
-      event1=EventEditService.createEventObject(EVENT_NAME_1, DAY_1, LOCATION_1, SUMMARY_1, URL_1);
-      event2=EventEditService.createEventObject(EVENT_NAME_2, DAY_2, LOCATION_2, SUMMARY_2, URL_1);
+      event1=EventEditService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1.toString(), END_TIME_1.toString());
+      event2=EventEditService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_1, START_TIME_2.toString(), END_TIME_2.toString());
+
+      location1 = new EventLocation();
+      location1.setZipCode(2202);
+      location1.setStreetAddress("1750 Crystal Drive");
+      location1.setState("VA");
+      location1.setCity("Arlington");
+      event1.setEventLocation(location1);
+
+      location2 = new EventLocation();
+      location2.setZipCode(20006);
+      location2.setStreetAddress("1667 K St NW");
+      location2.setState("DC");
+      location2.setCity("Washington");
+      event2.setEventLocation(location2);
+
 
       UserService createUserService
           = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
@@ -107,17 +135,23 @@ public class EventEditServiceIntegrationTest {
     assertEquals(EVENT_NAME_1, eventFromDbA.getName());
     assertEquals(EVENT_NAME_2, eventFromDbB.getName());
 
-    assertEquals(EVENT_NAME_1, eventFromDbA.getSummary());
-    assertEquals(EVENT_NAME_2, eventFromDbB.getSummary());
+    assertEquals(SUMMARY_1, eventFromDbA.getSummary());
+    assertEquals(SUMMARY_2, eventFromDbB.getSummary());
 
     assertEquals(EVENT_NAME_1, eventFromDbA.getDay());
     assertEquals(EVENT_NAME_2, eventFromDbB.getDay());
 
-    assertEquals(EVENT_NAME_1, eventFromDbA.getLocation());
-    assertEquals(EVENT_NAME_2, eventFromDbB.getLocation());
+    assertEquals(LOCATION_1, eventFromDbA.getLocation());
+    assertEquals(LOCATION_2, eventFromDbB.getLocation());
 
-    assertEquals(EVENT_NAME_1, eventFromDbA.getUrl());
-    assertEquals(EVENT_NAME_2, eventFromDbB.getUrl());
+    assertEquals(URL_1, eventFromDbA.getUrl());
+    assertEquals(URL_2, eventFromDbB.getUrl());
+
+    assertEquals(START_TIME_1.toString(), eventFromDbA.getStartTime());
+    assertEquals(END_TIME_1.toString(), eventFromDbA.getEndTime());
+
+    assertEquals(START_TIME_2.toString(), eventFromDbB.getStartTime());
+    assertEquals(END_TIME_2.toString(), eventFromDbB.getEndTime());
   }
 
   @Test
@@ -136,7 +170,13 @@ public class EventEditServiceIntegrationTest {
     Event eventA = eventEditService.addEvent(event1, 1, admin);
     Event eventB = eventEditService.addEvent(event2, 1, admin);
 
-    Event event = EventEditService.createEventObject(EVENT_NAME_1+"_updated",DAY_1, LOCATION_1, SUMMARY_1, URL_1);
+    Event event = EventEditService.createEventObject(
+        EVENT_NAME_1+"_updated",
+        LOCATION_1,
+        SUMMARY_1,
+        URL_1,
+        START_TIME_1.toString(),
+        END_TIME_1.toString());
 
     eventEditService.updateEvent(event, eventA.getId(), admin);
     Event eventFromDbA = eventEditService.getEvent(eventA.getId()).get();
@@ -171,7 +211,14 @@ public class EventEditServiceIntegrationTest {
   public void testGroupAdmin_CanEditEvent_ForTheirGroup() throws Exception{
     Event event = eventEditService.addEvent(new Event(), 1, admin);
 
-    Event savedEventData = EventEditService.createEventObject(EVENT_NAME_1+"_updated", DAY_1, LOCATION_1, SUMMARY_1, URL_1);
+    Event savedEventData = EventEditService.createEventObject(
+        EVENT_NAME_1+"_updated",
+        LOCATION_1,
+        SUMMARY_1,
+        URL_1,
+        START_TIME_1.toString(),
+        END_TIME_1.toString());
+
     eventEditService.updateEvent(savedEventData, event.getId(),groupAdmin);
 
     Event eventFromDb = eventEditService.getEvent(event1.getId()).get();
@@ -187,7 +234,13 @@ public class EventEditServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        Event updated = EventEditService.createEventObject("Catan event", DAY_1, LOCATION_1, SUMMARY_1, URL_1);
+        Event updated = EventEditService.createEventObject(
+            "Catan event",
+            LOCATION_1,
+            SUMMARY_1,
+            URL_1,
+            START_TIME_1.toString(),
+            END_TIME_1.toString());
         eventEditService.updateEvent(updated, event2.getId(), groupAdmin);
       }
     );
@@ -200,7 +253,14 @@ public class EventEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          Event updated = EventEditService.createEventObject("Catan event", DAY_1, LOCATION_1, SUMMARY_1, URL_1);
+          Event updated = EventEditService.createEventObject(
+              "Catan event",
+              LOCATION_1,
+              SUMMARY_1,
+              URL_1,
+              START_TIME_1.toString(),
+              END_TIME_1.toString());
+
           eventEditService.updateEvent(updated, event.getId(), groupAdmin);
         }
     );
@@ -211,7 +271,7 @@ public class EventEditServiceIntegrationTest {
   public void testGroupAdmin_CanDeleteEvent_ForTheirGroup() throws Exception{
     Event event = eventEditService.addEvent(event1, 1, admin);
 
-    eventEditService.deleteEvent(event.getId(), groupAdmin);
+    eventEditService.deleteEvent(event, 1, groupAdmin);
     Optional<Event> groupEvent = eventEditService.getEvent(event1.getId());
     assertTrue(groupEvent.isEmpty());
   }
@@ -222,7 +282,7 @@ public class EventEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          eventEditService.deleteEvent(event.getId(), groupAdmin);
+          eventEditService.deleteEvent(event, 2, groupAdmin);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -234,7 +294,7 @@ public class EventEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          eventEditService.deleteEvent(event.getId(), standardUser);
+          eventEditService.deleteEvent(event, 1, standardUser);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -257,8 +317,4 @@ public class EventEditServiceIntegrationTest {
     query2.execute();
     query3.execute();
   }
-
-
-
-
 }

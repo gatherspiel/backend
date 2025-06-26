@@ -272,7 +272,7 @@ public class ReadGroupServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
     LinkedHashMap<String, String> params = new LinkedHashMap<>();

@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.Event;
+import app.data.event.Event;
 import app.groups.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +11,7 @@ import service.data.SearchParameterValidator;
 
 public class EventRepository {
 
+  //TODO: Make this logic use address objects.
   public void addEvents(Group[] groups, Connection conn) throws Exception {
     GroupsRepository groupsRepository = new GroupsRepository();
     LocationsRepository locationsRepository = new LocationsRepository();
@@ -66,7 +67,7 @@ public class EventRepository {
 
     //TODO: Update insertLocation to retrieve the existing location id if it already exists.
     int location_id = locationsRepository.insertLocation(
-        event.getLocation(),
+        event.getEventLocation(),
         conn
     );
 

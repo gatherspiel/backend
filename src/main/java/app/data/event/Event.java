@@ -1,4 +1,6 @@
-package app.data;
+package app.data.event;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Event {
   private Integer id;
@@ -8,8 +10,10 @@ public class Event {
   private String name;
   private String url;
 
-  private String eventDate;
-  private String eventTime;
+  private String startTime;
+  private String endTime;
+
+  private EventLocation eventLocation;
 
   public Event() {}
 
@@ -61,16 +65,28 @@ public class Event {
     this.url = url;
   }
 
-
-  public void setEventDate(String eventDate){
-    this.eventDate = eventDate;
+  public void setStartTime(String startTime){
+    this.startTime = startTime;
   }
 
-  public String getEventDate(){
-    return eventDate;
+  public String getStartTime(){
+    return startTime;
   }
 
-  public String getEventTime(){
-    return eventDate;
+  public void setEndTime(String endTime){
+    this.endTime = endTime;
+  }
+
+  public String getEndTime(){
+    return endTime;
+  }
+
+  @JsonProperty(required = false)
+  public EventLocation getEventLocation(){
+    return eventLocation;
+  }
+
+  public void setEventLocation(EventLocation eventLocation){
+    this.eventLocation = eventLocation;
   }
 }

@@ -2,7 +2,7 @@ package app.groups.data;
 
 import app.data.ContentItem;
 import app.data.ContentType;
-import app.data.Event;
+import app.data.event.Event;
 
 public class Group extends ContentItem {
   public Event[] events;

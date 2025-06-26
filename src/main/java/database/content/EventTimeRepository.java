@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.Event;
+import app.data.event.Event;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

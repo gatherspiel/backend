@@ -1,6 +1,6 @@
 package app.result.groupPage;
 
-import app.data.Event;
+import app.data.event.Event;
 import app.groups.data.Group;
 import app.data.auth.PermissionName;
 

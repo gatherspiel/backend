@@ -61,22 +61,22 @@ public class EditPermissionServiceIntegrationTest {
   public void testSiteAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
     Group group = CreateGroupUtils.createGroup(admin, testConnectionProvider);
 
-    groupPermissionService.setGroupAdmin(admin, user, group.getId(), testConnectionProvider);
-    assertTrue(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider));
-    assertFalse(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
+    groupPermissionService.setGroupAdmin(admin, user, group.getId(), testConnectionProvider.getDatabaseConnection());
+    assertTrue(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider.getDatabaseConnection()));
+    assertFalse(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider.getDatabaseConnection()));
 
-    groupPermissionService.setGroupAdmin(admin, user2, group.getId(), testConnectionProvider);
-    assertFalse(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider));
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
+    groupPermissionService.setGroupAdmin(admin, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
+    assertFalse(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider.getDatabaseConnection()));
+    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider.getDatabaseConnection()));
   }
 
   @Test
   public void testGroupAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
     Group group = CreateGroupUtils.createGroup(user, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider);
-    assertTrue(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider));
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
+    groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
+    assertTrue(groupPermissionService.canEditGroup(user, group.getId(), testConnectionProvider.getDatabaseConnection()));
+    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider.getDatabaseConnection()));
   }
 
   @Test
@@ -86,7 +86,7 @@ public class EditPermissionServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user2, user2, group.getId(), testConnectionProvider);
+          groupPermissionService.addGroupModerator(user2, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
         }
     );
@@ -97,11 +97,11 @@ public class EditPermissionServiceIntegrationTest {
   public void testGroupModerator_canEdit_groupPermissionLevelForUser() throws Exception{
     Group group = CreateGroupUtils.createGroup(user, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider);
-    groupPermissionService.addGroupModerator(user2, user3, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
+    groupPermissionService.addGroupModerator(user2, user3, group.getId(), testConnectionProvider.getDatabaseConnection());
 
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider));
-    assertTrue(groupPermissionService.canEditGroup(user3, group.getId(), testConnectionProvider));
+    assertTrue(groupPermissionService.canEditGroup(user2, group.getId(), testConnectionProvider.getDatabaseConnection()));
+    assertTrue(groupPermissionService.canEditGroup(user3, group.getId(), testConnectionProvider.getDatabaseConnection()));
   }
 
   @Test
@@ -111,8 +111,8 @@ public class EditPermissionServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider);
-          groupPermissionService.setGroupAdmin(user2, user2, group.getId(), testConnectionProvider);
+          groupPermissionService.addGroupModerator(user, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
+          groupPermissionService.setGroupAdmin(user2, user2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
         }
     );
@@ -127,7 +127,7 @@ public class EditPermissionServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user, user4, group2.getId(), testConnectionProvider);
+          groupPermissionService.addGroupModerator(user, user4, group2.getId(), testConnectionProvider.getDatabaseConnection());
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
