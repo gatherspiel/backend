@@ -15,6 +15,7 @@ public class EventTimeRepository {
     EventTimeRepository.class
   );
 
+  //TODO: Handle case where a date and time is specified.
   public void setEventDay(Event event, Connection conn) throws Exception {
     if (!hasEventDay(event, conn)) {
       String day = event.getDay();
@@ -25,6 +26,10 @@ public class EventTimeRepository {
       insert.setInt(2, event.getId());
       insert.executeUpdate();
     }
+  }
+
+  public void deleteEventTimeInfo(Event event, Connection connection) throws Exception {
+    //TODO: Implement logic
   }
 
   public boolean hasEventDay(Event event, Connection conn) throws Exception {

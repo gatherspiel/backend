@@ -6,6 +6,10 @@ public class Event {
   private String location;
   private String summary;
   private String name;
+  private String url;
+
+  private String eventDate;
+  private String eventTime;
 
   public Event() {}
 
@@ -47,5 +51,26 @@ public class Event {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getUrl(){
+    return url;
+  }
+
+  public void setUrl(String url){
+    this.url = url;
+  }
+
+
+  public void setEventDate(String eventDate){
+    this.eventDate = eventDate;
+  }
+
+  public String getEventDate(){
+    return eventDate;
+  }
+
+  public String getEventTime(){
+    return eventDate;
   }
 }
