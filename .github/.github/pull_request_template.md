@@ -1,6 +1,6 @@
 # Description
 
-Include a summary of the change and the relevant issue. 
+Include a description of the change and the relevant issue. 
 
 # Checklist
 

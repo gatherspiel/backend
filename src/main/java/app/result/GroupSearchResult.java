@@ -33,7 +33,7 @@ public class GroupSearchResult {
     Integer id,
     String name,
     String url,
-    String summary,
+    String description,
     String groupCity
   ) {
     if (!groupData.containsKey(id)) {
@@ -41,7 +41,7 @@ public class GroupSearchResult {
       group.setId(id);
       group.setName(name);
       group.setUrl(url);
-      group.setSummary(summary);
+      group.setDescription(description);
       group.addCity(groupCity);
       groupData.put(id, group);
     }
@@ -68,7 +68,7 @@ public class GroupSearchResult {
     group.addCity(city);
     Event event = new Event();
     event.setName(name);
-    event.setSummary(description);
+    event.getDescription(description);
     event.setDay(dayOfWeek);
     event.setLocation(address);
     event.setId(eventId);

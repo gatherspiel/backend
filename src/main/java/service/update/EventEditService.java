@@ -60,7 +60,7 @@ public class EventEditService {
   public static Event createEventObject(
       String eventName,
       String location,
-      String summary,
+      String description,
       String url,
       LocalDateTime startTime,
       LocalDateTime endTime) throws Exception
@@ -68,7 +68,7 @@ public class EventEditService {
     Event event = new Event();
     event.setName(eventName);
     event.setLocation(location);
-    event.setSummary(summary);
+    event.getDescription(description);
     event.setUrl(url);
     event.setStartTime(startTime);
     event.setEndTime(endTime);
@@ -79,7 +79,7 @@ public class EventEditService {
     Event event = new Event();
     event.setName("Event_"+ UUID.randomUUID());
     event.setLocation("Event_"+ UUID.randomUUID());
-    event.setSummary("Event_"+ UUID.randomUUID());
+    event.getDescription("Event_"+ UUID.randomUUID());
     event.setUrl("localhost:/1234/"+UUID.randomUUID());
     event.setStartTime(LocalDateTime.now().plusHours(1));
     event.setEndTime(LocalDateTime.now().plusHours(5));

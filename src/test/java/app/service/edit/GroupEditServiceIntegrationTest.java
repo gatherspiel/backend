@@ -44,7 +44,7 @@ public class GroupEditServiceIntegrationTest {
     assertEquals(group1.id, group2.id);
     assertEquals(group1.url, group2.url);
     assertEquals(group1.name, group2.name);
-    assertEquals(group1.summary, group2.summary);
+    assertEquals(group1.description, group2.description);
 
   }
 

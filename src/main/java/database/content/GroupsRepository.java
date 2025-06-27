@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
@@ -28,12 +27,12 @@ public class GroupsRepository {
         urlsInDb.add(group.url);
 
         String query =
-          "INSERT INTO groups (name, url, summary) VALUES(?,?,?) returning id";
+          "INSERT INTO groups (name, url, description) VALUES(?,?,?) returning id";
 
         PreparedStatement insert = conn.prepareStatement(query);
         insert.setString(1, group.name);
         insert.setString(2, group.url);
-        insert.setString(3, group.summary);
+        insert.setString(3, group.description);
 
         ResultSet rs = insert.executeQuery();
         if (rs.next()) {
@@ -93,7 +92,7 @@ public class GroupsRepository {
 
     String groupInsertQuery=
         """
-            INSERT INTO groups (name, url, summary)
+            INSERT INTO groups (name, url, description)
             VALUES(?,?,?)
             returning id;
         """;
@@ -101,7 +100,7 @@ public class GroupsRepository {
     PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
     groupInsert.setString(1, groupToInsert.getName());
     groupInsert.setString(2, groupToInsert.getUrl());
-    groupInsert.setString(3, groupToInsert.getSummary());
+    groupInsert.setString(3, groupToInsert.getDescription());
     ResultSet rs = groupInsert.executeQuery();
 
     if(!rs.next()){
@@ -137,7 +136,7 @@ public class GroupsRepository {
           SELECT 
             groups.name,
             groups.url,
-            groups.summary,
+            groups.description,
             events.name as eventName,
             events.description as eventDescription,
             events.url as eventUrl,
@@ -171,7 +170,7 @@ public class GroupsRepository {
       group.setId(groupId);
       group.setName(rs.getString("name"));
       group.setUrl(rs.getString("url"));
-      group.setSummary(rs.getString("summary"));
+      group.setDescription(rs.getString("description"));
 
       ArrayList<Event> events = new ArrayList<>();
       while(true){
@@ -181,7 +180,7 @@ public class GroupsRepository {
           event.setId(rs.getInt("eventId"));
           event.setUrl(rs.getString("eventUrl"));
           event.setName(rs.getString("eventName"));
-          event.setSummary(rs.getString("eventDescription"));
+          event.getDescription(rs.getString("eventDescription"));
 
           Timestamp startTime = rs.getTimestamp("start_time");
           if(startTime !=null){
@@ -217,14 +216,14 @@ public class GroupsRepository {
              UPDATE groups
               SET name = ?,
               url = ?,
-              summary = ?
+              description = ?
              WHERE id = ?    
           """;
 
       PreparedStatement update = conn.prepareStatement(updateQuery);
       update.setString(1, groupToUpdate.getName());
       update.setString(2, groupToUpdate.getUrl());
-      update.setString(3, groupToUpdate.getSummary());
+      update.setString(3, groupToUpdate.getDescription());
       update.setInt(4, groupToUpdate.getId());
 
       update.executeUpdate();

@@ -4,13 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 public class Event {
   private Integer id;
   private String day;
   private String location;
-  private String summary;
+  private String description;
   private String name;
   private String url;
 
@@ -48,12 +47,12 @@ public class Event {
     this.location = location;
   }
 
-  public String getSummary() {
-    return this.summary;
+  public String getDescription() {
+    return this.description;
   }
 
-  public void setSummary(String summary) {
-    this.summary = summary;
+  public void getDescription(String description) {
+    this.description = description;
   }
 
   public String getName() {
@@ -98,7 +97,7 @@ public class Event {
   }
 
   public String toString(){
-    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.location +"\n summary:"+this.summary +
+    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.location +"\n description:"+this.description +
         " \nname:"+this.name+"\n url:"+this.url;
   }
 }

@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Optional;
-import java.util.UUID;
 
 import service.data.SearchParameterValidator;
 
@@ -28,7 +27,7 @@ public class EventRepository {
             String query =
               "INSERT INTO events(description, name, url) values(?,?,?) returning id";
             PreparedStatement insert = conn.prepareStatement(query);
-            insert.setString(1, event.getSummary());
+            insert.setString(1, event.getDescription());
             insert.setString(2, event.getName());
             insert.setString(3, group.url);
 
@@ -45,7 +44,7 @@ public class EventRepository {
               "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
             PreparedStatement insert = conn.prepareStatement(query);
             insert.setInt(1, location_id);
-            insert.setString(2, event.getSummary());
+            insert.setString(2, event.getDescription());
             insert.setString(3, event.getName());
             insert.setString(4, group.url);
 
@@ -68,7 +67,6 @@ public class EventRepository {
     LocationsRepository locationsRepository = new LocationsRepository();
     EventTimeRepository eventTimeRepository = new EventTimeRepository();
 
-    //TODO: Update insertLocation to retrieve the existing location id if it already exists.
     int location_id = locationsRepository.insertLocation(
         event.getEventLocation(),
         conn
@@ -78,7 +76,7 @@ public class EventRepository {
         "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setInt(1, location_id);
-    insert.setString(2, event.getSummary());
+    insert.setString(2, event.getDescription());
     insert.setString(3, event.getName());
     insert.setString(4, event.getUrl());
 
@@ -129,7 +127,7 @@ public class EventRepository {
       """;
     PreparedStatement update = conn.prepareStatement(query);
     update.setInt(1, location_id);
-    update.setString(2, event.getSummary());
+    update.setString(2, event.getDescription());
     update.setString(3, event.getName());
     update.setString(4, event.getUrl());
     update.setInt(5, event.getId());
@@ -156,7 +154,7 @@ public class EventRepository {
       Event event = new Event();
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("name"));
-      event.setSummary(rs.getString("description"));
+      event.getDescription(rs.getString("description"));
       event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
       event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
       event.setId(rs.getInt("id"));
