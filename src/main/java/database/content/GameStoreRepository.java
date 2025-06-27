@@ -11,12 +11,14 @@ import utils.LogUtils;
 
 public class GameStoreRepository {
   Logger logger;
-
-  public GameStoreRepository() {
+  Connection conn;
+  public GameStoreRepository(Connection conn) {
+    this.conn = conn;
     logger = LogUtils.getLogger();
+
   }
 
-  public HashMap<Integer, GameStore> getGameStores(Connection conn) throws Exception{
+  public HashMap<Integer, GameStore> getGameStores() throws Exception{
     String query =
         "SELECT * from game_stores JOIN locations on game_stores.location_id = locations.id";
     PreparedStatement select = conn.prepareStatement(query);
@@ -42,15 +44,14 @@ public class GameStoreRepository {
 
   }
 
-  public void insertGameStores(GameStore[] gameStores, Connection conn)
+  public void insertGameStores(GameStore[] gameStores)
     throws Exception {
-    LocationsRepository locationRepository = new LocationsRepository();
+    LocationsRepository locationRepository = new LocationsRepository(conn);
 
     for (GameStore gameStore : gameStores) {
-      if (!gameStoreExists(gameStore, conn)) {
+      if (!gameStoreExists(gameStore)) {
         int location_id = locationRepository.insertLocation(
-          gameStore.getLocation(),
-          conn
+          gameStore.getLocation()
         );
         logger.debug("Inserting game store:" + gameStore.getName());
         String query =
@@ -65,7 +66,7 @@ public class GameStoreRepository {
     }
   }
 
-  public boolean gameStoreExists(GameStore gameStore, Connection conn)
+  public boolean gameStoreExists(GameStore gameStore)
     throws Exception {
     String query = "SELECT * from game_stores where url = ?";
     PreparedStatement select = conn.prepareStatement(query);

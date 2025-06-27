@@ -29,15 +29,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ReadGroupServiceIntegrationTest {
 
   private static ReadGroupService groupService;
-  private static IntegrationTestConnectionProvider testConnectionProvider;
   private static UserService userService;
   private static User user;
 
+  private static IntegrationTestConnectionProvider testConnectionProvider;
+  private static Connection conn;
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
-
+      conn = testConnectionProvider.getDatabaseConnection();
       var dataProvider = UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection());
       userService = new UserService(dataProvider);
 
@@ -48,7 +49,7 @@ public class ReadGroupServiceIntegrationTest {
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
-      groupService = new ReadGroupService(ReadGroupDataProvider.create());
+      groupService = new ReadGroupService(ReadGroupDataProvider.create(conn),conn);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -204,7 +205,7 @@ public class ReadGroupServiceIntegrationTest {
 
     User admin = new UserService(dataProvider).createAdmin("test_1");
 
-    groupService = new ReadGroupService(ReadGroupDataProvider.create());
+    groupService = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -221,7 +222,7 @@ public class ReadGroupServiceIntegrationTest {
   public void testGetGroupData_doesNotShowEditPermissions_whenRegularUserIsLoggedIn() throws Exception{
     User standardUser = userService.createStandardUser("test_2");
 
-    groupService = new ReadGroupService(ReadGroupDataProvider.create());
+    groupService = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -239,9 +240,9 @@ public class ReadGroupServiceIntegrationTest {
     User standardUser = userService.createStandardUser("test_3");
     User standardUser2 = userService.createStandardUser("test_4");
 
-    Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
+    Group group = CreateGroupUtils.createGroup(standardUser, conn);
 
-    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
+    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
     GroupPageData result = groupService1.getGroupPageData(
@@ -251,7 +252,7 @@ public class ReadGroupServiceIntegrationTest {
     );
     assertTrue(result.userCanEdit());
 
-    ReadGroupService groupService2 = new ReadGroupService(ReadGroupDataProvider.create());
+    ReadGroupService groupService2 = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
     GroupPageData result2 = groupService2.getGroupPageData(
         standardUser2,
         params,
@@ -265,13 +266,13 @@ public class ReadGroupServiceIntegrationTest {
     User standardUser = userService.createStandardUser("test_5");
     User standardUser2 = userService.createStandardUser("test_6");
 
-    GroupPermissionService groupPermissionService = new GroupPermissionService();
+    GroupPermissionService groupPermissionService = new GroupPermissionService(conn);
 
-    Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
+    Group group = CreateGroupUtils.createGroup(standardUser, conn);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId());
 
-    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
+    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
     GroupPageData result = groupService1.getGroupPageData(
@@ -286,10 +287,10 @@ public class ReadGroupServiceIntegrationTest {
   public void testGetGroupData_doesNotShowEditPermissions_whenUserIsNotLoggedIn() throws Exception{
     User standardUser = userService.createStandardUser("test_7");
 
-    Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
+    Group group = CreateGroupUtils.createGroup(standardUser, conn);
 
     User readOnlyUser = AuthService.getReadOnlyUser();
-    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
+    ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
     GroupPageData result = groupService1.getGroupPageData(

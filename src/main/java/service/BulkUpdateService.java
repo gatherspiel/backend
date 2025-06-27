@@ -26,8 +26,8 @@ public class BulkUpdateService {
     conn.setAutoCommit(false);
 
     try {
-      GroupsRepository groupsRepository = new GroupsRepository();
-      groupsRepository.insertGroups(data.getGroups(), conn);
+      GroupsRepository groupsRepository = new GroupsRepository(conn);
+      groupsRepository.insertGroups(data.getGroups());
       logger.info("Number of groups to insert:" + data.getGroups().length);
 
     } catch (Exception e) {
@@ -36,26 +36,25 @@ public class BulkUpdateService {
     }
 
     try {
-      ConventionsRepository conventionsRepository = new ConventionsRepository();
-      conventionsRepository.insertConventions(data.getConventions(), conn);
+      ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
+      conventionsRepository.insertConventions(data.getConventions());
     } catch (Exception e) {
       logger.error("Error inserting conventions");
       throw e;
     }
 
     try {
-      GameStoreRepository gameStoreRepository = new GameStoreRepository();
-      gameStoreRepository.insertGameStores(data.getGameStores(), conn);
+      GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
+      gameStoreRepository.insertGameStores(data.getGameStores());
     } catch (Exception e) {
       logger.error("Error inserting game stores");
       throw e;
     }
 
     try {
-      GameRestaurantRepository gameRestaurantRepository = new GameRestaurantRepository();
+      GameRestaurantRepository gameRestaurantRepository = new GameRestaurantRepository(conn);
       gameRestaurantRepository.insertGameRestaurants(
-        data.getGameRestaurants(),
-        conn
+        data.getGameRestaurants()
       );
     } catch (Exception e) {
       logger.error("Error inserting game restaurants");
@@ -63,16 +62,16 @@ public class BulkUpdateService {
     }
 
     try {
-      EventRepository eventRepository = new EventRepository();
-      eventRepository.addEvents(data.getGroups(), conn);
+      EventRepository eventRepository = new EventRepository(conn);
+      eventRepository.addEvents(data.getGroups());
     } catch (Exception e) {
       logger.error("Error inserting events");
       throw e;
     }
 
     try {
-      LocationTagRepository locationTagRepository = new LocationTagRepository();
-      locationTagRepository.insertLocationTags(data.getLocationTags(), conn);
+      LocationTagRepository locationTagRepository = new LocationTagRepository(conn);
+      locationTagRepository.insertLocationTags(data.getLocationTags());
     } catch (Exception e) {
       logger.error("Error inserting locationTags");
       throw e;

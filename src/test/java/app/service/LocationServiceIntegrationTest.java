@@ -20,17 +20,19 @@ public class LocationServiceIntegrationTest {
   private static GameLocationsService gameLocationsService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
+  private static Connection conn;
+
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
-      Connection conn = testConnectionProvider.getDatabaseConnection();
+      conn = testConnectionProvider.getDatabaseConnection();
 
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
-      gameLocationsService = new GameLocationsService();
+      gameLocationsService = new GameLocationsService(conn);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -39,7 +41,7 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testGameLocationsAreReturned() throws Exception {
-    GameLocationData data = gameLocationsService.getGameLocations(testConnectionProvider, LocalDate.of(2025,1,1));
+    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
     Assertions.assertAll(
         () -> assertEquals(5, data.getConventions().size()),
         () -> assertEquals(14, data.getGameStores().size()),
@@ -49,7 +51,7 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testConventionHasCorrectDays() throws Exception {
-    GameLocationData data = gameLocationsService.getGameLocations(testConnectionProvider, LocalDate.of(2025,1,1));
+    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
 
     for(Integer id: data.conventions.keySet()){
       Convention convention = data.conventions.get(id);
@@ -67,7 +69,7 @@ public class LocationServiceIntegrationTest {
   @Test
   public void testConventionsBeforeSpecifiedDate_AreNotReturned() throws Exception {
 
-    GameLocationData data = gameLocationsService.getGameLocations(testConnectionProvider, LocalDate.of(2035,1,1));
+    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2035,1,1));
     Assertions.assertAll(
         () -> assertEquals(0, data.getConventions().size()),
         () -> assertEquals(14, data.getGameStores().size()),
@@ -77,25 +79,25 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testListAllEventCities() throws Exception{
-    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, null);
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(null);
     assertEquals(33, eventCities.size());
   }
 
   @Test
   public void testList_DMV_Cities() throws Exception{
-    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "DMV");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations("DMV");
     assertEquals(32, eventCities.size());
   }
 
   @Test
   public void testList_dmv_Cities() throws Exception{
-    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations("dmv");
     assertEquals(32, eventCities.size());
   }
 
   @Test
   public void testList_Cities_invalidArea() throws Exception {
-    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations(testConnectionProvider, "Antarctica");
+    TreeSet<String> eventCities = gameLocationsService.getAllEventLocations("Antarctica");
     assertEquals(0, eventCities.size());
   }
 }

@@ -9,15 +9,20 @@ import java.util.Set;
 
 public class SearchRepository {
 
+  private Connection conn;
+
+  public SearchRepository(Connection conn){
+    this.conn = conn;
+  }
+
   public GroupSearchResult getGroups(
-    GroupSearchParams searchParams,
-    Connection conn
+    GroupSearchParams searchParams
   )
     throws Exception {
     PreparedStatement statement = searchParams.generateSearchQuery(conn);
     ResultSet rs = statement.executeQuery();
 
-    Set<String> locationsWithTag = getLocationsWithTag(searchParams, conn);
+    Set<String> locationsWithTag = getLocationsWithTag(searchParams);
 
     GroupSearchResult searchResult = new GroupSearchResult();
     while (rs.next()) {
@@ -69,8 +74,7 @@ public class SearchRepository {
   }
 
   private Set<String> getLocationsWithTag(
-      GroupSearchParams searchParams,
-      Connection conn) throws Exception
+      GroupSearchParams searchParams) throws Exception
   {
 
     if(!searchParams.hasLocationGroupParam()){

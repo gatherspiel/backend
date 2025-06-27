@@ -11,7 +11,9 @@ import java.util.LinkedHashMap;
 
 public class SearchService {
 
-  public SearchService(){
+  private final SearchRepository searchRepository;
+  public SearchService(Connection conn){
+    this.searchRepository = new SearchRepository(conn);
   }
 
   public GroupSearchResult getGroups(
@@ -20,12 +22,7 @@ public class SearchService {
   ) throws Exception
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
-    Connection conn = connectionProvider.getDatabaseConnection();
-
-    SearchRepository searchRepository = new SearchRepository();
-
-
-    GroupSearchResult groups = searchRepository.getGroups(params, conn);
+    GroupSearchResult groups = searchRepository.getGroups(params);
     return groups;
   }
 
@@ -37,9 +34,8 @@ public class SearchService {
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
     Connection conn = connectionProvider.getDatabaseConnection();
-    SearchRepository searchRepository = new SearchRepository();
 
-    GroupSearchResult groups = searchRepository.getGroups(params, conn);
+    GroupSearchResult groups = searchRepository.getGroups(params);
     if(groups.countGroups() > 1 ){
       throw new Exception("Multiple groups were found");
     }

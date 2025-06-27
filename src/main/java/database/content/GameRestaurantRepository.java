@@ -13,11 +13,13 @@ import utils.LogUtils;
 public class GameRestaurantRepository {
   Logger logger;
 
-  public GameRestaurantRepository() {
+  Connection conn;
+  public GameRestaurantRepository(Connection conn) {
     logger = LogUtils.getLogger();
+    this.conn = conn;
   }
 
-  public HashMap<Integer, GameRestaurant> getGameRestauarants(Connection conn) throws Exception{
+  public HashMap<Integer, GameRestaurant> getGameRestauarants() throws Exception{
     String query =
         "SELECT * from game_restaurants JOIN locations on game_restaurants.location_id = locations.id";
     PreparedStatement select = conn.prepareStatement(query);
@@ -43,19 +45,17 @@ public class GameRestaurantRepository {
 
   }
   public void insertGameRestaurants(
-    GameRestaurant[] gameRestaurants,
-    Connection conn
+    GameRestaurant[] gameRestaurants
   )
     throws Exception {
-    LocationsRepository locationRepository = new LocationsRepository();
+    LocationsRepository locationRepository = new LocationsRepository(conn);
 
     for (GameRestaurant gameRestaurant : gameRestaurants) {
       int location_id = locationRepository.insertLocation(
-        gameRestaurant.getLocation(),
-        conn
+        gameRestaurant.getLocation()
       );
 
-      if (!hasGameRestaurant(gameRestaurant, location_id, conn)) {
+      if (!hasGameRestaurant(gameRestaurant, location_id)) {
         logger.debug(gameRestaurant.getName());
         String query =
           "INSERT INTO game_restaurants (url, name, location_id) VALUES(?, ?, ?)";
@@ -71,8 +71,7 @@ public class GameRestaurantRepository {
 
   public boolean hasGameRestaurant(
     GameRestaurant gameRestaurant,
-    int locationId,
-    Connection conn
+    int locationId
   )
     throws Exception {
     String query =

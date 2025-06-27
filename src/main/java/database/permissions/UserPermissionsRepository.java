@@ -13,11 +13,13 @@ import java.sql.ResultSet;
 public class UserPermissionsRepository
 {
   Logger logger;
-  public UserPermissionsRepository(){
+  Connection conn;
+  public UserPermissionsRepository(Connection conn){
     logger = LogUtils.getLogger();
+    this.conn = conn;
   }
 
-  public void setGroupAdmin(User userToUpdate, int groupId, Connection conn) throws Exception{
+  public void setGroupAdmin(User userToUpdate, int groupId) throws Exception{
     String query = """
             UPDATE group_admin_data
               SET user_id = ?
@@ -33,7 +35,7 @@ public class UserPermissionsRepository
     insert.executeUpdate();
   }
 
-  public void addGroupModerator(User currentUser, int groupId, Connection conn) throws Exception{
+  public void addGroupModerator(User currentUser, int groupId) throws Exception{
 
     String query = """
             INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
@@ -48,7 +50,7 @@ public class UserPermissionsRepository
     insert.executeUpdate();
   }
 
-  public boolean canUpdateGroupAdmin(User user, int groupId, Connection conn) throws Exception {
+  public boolean canUpdateGroupAdmin(User user, int groupId) throws Exception {
     String query =  """
                       SELECT (group_admin_level)
                       FROM group_admin_data 
@@ -66,7 +68,7 @@ public class UserPermissionsRepository
     return rs.next();
   }
 
-  private ResultSet getGroupEditorRoles(int groupId, Connection conn) throws Exception {
+  private ResultSet getGroupEditorRoles(int groupId) throws Exception {
     String query =  """
                       SELECT * from groups
                       FULL JOIN group_admin_data on group_admin_data.group_id = groups.id
@@ -85,9 +87,9 @@ public class UserPermissionsRepository
     return rs;
   }
 
-  public boolean hasGroupEditorRole(User user, int groupId, Connection conn) throws Exception {
+  public boolean hasGroupEditorRole(User user, int groupId) throws Exception {
 
-    ResultSet rs = getGroupEditorRoles(groupId, conn);
+    ResultSet rs = getGroupEditorRoles(groupId);
     while(true){
       int user_id = rs.getInt("user_id");
       String groupAdminLevel = rs.getString("group_admin_level");
@@ -103,8 +105,8 @@ public class UserPermissionsRepository
     }
   }
 
-  public boolean isGroupAdmin(User user, int groupId, Connection conn) throws Exception {
-    ResultSet rs = getGroupEditorRoles(groupId, conn);
+  public boolean isGroupAdmin(User user, int groupId) throws Exception {
+    ResultSet rs = getGroupEditorRoles(groupId);
     while (true) {
       int user_id = rs.getInt("user_id");
       String groupAdminLevel = rs.getString("group_admin_level");
