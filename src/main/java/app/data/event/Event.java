@@ -2,6 +2,10 @@ package app.data.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+
 public class Event {
   private Integer id;
   private String day;
@@ -10,8 +14,8 @@ public class Event {
   private String name;
   private String url;
 
-  private String startTime;
-  private String endTime;
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
 
   private EventLocation eventLocation;
 
@@ -26,7 +30,10 @@ public class Event {
   }
 
   public String getDay() {
-    return day.toLowerCase();
+    if(startTime == null){
+      return day;
+    }
+    return (startTime).getDayOfWeek().toString();
   }
 
   public void setDay(String day) {
@@ -65,19 +72,19 @@ public class Event {
     this.url = url;
   }
 
-  public void setStartTime(String startTime){
-    this.startTime = startTime;
+  public void setStartTime(LocalDateTime startTime){
+    this.startTime = startTime.truncatedTo(ChronoUnit.MINUTES);
   }
 
-  public String getStartTime(){
+  public LocalDateTime getStartTime(){
     return startTime;
   }
 
-  public void setEndTime(String endTime){
-    this.endTime = endTime;
+  public void setEndTime(LocalDateTime endTime){
+    this.endTime = endTime.truncatedTo(ChronoUnit.MINUTES);
   }
 
-  public String getEndTime(){
+  public LocalDateTime getEndTime(){
     return endTime;
   }
 
@@ -88,5 +95,10 @@ public class Event {
 
   public void setEventLocation(EventLocation eventLocation){
     this.eventLocation = eventLocation;
+  }
+
+  public String toString(){
+    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.location +"\n summary:"+this.summary +
+        " \nname:"+this.name+"\n url:"+this.url;
   }
 }

@@ -2,12 +2,15 @@ package service.update;
 
 import app.data.event.Event;
 import app.data.auth.User;
+import app.data.event.EventLocation;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
 import service.permissions.GroupPermissionService;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public class EventEditService {
 
@@ -59,8 +62,8 @@ public class EventEditService {
       String location,
       String summary,
       String url,
-      String startTime,
-      String endTime) throws Exception
+      LocalDateTime startTime,
+      LocalDateTime endTime) throws Exception
   {
     Event event = new Event();
     event.setName(eventName);
@@ -70,5 +73,26 @@ public class EventEditService {
     event.setStartTime(startTime);
     event.setEndTime(endTime);
     return event;
+  }
+
+  public static Event createEventObjectWithTestData() throws Exception{
+    Event event = new Event();
+    event.setName("Event_"+ UUID.randomUUID());
+    event.setLocation("Event_"+ UUID.randomUUID());
+    event.setSummary("Event_"+ UUID.randomUUID());
+    event.setUrl("localhost:/1234/"+UUID.randomUUID());
+    event.setStartTime(LocalDateTime.now().plusHours(1));
+    event.setEndTime(LocalDateTime.now().plusHours(5));
+    event.setEventLocation(generateEventLocation());
+    return event;
+  }
+
+  private static EventLocation generateEventLocation() throws Exception{
+    EventLocation eventLocation = new EventLocation();
+    eventLocation.setCity("Crystal City");
+    eventLocation.setState("VA");
+    eventLocation.setStreetAddress("1750 Crystal Drive");
+    eventLocation.setZipCode(22202);
+    return eventLocation;
   }
 }

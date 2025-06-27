@@ -14,8 +14,8 @@ public class EventLocation {
     return city;
   }
 
-  public void setState(String eventLocationState){
-    this.state = EventLocationState.valueOf(eventLocationState);
+  public void setState(String eventLocationState) throws Exception{
+    this.state = EventLocationState.fromString(eventLocationState);
   }
 
   public String getState(){

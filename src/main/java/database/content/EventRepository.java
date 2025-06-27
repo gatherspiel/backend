@@ -1,6 +1,7 @@
 package database.content;
 
 import app.data.event.Event;
+import app.data.event.EventLocation;
 import app.groups.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -54,6 +55,7 @@ public class EventRepository {
         }
         updateEventGroupMap(groupId, eventId, conn);
         event.setId(eventId);
+        System.out.println(event.toString());
         eventTimeRepository.setEventDay(event, conn);
       }
     }
@@ -91,6 +93,8 @@ public class EventRepository {
   }
 
   public void deleteEvent(Event event, int groupId, Connection conn) throws Exception {
+
+    System.out.println("Deleting event:"+event.getId());
     EventTimeRepository eventTimeRepository = new EventTimeRepository();
     eventTimeRepository.deleteEventTimeInfo(event, conn);
 
@@ -102,7 +106,6 @@ public class EventRepository {
     statement.setInt(1, event.getId());
     statement.executeUpdate();
   }
-
 
     public Event updateEvent(Event event, int groupId, Connection conn) throws Exception{
 
@@ -158,9 +161,18 @@ public class EventRepository {
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("name"));
       event.setSummary(rs.getString("description"));
-      event.setStartTime(rs.getTimestamp("start_time").toString());
-      event.setEndTime(rs.getTimestamp("end_time").toString());
+      event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+      event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
 
+      System.out.println("Hi");
+      EventLocation eventLocation = new EventLocation();
+      eventLocation.setCity(rs.getString("city"));
+      eventLocation.setZipCode(rs.getInt("zip_code"));
+      eventLocation.setState(rs.getString("state"));
+      eventLocation.setStreetAddress(rs.getString("street_address"));
+      event.setEventLocation(eventLocation);
+
+      System.out.println(eventLocation.getCity());
       return Optional.of(event);
     }
 

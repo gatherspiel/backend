@@ -1,5 +1,7 @@
 package database.content;
 
+import app.data.event.Event;
+import app.data.event.EventLocation;
 import app.groups.data.Group;
 import app.data.auth.User;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +10,9 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -128,7 +133,31 @@ public class GroupsRepository {
 
   public Optional<Group> getGroup(int groupId, Connection conn) throws Exception{
     try {
-      String query = "SELECT * from groups where id = ?";
+      String query = """
+          SELECT 
+            groups.name,
+            groups.url,
+            groups.summary,
+            events.name as eventName,
+            events.description as eventDescription,
+            events.url as eventUrl,
+            event_time.day_of_week,
+            event_time.start_time,
+            event_time.end_time,
+            locations.state,
+            locations.street_address,
+            locations.zip_code,
+            locations.city as city,
+            locs.city as groupCity
+            from groups 
+          LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+          LEFT JOIN events on event_group_map.event_id = events.id
+          LEFT JOIN event_time on event_time.event_id = events.id
+          LEFT JOIN locations on events.location_id = locations.id
+          LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+          LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+          WHERE groups.id = ?
+        """;
       PreparedStatement statement = conn.prepareStatement(query);
       statement.setInt(1, groupId);
 
@@ -142,8 +171,41 @@ public class GroupsRepository {
       group.setName(rs.getString("name"));
       group.setUrl(rs.getString("url"));
       group.setSummary(rs.getString("summary"));
-      return Optional.of(group);
 
+      ArrayList<Event> events = new ArrayList<>();
+
+      System.out.println("[GroupsRepository] found group");
+      while(true){
+
+        if(rs.getString("eventUrl") != null){
+          System.out.println("Adding event");
+          Event event = new Event();
+          event.setUrl(rs.getString("eventUrl"));
+          event.setName(rs.getString("eventName"));
+          event.setSummary(rs.getString("eventDescription"));
+
+          Timestamp startTime = rs.getTimestamp("start_time");
+          if(startTime !=null){
+            event.setStartTime(startTime.toLocalDateTime());
+            event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+          }
+
+          EventLocation eventLocation = new EventLocation();
+          eventLocation.setState(rs.getString("state"));
+          eventLocation.setStreetAddress(rs.getString("street_address"));
+          eventLocation.setZipCode(rs.getInt("zip_code"));
+          eventLocation.setCity(rs.getString("city"));
+
+          event.setEventLocation(eventLocation);
+          events.add(event);
+        }
+
+
+        if(!rs.next()){
+          group.setEvents(events.toArray(new Event[0]));
+          return Optional.of(group);
+        }
+      }
     } catch(Exception e){
       logger.error("Error inserting group");
       throw e;

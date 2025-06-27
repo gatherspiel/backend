@@ -21,6 +21,7 @@ public class EventTimeRepository {
   public void setEventDay(Event event, Connection conn) throws Exception {
     if (!hasEventDay(event, conn)) {
       String day = event.getDay();
+      System.out.println("Day:"+day);
       String query =
         "INSERT into event_time (day_of_week, event_id) VALUES(cast(? AS dayofweek), ?)";
       PreparedStatement insert = conn.prepareStatement(query);
@@ -30,11 +31,19 @@ public class EventTimeRepository {
     }
   }
 
-  public void deleteEventTimeInfo(Event event, Connection connection) throws Exception {
-    //TODO: Implement logic
+  public void deleteEventTimeInfo(Event event, Connection conn) throws Exception {
+
+    String query = "DELETE  FROM event_time where event_id = ?";
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, event.getId());
+    delete.executeUpdate();
   }
 
   public boolean hasEventDay(Event event, Connection conn) throws Exception {
+
+    if(event.getDay().isBlank()){
+      return false;
+    }
     try {
       String day = event.getDay();
       String query =
@@ -65,15 +74,15 @@ public class EventTimeRepository {
     }
   }
 
-  public void setEventDate(int eventId, String  start, String end, Connection conn)
-      throws Exception {
+  public void setEventDate(int eventId, LocalDateTime start, LocalDateTime end, Connection conn)
+    throws Exception {
 
-      String query =
-          "INSERT into event_time (event_id, start_time, end_time) VALUES(?, ?, ?)";
-      PreparedStatement insert = conn.prepareStatement(query);
-      insert.setInt(1, eventId);
-      insert.setTimestamp(2, Timestamp.valueOf(LocalDateTime.parse(start)));
-    insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.parse(end)));
+    String query =
+        "INSERT into event_time (event_id, start_time, end_time) VALUES(?, ?, ?)";
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, eventId);
+    insert.setTimestamp(2, Timestamp.valueOf(start));
+    insert.setTimestamp(3, Timestamp.valueOf(end));
 
     insert.executeUpdate();
 

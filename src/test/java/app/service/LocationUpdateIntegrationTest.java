@@ -39,7 +39,7 @@ public class LocationUpdateIntegrationTest {
 
     int locationsCountA = gameLocationsService.countLocations(testConnectionProvider);
 
-    String address = "123 Main Street, Test, State 12345";
+    String address = "123 Main Street, Test, Maryland 12345";
     gameLocationsService.insertAddress(testConnectionProvider,address);
     assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
 

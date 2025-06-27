@@ -1,5 +1,7 @@
 package app.data.event;
 
+import java.util.Map;
+
 public enum EventLocationState {
   DC("DC"),
   MD("MD"),
@@ -8,6 +10,10 @@ public enum EventLocationState {
 
   private String name;
 
+  private static final Map<String, EventLocationState> NAME_MAP = Map.of(
+      "Virginia", EventLocationState.VA,
+      "Maryland", EventLocationState.MD
+  );
   EventLocationState(String name){
     this.name = name;
   }
@@ -17,12 +23,16 @@ public enum EventLocationState {
     return name;
   }
 
-  public static EventLocationState fromDatabaseString(String dbString) throws Exception{
+  public static EventLocationState fromString(String stateStr) throws Exception{
+    if(NAME_MAP.containsKey(stateStr)){
+      return NAME_MAP.get(stateStr);
+    }
     for(EventLocationState eventLocationState: EventLocationState.values()){
-      if(eventLocationState.toString().equals(dbString)){
+      if(eventLocationState.toString().equals(stateStr)){
         return eventLocationState;
       }
     }
-    throw new Exception("Invalid string:"+dbString +" for UserType enum");
+    throw new Exception("Invalid string:"+stateStr +" for UserType enum");
   }
+
 }
