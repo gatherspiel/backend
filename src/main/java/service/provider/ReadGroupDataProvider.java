@@ -1,5 +1,6 @@
 package service.provider;
 
+import app.users.data.User;
 import database.content.GroupsRepository;
 import service.permissions.GroupPermissionService;
 import service.read.SearchService;
@@ -11,14 +12,16 @@ public class ReadGroupDataProvider {
   protected SearchService searchService;
   protected GroupPermissionService groupPermissionService;
   protected GroupsRepository groupsRepository;
-
+  protected User user;
   private ReadGroupDataProvider(
       SearchService searchService,
       GroupPermissionService groupPermissionService,
-      GroupsRepository groupsRepository){
+      GroupsRepository groupsRepository,
+      User user){
     this.searchService = searchService;
     this.groupPermissionService = groupPermissionService;
     this.groupsRepository = groupsRepository;
+    this.user = user;
   }
 
   public GroupsRepository getGroupsRepository(){
@@ -33,11 +36,14 @@ public class ReadGroupDataProvider {
     return groupPermissionService;
   }
 
-  public static ReadGroupDataProvider create(Connection conn){
+  public User getUser(){
+    return user;
+  }
+  public static ReadGroupDataProvider create(Connection conn, User user){
 
     var searchService = new SearchService(conn);
-    var groupPermissionService = new GroupPermissionService(conn);
+    var groupPermissionService = new GroupPermissionService(conn, user);
     var groupRepository = new GroupsRepository(conn);
-    return new ReadGroupDataProvider(searchService,groupPermissionService, groupRepository);
+    return new ReadGroupDataProvider(searchService,groupPermissionService, groupRepository, user);
   }
 }

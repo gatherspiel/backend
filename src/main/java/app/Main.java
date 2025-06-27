@@ -1,8 +1,6 @@
 package app;
 
-import app.groups.GroupsApi;
 import app.admin.request.BulkUpdateInputRequest;
-import app.users.UsersApi;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -38,8 +36,10 @@ public class Main {
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
 
-    UsersApi.createEndpoints(app);
+    UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
+    EventsApi.eventEndpoints(app);
+
     app.get(
       "/countLocations",
       ctx -> {
@@ -54,17 +54,15 @@ public class Main {
 
         long start = System.currentTimeMillis();
         try {
-          var connectionProvider = new ConnectionProvider();
-          var conn = connectionProvider.getDatabaseConnection();
+
+          var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
 
-          var searchService = new SearchService(conn);
-
+          var searchService = sessionContext.createSearchService();
           var groupSearchResult = searchService.getGroups(
-            searchParams,
-            connectionProvider
+            searchParams
           );
 
           long end = System.currentTimeMillis();

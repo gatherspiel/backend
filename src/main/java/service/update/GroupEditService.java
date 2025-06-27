@@ -18,15 +18,17 @@ public class GroupEditService {
   GroupsRepository groupsRepository;
   UserPermissionsRepository userPermissionsRepository;
   Connection connection;
-  public GroupEditService(Connection connection) {
+  User user;
+  public GroupEditService(Connection connection, User user) {
     logger = LogUtils.getLogger();
     groupsRepository = new GroupsRepository(connection);
     userPermissionsRepository = new UserPermissionsRepository(connection);
     this.connection = connection;
+    this.user = user;
   }
 
 
-  public void editGroup(User user, Group groupToUpdate) throws Exception{
+  public void editGroup(Group groupToUpdate) throws Exception{
 
     if(groupToUpdate.getId() <=0) {
       throw new InvalidGroupRequestError("Invalid group id: "+groupToUpdate.getId());
@@ -39,7 +41,7 @@ public class GroupEditService {
     groupsRepository.updateGroup(groupToUpdate);
   }
 
-  public Group insertGroup(User user, Group groupToInsert) throws Exception{
+  public Group insertGroup(Group groupToInsert) throws Exception{
 
     validateGroupData(groupToInsert);
     if(!user.isLoggedInUser()){
@@ -51,7 +53,7 @@ public class GroupEditService {
     return groupsRepository.insertGroup(user, groupToInsert);
   }
 
-  public void deleteGroup(User user, int groupId) throws Exception {
+  public void deleteGroup(int groupId) throws Exception {
 
     if(!userPermissionsRepository.isGroupAdmin(user, groupId) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to delete group: " + groupId);

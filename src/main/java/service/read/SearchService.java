@@ -17,8 +17,7 @@ public class SearchService {
   }
 
   public GroupSearchResult getGroups(
-    LinkedHashMap<String, String> searchParams,
-    ConnectionProvider connectionProvider
+    LinkedHashMap<String, String> searchParams
   ) throws Exception
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
@@ -28,12 +27,9 @@ public class SearchService {
 
 
   public Group getSingleGroup(
-      LinkedHashMap<String, String> searchParams,
-      ConnectionProvider connectionProvider
-  ) throws Exception
+      LinkedHashMap<String, String> searchParams) throws Exception
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
-    Connection conn = connectionProvider.getDatabaseConnection();
 
     GroupSearchResult groups = searchRepository.getGroups(params);
     if(groups.countGroups() > 1 ){

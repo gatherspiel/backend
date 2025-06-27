@@ -17,13 +17,13 @@ public class CreateGroupUtils {
     CreateGroupUtils.groupCount++;
 
     Group group = new Group();
-    GroupEditService groupEditService = new GroupEditService(conn);
+    GroupEditService groupEditService = new GroupEditService(conn, user);
 
     group.setId(groupCount);
     group.setName("group-"+ UUID.randomUUID());
     group.setUrl("localhost:1234/"+group.getName());
 
-    return groupEditService.insertGroup(user, group);
+    return groupEditService.insertGroup(group);
   }
 
   public static Group createGroupObject(){

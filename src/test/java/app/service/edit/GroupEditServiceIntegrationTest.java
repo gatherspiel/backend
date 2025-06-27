@@ -1,10 +1,12 @@
 package app.service.edit;
 
+import app.SessionContext;
 import app.groups.data.Group;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
+import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.auth.AuthService;
@@ -32,13 +34,14 @@ public class GroupEditServiceIntegrationTest {
   private static User standardUser3;
 
 
-  private static UserService createUserService;
-  private static GroupEditService groupEditService;
-  private static ReadGroupService readGroupService;
-  private static GroupPermissionService groupPermissionService;
-
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
+
+  private static SessionContext adminContext;
+  private static SessionContext standardUserContext;
+  private static SessionContext standardUserContext2;
+  private static SessionContext standardUserContext3;
+  private static SessionContext readOnlyUserContext;
 
   private static void assertGroupsAreEqual(Group group1, Group group2){
     assertEquals(group1.id, group2.id);
@@ -51,14 +54,7 @@ public class GroupEditServiceIntegrationTest {
   @BeforeAll
   static void setup() throws Exception{
     testConnectionProvider = new IntegrationTestConnectionProvider();
-    conn = testConnectionProvider.getDatabaseConnection();
 
-    groupEditService = new GroupEditService(conn);
-    createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
-    groupPermissionService = new GroupPermissionService(conn);
-
-    ReadGroupDataProvider dataProvider = ReadGroupDataProvider.create(conn);
-    readGroupService = new ReadGroupService(dataProvider, conn);
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       System.out.println("Creating tables");
@@ -66,10 +62,11 @@ public class GroupEditServiceIntegrationTest {
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_USERNAME);
-      standardUser = createUserService.createStandardUser(USERNAME_2);
-      standardUser2 = createUserService.createStandardUser(USERNAME_3);
-      standardUser3 = createUserService.createStandardUser(USERNAME_4);
+      adminContext = CreateUserUtils.createContextWithNewAdminUser(testConnectionProvider, ADMIN_USERNAME);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_2);
+      standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_3);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_4);
+      readOnlyUserContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
     } catch(Exception e){
       e.printStackTrace();
@@ -80,16 +77,13 @@ public class GroupEditServiceIntegrationTest {
   @Test
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
     Group group = CreateGroupUtils.createGroup(admin, conn);
-
-    User readOnlyUser = AuthService.getReadOnlyUser();
-
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
 
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.editGroup(readOnlyUser, updated);
+          readOnlyUserContext.createGroupEditService().editGroup(updated);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -106,7 +100,7 @@ public class GroupEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.editGroup(standardUser, updated);
+          standardUserContext.createGroupEditService().editGroup(updated);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -118,9 +112,9 @@ public class GroupEditServiceIntegrationTest {
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
-    groupEditService.editGroup(admin, updated);
+    adminContext.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb = readGroupService.getGroup(group.getId());
+    Optional<Group> updatedFromDb = adminContext.createReadGroupService().getGroup(group.getId());
 
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
@@ -132,9 +126,9 @@ public class GroupEditServiceIntegrationTest {
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
-    groupEditService.editGroup(standardUser, updated);
+    standardUserContext.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb = readGroupService.getGroup(group.getId());
+    Optional<Group> updatedFromDb = standardUserContext.createReadGroupService().getGroup(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
 
@@ -145,7 +139,7 @@ public class GroupEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.editGroup(admin, updated);
+          adminContext.createGroupEditService().editGroup(updated);
         }
     );
     assertTrue(exception.getMessage().contains("not found"));
@@ -164,7 +158,7 @@ public class GroupEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.editGroup(standardUser2, updated);
+          standardUserContext2.createGroupEditService().editGroup(updated);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -174,13 +168,13 @@ public class GroupEditServiceIntegrationTest {
   public void testGroupModeratorCanEditGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(standardUser, conn);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId());
+    standardUserContext.createGroupPermissionService().addGroupModerator(standardUser2, group.getId());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
-    groupEditService.editGroup(standardUser2, updated);
+    standardUserContext2.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb  = readGroupService.getGroup(group.getId());
+    Optional<Group> updatedFromDb  = standardUserContext2.createReadGroupService().getGroup(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
 
@@ -189,7 +183,7 @@ public class GroupEditServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUser, conn);
     Group group2 = CreateGroupUtils.createGroup(standardUser2, conn);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser3, group.getId());
+    standardUserContext.createGroupPermissionService().addGroupModerator(standardUser3, group.getId());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group2.getId());
@@ -197,7 +191,7 @@ public class GroupEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.editGroup(standardUser3, updated);
+          standardUserContext3.createGroupEditService().editGroup(updated);
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -208,9 +202,9 @@ public class GroupEditServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(standardUser, conn);
 
-    groupEditService.deleteGroup(standardUser, group.getId());
+    standardUserContext.createGroupEditService().deleteGroup(group.getId());
 
-    Optional<Group> groupInDb = readGroupService.getGroup(group.getId());
+    Optional<Group> groupInDb = standardUserContext.createReadGroupService().getGroup(group.getId());
     assertTrue(groupInDb.isEmpty());
   }
 
@@ -222,7 +216,7 @@ public class GroupEditServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupEditService.deleteGroup(standardUser2, group.getId());
+          standardUserContext2.createGroupEditService().deleteGroup(group.getId());
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));

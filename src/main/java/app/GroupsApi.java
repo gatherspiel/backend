@@ -1,5 +1,6 @@
-package app.groups;
+package app;
 
+import app.groups.GroupRequestParser;
 import app.groups.data.Group;
 import app.result.error.GroupNotFoundError;
 import app.result.error.InvalidGroupParameterError;
@@ -11,11 +12,7 @@ import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
-import service.auth.AuthService;
 import service.data.SearchParameterException;
-import service.provider.ReadGroupDataProvider;
-import service.read.ReadGroupService;
-import service.update.GroupEditService;
 import utils.LogUtils;
 
 public class GroupsApi {
@@ -29,19 +26,14 @@ public class GroupsApi {
         ctx -> {
 
           try {
-            var connectionProvider = new ConnectionProvider();
-            var conn = connectionProvider.getDatabaseConnection();
+
+            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
+            var groupService = sessionContext.createReadGroupService();
 
-            var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-            logger.info("Current user:"+currentUser);
-
-            var readGroupDataProvider = ReadGroupDataProvider.create(conn);
-            var groupService = new ReadGroupService(readGroupDataProvider, conn);
-
-            GroupPageData pageData = groupService.getGroupPageData(currentUser, searchParams, connectionProvider);
+            GroupPageData pageData = groupService.getGroupPageData(searchParams);
             logger.info("Retrieved group data");
             ctx.json(pageData);
             ctx.status(200);
@@ -62,14 +54,12 @@ public class GroupsApi {
 
         Group group = null;
         try {
-          var connectionProvider = new ConnectionProvider();
-          var connection = connectionProvider.getDatabaseConnection();
-          var currentUser = AuthService.getUser(connection, ctx);
-          var groupEditService = new GroupEditService(connection);
+
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          var groupEditService = sessionContext.createGroupEditService();
 
           group = ctx.bodyAsClass(Group.class);
-
-          groupEditService.editGroup(currentUser,group);
+          groupEditService.editGroup(group);
 
           logger.info("Updated group:"+group.id);
           ctx.status(200);
@@ -97,12 +87,9 @@ public class GroupsApi {
           try {
             Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
-            var connectionProvider = new ConnectionProvider();
-            var connection = connectionProvider.getDatabaseConnection();
-            var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-            var groupEditService = new GroupEditService(connection);
-
-            Group createdGroup = groupEditService.insertGroup(currentUser,groupToCreate);
+            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+            var groupEditService = sessionContext.createGroupEditService();
+            Group createdGroup = groupEditService.insertGroup(groupToCreate);
 
             logger.info("Created group group with id:"+createdGroup.id);
             ctx.json(createdGroup);
@@ -133,14 +120,11 @@ public class GroupsApi {
     ctx -> {
 
       try {
-        var connectionProvider = new ConnectionProvider();
-        var connection = connectionProvider.getDatabaseConnection();
-        var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
+        var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
         int groupId = Integer.parseInt(ctx.queryParam(GROUP_ID_PARAM));
-        var groupEditService = new GroupEditService(connection);
-
-        groupEditService.deleteGroup(currentUser,groupId);
+        var groupEditService = sessionContext.createGroupEditService();
+        groupEditService.deleteGroup(groupId);
 
         logger.info("Deleted group");
         ctx.status(200);

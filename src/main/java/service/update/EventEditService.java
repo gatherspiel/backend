@@ -17,11 +17,13 @@ public class EventEditService {
   Connection connection;
   EventRepository eventRepository;
   GroupPermissionService groupPermissionService;
+  User user;
 
-  public EventEditService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService){
+  public EventEditService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
     this.connection = connection;
     this.eventRepository = eventRepository;
     this.groupPermissionService = groupPermissionService;
+    this.user = user;
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
@@ -32,26 +34,25 @@ public class EventEditService {
    *
    * @param event
    * @param groupId
-   * @param user
    * @return Event with a unique id.
    */
-  public Event addEvent(Event event, int groupId, User user) throws Exception{
+  public Event addEvent(Event event, int groupId) throws Exception{
 
-    if(!groupPermissionService.canEditGroup(user, groupId)){
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
     return eventRepository.addEvent(event, groupId);
   }
 
-  public Event updateEvent(Event event, int groupId, User user) throws Exception{
-    if(!groupPermissionService.canEditGroup(user, groupId)){
+  public Event updateEvent(Event event, int groupId) throws Exception{
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
     return eventRepository.updateEvent(event);
   }
 
-  public void deleteEvent(Event event, int groupId, User user) throws Exception {
-    if(!groupPermissionService.canEditGroup(user, groupId)){
+  public void deleteEvent(Event event, int groupId) throws Exception {
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
     eventRepository.deleteEvent(event, groupId);
