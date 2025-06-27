@@ -1,6 +1,6 @@
 package app.result.groupPage;
 
-import app.data.Event;
+import app.data.event.Event;
 import app.groups.data.Group;
 import app.data.auth.PermissionName;
 
@@ -19,15 +19,15 @@ public class GroupPageData {
   private int id;
   private String name;
   private String url;
-  private String summary;
+  private String description;
   private HashMap<String, Boolean> permissions;
   private TreeSet<GroupPageEventData> groupPageEventData;
 
-  private GroupPageData(int id, String name, String url, String summary){
+  private GroupPageData(int id, String name, String url, String description){
     this.id = id;
     this.name = name;
     this.url = url;
-    this.summary = summary;
+    this.description = description;
     this.permissions = new HashMap<>();
     this.groupPageEventData = new TreeSet<GroupPageEventData>(new GroupPageEventDataComparator());
   }
@@ -56,12 +56,12 @@ public class GroupPageData {
     this.url = url;
   }
 
-  public String getSummary(){
-    return summary;
+  public String getDescription(){
+    return description;
   }
 
-  public void setSummary(String summary){
-    this.summary = summary;
+  public void setDescription(String description){
+    this.description = description;
   }
 
 
@@ -75,7 +75,7 @@ public class GroupPageData {
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
-    GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getSummary());
+    GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
     LocalDate currentDate = LocalDate.now();
 
@@ -86,7 +86,7 @@ public class GroupPageData {
         String day = event.getDay();
         LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
         while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
-          data.addEventData(nextEventDate, event.getName(), event.getSummary(), event.getLocation(), event.getId());
+          data.addEventData(nextEventDate, event.getName(), event.getDescription(), event.getLocation(), event.getId());
           nextEventDate = nextEventDate.plusDays(7);
         }
       }

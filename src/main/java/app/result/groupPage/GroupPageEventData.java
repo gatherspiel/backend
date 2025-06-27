@@ -62,4 +62,12 @@ public class GroupPageEventData {
   public void setLocation(String location){
     this.location = location;
   }
+
+  public void setId(int id){
+    this.id = id;
+  }
+
+  public int getId(){
+    return id;
+  }
 }

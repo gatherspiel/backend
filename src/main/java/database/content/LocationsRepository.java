@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import app.data.event.EventLocation;
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterException;
@@ -46,29 +47,35 @@ public class LocationsRepository {
     throw new Exception();
   }
 
-  public int insertLocation(String address, Connection conn) throws Exception {
+  public int insertLocation(String address, Connection conn) throws Exception{
+    String[] data = address.split(",");
+
+
     if (!SearchParameterValidator.isValidAddress(address)) {
       logger.error("Invalid address:" + address);
       throw new SearchParameterException("Invalid address");
     }
 
-    String[] data = address.split(",");
+    EventLocation location = new EventLocation();
+    location.setStreetAddress(data[0].trim());
+    location.setCity(data[1].trim());
+    location.setState(data[2].trim().split(" ")[0]);
+    location.setZipCode(Integer.parseInt(data[2].trim().split(" ")[1]));
 
-    String streetAddress = data[0].trim();
-    String city = data[1].trim();
-    String state = data[2].trim().split(" ")[0];
-    String zipCode = data[2].trim().split(" ")[1];
+    return insertLocation(location, conn);
+  }
 
+  public int insertLocation(EventLocation location, Connection conn) throws Exception {
 
-    int locationId = getLocation(streetAddress, city, state, zipCode, conn);
+    int locationId = getLocation(location, conn);
     if (locationId == -1) {
       String query =
         "INSERT INTO locations (city,state, street_address,zip_code) VALUES(?, ?, ?, ?) returning id";
       PreparedStatement insert = conn.prepareStatement(query);
-      insert.setString(1, city);
-      insert.setString(2, state);
-      insert.setString(3, streetAddress);
-      insert.setString(4, zipCode);
+      insert.setString(1, location.getCity());
+      insert.setString(2, location.getState());
+      insert.setString(3, location.getStreetAddress());
+      insert.setString(4, ""+location.getZipCode());
       ResultSet rs = insert.executeQuery();
       if (rs.next()) {
         return rs.getInt(1);
@@ -81,23 +88,20 @@ public class LocationsRepository {
   }
 
   public int getLocation(
-    String streetAddress,
-    String city,
-    String state,
-    String zipCode,
+    EventLocation location,
     Connection conn
   )
     throws Exception
   {
 
-    city = SameLocationData.getDatabaseCityName(city);
+    var city = SameLocationData.getDatabaseCityName(location.getCity());
     String query =
       "SELECT * from locations where city = ? and state = ? and street_address=? and zip_code=?";
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, city);
-    select.setString(2, state);
-    select.setString(3, streetAddress);
-    select.setString(4, zipCode);
+    select.setString(2, location.getState());
+    select.setString(3, location.getStreetAddress());
+    select.setString(4, ""+location.getZipCode());
 
     ResultSet rs = select.executeQuery();
     if (rs.next()) {

@@ -1,11 +1,13 @@
 package database.content;
 
-import app.data.Event;
+import app.data.event.Event;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.util.PSQLException;
@@ -15,9 +17,11 @@ public class EventTimeRepository {
     EventTimeRepository.class
   );
 
+  //TODO: Handle case where a date and time is specified.
   public void setEventDay(Event event, Connection conn) throws Exception {
     if (!hasEventDay(event, conn)) {
       String day = event.getDay();
+      System.out.println("Day:"+day);
       String query =
         "INSERT into event_time (day_of_week, event_id) VALUES(cast(? AS dayofweek), ?)";
       PreparedStatement insert = conn.prepareStatement(query);
@@ -27,7 +31,19 @@ public class EventTimeRepository {
     }
   }
 
+  public void deleteEventTimeInfo(Event event, Connection conn) throws Exception {
+
+    String query = "DELETE  FROM event_time where event_id = ?";
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, event.getId());
+    delete.executeUpdate();
+  }
+
   public boolean hasEventDay(Event event, Connection conn) throws Exception {
+
+    if(event.getDay().isBlank()){
+      return false;
+    }
     try {
       String day = event.getDay();
       String query =
@@ -56,6 +72,20 @@ public class EventTimeRepository {
       insert.setTimestamp(3, Timestamp.valueOf(date.atStartOfDay()));
       insert.executeUpdate();
     }
+  }
+
+  public void setEventDate(int eventId, LocalDateTime start, LocalDateTime end, Connection conn)
+    throws Exception {
+
+    String query =
+        "INSERT into event_time (event_id, start_time, end_time) VALUES(?, ?, ?)";
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, eventId);
+    insert.setTimestamp(2, Timestamp.valueOf(start));
+    insert.setTimestamp(3, Timestamp.valueOf(end));
+
+    insert.executeUpdate();
+
   }
 
   public boolean hasEventDate(int eventId, LocalDate date, Connection conn)

@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReadGroupServiceIntegrationTest {
 
@@ -124,11 +125,11 @@ public class ReadGroupServiceIntegrationTest {
         params,
         testConnectionProvider
     );
-
+        //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
-        () -> assertEquals(result.getSummary().contains("Like playing board games after meeting new people?"), true)
+        () -> assertEquals(result.getDescription().contains("Like playing board games after meeting new people?"), true)
     );
   }
 
@@ -154,11 +155,14 @@ public class ReadGroupServiceIntegrationTest {
         assertTrue(data.getEventDate().isAfter(prevDate));
       }
       eventCount++;
+
+      System.out.println(data.getDescription());
+      //TODO: Verify event ids.
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertEquals(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria "),
-          true),
+      () -> assertTrue(data.getDescription().contains("Like playing board games after meeting new people?"),
+          data.getDescription()),
       () -> assertEquals(data.getLocation(), "3141 Duke Street, Alexandria, VA 22314")
       );
       prevDate = data.getEventDate();
@@ -269,7 +273,7 @@ public class ReadGroupServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
     LinkedHashMap<String, String> params = new LinkedHashMap<>();

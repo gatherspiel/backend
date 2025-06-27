@@ -1,5 +1,7 @@
 package database.content;
 
+import app.data.event.Event;
+import app.data.event.EventLocation;
 import app.groups.data.Group;
 import app.data.auth.User;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +10,8 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -23,12 +27,12 @@ public class GroupsRepository {
         urlsInDb.add(group.url);
 
         String query =
-          "INSERT INTO groups (name, url, summary) VALUES(?,?,?) returning id";
+          "INSERT INTO groups (name, url, description) VALUES(?,?,?) returning id";
 
         PreparedStatement insert = conn.prepareStatement(query);
         insert.setString(1, group.name);
         insert.setString(2, group.url);
-        insert.setString(3, group.summary);
+        insert.setString(3, group.description);
 
         ResultSet rs = insert.executeQuery();
         if (rs.next()) {
@@ -88,7 +92,7 @@ public class GroupsRepository {
 
     String groupInsertQuery=
         """
-            INSERT INTO groups (name, url, summary)
+            INSERT INTO groups (name, url, description)
             VALUES(?,?,?)
             returning id;
         """;
@@ -96,7 +100,7 @@ public class GroupsRepository {
     PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
     groupInsert.setString(1, groupToInsert.getName());
     groupInsert.setString(2, groupToInsert.getUrl());
-    groupInsert.setString(3, groupToInsert.getSummary());
+    groupInsert.setString(3, groupToInsert.getDescription());
     ResultSet rs = groupInsert.executeQuery();
 
     if(!rs.next()){
@@ -128,7 +132,32 @@ public class GroupsRepository {
 
   public Optional<Group> getGroup(int groupId, Connection conn) throws Exception{
     try {
-      String query = "SELECT * from groups where id = ?";
+      String query = """
+          SELECT 
+            groups.name,
+            groups.url,
+            groups.description,
+            events.name as eventName,
+            events.description as eventDescription,
+            events.url as eventUrl,
+            event_time.day_of_week,
+            event_time.start_time,
+            event_time.end_time,
+            events.id as eventId,
+            locations.state,
+            locations.street_address,
+            locations.zip_code,
+            locations.city as city,
+            locs.city as groupCity
+            from groups 
+          LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+          LEFT JOIN events on event_group_map.event_id = events.id
+          LEFT JOIN event_time on event_time.event_id = events.id
+          LEFT JOIN locations on events.location_id = locations.id
+          LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+          LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+          WHERE groups.id = ?
+        """;
       PreparedStatement statement = conn.prepareStatement(query);
       statement.setInt(1, groupId);
 
@@ -141,9 +170,40 @@ public class GroupsRepository {
       group.setId(groupId);
       group.setName(rs.getString("name"));
       group.setUrl(rs.getString("url"));
-      group.setSummary(rs.getString("summary"));
-      return Optional.of(group);
+      group.setDescription(rs.getString("description"));
 
+      ArrayList<Event> events = new ArrayList<>();
+      while(true){
+
+        if(rs.getString("eventUrl") != null){
+          Event event = new Event();
+          event.setId(rs.getInt("eventId"));
+          event.setUrl(rs.getString("eventUrl"));
+          event.setName(rs.getString("eventName"));
+          event.getDescription(rs.getString("eventDescription"));
+
+          Timestamp startTime = rs.getTimestamp("start_time");
+          if(startTime !=null){
+            event.setStartTime(startTime.toLocalDateTime());
+            event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+          }
+
+          EventLocation eventLocation = new EventLocation();
+          eventLocation.setState(rs.getString("state"));
+          eventLocation.setStreetAddress(rs.getString("street_address"));
+          eventLocation.setZipCode(rs.getInt("zip_code"));
+          eventLocation.setCity(rs.getString("city"));
+
+          event.setEventLocation(eventLocation);
+          events.add(event);
+        }
+
+
+        if(!rs.next()){
+          group.setEvents(events.toArray(new Event[0]));
+          return Optional.of(group);
+        }
+      }
     } catch(Exception e){
       logger.error("Error inserting group");
       throw e;
@@ -156,14 +216,14 @@ public class GroupsRepository {
              UPDATE groups
               SET name = ?,
               url = ?,
-              summary = ?
+              description = ?
              WHERE id = ?    
           """;
 
       PreparedStatement update = conn.prepareStatement(updateQuery);
       update.setString(1, groupToUpdate.getName());
       update.setString(2, groupToUpdate.getUrl());
-      update.setString(3, groupToUpdate.getSummary());
+      update.setString(3, groupToUpdate.getDescription());
       update.setInt(4, groupToUpdate.getId());
 
       update.executeUpdate();

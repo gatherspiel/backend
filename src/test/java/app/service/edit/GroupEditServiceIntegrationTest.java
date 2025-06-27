@@ -44,7 +44,7 @@ public class GroupEditServiceIntegrationTest {
     assertEquals(group1.id, group2.id);
     assertEquals(group1.url, group2.url);
     assertEquals(group1.name, group2.name);
-    assertEquals(group1.summary, group2.summary);
+    assertEquals(group1.description, group2.description);
 
   }
 
@@ -173,7 +173,7 @@ public class GroupEditServiceIntegrationTest {
   public void testGroupModeratorCanEditGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -188,7 +188,7 @@ public class GroupEditServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
     Group group2 = CreateGroupUtils.createGroup(standardUser2, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser3, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser3, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group2.getId());

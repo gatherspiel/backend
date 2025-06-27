@@ -75,7 +75,7 @@ public class ConventionsRepository {
     for (Convention convention : conventions) {
       logger.debug(convention.getName());
 
-      int eventId = eventRepository.getEvent(
+      int eventId = eventRepository.getEventId(
         convention.getName(),
         convention.getUrl(),
         conn
