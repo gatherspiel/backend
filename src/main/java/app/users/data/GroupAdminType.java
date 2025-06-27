@@ -1,4 +1,4 @@
-package app.data.auth;
+package app.users.data;
 
 public enum GroupAdminType {
   GROUP_ADMIN("group_admin"),

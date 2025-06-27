@@ -1,15 +1,16 @@
 package service.read;
 
 import app.groups.data.Group;
-import app.data.auth.PermissionName;
-import app.data.auth.User;
-import app.result.groupPage.GroupPageData;
+import app.users.data.PermissionName;
+import app.users.data.User;
+import app.groups.data.GroupPageData;
 import database.content.GroupsRepository;
 import database.utils.ConnectionProvider;
 import service.data.SearchParameterException;
 import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -19,15 +20,17 @@ public class ReadGroupService{
   SearchService searchService;
   GroupPermissionService groupPermissionService;
   GroupsRepository groupsRepository;
+  Connection connection;
 
-  public ReadGroupService(ReadGroupDataProvider dataProvider) {
+  public ReadGroupService(ReadGroupDataProvider dataProvider, Connection connection) {
     this.searchService = dataProvider.getSearchService();
     this.groupPermissionService = dataProvider.getGroupPermissionService();
     this.groupsRepository = dataProvider.getGroupsRepository();
+    this.connection = connection;
   }
 
-  public Optional<Group> getGroup(int groupId, ConnectionProvider connectionProvider) throws Exception{
-    return this.groupsRepository.getGroup(groupId, connectionProvider.getDatabaseConnection());
+  public Optional<Group> getGroup(int groupId) throws Exception{
+    return this.groupsRepository.getGroup(groupId);
   }
   public GroupPageData getGroupPageData(
       User currentUser,
@@ -40,7 +43,7 @@ public class ReadGroupService{
     }
     GroupPageData groupPageData = GroupPageData.createFromSearchResult(group);
 
-    boolean canEdit = groupPermissionService.canEditGroup(currentUser, groupPageData.getId(), connectionProvider.getDatabaseConnection());
+    boolean canEdit = groupPermissionService.canEditGroup(currentUser, groupPageData.getId());
     groupPageData.enablePermission(PermissionName.USER_CAN_EDIT.toString(), canEdit);
     return groupPageData;
   }

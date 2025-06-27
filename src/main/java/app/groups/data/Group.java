@@ -1,10 +1,6 @@
 package app.groups.data;
 
-import app.data.ContentItem;
-import app.data.ContentType;
-import app.data.event.Event;
-
-public class Group extends ContentItem {
+public class Group {
   public Event[] events;
   public int id;
   public String url;
@@ -12,9 +8,6 @@ public class Group extends ContentItem {
   public String description;
   public String name;
 
-  public Group() {
-    super(ContentType.GROUP);
-  }
 
   public Integer getId() {
     return id;

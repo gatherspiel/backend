@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.Convention;
+import app.location.Convention;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,11 +15,15 @@ import utils.LogUtils;
 public class ConventionsRepository {
   Logger logger;
 
-  public ConventionsRepository() {
+  Connection conn;
+  public ConventionsRepository(Connection conn) {
+
+    this.conn = conn;
     logger = LogUtils.getLogger();
   }
 
-  public HashMap<Integer, Convention> getConventions(LocalDate searchStartDate,Connection conn) throws Exception{
+
+  public HashMap<Integer, Convention> getConventions(LocalDate searchStartDate) throws Exception{
     String query = "SELECT * from events\n" +
         "JOIN event_time on event_time.event_id = events.id\n" +
         "WHERE is_convention is TRUE\n" +
@@ -68,17 +72,16 @@ public class ConventionsRepository {
     }
     return conventions;
   }
-  public void insertConventions(Convention[] conventions, Connection conn)
+  public void insertConventions(Convention[] conventions)
     throws Exception {
-    EventRepository eventRepository = new EventRepository();
-    EventTimeRepository eventTimeRepository = new EventTimeRepository();
+    EventRepository eventRepository = new EventRepository(conn);
+    EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
     for (Convention convention : conventions) {
       logger.debug(convention.getName());
 
       int eventId = eventRepository.getEventId(
         convention.getName(),
-        convention.getUrl(),
-        conn
+        convention.getUrl()
       );
       if (eventId == -1) {
         String query =
@@ -103,7 +106,7 @@ public class ConventionsRepository {
           Integer.parseInt(data[0]),
           Integer.parseInt(data[1])
         );
-        eventTimeRepository.setEventDate(convention.getId(), localDate, conn);
+        eventTimeRepository.setEventDate(convention.getId(), localDate.atStartOfDay(), localDate.atStartOfDay().plusHours(1));
       }
     }
   }

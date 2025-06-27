@@ -1,7 +1,7 @@
 package app;
 
 import app.groups.GroupsApi;
-import app.request.BulkUpdateInputRequest;
+import app.admin.request.BulkUpdateInputRequest;
 import app.users.UsersApi;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -55,11 +55,12 @@ public class Main {
         long start = System.currentTimeMillis();
         try {
           var connectionProvider = new ConnectionProvider();
+          var conn = connectionProvider.getDatabaseConnection();
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
 
-          var searchService = new SearchService();
+          var searchService = new SearchService(conn);
 
           var groupSearchResult = searchService.getGroups(
             searchParams,
@@ -87,9 +88,10 @@ public class Main {
         ctx->{
 
           var connectionProvider = new ConnectionProvider();
-          GameLocationsService gameLocationsService = new GameLocationsService();
+          var conn = connectionProvider.getDatabaseConnection();
+          GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
-          var gameLocationData = gameLocationsService.getGameLocations(connectionProvider, LocalDate.now());
+          var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
           logger.info("Retrieved game location data");
 
           ctx.json(gameLocationData);
@@ -101,11 +103,13 @@ public class Main {
         "/listCities",
         ctx->{
           var connectionProvider = new ConnectionProvider();
-          GameLocationsService gameLocationsService = new GameLocationsService();
+          var conn = connectionProvider.getDatabaseConnection();
+
+          GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
           String areaFilter = ctx.queryParam("area");
 
-          var cities = gameLocationsService.getAllEventLocations(connectionProvider, areaFilter);
+          var cities = gameLocationsService.getAllEventLocations(areaFilter);
           logger.info("Retrieved event cities");
           ctx.json(cities);
           ctx.status(200);

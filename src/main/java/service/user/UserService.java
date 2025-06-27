@@ -1,11 +1,8 @@
 package service.user;
 
 
-import app.data.auth.User;
-import database.BaseRepository;
+import app.users.data.User;
 import database.user.UserRepository;
-import database.utils.ConnectionProvider;
-import service.provider.DataProvider;
 
 import java.sql.Connection;
 

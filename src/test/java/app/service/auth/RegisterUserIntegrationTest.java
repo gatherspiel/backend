@@ -1,7 +1,7 @@
 package app.service.auth;
 
-import app.data.auth.User;
-import app.data.auth.UserType;
+import app.users.data.User;
+import app.users.data.UserType;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.error.DuplicateUsernameException;

@@ -15,18 +15,18 @@ public class LocationUpdateIntegrationTest {
 
   private static GameLocationsService gameLocationsService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
-
+  private static Connection conn;
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     try {
-      Connection conn = testConnectionProvider.getDatabaseConnection();
+      conn = testConnectionProvider.getDatabaseConnection();
 
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
-      gameLocationsService = new GameLocationsService();
+      gameLocationsService = new GameLocationsService(conn);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -37,47 +37,47 @@ public class LocationUpdateIntegrationTest {
   @Test
   public void testLocationInsertSameAddress_NoDuplicatesListCities() throws Exception {
 
-    int locationsCountA = gameLocationsService.countLocations(testConnectionProvider);
+    int locationsCountA = gameLocationsService.countLocations();
 
     String address = "123 Main Street, Test, Maryland 12345";
-    gameLocationsService.insertAddress(testConnectionProvider,address);
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
+    gameLocationsService.insertAddress(address);
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+1);
 
-    gameLocationsService.insertAddress(testConnectionProvider,address);
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
+    gameLocationsService.insertAddress(address);
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+1);
   }
 
   @Test
   public void testGetLocationInsert_SameCity_OneHasFullAddress_NoDuplicatesListCities() throws Exception {
 
-    int locationsCountA = gameLocationsService.countLocations(testConnectionProvider);
+    int locationsCountA = gameLocationsService.countLocations();
 
     String address = "123 Main Street, Alexandria, Virginia 12345";
-    gameLocationsService.insertAddress(testConnectionProvider,address);
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
+    gameLocationsService.insertAddress(address);
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+1);
 
-    int eventLocationsCountA = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
-    gameLocationsService.addCity(testConnectionProvider,"Alexandria");
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
+    int eventLocationsCountA = gameLocationsService.getAllEventLocations("dmv").size();
+    gameLocationsService.addCity("Alexandria");
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+1);
 
-    int eventLocationsCountB = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
+    int eventLocationsCountB = gameLocationsService.getAllEventLocations( "dmv").size();
     assertEquals(eventLocationsCountA, eventLocationsCountB);
   }
 
   @Test
   public void testGetLocationInsert_SameCity_TwoDifferentFullAddressesNoDuplicates_ListCities() throws Exception {
 
-    int locationsCountA = gameLocationsService.countLocations(testConnectionProvider);
+    int locationsCountA = gameLocationsService.countLocations();
 
-    gameLocationsService.insertAddress(testConnectionProvider,"123 Main Street, Arlington, Virginia 12345");
+    gameLocationsService.insertAddress("123 Main Street, Arlington, Virginia 12345");
 
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+1);
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+1);
 
-    int eventLocationsCountA = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
-    gameLocationsService.addCity(testConnectionProvider,"456 Main Street, Arlington, Virginia 12345");
-    assertEquals(gameLocationsService.countLocations(testConnectionProvider), locationsCountA+2);
+    int eventLocationsCountA = gameLocationsService.getAllEventLocations( "dmv").size();
+    gameLocationsService.addCity("456 Main Street, Arlington, Virginia 12345");
+    assertEquals(gameLocationsService.countLocations(), locationsCountA+2);
 
-    int eventLocationsCountB = gameLocationsService.getAllEventLocations(testConnectionProvider, "dmv").size();
+    int eventLocationsCountB = gameLocationsService.getAllEventLocations( "dmv").size();
     assertEquals(eventLocationsCountA, eventLocationsCountB);
   }
 }

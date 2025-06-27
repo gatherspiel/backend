@@ -1,16 +1,12 @@
-package app.result.groupPage;
+package app.groups.data;
 
-import app.data.event.Event;
-import app.groups.data.Group;
-import app.data.auth.PermissionName;
-
+import app.users.data.PermissionName;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 
 public class GroupPageData {

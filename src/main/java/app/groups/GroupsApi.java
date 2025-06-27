@@ -5,7 +5,7 @@ import app.result.error.GroupNotFoundError;
 import app.result.error.InvalidGroupParameterError;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
-import app.result.groupPage.GroupPageData;
+import app.groups.data.GroupPageData;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -30,6 +30,7 @@ public class GroupsApi {
 
           try {
             var connectionProvider = new ConnectionProvider();
+            var conn = connectionProvider.getDatabaseConnection();
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
@@ -37,8 +38,8 @@ public class GroupsApi {
             var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
             logger.info("Current user:"+currentUser);
 
-            var readGroupDataProvider = ReadGroupDataProvider.create();
-            var groupService = new ReadGroupService(readGroupDataProvider);
+            var readGroupDataProvider = ReadGroupDataProvider.create(conn);
+            var groupService = new ReadGroupService(readGroupDataProvider, conn);
 
             GroupPageData pageData = groupService.getGroupPageData(currentUser, searchParams, connectionProvider);
             logger.info("Retrieved group data");
@@ -62,13 +63,13 @@ public class GroupsApi {
         Group group = null;
         try {
           var connectionProvider = new ConnectionProvider();
-
-          var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-          var groupEditService = new GroupEditService();
+          var connection = connectionProvider.getDatabaseConnection();
+          var currentUser = AuthService.getUser(connection, ctx);
+          var groupEditService = new GroupEditService(connection);
 
           group = ctx.bodyAsClass(Group.class);
 
-          groupEditService.editGroup(currentUser,group, connectionProvider);
+          groupEditService.editGroup(currentUser,group);
 
           logger.info("Updated group:"+group.id);
           ctx.status(200);
@@ -97,10 +98,11 @@ public class GroupsApi {
             Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
             var connectionProvider = new ConnectionProvider();
+            var connection = connectionProvider.getDatabaseConnection();
             var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-            var groupEditService = new GroupEditService();
+            var groupEditService = new GroupEditService(connection);
 
-            Group createdGroup = groupEditService.insertGroup(currentUser,groupToCreate, connectionProvider);
+            Group createdGroup = groupEditService.insertGroup(currentUser,groupToCreate);
 
             logger.info("Created group group with id:"+createdGroup.id);
             ctx.json(createdGroup);
@@ -132,12 +134,13 @@ public class GroupsApi {
 
       try {
         var connectionProvider = new ConnectionProvider();
+        var connection = connectionProvider.getDatabaseConnection();
         var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
 
         int groupId = Integer.parseInt(ctx.queryParam(GROUP_ID_PARAM));
-        var groupEditService = new GroupEditService();
+        var groupEditService = new GroupEditService(connection);
 
-        groupEditService.deleteGroup(currentUser,groupId, connectionProvider);
+        groupEditService.deleteGroup(currentUser,groupId);
 
         logger.info("Deleted group");
         ctx.status(200);

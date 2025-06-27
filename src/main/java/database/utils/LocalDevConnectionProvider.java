@@ -20,8 +20,8 @@ public class LocalDevConnectionProvider extends LocalConnectionProvider {
     logger.info("Loaded database Driver");
     String url =
         "jdbc:postgresql://127.0.0.1:54322/postgres?user=postgres&password=postgres";
-    Connection connection = DriverManager.getConnection(url);
-    return connection;
+    Connection conn = DriverManager.getConnection(url);
+    return conn;
   }
 
 

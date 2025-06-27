@@ -1,11 +1,10 @@
 package app.database.utils;
 
-import app.request.BulkUpdateRequest;
+import app.admin.request.BulkUpdateRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;

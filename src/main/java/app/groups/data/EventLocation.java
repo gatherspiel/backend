@@ -1,4 +1,4 @@
-package app.data.event;
+package app.groups.data;
 
 public class EventLocation {
   private String city;
@@ -36,5 +36,12 @@ public class EventLocation {
 
   public Integer getZipCode(){
     return zipCode;
+  }
+
+  public String toString(){
+    if(city == null || state == null || zipCode == null){
+      return streetAddress;
+    }
+    return streetAddress + "," + city + "," + state.toString() + " " + zipCode;
   }
 }

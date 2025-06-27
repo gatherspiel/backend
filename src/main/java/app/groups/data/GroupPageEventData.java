@@ -1,4 +1,4 @@
-package app.result.groupPage;
+package app.groups.data;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 

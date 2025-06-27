@@ -1,11 +1,10 @@
 package service.provider;
 
-import app.data.auth.User;
 import database.content.GroupsRepository;
-import database.utils.ConnectionProvider;
 import service.permissions.GroupPermissionService;
-import service.read.ReadGroupService;
 import service.read.SearchService;
+
+import java.sql.Connection;
 
 public class ReadGroupDataProvider {
 
@@ -34,11 +33,11 @@ public class ReadGroupDataProvider {
     return groupPermissionService;
   }
 
-  public static ReadGroupDataProvider create(){
+  public static ReadGroupDataProvider create(Connection conn){
 
-    var searchService = new SearchService();
-    var groupPermissionService = new GroupPermissionService();
-    var groupRepository = new GroupsRepository();
+    var searchService = new SearchService(conn);
+    var groupPermissionService = new GroupPermissionService(conn);
+    var groupRepository = new GroupsRepository(conn);
     return new ReadGroupDataProvider(searchService,groupPermissionService, groupRepository);
   }
 }

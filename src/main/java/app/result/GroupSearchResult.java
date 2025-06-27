@@ -1,6 +1,6 @@
 package app.result;
 
-import app.data.event.Event;
+import app.groups.data.Event;
 import app.groups.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -55,7 +55,7 @@ public class GroupSearchResult {
     String dayOfWeek,
     String address,
     String city
-  ) {
+  ) throws Exception{
     if (!groupData.containsKey(groupId)) {
       logger.warn(
         "Group with id {} does not exist. Event will not be added to group search result",
