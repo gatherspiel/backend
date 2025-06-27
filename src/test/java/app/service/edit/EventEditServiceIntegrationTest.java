@@ -1,8 +1,8 @@
 package app.service.edit;
 
-import app.data.event.Event;
-import app.data.auth.User;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.users.data.User;
+import app.groups.data.EventLocation;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.groups.data.Group;

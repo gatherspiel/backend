@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.GameStore;
+import app.location.GameStore;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,5 +1,4 @@
 package app.groups.data;
-import app.data.event.Event;
 
 public class Group {
   public Event[] events;

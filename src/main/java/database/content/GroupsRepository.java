@@ -1,9 +1,9 @@
 package database.content;
 
-import app.data.event.Event;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.groups.data.EventLocation;
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

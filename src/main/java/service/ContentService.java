@@ -1,6 +1,6 @@
 package service;
 
-import app.data.auth.User;
+import app.users.data.User;
 
 public abstract class ContentService {
   protected User currentUser;

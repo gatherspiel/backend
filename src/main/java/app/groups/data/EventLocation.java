@@ -1,4 +1,4 @@
-package app.data.event;
+package app.groups.data;
 
 public class EventLocation {
   private String city;

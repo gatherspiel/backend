@@ -1,6 +1,6 @@
 package app.service;
 
-import app.data.Convention;
+import app.location.Convention;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.GameLocationData;

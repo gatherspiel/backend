@@ -1,9 +1,9 @@
 package service.read;
 
 import app.groups.data.Group;
-import app.data.auth.PermissionName;
-import app.data.auth.User;
-import app.result.groupPage.GroupPageData;
+import app.users.data.PermissionName;
+import app.users.data.User;
+import app.groups.data.GroupPageData;
 import database.content.GroupsRepository;
 import database.utils.ConnectionProvider;
 import service.data.SearchParameterException;

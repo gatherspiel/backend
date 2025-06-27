@@ -1,7 +1,7 @@
 package app;
 
 import app.groups.GroupsApi;
-import app.request.BulkUpdateInputRequest;
+import app.admin.request.BulkUpdateInputRequest;
 import app.users.UsersApi;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;

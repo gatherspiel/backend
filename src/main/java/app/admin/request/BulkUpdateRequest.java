@@ -1,6 +1,6 @@
-package app.request;
+package app.admin.request;
 
-import app.data.*;
+import app.location.*;
 import app.groups.data.Group;
 
 public class BulkUpdateRequest {
@@ -9,7 +9,6 @@ public class BulkUpdateRequest {
   private GameStore[] gameStores;
   private GameRestaurant[] gameRestaurants;
   private LocationTag[] locationTags;
-  //TODO: Add data for location map
   public BulkUpdateRequest() {}
 
   public Group[] getGroups() {

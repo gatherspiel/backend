@@ -1,8 +1,8 @@
 package app.result;
 
-import app.data.Convention;
-import app.data.GameRestaurant;
-import app.data.GameStore;
+import app.location.Convention;
+import app.location.GameRestaurant;
+import app.location.GameStore;
 
 import java.util.Map;
 

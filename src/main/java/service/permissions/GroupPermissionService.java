@@ -1,9 +1,8 @@
 package service.permissions;
 
-import app.data.auth.User;
+import app.users.data.User;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
-import database.utils.ConnectionProvider;
 
 import java.sql.Connection;
 

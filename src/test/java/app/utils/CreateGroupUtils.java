@@ -1,7 +1,7 @@
 package app.utils;
 
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import database.utils.ConnectionProvider;
 import service.update.GroupEditService;
 

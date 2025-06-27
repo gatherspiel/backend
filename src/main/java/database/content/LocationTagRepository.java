@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.LocationTag;
+import app.location.LocationTag;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

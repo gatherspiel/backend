@@ -1,10 +1,7 @@
 package service.provider;
 
-import app.data.auth.User;
 import database.content.GroupsRepository;
-import database.utils.ConnectionProvider;
 import service.permissions.GroupPermissionService;
-import service.read.ReadGroupService;
 import service.read.SearchService;
 
 public class ReadGroupDataProvider {

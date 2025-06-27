@@ -1,8 +1,8 @@
 package service.auth;
 
-import app.data.auth.User;
-import app.data.auth.UserType;
-import app.request.BulkUpdateInputRequest;
+import app.users.data.User;
+import app.users.data.UserType;
+import app.admin.request.BulkUpdateInputRequest;
 import app.result.error.DuplicateUsernameException;
 import app.users.data.RegisterUserRequest;
 import app.users.data.RegisterUserResponse;

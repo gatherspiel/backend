@@ -1,9 +1,6 @@
 package app.users;
 
-import app.data.auth.UserType;
-import app.users.data.RegisterUserRequest;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import org.apache.logging.log4j.Logger;
 import service.auth.AuthService;

@@ -1,4 +1,4 @@
-package app.data.event;
+package app.groups.data;
 
 import java.util.Map;
 

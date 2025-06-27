@@ -1,11 +1,11 @@
 package app.service;
 
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.result.groupPage.GroupPageData;
-import app.result.groupPage.GroupPageEventData;
+import app.groups.data.GroupPageData;
+import app.groups.data.GroupPageEventData;
 import app.utils.CreateGroupUtils;
 import database.search.GroupSearchParams;
 import org.junit.jupiter.api.Assertions;

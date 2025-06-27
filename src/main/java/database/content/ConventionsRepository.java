@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.Convention;
+import app.location.Convention;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,7 +1,7 @@
 package database.user;
 
-import app.data.auth.User;
-import app.data.auth.UserType;
+import app.users.data.User;
+import app.users.data.UserType;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;

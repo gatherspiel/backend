@@ -1,6 +1,6 @@
 package service;
 
-import app.request.BulkUpdateRequest;
+import app.admin.request.BulkUpdateRequest;
 import database.content.*;
 import database.user.UserRepository;
 import database.utils.ConnectionProvider;

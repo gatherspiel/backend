@@ -1,7 +1,7 @@
 package database.content;
 
-import app.data.event.Event;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.groups.data.EventLocation;
 import app.groups.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

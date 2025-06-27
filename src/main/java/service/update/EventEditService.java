@@ -1,8 +1,8 @@
 package service.update;
 
-import app.data.event.Event;
-import app.data.auth.User;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.users.data.User;
+import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
 import service.permissions.GroupPermissionService;

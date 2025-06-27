@@ -1,7 +1,7 @@
 package service.update;
 
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.GroupsRepository;

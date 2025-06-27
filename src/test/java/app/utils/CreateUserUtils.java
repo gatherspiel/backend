@@ -1,9 +1,7 @@
 package app.utils;
 
-import app.data.auth.User;
-import app.data.auth.UserType;
-
-import java.util.UUID;
+import app.users.data.User;
+import app.users.data.UserType;
 
 public class CreateUserUtils {
 
