@@ -132,4 +132,9 @@ public class EditPermissionServiceIntegrationTest {
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
   }
+
+  @Test
+  public void testAdmin_cannotEdit_groupThatDoesNotExist() throws Exception {
+    assertFalse(groupPermissionService.canEditGroup(admin,-1, testConnectionProvider.getDatabaseConnection()));
+  }
 }

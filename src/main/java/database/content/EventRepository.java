@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Optional;
+import java.util.UUID;
 
 import service.data.SearchParameterValidator;
 
@@ -107,42 +108,37 @@ public class EventRepository {
     statement.executeUpdate();
   }
 
-    public Event updateEvent(Event event, int groupId, Connection conn) throws Exception{
+  public Event updateEvent(Event event, int groupId, Connection conn) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository();
     EventTimeRepository eventTimeRepository = new EventTimeRepository();
 
-    //TODO: Update insertLocation to retrieve the existing location id if it already exists.
     int location_id = locationsRepository.insertLocation(
-        event.getLocation(),
+        event.getEventLocation(),
         conn
     );
 
     String query =
-        "UPDATE events(location_id, description, name, url) values(?,?,?,?)";
-    PreparedStatement insert = conn.prepareStatement(query);
-    insert.setInt(1, location_id);
-    insert.setString(2, event.getSummary());
-    insert.setString(3, event.getName());
-    insert.setString(4, event.getUrl());
+      """
+       UPDATE events SET
+       location_id = ?,
+       description = ?,
+       name = ?,
+       url = ?
+       WHERE id = ?
+      """;
+    PreparedStatement update = conn.prepareStatement(query);
+    update.setInt(1, location_id);
+    update.setString(2, event.getSummary());
+    update.setString(3, event.getName());
+    update.setString(4, event.getUrl());
+    update.setInt(5, event.getId());
 
-    ResultSet rs = insert.executeQuery();
-    rs.next();
-
-    int eventId = rs.getInt(1);
-
-    updateEventGroupMap(groupId, eventId, conn);
-    event.setId(eventId);
-    eventTimeRepository.setEventDay(event, conn);
+    update.executeUpdate();
+    eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime(), conn);
     return event;
   }
 
-
-  /*
-    TODO
-      -Make sure database join is correct
-      -Add date column.
-   */
   public Optional<Event> getEvent(int id, Connection conn) throws Exception{
     String query = """
         
@@ -163,8 +159,8 @@ public class EventRepository {
       event.setSummary(rs.getString("description"));
       event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
       event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+      event.setId(rs.getInt("id"));
 
-      System.out.println("Hi");
       EventLocation eventLocation = new EventLocation();
       eventLocation.setCity(rs.getString("city"));
       eventLocation.setZipCode(rs.getInt("zip_code"));

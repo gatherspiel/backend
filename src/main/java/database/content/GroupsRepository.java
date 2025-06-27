@@ -144,6 +144,7 @@ public class GroupsRepository {
             event_time.day_of_week,
             event_time.start_time,
             event_time.end_time,
+            events.id as eventId,
             locations.state,
             locations.street_address,
             locations.zip_code,
@@ -173,13 +174,11 @@ public class GroupsRepository {
       group.setSummary(rs.getString("summary"));
 
       ArrayList<Event> events = new ArrayList<>();
-
-      System.out.println("[GroupsRepository] found group");
       while(true){
 
         if(rs.getString("eventUrl") != null){
-          System.out.println("Adding event");
           Event event = new Event();
+          event.setId(rs.getInt("eventId"));
           event.setUrl(rs.getString("eventUrl"));
           event.setName(rs.getString("eventName"));
           event.setSummary(rs.getString("eventDescription"));
