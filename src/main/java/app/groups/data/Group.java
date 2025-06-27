@@ -9,7 +9,7 @@ public class Group extends ContentItem {
   public int id;
   public String url;
   public String[] cities;
-  public String summary;
+  public String description;
   public String name;
 
   public Group() {
@@ -40,12 +40,12 @@ public class Group extends ContentItem {
     return cities;
   }
 
-  public void setSummary(String summary) {
-    this.summary = summary;
+  public void setDescription(String description) {
+    this.description = description;
   }
 
-  public String getSummary(){
-    return summary;
+  public String getDescription(){
+    return description;
   }
 
   public String getName() {
@@ -83,8 +83,8 @@ public class Group extends ContentItem {
       "cities:" +
       cities +
       "\n" +
-      "summary:" +
-      summary +
+      "description:" +
+          description +
       "\n" +
       "name:" +
       name +

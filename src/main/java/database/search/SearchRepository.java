@@ -25,7 +25,7 @@ public class SearchRepository {
 
       String groupName = rs.getString("name");
       String url = rs.getString("url");
-      String groupSummary = rs.getString("summary");
+      String groupSummary = rs.getString("description");
       String groupCity = rs.getString("groupCity");
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {

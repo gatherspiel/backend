@@ -15,7 +15,7 @@ create table if not exists groups (
   id serial not null,
   name character varying not null,
   url character varying not null,
-  summary character varying null,
+  description character varying null,
   constraint groups_pkey primary key (id),
   constraint unique_groups unique (url)
 );

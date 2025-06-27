@@ -10,7 +10,6 @@ import app.utils.CreateGroupUtils;
 import database.content.EventRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
@@ -134,8 +133,8 @@ public class EventEditServiceIntegrationTest {
     assertEquals(EVENT_NAME_1, eventFromDbA.getName());
     assertEquals(EVENT_NAME_2, eventFromDbB.getName());
 
-    assertEquals(SUMMARY_1, eventFromDbA.getSummary());
-    assertEquals(SUMMARY_2, eventFromDbB.getSummary());
+    assertEquals(SUMMARY_1, eventFromDbA.getDescription());
+    assertEquals(SUMMARY_2, eventFromDbB.getDescription());
 
     assertEquals(eventA.getDay(), eventFromDbA.getDay());
     assertEquals(eventB.getDay(), eventFromDbB.getDay());

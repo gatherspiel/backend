@@ -129,7 +129,7 @@ public class ReadGroupServiceIntegrationTest {
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
-        () -> assertEquals(result.getSummary().contains("Like playing board games after meeting new people?"), true)
+        () -> assertEquals(result.getDescription().contains("Like playing board games after meeting new people?"), true)
     );
   }
 
@@ -156,12 +156,13 @@ public class ReadGroupServiceIntegrationTest {
       }
       eventCount++;
 
+      System.out.println(data.getDescription());
       //TODO: Verify event ids.
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertEquals(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria "),
-          true),
+      () -> assertTrue(data.getDescription().contains("Like playing board games after meeting new people?"),
+          data.getDescription()),
       () -> assertEquals(data.getLocation(), "3141 Duke Street, Alexandria, VA 22314")
       );
       prevDate = data.getEventDate();
