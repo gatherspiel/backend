@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReadGroupServiceIntegrationTest {
 
@@ -124,7 +125,7 @@ public class ReadGroupServiceIntegrationTest {
         params,
         testConnectionProvider
     );
-
+        //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
@@ -154,6 +155,8 @@ public class ReadGroupServiceIntegrationTest {
         assertTrue(data.getEventDate().isAfter(prevDate));
       }
       eventCount++;
+
+      //TODO: Verify event ids.
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
@@ -269,7 +272,7 @@ public class ReadGroupServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     ReadGroupService groupService1 = new ReadGroupService(ReadGroupDataProvider.create());
     LinkedHashMap<String, String> params = new LinkedHashMap<>();

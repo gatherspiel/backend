@@ -20,6 +20,8 @@ public class BulkUpdateRequest {
   }
 
   public void setGroups(Group[] groups) {
+
+    System.out.println(groups[0]);
     this.groups = groups;
   }
 

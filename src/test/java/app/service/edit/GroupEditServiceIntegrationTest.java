@@ -173,7 +173,7 @@ public class GroupEditServiceIntegrationTest {
   public void testGroupModeratorCanEditGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser2, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -188,7 +188,7 @@ public class GroupEditServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUser, testConnectionProvider);
     Group group2 = CreateGroupUtils.createGroup(standardUser2, testConnectionProvider);
 
-    groupPermissionService.addGroupModerator(standardUser, standardUser3, group.getId(), testConnectionProvider);
+    groupPermissionService.addGroupModerator(standardUser, standardUser3, group.getId(), testConnectionProvider.getDatabaseConnection());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group2.getId());

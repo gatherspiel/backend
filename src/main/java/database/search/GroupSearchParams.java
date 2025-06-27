@@ -106,9 +106,9 @@ public class GroupSearchParams {
                     locs.city as groupCity
                   FROM groups
                   LEFT JOIN event_group_map on groups.id = event_group_map.group_id
-                  LEFT JOIN  events on event_group_map.event_id = events.id
-                  LEFT JOIN  event_time on event_time.event_id = events.id
-                  LEFT JOIN  locations on events.location_id = locations.id
+                  LEFT JOIN events on event_group_map.event_id = events.id
+                  LEFT JOIN event_time on event_time.event_id = events.id
+                  LEFT JOIN locations on events.location_id = locations.id
                   LEFT JOIN location_group_map on groups.id = location_group_map.group_id
                   LEFT JOIN locations as locs on location_group_map.location_id = locs.id
           
