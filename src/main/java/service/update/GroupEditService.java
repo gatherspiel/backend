@@ -32,7 +32,6 @@ public class GroupEditService {
     if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to edit group: " + groupToUpdate.getName());
     }
-    System.out.println("User can edit group");
     groupsRepository.updateGroup(groupToUpdate, connectionProvider.getDatabaseConnection());
   }
 

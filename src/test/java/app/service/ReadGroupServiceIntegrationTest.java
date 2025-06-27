@@ -146,7 +146,6 @@ public class ReadGroupServiceIntegrationTest {
     );
 
     Set<GroupPageEventData> eventData = result.getEventData();
-    int eventCount = 0;
 
     LocalDate prevDate = null;
     for(GroupPageEventData data: eventData) {
@@ -154,16 +153,13 @@ public class ReadGroupServiceIntegrationTest {
       if(prevDate != null){
         assertTrue(data.getEventDate().isAfter(prevDate));
       }
-      eventCount++;
 
-      System.out.println(data.getDescription());
-      //TODO: Verify event ids.
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
       () -> assertTrue(data.getDescription().contains("Like playing board games after meeting new people?"),
           data.getDescription()),
-      () -> assertEquals(data.getLocation(), "3141 Duke Street, Alexandria, VA 22314")
+      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314")
       );
       prevDate = data.getEventDate();
     }

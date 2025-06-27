@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 public class Event {
   private Integer id;
   private String day;
-  private String location;
   private String description;
   private String name;
   private String url;
@@ -40,11 +39,30 @@ public class Event {
   }
 
   public String getLocation() {
-    return location;
+    return eventLocation.toString();
   }
 
-  public void setLocation(String location) {
-    this.location = location;
+  public void setLocation(String location) throws Exception {
+
+    if(location == null || location.isEmpty()){
+      this.eventLocation = new EventLocation();
+      return;
+    }
+
+    EventLocation eventLocation = new EventLocation();
+    this.eventLocation = eventLocation;
+    String[] locationSplit = location.split(",");
+    if(locationSplit.length == 3) {
+      String[] locationSplit2 = locationSplit[2].split(" ");
+      if(locationSplit2.length == 2) {
+        eventLocation.setStreetAddress(locationSplit[0]);
+        eventLocation.setCity(locationSplit[1]);
+        eventLocation.setState(locationSplit2[0]);
+        eventLocation.setZipCode(Integer.parseInt(locationSplit2[1]));
+        return;
+      }
+    }
+    eventLocation.setStreetAddress(location);
   }
 
   public String getDescription() {
@@ -97,7 +115,7 @@ public class Event {
   }
 
   public String toString(){
-    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.location +"\n description:"+this.description +
+    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
         " \nname:"+this.name+"\n url:"+this.url;
   }
 }

@@ -5,6 +5,8 @@ import app.data.auth.User;
 import database.utils.ConnectionProvider;
 import service.update.GroupEditService;
 
+import java.util.UUID;
+
 public class CreateGroupUtils {
 
   private static int groupCount = 0;
@@ -17,7 +19,7 @@ public class CreateGroupUtils {
     GroupEditService groupEditService = new GroupEditService();
 
     group.setId(groupCount);
-    group.setName("group-"+group.getUUID().toString());
+    group.setName("group-"+ UUID.randomUUID());
     group.setUrl("localhost:1234/"+group.getName());
 
     return groupEditService.insertGroup(user, group, testConnectionProvider);
@@ -25,7 +27,7 @@ public class CreateGroupUtils {
 
   public static Group createGroupObject(){
     Group group = new Group();
-    group.setName("group-"+group.getUUID().toString());
+    group.setName("group-"+UUID.randomUUID());
     group.setUrl("localhost:1234/"+group.getName());
     return group;
   }

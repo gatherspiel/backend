@@ -21,7 +21,6 @@ public class EventTimeRepository {
   public void setEventDay(Event event, Connection conn) throws Exception {
     if (!hasEventDay(event, conn)) {
       String day = event.getDay();
-      System.out.println("Day:"+day);
       String query =
         "INSERT into event_time (day_of_week, event_id) VALUES(cast(? AS dayofweek), ?)";
       PreparedStatement insert = conn.prepareStatement(query);

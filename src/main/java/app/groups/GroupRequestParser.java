@@ -13,7 +13,6 @@ public class GroupRequestParser {
   public static Group getGroupFromRequestBody(Context ctx) throws Exception{
 
     JsonNode groupJson = ctx.bodyAsClass(JsonNode.class);
-    System.out.println(groupJson);
 
     List<String> groupFields =
         Arrays.stream(Group.class.getDeclaredFields())

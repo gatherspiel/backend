@@ -189,7 +189,11 @@ public class GroupsRepository {
           }
 
           EventLocation eventLocation = new EventLocation();
-          eventLocation.setState(rs.getString("state"));
+
+          String state = rs.getString("state");
+          if(state != null){
+            eventLocation.setState(state);
+          }
           eventLocation.setStreetAddress(rs.getString("street_address"));
           eventLocation.setZipCode(rs.getInt("zip_code"));
           eventLocation.setCity(rs.getString("city"));
