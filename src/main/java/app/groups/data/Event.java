@@ -1,5 +1,6 @@
 package app.groups.data;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ public class Event {
   private String description;
   private String name;
   private String url;
-  private Boolean isRecurring;
+  private Boolean isRecurring = false;
   private LocalDateTime startTime;
   private LocalDateTime endTime;
 
@@ -92,7 +93,11 @@ public class Event {
   }
 
   public void setStartTime(LocalDateTime startTime){
-    this.startTime = startTime.truncatedTo(ChronoUnit.MINUTES);
+    if(startTime != null){
+      this.startTime = startTime.truncatedTo(ChronoUnit.MINUTES);
+    } else {
+      this.startTime = startTime;
+    }
   }
 
   public LocalDateTime getStartTime(){
@@ -100,11 +105,29 @@ public class Event {
   }
 
   public void setEndTime(LocalDateTime endTime){
-    this.endTime = endTime.truncatedTo(ChronoUnit.MINUTES);
+    if(endTime != null){
+      this.endTime = endTime.truncatedTo(ChronoUnit.MINUTES);
+    } else {
+      this.endTime = endTime;
+    }
   }
 
   public LocalDateTime getEndTime(){
     return endTime;
+  }
+
+  /*
+ The start and end time are represented as strings as a workaround for a serialization limitation with the
+ LocalDateTime object
+  */
+  @JsonGetter("startTime")
+  public String getSerializedStartTime(){
+    return startTime.toString();
+  }
+
+  @JsonGetter("endTime")
+  public String getSerializedEndTime(){
+    return endTime.toString();
   }
 
   @JsonProperty(required = false)
@@ -125,6 +148,6 @@ public class Event {
   }
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
-        " \nname:"+this.name+"\n url:"+this.url;
+        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime;
   }
 }

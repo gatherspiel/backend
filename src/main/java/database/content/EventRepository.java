@@ -6,6 +6,11 @@ import app.groups.data.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import service.data.SearchParameterValidator;
@@ -90,7 +95,12 @@ public class EventRepository {
 
     updateEventGroupMap(groupId, eventId, conn);
     event.setId(eventId);
-    eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+
+    if(event.getStartTime() != null && event.getEndTime() != null){
+      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+    } else {
+      eventTimeRepository.setEventDay(event);
+    }
     return event;
   }
 
@@ -134,7 +144,10 @@ public class EventRepository {
     update.setInt(5, event.getId());
 
     update.executeUpdate();
-    eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+
+    if(event.getStartTime() != null && event.getEndTime() != null){
+      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+    }
     return event;
   }
 
@@ -156,8 +169,23 @@ public class EventRepository {
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("name"));
       event.getDescription(rs.getString("description"));
-      event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-      event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+      Timestamp start = rs.getTimestamp("start_time");
+      Timestamp end = rs.getTimestamp("end_time");
+
+      if(start != null){
+        event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+
+      } else {
+        String dayOfWeek = rs.getString("day_of_week");
+        var startTime = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));
+        event.setStartTime(startTime);
+      }
+      if(end != null){
+        event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+      } else {
+        event.setEndTime(event.getStartTime().plusHours(1));
+      }
       event.setId(rs.getInt("id"));
 
       EventLocation eventLocation = new EventLocation();

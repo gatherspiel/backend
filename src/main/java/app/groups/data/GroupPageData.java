@@ -101,7 +101,6 @@ public class GroupPageData {
           var startTime = event.getStartTime();
           var endTime = event.getEndTime();
           data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
-          System.out.println("Adding");
         }
       }
     }

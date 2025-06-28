@@ -165,7 +165,11 @@ public class EventServiceIntegrationTest {
 
     eventService.updateEvent(updated, group1.getId());
     Event eventFromDbA = eventService.getEvent(eventA.getId()).get();
+
     assertEquals(updated.getName(),eventFromDbA.getName());
+    assertEquals(updated.getStartTime(), eventFromDbA.getStartTime());
+    assertEquals(updated.getEndTime(), eventFromDbA.getEndTime());
+
   }
 
   @Test
@@ -238,6 +242,7 @@ public class EventServiceIntegrationTest {
 
     assertEquals(ids, createdEvents.keySet());
   }
+
   @Test
   public void testGroupAdmin_CanEditEvent_ForTheirGroup() throws Exception{
 
@@ -248,7 +253,30 @@ public class EventServiceIntegrationTest {
 
     Event updatedEventData = EventService.createEventObjectWithTestData();
     updatedEventData.setId(event.getId());
+    eventEditService.updateEvent(updatedEventData, group.getId());
 
+    Event eventFromDb = eventEditService.getEvent(event.getId()).get();
+    assertEquals(eventFromDb.getId(), event.getId());
+  }
+
+  @Test
+  public void testAdminCanCreateAndEditEvent_UndefinedStartTime() throws Exception{
+
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    var eventEditService = groupAdminContext.createEventService();
+
+    var eventToCreate = EventService.createEventObjectWithTestData();
+    eventToCreate.setStartTime(null);
+    eventToCreate.setEndTime(null);
+    eventToCreate.setDay("monday");
+
+    Event event = eventEditService.createEvent(eventToCreate, group.getId());
+    Optional<Event> originalEventFromDb = eventEditService.getEvent(event.getId());
+    assertTrue(originalEventFromDb.isPresent());
+
+    Event updatedEventData = EventService.createEventObjectWithTestData();
+    updatedEventData.setId(event.getId());
     eventEditService.updateEvent(updatedEventData, group.getId());
 
     Event eventFromDb = eventEditService.getEvent(event.getId()).get();

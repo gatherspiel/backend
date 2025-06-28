@@ -61,7 +61,7 @@ public class SearchRepository {
         LocalDateTime startTime = LocalDateTime.now();
 
         if(dayOfWeek != null){
-          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));;
+          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));
         }
         LocalDateTime endTime = startTime.plusHours(1);
 
@@ -102,7 +102,6 @@ public class SearchRepository {
             endTime,
             isRecurring
           );
-          System.out.println("Adding event to group:"+groupId);
         }
       }
     }

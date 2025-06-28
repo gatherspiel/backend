@@ -14,19 +14,19 @@ public class EventsApi {
 
   public static void eventEndpoints(Javalin app){
     app.get(
-      "groups/events/{eventId}/",
+      "groups/events/{id}/",
       ctx -> {
 
         try {
-          var eventId = ctx.pathParam("eventId");
+          var eventId = ctx.pathParam("id");
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
           Optional<Event> event = sessionContext.createEventService().getEvent(Integer.parseInt(eventId));
-
           if(event.isEmpty()){
             ctx.result("No event found for id:"+eventId);
             ctx.status(HttpStatus.NOT_FOUND);
           }
+
           ctx.json(event.get());
         } catch(NumberFormatException e) {
           ctx.result(e.getMessage());

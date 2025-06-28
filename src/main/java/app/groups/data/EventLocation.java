@@ -19,7 +19,7 @@ public class EventLocation {
   }
 
   public String getState(){
-    return state.toString();
+    return state != null ? state.toString() : "";
   }
 
   public void setStreetAddress(String streetAddress){
