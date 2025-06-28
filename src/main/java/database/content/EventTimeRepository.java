@@ -27,6 +27,10 @@ public class EventTimeRepository {
   public void setEventDay(Event event) throws Exception {
     if (!hasEventDay(event)) {
       String day = event.getDay();
+      if(day == null){
+        logger.warn("No day has been specified. The current day will be used");
+        day = LocalDateTime.now().getDayOfWeek().toString();
+      }
       String query =
         "INSERT into event_time (day_of_week, event_id) VALUES(cast(? AS dayofweek), ?)";
       PreparedStatement insert = conn.prepareStatement(query);
