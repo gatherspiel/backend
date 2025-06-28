@@ -1,11 +1,9 @@
 package app.service.edit;
 
 import app.SessionContext;
-import app.groups.data.Event;
-import app.groups.data.EventLocation;
+import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.groups.data.Group;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -198,25 +196,46 @@ public class EventServiceIntegrationTest {
   public void testCreateMultipleEvents_GroupPageData_HasCorrectEvents() throws Exception {
 
     var eventEditService = adminContext.createEventService();
-    var readGroupService = adminContext.createReadGroupService();
 
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    var eventA = eventEditService.createEvent(EventService.createEventObjectWithTestData(), group.getId());
-    var eventB = eventEditService.createEvent(EventService.createEventObjectWithTestData(), group.getId());
-    var eventC = eventEditService.createEvent(EventService.createEventObjectWithTestData(), group.getId());
-
-    Group groupFromDb = readGroupService.getGroup(group.getId()).get();
-
-    assertEquals(groupFromDb.events.length, 3);
-
-    Set<Integer> ids = new HashSet<>();
-    for(int i =0; i<groupFromDb.events.length; i++){
-      ids.add(groupFromDb.events[i].getId());
+    ArrayList<Event> eventsToAdd = new ArrayList<>();
+    for(int i =0; i< 3;i++){
+      var eventData= EventService.createEventObjectWithTestData();
+      var startTime = LocalDateTime.now();
+      var endTime  = LocalDateTime.now().plusHours(1+i);
+      eventData.setStartTime(startTime);
+      eventData.setStartTime(endTime);
+      eventsToAdd.add(eventData);
     }
 
-    var expected = new HashSet<>(Arrays.asList(eventA.getId(), eventB.getId(), eventC.getId()));
-    assertEquals(ids, expected);
+    HashMap<Integer,Event> createdEvents = new HashMap<>();
+    for(Event event: eventsToAdd){
+      var createdEvent = eventEditService.createEvent(event, group.getId());
+      createdEvents.put(createdEvent.getId(), createdEvent);
+    }
+
+    var groupService = adminContext.createReadGroupService();
+    GroupPageData data = groupService.getGroupPageData(new LinkedHashMap<>());
+
+    var groupEvents = data.getEventData();
+    assertEquals(groupEvents.size(), 3);
+
+    Set<Integer> ids = new HashSet<>();
+    for(GroupPageEventData eventData: data.getEventData()){
+      var eventId = eventData.getId();
+      ids.add(eventId);
+
+      var startTime = eventData.getStartTime();
+      var expectedStartTime = createdEvents.get(eventId).getStartTime();
+      assertEquals(startTime, expectedStartTime);
+
+      var endTime = eventData.getEndTime();
+      var expectedEndTime = createdEvents.get(eventId).getEndTime();
+      assertEquals(endTime, expectedEndTime);
+    }
+
+    assertEquals(ids, createdEvents.keySet());
   }
   @Test
   public void testGroupAdmin_CanEditEvent_ForTheirGroup() throws Exception{

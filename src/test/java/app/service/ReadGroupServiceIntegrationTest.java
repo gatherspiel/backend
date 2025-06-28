@@ -128,7 +128,6 @@ public class ReadGroupServiceIntegrationTest {
     GroupPageData result = groupService.getGroupPageData(
         params
     );
-        //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),

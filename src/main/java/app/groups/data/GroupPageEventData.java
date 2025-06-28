@@ -3,6 +3,7 @@ package app.groups.data;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 
 class GroupPageEventDataComparator implements Comparator<GroupPageEventData> {
@@ -20,19 +21,24 @@ public class GroupPageEventData {
   private String name;
   private String description;
   private String location;
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
   private int id;
 
-  public GroupPageEventData(LocalDate date, String name, String description, String location, int id) {
-    eventDate = date;
+  public GroupPageEventData(
+      String name,
+      String description,
+      String location,
+      int id,
+      LocalDateTime startTime,
+      LocalDateTime endTime)
+  {
     this.name = name;
     this.description = description;
     this.location = location;
     this.id = id;
-  }
-
-  @JsonGetter("eventDate")
-  public String getSerializedDate(){
-    return eventDate.toString();
+    this.startTime = startTime;
+    this.endTime = endTime;
   }
 
   public LocalDate getEventDate(){
@@ -69,5 +75,27 @@ public class GroupPageEventData {
 
   public int getId(){
     return id;
+  }
+
+  /*
+  The start and end time are represented as strings as a workaround for a serialization limitation with the
+  LocalDateTime object
+   */
+  @JsonGetter("startTime")
+  public String getSerializedStartTime(){
+    return startTime.toString();
+  }
+
+  @JsonGetter("endTime")
+  public String getSerializedEndTime(){
+    return endTime.toString();
+  }
+
+  public LocalDateTime getStartTime(){
+    return startTime;
+  }
+
+  public LocalDateTime getEndTime(){
+    return endTime;
   }
 }
