@@ -74,7 +74,6 @@ public class SessionContext {
     var conn = provider.getDatabaseConnection();
     var currentUser = AuthService.getReadOnlyUser();
 
-    System.out.println(currentUser);
     return new SessionContext(conn, currentUser);
   }
 }

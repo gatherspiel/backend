@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.Objects;
 
 class GroupPageEventDataComparator implements Comparator<GroupPageEventData> {
   public int compare(GroupPageEventData eventData1, GroupPageEventData eventData2) {
-    return eventData1.getEventDate().compareTo(eventData2.getEventDate());
+    return eventData1.getStartTime().compareTo(eventData2.getStartTime());
   }
 }
 
 // Event that will be shown on a group page.
 public class GroupPageEventData {
-
 
   private LocalDate eventDate;
 
@@ -97,5 +97,24 @@ public class GroupPageEventData {
 
   public LocalDateTime getEndTime(){
     return endTime;
+  }
+
+  @Override
+  public boolean equals(Object event){
+    var eventB = (Event)event;
+
+    return eventB.getId() == this.id;
+  }
+
+  @Override
+  public int hashCode(){
+    return Objects.hash(
+        eventDate,
+        name,
+        description,
+        location,
+        startTime,
+        endTime,
+        id);
   }
 }

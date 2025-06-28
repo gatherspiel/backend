@@ -202,10 +202,10 @@ public class EventServiceIntegrationTest {
     ArrayList<Event> eventsToAdd = new ArrayList<>();
     for(int i =0; i< 3;i++){
       var eventData= EventService.createEventObjectWithTestData();
-      var startTime = LocalDateTime.now();
-      var endTime  = LocalDateTime.now().plusHours(1+i);
+      var startTime = LocalDateTime.now().plusHours(i);;
+      var endTime  = LocalDateTime.now().plusHours(2+i);
       eventData.setStartTime(startTime);
-      eventData.setStartTime(endTime);
+      eventData.setEndTime(endTime);
       eventsToAdd.add(eventData);
     }
 
@@ -213,6 +213,7 @@ public class EventServiceIntegrationTest {
     for(Event event: eventsToAdd){
       var createdEvent = eventEditService.createEvent(event, group.getId());
       createdEvents.put(createdEvent.getId(), createdEvent);
+
     }
 
     var groupService = adminContext.createReadGroupService();
@@ -275,7 +276,6 @@ public class EventServiceIntegrationTest {
 
   @Test
   public void testStandardUser_CannotEditEvent() throws Exception {
-    System.out.println(groupAdminContext.getUser().getEmail());
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
     Event event = adminContext.createEventService().createEvent(event1, group.getId());

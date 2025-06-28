@@ -1,6 +1,8 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
@@ -72,6 +74,7 @@ public class GroupPageData {
       LocalDateTime endTime)
   {
     GroupPageEventData eventData = new GroupPageEventData(name, description, link, id, startTime, endTime);
+
     groupPageEventData.add(eventData);
   }
 
@@ -83,13 +86,8 @@ public class GroupPageData {
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
 
+        if(event.getIsRecurring()) { //Event is recurring
 
-        if(event.getStartTime() != null && event.getEndTime() != null) {
-          var startTime = event.getStartTime();
-          var endTime = event.getEndTime();
-          data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
-        }
-        else { //Event is recurring
           //TODO: Update logic for recurring events
           String day = event.getDay();
           LocalDateTime nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
@@ -98,6 +96,12 @@ public class GroupPageData {
             data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(), nextEventDate, nextEventDate);
             nextEventDate = nextEventDate.plusDays(7);
           }
+        }
+        else if(event.getStartTime() != null && event.getEndTime() != null) {
+          var startTime = event.getStartTime();
+          var endTime = event.getEndTime();
+          data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
+          System.out.println("Adding");
         }
       }
     }

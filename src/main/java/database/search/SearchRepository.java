@@ -1,15 +1,25 @@
 package database.search;
 
 import app.result.GroupSearchResult;
+import net.bytebuddy.asm.Advice;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SearchRepository {
 
   private Connection conn;
+
+  private static final Logger logger = LogUtils.getLogger();
 
   public SearchRepository(Connection conn){
     this.conn = conn;
@@ -26,6 +36,7 @@ public class SearchRepository {
 
     GroupSearchResult searchResult = new GroupSearchResult();
     while (rs.next()) {
+
       Integer groupId = rs.getInt("groupId");
 
       String groupName = rs.getString("name");
@@ -45,28 +56,53 @@ public class SearchRepository {
         String city = rs.getString("city");
         String state = rs.getString("state");
         String zipCode = rs.getString("zip_code");
+        boolean isRecurring = false;
+
+        LocalDateTime startTime = LocalDateTime.now();
+
+        if(dayOfWeek != null){
+          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));;
+        }
+        LocalDateTime endTime = startTime.plusHours(1);
+
+        Timestamp start = rs.getTimestamp("start_time");
+        Timestamp end = rs.getTimestamp("end_time");
+        if(start != null) {
+          startTime = start.toLocalDateTime();
+        }
+        if(end != null){
+          endTime = end.toLocalDateTime();
+        }
+        if (start == null){
+          logger.warn("A null value for the event day is being used as a temporary placeholder to represent recurring events ");
+          isRecurring = true;
+        }
 
         if (eventId != 0) {
           String address =
               streetAddress + ", " + city + ", " + state + " " + zipCode;
 
           if (
-              streetAddress == null ||
-                  city == null ||
-                  state == null ||
-                  zipCode == null
+            streetAddress == null ||
+            city == null ||
+            state == null ||
+            zipCode == null
           ) {
             address = "";
           }
           searchResult.addEvent(
-              groupId,
-              eventId,
-              eventName,
-              description,
-              dayOfWeek,
-              address,
-              city
+            groupId,
+            eventId,
+            eventName,
+            description,
+            dayOfWeek,
+            address,
+            city,
+            startTime,
+            endTime,
+            isRecurring
           );
+          System.out.println("Adding event to group:"+groupId);
         }
       }
     }
