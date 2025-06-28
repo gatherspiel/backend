@@ -18,7 +18,6 @@ public class GroupPermissionService {
     groupsRepository = new GroupsRepository(conn);
     this.conn = conn;
     this.user = user;
-    System.out.println(user);
   }
 
   public void setGroupAdmin(User userToUpdate, int groupId) throws Exception{

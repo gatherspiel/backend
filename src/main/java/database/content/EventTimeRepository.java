@@ -36,11 +36,11 @@ public class EventTimeRepository {
     }
   }
 
-  public void deleteEventTimeInfo(Event event) throws Exception {
+  public void deleteEventTimeInfo(int eventId) throws Exception {
 
     String query = "DELETE  FROM event_time where event_id = ?";
     PreparedStatement delete = conn.prepareStatement(query);
-    delete.setInt(1, event.getId());
+    delete.setInt(1, eventId);
     delete.executeUpdate();
   }
 

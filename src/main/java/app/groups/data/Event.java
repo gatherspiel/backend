@@ -11,7 +11,7 @@ public class Event {
   private String description;
   private String name;
   private String url;
-
+  private Boolean isRecurring;
   private LocalDateTime startTime;
   private LocalDateTime endTime;
 
@@ -35,7 +35,9 @@ public class Event {
   }
 
   public void setDay(String day) {
-    this.day = day.toLowerCase();
+    if(day != null){
+      this.day = day.toLowerCase();
+    }
   }
 
   public String getLocation() {
@@ -114,6 +116,13 @@ public class Event {
     this.eventLocation = eventLocation;
   }
 
+  public boolean getIsRecurring(){
+    return isRecurring;
+  }
+
+  public void setIsRecurring(boolean isRecurring){
+    this.isRecurring = isRecurring;
+  }
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
         " \nname:"+this.name+"\n url:"+this.url;

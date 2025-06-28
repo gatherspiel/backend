@@ -4,6 +4,7 @@ import app.admin.request.BulkUpdateInputRequest;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
@@ -69,14 +70,14 @@ public class Main {
 
           logger.info("Search time:"+((end-start)/100));
           ctx.json(groupSearchResult);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
 
           logger.info("Finished search");
 
         } catch (Exception e) {
           e.printStackTrace();
           ctx.result("Invalid search parameter");
-          ctx.status(400);
+          ctx.status(HttpStatus.BAD_REQUEST);
         }
       }
     );
@@ -93,7 +94,7 @@ public class Main {
           logger.info("Retrieved game location data");
 
           ctx.json(gameLocationData);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
 
         });
 
@@ -110,7 +111,7 @@ public class Main {
           var cities = gameLocationsService.getAllEventLocations(areaFilter);
           logger.info("Retrieved event cities");
           ctx.json(cities);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
         });
 
     //TODO: Consider deleting this endpoint.

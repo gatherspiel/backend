@@ -39,7 +39,7 @@ public class ReadGroupServiceIntegrationTest {
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
-
+  private static SessionContext sessionContext;
   Context ctx = mock(Context.class);
 
   private static MockedStatic<AuthService> authMock;
@@ -53,13 +53,10 @@ public class ReadGroupServiceIntegrationTest {
       authMock = mockStatic(AuthService.class);
       authMock.when(()->AuthService.getReadOnlyUser()).thenReturn(new User("reader@dmvboardgames.com", UserType.READONLY, 123));
 
-      var session = SessionContext.createContextWithoutUser(testConnectionProvider);
-
+      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
-
       DbUtils.initializeData(testConnectionProvider);
-
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -73,12 +70,12 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "test2");
 
     Exception exception = assertThrows(
-        Exception.class,
-        () -> {
-          GroupPageData result = groupService.getGroupPageData(
-              params
-          );
-        }
+      Exception.class,
+      () -> {
+        GroupPageData result = groupService.getGroupPageData(
+            params
+        );
+      }
     );
     assertTrue(exception.getMessage().contains("No group found"));
   }
@@ -90,12 +87,12 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "test2");
 
     Exception exception = assertThrows(
-        Exception.class,
-        () -> {
-          GroupPageData result = groupService.getGroupPageData(
-              params
-          );
-        }
+      Exception.class,
+      () -> {
+        GroupPageData result = groupService.getGroupPageData(
+            params
+        );
+      }
     );
     assertTrue(exception.getMessage().contains("No group found"));
   }
@@ -107,12 +104,12 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "Game_Nights_at_Crossroads");
 
     Exception exception = assertThrows(
-        Exception.class,
-        () -> {
-          GroupPageData result = groupService.getGroupPageData(
-              params
-          );
-        }
+      Exception.class,
+      () -> {
+        GroupPageData result = groupService.getGroupPageData(
+            params
+        );
+      }
     );
     assertTrue(exception.getMessage().contains("No group found"));
   }
@@ -124,11 +121,9 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
 
-
     GroupPageData result = groupService.getGroupPageData(
         params
     );
-        //TODO: Verify event id;
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
         () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
@@ -142,7 +137,7 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
     );
 
@@ -156,9 +151,9 @@ public class ReadGroupServiceIntegrationTest {
       }
 
       Assertions.assertAll(
-         () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
+         () -> assertEquals(data.getStartTime().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertTrue(data.getDescription().contains("Like playing board games after meeting new people?"),
+      () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
           data.getDescription()),
       () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314")
       );

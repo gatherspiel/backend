@@ -1,8 +1,10 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import org.apache.logging.log4j.Logger;
+import utils.LogUtils;
+
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
@@ -60,30 +62,46 @@ public class GroupPageData {
     this.description = description;
   }
 
-
   public Set<GroupPageEventData> getEventData(){
     return this.groupPageEventData;
   }
 
-  public void addEventData(LocalDate date, String name, String description, String link, int id){
-    GroupPageEventData eventData = new GroupPageEventData(date, name, description, link, id);
+  public void addEventData(
+      String name,
+      String description,
+      String link, int id,
+      LocalDateTime startTime,
+      LocalDateTime endTime)
+  {
+    GroupPageEventData eventData = new GroupPageEventData(name, description, link, id, startTime, endTime);
+
     groupPageEventData.add(eventData);
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
-    LocalDate currentDate = LocalDate.now();
+    LocalDateTime currentDate = LocalDateTime.now();
 
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
 
-        //TODO: Handle case where events are not recurring
-        String day = event.getDay();
-        LocalDate nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
-        while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
-          data.addEventData(nextEventDate, event.getName(), event.getDescription(), event.getLocation(), event.getId());
-          nextEventDate = nextEventDate.plusDays(7);
+        if(event.getIsRecurring()) { //Event is recurring
+
+          //TODO: Update logic for recurring events
+          String day = event.getDay();
+          LocalDateTime nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
+
+          while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
+            data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(), nextEventDate, nextEventDate);
+            nextEventDate = nextEventDate.plusDays(7);
+          }
+        }
+        else if(event.getStartTime() != null && event.getEndTime() != null) {
+          var startTime = event.getStartTime();
+          var endTime = event.getEndTime();
+          data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
+          System.out.println("Adding");
         }
       }
     }

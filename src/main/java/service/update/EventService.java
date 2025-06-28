@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EventEditService {
+public class EventService {
 
   Connection connection;
   EventRepository eventRepository;
   GroupPermissionService groupPermissionService;
   User user;
 
-  public EventEditService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
+  public EventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
     this.connection = connection;
     this.eventRepository = eventRepository;
     this.groupPermissionService = groupPermissionService;
@@ -36,7 +36,7 @@ public class EventEditService {
    * @param groupId
    * @return Event with a unique id.
    */
-  public Event addEvent(Event event, int groupId) throws Exception{
+  public Event createEvent(Event event, int groupId) throws Exception{
 
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
@@ -51,11 +51,11 @@ public class EventEditService {
     return eventRepository.updateEvent(event);
   }
 
-  public void deleteEvent(Event event, int groupId) throws Exception {
+  public void deleteEvent(int eventId, int groupId) throws Exception {
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    eventRepository.deleteEvent(event, groupId);
+    eventRepository.deleteEvent(eventId, groupId);
   }
 
   public static Event createEventObject(
