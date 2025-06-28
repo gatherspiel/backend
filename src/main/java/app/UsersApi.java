@@ -1,4 +1,4 @@
-package app.users;
+package app;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.javalin.Javalin;
@@ -9,7 +9,7 @@ import utils.LogUtils;
 public class UsersApi {
   public static Logger logger = LogUtils.getLogger();
 
-  public static void createEndpoints(Javalin app){
+  public static void userEndpoints(Javalin app){
     app.post(
         "/users/register",
         ctx -> {

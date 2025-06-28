@@ -1,5 +1,6 @@
 package app.service.edit;
 
+import app.SessionContext;
 import app.groups.data.Event;
 import app.users.data.User;
 import app.groups.data.EventLocation;
@@ -7,6 +8,7 @@ import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.groups.data.Group;
 import app.utils.CreateGroupUtils;
+import app.utils.CreateUserUtils;
 import database.content.EventRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,10 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,12 +51,8 @@ public class EventEditServiceIntegrationTest {
 
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
-  private static EventEditService eventEditService;
   private static Connection conn;
 
-  private static User admin;
-  private static User groupAdmin;
-  private static User standardUser;
 
   private static LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
   private static LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
@@ -68,6 +63,11 @@ public class EventEditServiceIntegrationTest {
   private static EventLocation location1;
   private static EventLocation location2;
 
+
+  private static SessionContext adminContext;
+  private static SessionContext groupAdminContext;
+  private static SessionContext standardUserContext;
+
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
@@ -75,7 +75,6 @@ public class EventEditServiceIntegrationTest {
     try {
 
       conn = testConnectionProvider.getDatabaseConnection();
-      eventEditService = new EventEditService(testConnectionProvider.getDatabaseConnection(), new EventRepository(conn), new GroupPermissionService(conn));
       DbUtils.createTables(conn);
 
       event1=EventEditService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
@@ -95,13 +94,10 @@ public class EventEditServiceIntegrationTest {
       location2.setCity("Washington");
       event2.setEventLocation(location2);
 
+      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      groupAdminContext = CreateUserUtils.createContextWithNewStandardUser(GROUP_ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
 
-      UserService createUserService
-          = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
-
-      admin = createUserService.createAdmin(ADMIN_USERNAME);
-      groupAdmin = createUserService.createStandardUser(GROUP_ADMIN_USERNAME);
-      standardUser = createUserService.createStandardUser(STANDARD_USER_USERNAME);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -111,9 +107,10 @@ public class EventEditServiceIntegrationTest {
 
   @Test
   public void testCreateOneEvent() throws Exception{
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    Event event = eventEditService.addEvent(event1, group.getId(), admin);
+    EventEditService eventEditService = adminContext.createEventEditService();
+    Event event = eventEditService.addEvent(event1, group.getId());
     Event eventFromDb = eventEditService.getEvent(event.getId()).get();
 
     assertEquals(EVENT_NAME_1, eventFromDb.getName());
@@ -122,10 +119,12 @@ public class EventEditServiceIntegrationTest {
   @Test
   public void testCreateMultipleEvents() throws Exception{
 
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    Event eventA = eventEditService.addEvent(event1, group.getId(), admin);
-    Event eventB = eventEditService.addEvent(event2, group.getId(), admin);
+    EventEditService eventEditService = groupAdminContext.createEventEditService();
+
+    Event eventA = eventEditService.addEvent(event1, group.getId());
+    Event eventB = eventEditService.addEvent(event2, group.getId());
 
     Event eventFromDbA = eventEditService.getEvent(eventA.getId()).get();
     Event eventFromDbB = eventEditService.getEvent(eventB.getId()).get();
@@ -154,22 +153,25 @@ public class EventEditServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        eventEditService.addEvent(event1, -1, admin);
+        EventEditService eventEditService = groupAdminContext.createEventEditService();
+        eventEditService.addEvent(event1, -1);
       }
     );
-    assertTrue(exception.getMessage().contains("User does not have permission"), exception.getMessage());
+    assertTrue(exception.getMessage().contains("not found"), exception.getMessage());
   }
 
   @Test
   public void testCreateOneEvent_AndUpdateEvent() throws Exception{
 
-    Group group1 = CreateGroupUtils.createGroup(groupAdmin, conn);
-    Event eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group1.getId(), admin);
+    Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventEditService eventEditService = groupAdminContext.createEventEditService();
+    Event eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group1.getId());
 
     Event updated = EventEditService.createEventObjectWithTestData();
     updated.setId(eventA.getId());
 
-    eventEditService.updateEvent(updated, group1.getId(), admin);
+    eventEditService.updateEvent(updated, group1.getId());
     Event eventFromDbA = eventEditService.getEvent(eventA.getId()).get();
     assertEquals(updated.getName(),eventFromDbA.getName());
   }
@@ -177,18 +179,20 @@ public class EventEditServiceIntegrationTest {
   @Test
   public void testCreateMultipleEventsToDifferentGroups_AndFirstOneIsChanged() throws Exception{
 
-    Group group1 = CreateGroupUtils.createGroup(groupAdmin, conn);
-    Group group2 = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    Event eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group1.getId(), admin);
-    Event eventB = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group2.getId(), admin);
+    EventEditService eventEditService = groupAdminContext.createEventEditService();
+
+    Event eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group1.getId());
+    Event eventB = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group2.getId());
 
     Event updated = EventEditService.createEventObjectWithTestData();
     updated.setId(eventA.getId());
     updated.setName("Test");
 
 
-    eventEditService.updateEvent(updated, group1.getId(), admin);
+    eventEditService.updateEvent(updated, group1.getId());
     Event eventFromDbA = eventEditService.getEvent(eventA.getId()).get();
     Event eventFromDbB = eventEditService.getEvent(eventB.getId()).get();
 
@@ -199,13 +203,15 @@ public class EventEditServiceIntegrationTest {
   @Test
   public void testCreateMultipleEvents_GroupPageData_HasCorrectEvents() throws Exception {
 
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    var eventEditService = adminContext.createEventEditService();
+    var readGroupService = adminContext.createReadGroupService();
 
-    var eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId(), admin);
-    var eventB = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId(), admin);
-    var eventC = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId(), admin);
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    ReadGroupService readGroupService = new ReadGroupService(ReadGroupDataProvider.create(conn), conn);
+    var eventA = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId());
+    var eventB = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId());
+    var eventC = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId());
+
     Group groupFromDb = readGroupService.getGroup(group.getId()).get();
 
     assertEquals(groupFromDb.events.length, 3);
@@ -221,13 +227,15 @@ public class EventEditServiceIntegrationTest {
   @Test
   public void testGroupAdmin_CanEditEvent_ForTheirGroup() throws Exception{
 
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
-    Event event = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId(), admin);
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    var eventEditService = groupAdminContext.createEventEditService();
+    Event event = eventEditService.addEvent(EventEditService.createEventObjectWithTestData(), group.getId());
 
     Event updatedEventData = EventEditService.createEventObjectWithTestData();
     updatedEventData.setId(event.getId());
 
-    eventEditService.updateEvent(updatedEventData, group.getId(),groupAdmin);
+    eventEditService.updateEvent(updatedEventData, group.getId());
 
     Event eventFromDb = eventEditService.getEvent(event.getId()).get();
     assertEquals(eventFromDb.getId(), event.getId());
@@ -235,16 +243,18 @@ public class EventEditServiceIntegrationTest {
 
   @Test
   public void testGroupAdmin_CannotEditEvent_ForOtherGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    Group group2 = CreateGroupUtils.createGroup(admin, conn);
-    eventEditService.addEvent(event2, group2.getId(), admin);
+    adminContext.createEventEditService().addEvent(event2, group2.getId());
 
     Exception exception = assertThrows(
       Exception.class,
       () -> {
+        EventEditService editService = groupAdminContext.createEventEditService();
+
         Event updated = EventEditService.createEventObjectWithTestData();
-        eventEditService.updateEvent(updated, group2.getId(), groupAdmin);
+        editService.updateEvent(updated, group2.getId());
       }
     );
     assertTrue(exception.getMessage().contains("does not have permission"),exception.getMessage());
@@ -252,14 +262,15 @@ public class EventEditServiceIntegrationTest {
 
   @Test
   public void testStandardUser_CannotEditEvent() throws Exception {
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    System.out.println(groupAdminContext.getUser().getEmail());
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    Event event = eventEditService.addEvent(event1, group.getId(), admin);
+    Event event = adminContext.createEventEditService().addEvent(event1, group.getId());
     Exception exception = assertThrows(
         Exception.class,
         () -> {
           Event updated = EventEditService.createEventObjectWithTestData();
-          eventEditService.updateEvent(updated, event.getId(), standardUser);
+          standardUserContext.createEventEditService().updateEvent(updated, event.getId());
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"),exception.getMessage());
@@ -267,11 +278,11 @@ public class EventEditServiceIntegrationTest {
 
   @Test
   public void testGroupAdmin_CanDeleteEvent_ForTheirGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventEditService eventEditService = groupAdminContext.createEventEditService();
 
-    Event event = eventEditService.addEvent(event1, group.getId(), admin);
-
-    eventEditService.deleteEvent(event, group.getId(), groupAdmin);
+    Event event = eventEditService.addEvent(event1, group.getId());
+    eventEditService.deleteEvent(event, group.getId());
     Optional<Event> groupEvent = eventEditService.getEvent(event1.getId());
     assertTrue(groupEvent.isEmpty());
   }
@@ -279,14 +290,18 @@ public class EventEditServiceIntegrationTest {
   @Test
   public void testGroupAdmin_CannotDeleteEvent_ForOtherGroup() throws Exception{
 
-    CreateGroupUtils.createGroup(groupAdmin, conn);
-    Group group2 = CreateGroupUtils.createGroup(admin, conn);
+    CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    Event event = eventEditService.addEvent(event1, group2.getId(), admin);
+    EventEditService eventEditService = adminContext.createEventEditService();
+
+    Event event = eventEditService.addEvent(event1, group2.getId());
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          eventEditService.deleteEvent(event, group2.getId(), groupAdmin);
+
+          EventEditService editServiceB = groupAdminContext.createEventEditService();
+          editServiceB.deleteEvent(event, group2.getId());
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
@@ -294,13 +309,13 @@ public class EventEditServiceIntegrationTest {
 
   @Test
   public void testStandardUser_CannotDeleteEvent() throws Exception {
-    Group group = CreateGroupUtils.createGroup(groupAdmin, conn);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    Event event = eventEditService.addEvent(event1, group.getId(), admin);
+    Event event = adminContext.createEventEditService().addEvent(event1, group.getId());
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          eventEditService.deleteEvent(event, group.getId(), standardUser);
+          standardUserContext.createEventEditService().deleteEvent(event, group.getId());
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
