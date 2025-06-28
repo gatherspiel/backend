@@ -39,7 +39,6 @@ public class SessionContext {
   }
 
   public ReadGroupService createReadGroupService() {
-    System.out.println("User:"+user);
     var readGroupDataProvider = ReadGroupDataProvider.create(conn, user);
     return new ReadGroupService(readGroupDataProvider, conn);
   }

@@ -14,11 +14,11 @@ public class EventsApi {
 
   public static void eventEndpoints(Javalin app){
     app.get(
-      "groups/events/:id/",
+      "groups/events/{eventId}/",
       ctx -> {
 
         try {
-          var eventId = ctx.pathParam("id");
+          var eventId = ctx.pathParam("eventId");
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
           Optional<Event> event = sessionContext.createEventService().getEvent(Integer.parseInt(eventId));
@@ -41,7 +41,7 @@ public class EventsApi {
     );
 
     app.delete(
-      "groups/:groupId/events/:eventId",
+      "groups/{groupId}/events/{eventId}",
       ctx -> {
 
         try {
@@ -65,7 +65,7 @@ public class EventsApi {
     );
 
     app.post(
-        "groups/:groupId/events/",
+        "groups/{groupId}/events/",
         ctx -> {
 
           try {
@@ -88,7 +88,7 @@ public class EventsApi {
     );
 
     app.put(
-        "groups/:groupId/events/",
+        "groups/{groupId}/events/",
         ctx -> {
 
           try {

@@ -97,7 +97,7 @@ public class GroupSearchParams {
                     groups.url,
                     groups.description,
                     events.name as eventName,
-                    events.description,
+                    events.description as eventDescription,
                     event_time.day_of_week,
                     locations.state,
                     locations.street_address,

@@ -158,7 +158,7 @@ public class ReadGroupServiceIntegrationTest {
       Assertions.assertAll(
          () -> assertEquals(data.getEventDate().getDayOfWeek(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertTrue(data.getDescription().contains("Like playing board games after meeting new people?"),
+      () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
           data.getDescription()),
       () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314")
       );

@@ -38,7 +38,7 @@ public class SearchRepository {
 
         Integer eventId = rs.getInt("eventId");
         String eventName = rs.getString("eventname");
-        String description = rs.getString("description");
+        String description = rs.getString("eventDescription");
         String dayOfWeek = rs.getString("day_of_week");
 
         String streetAddress = rs.getString("street_address");
