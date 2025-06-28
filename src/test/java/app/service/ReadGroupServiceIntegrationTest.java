@@ -7,6 +7,7 @@ import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.groups.data.GroupPageData;
 import app.groups.data.GroupPageEventData;
+import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
@@ -26,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +36,6 @@ import static org.mockito.Mockito.*;
 public class ReadGroupServiceIntegrationTest {
 
   private static ReadGroupService groupService;
-  private static UserService userService;
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
@@ -47,15 +48,18 @@ public class ReadGroupServiceIntegrationTest {
     testConnectionProvider = new IntegrationTestConnectionProvider();
 
     try {
+      conn = testConnectionProvider.getDatabaseConnection();
 
       authMock = mockStatic(AuthService.class);
+      authMock.when(()->AuthService.getReadOnlyUser()).thenReturn(new User("reader@dmvboardgames.com", UserType.READONLY, 123));
+
       var session = SessionContext.createContextWithoutUser(testConnectionProvider);
 
-      userService = session.createUserService();
-      groupService = session.createReadGroupService();
 
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
+
       DbUtils.initializeData(testConnectionProvider);
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -195,7 +199,7 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_showsEditPermissionsForAdminUser() throws Exception{
 
-    var sessionContext = CreateUserUtils.createContextWithNewAdminUser(testConnectionProvider, "test1");
+    var sessionContext = CreateUserUtils.createContextWithNewAdminUser( "test1_"+ UUID.randomUUID(),testConnectionProvider);
     groupService = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -210,7 +214,7 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_doesNotShowEditPermissions_whenRegularUserIsLoggedIn() throws Exception{
 
-    var sessionContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test1");
+    var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test1",testConnectionProvider);
     groupService = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -225,8 +229,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_onlyShowsEditPermissions_forStandardUser_whoIsGroupAdmin() throws Exception{
 
-    var sessionContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test_3");
-    var sessionContext2 = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test_4");
+    var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test_3",testConnectionProvider);
+    var sessionContext2 = CreateUserUtils.createContextWithNewStandardUser("test_4",testConnectionProvider);
 
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
     ReadGroupService groupService1 = sessionContext.createReadGroupService();
@@ -248,14 +252,14 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_showsEditPermissions_whenUserIsGroupModerator() throws Exception{
 
-    var sessionContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test_5");
-    var sessionContext2 = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test_6");
+    var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test_5",testConnectionProvider);
+    var sessionContext2 = CreateUserUtils.createContextWithNewStandardUser("test_6",testConnectionProvider);
 
     GroupPermissionService groupPermissionService = sessionContext.createGroupPermissionService();
     ReadGroupService readGroupService = sessionContext.createReadGroupService();
 
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
-    groupPermissionService.addGroupModerator(sessionContext.getUser(), sessionContext2.getUser(), group.getId());
+    groupPermissionService.addGroupModerator(sessionContext2.getUser(), group.getId());
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
@@ -268,7 +272,7 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testGetGroupData_doesNotShowEditPermissions_whenUserIsNotLoggedIn() throws Exception{
 
-    var sessionContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider,"test_7");
+    var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test_7",testConnectionProvider);
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
 
     var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);

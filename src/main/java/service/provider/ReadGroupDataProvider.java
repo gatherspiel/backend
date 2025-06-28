@@ -41,6 +41,7 @@ public class ReadGroupDataProvider {
   }
   public static ReadGroupDataProvider create(Connection conn, User user){
 
+    System.out.println("User:"+user);
     var searchService = new SearchService(conn);
     var groupPermissionService = new GroupPermissionService(conn, user);
     var groupRepository = new GroupsRepository(conn);

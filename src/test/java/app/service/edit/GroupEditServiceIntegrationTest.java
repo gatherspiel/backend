@@ -28,11 +28,6 @@ public class GroupEditServiceIntegrationTest {
   private static final String USERNAME_3 = "user2@test";
   private static final String USERNAME_4 = "user3@test";
 
-  private static User admin;
-  private static User standardUser;
-  private static User standardUser2;
-  private static User standardUser3;
-
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
@@ -56,16 +51,16 @@ public class GroupEditServiceIntegrationTest {
     testConnectionProvider = new IntegrationTestConnectionProvider();
 
     try {
-      Connection conn = testConnectionProvider.getDatabaseConnection();
+      conn = testConnectionProvider.getDatabaseConnection();
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      adminContext = CreateUserUtils.createContextWithNewAdminUser(testConnectionProvider, ADMIN_USERNAME);
-      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_2);
-      standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_3);
-      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(testConnectionProvider, USERNAME_4);
+      adminContext = CreateUserUtils.createContextWithNewAdminUser( ADMIN_USERNAME,testConnectionProvider);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser( USERNAME_2,testConnectionProvider);
+      standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_3,testConnectionProvider);
+      standardUserContext3 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_4,testConnectionProvider);
       readOnlyUserContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
     } catch(Exception e){
@@ -76,7 +71,7 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
-    Group group = CreateGroupUtils.createGroup(admin, conn);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
 
@@ -92,7 +87,7 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testUserCannotEditGroup_whenTheyAreStandardUser() throws Exception{
-    Group group = CreateGroupUtils.createGroup(admin, conn);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -108,7 +103,7 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testSiteAdminCanEditGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -122,7 +117,7 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testGroupAdminCanEditGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -148,8 +143,8 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testGroupAdminCannotEditGroup_whenTheyAreNotAdminOfThatGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
-    CreateGroupUtils.createGroup(standardUser2,conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+    CreateGroupUtils.createGroup(standardUserContext2.getUser(),conn);
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -166,9 +161,9 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testGroupModeratorCanEditGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
-    standardUserContext.createGroupPermissionService().addGroupModerator(standardUser2, group.getId());
+    standardUserContext.createGroupPermissionService().addGroupModerator(standardUserContext2.getUser(), group.getId());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group.getId());
@@ -180,10 +175,10 @@ public class GroupEditServiceIntegrationTest {
 
   @Test
   public void testGroupModeratorCannotEditGroup_whenTheyAreNotAdminOfThatGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
-    Group group2 = CreateGroupUtils.createGroup(standardUser2, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(standardUserContext2.getUser(), conn);
 
-    standardUserContext.createGroupPermissionService().addGroupModerator(standardUser3, group.getId());
+    standardUserContext.createGroupPermissionService().addGroupModerator(standardUserContext3.getUser(), group.getId());
 
     Group updated = CreateGroupUtils.createGroupObject();
     updated.setId(group2.getId());
@@ -200,7 +195,7 @@ public class GroupEditServiceIntegrationTest {
   @Test
   public void testGroupAdminCanDeleteGroup() throws Exception {
 
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     standardUserContext.createGroupEditService().deleteGroup(group.getId());
 
@@ -211,7 +206,7 @@ public class GroupEditServiceIntegrationTest {
   @Test
   public void testStandardUserCannotDeleteGroup() throws Exception {
 
-    Group group = CreateGroupUtils.createGroup(standardUser, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Exception exception = assertThrows(
         Exception.class,

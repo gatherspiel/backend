@@ -39,6 +39,7 @@ public class SessionContext {
   }
 
   public ReadGroupService createReadGroupService() {
+    System.out.println("User:"+user);
     var readGroupDataProvider = ReadGroupDataProvider.create(conn, user);
     return new ReadGroupService(readGroupDataProvider, conn);
   }
@@ -59,8 +60,11 @@ public class SessionContext {
     return user;
   }
 
-  public static SessionContext createContextWithUser(Context ctx, ConnectionProvider provider) throws Exception{
+  public Connection getDatabaseConnection() {
+    return conn;
+  }
 
+  public static SessionContext createContextWithUser(Context ctx, ConnectionProvider provider) throws Exception{
     var conn = provider.getDatabaseConnection();
     var currentUser = AuthService.getUser(conn, ctx);
 
@@ -71,10 +75,7 @@ public class SessionContext {
     var conn = provider.getDatabaseConnection();
     var currentUser = AuthService.getReadOnlyUser();
 
+    System.out.println(currentUser);
     return new SessionContext(conn, currentUser);
   }
-
-
-
-
 }

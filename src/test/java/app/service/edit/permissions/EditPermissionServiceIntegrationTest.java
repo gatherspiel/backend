@@ -1,10 +1,12 @@
 package app.service.edit.permissions;
 
+import app.SessionContext;
 import app.groups.data.Group;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
+import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.permissions.GroupPermissionService;
@@ -22,15 +24,14 @@ public class EditPermissionServiceIntegrationTest {
   private static final String USERNAME_3 = "user3";
   private static final String USERNAME_4 = "user4";
 
-  private static UserService createUserService;
-  private static GroupPermissionService groupPermissionService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
 
-  private static User admin;
-  private static User user;
-  private static User user2;
-  private static User user3;
-  private static User user4;
+
+  private static SessionContext adminContext;
+  private static SessionContext standardUserContext;
+  private static SessionContext standardUserContext2;
+  private static SessionContext standardUserContext3;
+  private static SessionContext standardUserContext4;
 
   private static Connection conn;
   @BeforeAll
@@ -39,19 +40,17 @@ public class EditPermissionServiceIntegrationTest {
     testConnectionProvider = new IntegrationTestConnectionProvider();
     conn = testConnectionProvider.getDatabaseConnection();
 
-    groupPermissionService = new GroupPermissionService(conn);
-    createUserService = new UserService(UserService.DataProvider.createDataProvider(conn));
     try {
       System.out.println("Creating tables");
       DbUtils.createTables(conn);
       System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
-      admin = createUserService.createAdmin(ADMIN_USERNAME);
-      user = createUserService.createStandardUser(USERNAME_1);
-      user2 = createUserService.createStandardUser(USERNAME_2);
-      user3 = createUserService.createStandardUser(USERNAME_3);
-      user4 = createUserService.createStandardUser(USERNAME_4);
+      adminContext = CreateUserUtils.createContextWithNewAdminUser( ADMIN_USERNAME,testConnectionProvider);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser(USERNAME_1,testConnectionProvider);
+      standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_2,testConnectionProvider);
+      standardUserContext3 = CreateUserUtils.createContextWithNewStandardUser(USERNAME_3,testConnectionProvider);
+      standardUserContext4 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_4,testConnectionProvider);
 
     } catch(Exception e){
       e.printStackTrace();
@@ -61,34 +60,43 @@ public class EditPermissionServiceIntegrationTest {
 
   @Test
   public void testSiteAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
-    Group group = CreateGroupUtils.createGroup(admin, conn);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    groupPermissionService.setGroupAdmin(admin, user, group.getId());
-    assertTrue(groupPermissionService.canEditGroup(user, group.getId()));
-    assertFalse(groupPermissionService.canEditGroup(user2, group.getId()));
+    adminContext.createGroupPermissionService().setGroupAdmin(standardUserContext.getUser(), group.getId());
 
-    groupPermissionService.setGroupAdmin(admin, user2, group.getId());
-    assertFalse(groupPermissionService.canEditGroup(user, group.getId()));
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId()));
+    GroupPermissionService adminPermissionService = adminContext.createGroupPermissionService();
+    GroupPermissionService permissionService = standardUserContext.createGroupPermissionService();
+    GroupPermissionService permissionService2 = standardUserContext2.createGroupPermissionService();
+
+    assertTrue(permissionService.canEditGroup(group.getId()));
+    assertFalse(permissionService2.canEditGroup(group.getId()));
+
+    adminPermissionService.setGroupAdmin(standardUserContext2.getUser(), group.getId());
+    assertFalse(permissionService.canEditGroup(group.getId()));
+    assertTrue(permissionService2.canEditGroup(group.getId()));
   }
 
   @Test
   public void testGroupAdmin_canEdit_groupPermissionLevelForUser() throws Exception{
-    Group group = CreateGroupUtils.createGroup(user, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
-    groupPermissionService.addGroupModerator(user, user2, group.getId());
-    assertTrue(groupPermissionService.canEditGroup(user, group.getId()));
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId()));
+    GroupPermissionService permissionService1 = standardUserContext.createGroupPermissionService();
+    GroupPermissionService permissionService2 = standardUserContext2.createGroupPermissionService();
+
+    permissionService1.addGroupModerator(standardUserContext2.getUser(), group.getId());
+    assertTrue(permissionService1.canEditGroup(group.getId()));
+    assertTrue(permissionService2.canEditGroup(group.getId()));
   }
 
   @Test
   public void testGroupAdmin_cannotEdit_groupPermissionLevelForDifferentGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(user, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user2, user2, group.getId());
+          standardUserContext2.createGroupPermissionService()
+              .addGroupModerator(standardUserContext2.getUser(), group.getId());
 
         }
     );
@@ -97,24 +105,28 @@ public class EditPermissionServiceIntegrationTest {
 
   @Test
   public void testGroupModerator_canEdit_groupPermissionLevelForUser() throws Exception{
-    Group group = CreateGroupUtils.createGroup(user, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
-    groupPermissionService.addGroupModerator(user, user2, group.getId());
-    groupPermissionService.addGroupModerator(user2, user3, group.getId());
+    GroupPermissionService permissionService1 = standardUserContext.createGroupPermissionService();
+    GroupPermissionService permissionService2 = standardUserContext2.createGroupPermissionService();
+    GroupPermissionService permissionService3 = standardUserContext3.createGroupPermissionService();
 
-    assertTrue(groupPermissionService.canEditGroup(user2, group.getId()));
-    assertTrue(groupPermissionService.canEditGroup(user3, group.getId()));
+    permissionService1.addGroupModerator(standardUserContext2.getUser(), group.getId());
+    permissionService1.addGroupModerator(standardUserContext3.getUser(), group.getId());
+
+    assertTrue(permissionService2.canEditGroup(group.getId()));
+    assertTrue(permissionService3.canEditGroup(group.getId()));
   }
 
   @Test
   public void testGroupModerator_cannotEdit_groupPermissionLevelForGroupAdmin() throws Exception{
-    Group group = CreateGroupUtils.createGroup(user, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user, user2, group.getId());
-          groupPermissionService.setGroupAdmin(user2, user2, group.getId());
+          standardUserContext.createGroupPermissionService().addGroupModerator(standardUserContext2.getUser(), group.getId());
+          standardUserContext2.createGroupPermissionService().setGroupAdmin(standardUserContext2.getUser(), group.getId());
 
         }
     );
@@ -123,20 +135,20 @@ public class EditPermissionServiceIntegrationTest {
 
   @Test
   public void testGroupModerator_cannotEdit_userPermissionLevelForDifferentGroup() throws Exception{
-    Group group = CreateGroupUtils.createGroup(user, conn);
-    Group group2 = CreateGroupUtils.createGroup(user3, conn);
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(standardUserContext3.getUser(), conn);
 
     Exception exception = assertThrows(
         Exception.class,
         ()->{
-          groupPermissionService.addGroupModerator(user, user4, group2.getId());
+          standardUserContext2.createGroupPermissionService().addGroupModerator(standardUserContext4.getUser(), group2.getId());
         }
     );
-    assertTrue(exception.getMessage().contains("does not have permission"));
+    assertTrue(exception.getMessage().contains("does not have permission"), exception.getMessage());
   }
 
   @Test
   public void testAdmin_cannotEdit_groupThatDoesNotExist() throws Exception {
-    assertFalse(groupPermissionService.canEditGroup(admin,-1));
+    assertFalse(adminContext.createGroupPermissionService().canEditGroup(-1));
   }
 }
