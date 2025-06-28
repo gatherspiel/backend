@@ -94,17 +94,17 @@ public class EventRepository {
     return event;
   }
 
-  public void deleteEvent(Event event, int groupId) throws Exception {
+  public void deleteEvent(int eventId, int groupId) throws Exception {
 
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
-    eventTimeRepository.deleteEventTimeInfo(event);
+    eventTimeRepository.deleteEventTimeInfo(eventId);
 
-    deleteEventGroupMapItem(groupId, event.getId());
+    deleteEventGroupMapItem(groupId, eventId);
 
     String query =
         "DELETE FROM events where id = ?";
     PreparedStatement statement = conn.prepareStatement(query);
-    statement.setInt(1, event.getId());
+    statement.setInt(1, eventId);
     statement.executeUpdate();
   }
 
