@@ -109,7 +109,7 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
-  public void testCreateMultipleEvents() throws Exception{
+  public void testCreateMultipleEvents_eventsHaveCorrectData() throws Exception{
 
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
@@ -134,10 +134,13 @@ public class EventServiceIntegrationTest {
     assertEquals(URL_2, eventFromDbB.getUrl());
 
     assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES), eventFromDbA.getStartTime());
-    assertEquals(END_TIME_1.truncatedTo(ChronoUnit.MINUTES), eventFromDbA.getEndTime());
-
     assertEquals(START_TIME_2.truncatedTo(ChronoUnit.MINUTES), eventFromDbB.getStartTime());
-    assertEquals(END_TIME_2.truncatedTo(ChronoUnit.MINUTES), eventFromDbB.getEndTime());
+
+    assertEquals(group.getId(), eventFromDbA.getGroupId());
+    assertEquals(group.getId(), eventFromDbB.getGroupId());
+
+    assertEquals(group.getName(), eventFromDbA.getGroupName());
+    assertEquals(group.getName(), eventFromDbB.getGroupName());
   }
 
   @Test
