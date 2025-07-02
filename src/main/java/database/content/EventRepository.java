@@ -154,9 +154,26 @@ public class EventRepository {
   public Optional<Event> getEvent(int id) throws Exception{
     String query = """
         
-        SELECT * from events
+        SELECT 
+         events.id as eventId,
+         events.url,
+         events.name as eventName,
+         events.description as eventDescription,
+         start_time,
+         end_time,
+         day_of_week,
+         groups.id as groupId,
+         groups.name as groupName,
+         locations.city as city,
+         locations.zip_code as zip_code,
+         locations.state as state,
+         locations.street_address as street_address
+
+         from events
         LEFT JOIN event_time on event_time.event_id = events.id
-        LEFT JOIN  locations on events.location_id = locations.id
+        LEFT JOIN locations on events.location_id = locations.id
+        LEFT JOIN event_group_map on events.id = event_group_map.event_id
+        LEFT JOIN groups on event_group_map.group_id = groups.id
         where events.id = ? 
         
         """;
@@ -167,11 +184,16 @@ public class EventRepository {
     if (rs.next()) {
       Event event = new Event();
       event.setUrl(rs.getString("url"));
-      event.setName(rs.getString("name"));
-      event.getDescription(rs.getString("description"));
+      event.setName(rs.getString("eventName"));
+      event.getDescription(rs.getString("eventDescription"));
 
       Timestamp start = rs.getTimestamp("start_time");
       Timestamp end = rs.getTimestamp("end_time");
+
+      String groupName = rs.getString("groupName");
+      int groupId  = rs.getInt("groupId");
+      event.setGroupName(groupName);
+      event.setGroupId(groupId);
 
       if(start != null){
         event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
@@ -186,7 +208,7 @@ public class EventRepository {
       } else {
         event.setEndTime(event.getStartTime().plusHours(1));
       }
-      event.setId(rs.getInt("id"));
+      event.setId(rs.getInt("eventId"));
 
       EventLocation eventLocation = new EventLocation();
       eventLocation.setCity(rs.getString("city"));

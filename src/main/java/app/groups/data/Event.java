@@ -18,6 +18,9 @@ public class Event {
 
   private EventLocation eventLocation;
 
+  private String groupName;
+  private Integer groupId;
+
   public Event() {}
 
   public Integer getId() {
@@ -143,9 +146,26 @@ public class Event {
     return isRecurring;
   }
 
+  public void setGroupName(String groupName){
+    this.groupName = groupName;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupId(Integer groupId){
+    this.groupId = groupId;
+  }
+
+  public Integer getGroupId(){
+    return groupId;
+  }
+
   public void setIsRecurring(boolean isRecurring){
     this.isRecurring = isRecurring;
   }
+
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
         " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime;
