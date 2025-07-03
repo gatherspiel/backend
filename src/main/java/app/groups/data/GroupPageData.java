@@ -1,8 +1,6 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
-import org.apache.logging.log4j.Logger;
-import utils.LogUtils;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
@@ -18,7 +16,7 @@ public class GroupPageData {
   private String name;
   private String url;
   private String description;
-  private HashMap<String, Boolean> permissions;
+  private HashMap<PermissionName, Boolean> permissions;
   private TreeSet<GroupPageEventData> groupPageEventData;
 
   private GroupPageData(int id, String name, String url, String description){
@@ -109,15 +107,15 @@ public class GroupPageData {
   }
 
 
-  public HashMap<String,Boolean> getPermissions(){
+  public HashMap<PermissionName,Boolean> getPermissions(){
     return permissions;
   }
 
-  public void setPermissions(HashMap<String, Boolean> permissions){
+  public void setPermissions(HashMap<PermissionName, Boolean> permissions){
     this.permissions = permissions;
   }
 
-  public void enablePermission(String permissionName, boolean isEnabled){
+  public void enablePermission(PermissionName permissionName, boolean isEnabled){
     this.permissions.put(permissionName, isEnabled);
   }
 
@@ -125,6 +123,6 @@ public class GroupPageData {
     if(permissions == null) {
       return false;
     }
-    return permissions.getOrDefault(PermissionName.USER_CAN_EDIT.toString(), false);
+    return permissions.getOrDefault(PermissionName.USER_CAN_EDIT, false);
   }
 }
