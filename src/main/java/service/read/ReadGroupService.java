@@ -45,7 +45,7 @@ public class ReadGroupService{
     GroupPageData groupPageData = GroupPageData.createFromSearchResult(group);
 
     boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
-    groupPageData.enablePermission(PermissionName.USER_CAN_EDIT.toString(), canEdit);
+    groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);
     return groupPageData;
   }
 }

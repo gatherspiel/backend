@@ -27,7 +27,16 @@ public class EventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    return eventRepository.getEvent(eventId);
+    var event = eventRepository.getEvent(eventId);
+
+    if(event.isPresent()){
+      if(groupPermissionService.canEditGroup(event.get().getGroupId())) {
+        event.get().setUserCanEditPermission(true);
+      } else {
+        event.get().setUserCanEditPermission(false);
+      }
+    }
+    return event;
   }
 
   /**

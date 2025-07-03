@@ -4,6 +4,7 @@ import app.SessionContext;
 import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.users.data.PermissionName;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -141,6 +142,10 @@ public class EventServiceIntegrationTest {
 
     assertEquals(group.getName(), eventFromDbA.getGroupName());
     assertEquals(group.getName(), eventFromDbB.getGroupName());
+
+    assertTrue(eventFromDbA.getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(eventFromDbB.getPermissions().get(PermissionName.USER_CAN_EDIT));
+
   }
 
   @Test

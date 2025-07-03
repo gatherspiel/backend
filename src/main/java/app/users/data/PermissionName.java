@@ -1,5 +1,7 @@
 package app.users.data;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum PermissionName {
 
   USER_CAN_EDIT("userCanEdit");
@@ -8,6 +10,11 @@ public enum PermissionName {
 
   PermissionName(String name){
     this.name = name;
+  }
+
+  @JsonValue
+  public String getValue(){
+    return this.name;
   }
 
   @Override

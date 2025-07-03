@@ -1,10 +1,12 @@
 package app.groups.data;
 
+import app.users.data.PermissionName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 
 public class Event {
   private Integer id;
@@ -21,7 +23,11 @@ public class Event {
   private String groupName;
   private Integer groupId;
 
-  public Event() {}
+  private HashMap<PermissionName, Boolean> permissions;
+
+  public Event() {
+    permissions = new HashMap<>();
+  }
 
   public Integer getId() {
     return id;
@@ -169,5 +175,17 @@ public class Event {
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
         " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime;
+  }
+
+  public void setPermissions(HashMap<PermissionName, Boolean> permissions){
+    this.permissions = permissions;
+  }
+
+  public HashMap<PermissionName, Boolean> getPermissions(){
+    return permissions;
+  }
+
+  public void setUserCanEditPermission(Boolean canEdit){
+    permissions.put(PermissionName.USER_CAN_EDIT, canEdit);
   }
 }
