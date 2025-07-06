@@ -3,6 +3,8 @@ package app.groups.data;
 import app.users.data.PermissionName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -124,6 +126,7 @@ public class Event {
   public LocalDateTime getEndTime(){
     return endTime;
   }
+
 
   /*
  The start and end time are represented as strings as a workaround for a serialization limitation with the

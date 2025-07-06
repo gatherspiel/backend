@@ -41,12 +41,12 @@ public class EventsApi {
     );
 
     app.delete(
-      "groups/{groupId}/events/{eventId}",
+      "groups/{groupId}/events/{id}",
       ctx -> {
 
         try {
-          var eventId = Integer.parseInt(ctx.queryParam("eventId"));
-          var groupId = Integer.parseInt(ctx.queryParam("eventId"));
+          var eventId = Integer.parseInt(ctx.queryParam("id"));
+          var groupId = Integer.parseInt(ctx.queryParam("id"));
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
           sessionContext.createEventService().deleteEvent(eventId, groupId);
@@ -69,7 +69,7 @@ public class EventsApi {
         ctx -> {
 
           try {
-            var groupId = Integer.parseInt(ctx.queryParam("eventId"));
+            var groupId = Integer.parseInt(ctx.queryParam("id"));
             var event = ctx.bodyAsClass(Event.class);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
@@ -92,7 +92,7 @@ public class EventsApi {
         ctx -> {
 
           try {
-            var groupId = Integer.parseInt(ctx.queryParam("eventId"));
+            var groupId = Integer.parseInt(ctx.queryParam("id"));
             var event = ctx.bodyAsClass(Event.class);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
