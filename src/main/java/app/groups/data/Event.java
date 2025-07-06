@@ -125,6 +125,7 @@ public class Event {
     return endTime;
   }
 
+  
   /*
  The start and end time are represented as strings as a workaround for a serialization limitation with the
  LocalDateTime object
