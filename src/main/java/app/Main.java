@@ -1,10 +1,12 @@
 package app;
 
 import app.admin.request.BulkUpdateInputRequest;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
+import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
@@ -32,6 +34,10 @@ public class Main {
               );
             }
           );
+
+          config.jsonMapper(new JavalinJackson().updateMapper(mapper->{
+            mapper.registerModule(new JavaTimeModule());
+          }));
         }
       )
       .get("/", ctx -> ctx.result("Hello World"))
