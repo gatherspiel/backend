@@ -1,15 +1,8 @@
 This repo contains backend services for dmvboardgames.com. Data is stored in PostgreSQL using Supabase.
 
-## Contribution guidelines
+# Setup guide
 
-Go to the following page to view general development guidelines for the project: https://github.com/Create-Third-Places
-
-Also, follow the guidelines below:
-- If you are updating the structure of an existing endpoint, or adding a new endpoint, make sure it is covered by a API test. The API tests are for verifying that the API is returning responses with the correct structure and response code. API tests should be added to the [api-testing repo](https://github.com/Create-Third-Places/api-testing)
-- Logic should be covered by unit or integration tests. 
-  
-### Running locally in Linux
-
+-Clone the [backend repo](https://github.com/gatherspiel/backend)
 - Compile the API using `mvn clean package`. 
 - Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
 
@@ -23,7 +16,15 @@ Also, follow the guidelines below:
 
 The API will be available at http://localhost:7070/
 
-To compile without running unit tests, run `mvn clean package -DskipTests`
+
+# Contribution guidelines
+
+Go to the following page to view general development guidelines for the project: https://github.com/Create-Third-Places
+
+Also, follow the guidelines below:
+- If you are updating the structure of an existing endpoint, or adding a new endpoint, make sure it is covered by a API test. The API tests are for verifying that the API is returning responses with the correct structure and response code. API tests should be added to the [api-testing repo](https://github.com/Create-Third-Places/api-testing)
+- Logic should be covered by unit or integration tests. 
+
 
 ### Viewing automated emails related to authentication
 
