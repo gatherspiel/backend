@@ -2,7 +2,8 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 # Setup guide
 
--Clone the [backend repo](https://github.com/gatherspiel/backend)
+## Prequisitcs
+- Clone the [backend repo](https://github.com/gatherspiel/backend)
 - Compile the API using `mvn clean package`. 
 - Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
 
