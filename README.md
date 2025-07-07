@@ -2,19 +2,34 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 # Setup guide
 
--Clone the [backend repo](https://github.com/gatherspiel/backend)
+## Prequisitcs
+- Clone the [backend repo](https://github.com/gatherspiel/backend)
+- Clone the [database repo](https://github.com/gatherspiel/database)
+- Install the following dependencies
+  - OpenJDK version 17.
+  - [Maven 3.8.7](https://maven.apache.org/install.html) or a later version.
+  - [Docker 27.5.1](https://docs.docker.com/engine/install/) or a later version. 
+
+## Setup the database
+
+- Navigate to the database repo and run the command `npx supabase start'
+
+## Setup the backend
+- Run src/test/java/app/database/utils/local/InitLocalDb.java. This will initialize a database with test data.
+
 - Compile the API using `mvn clean package`. 
 - Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
+- Run `mvn clean package -DskipTests`
 
-- Clone the [database repo](https://github.com/free-gather/database), setup the Supabase cli, and then run 
-   `npx supabase start` to start the database.
+
+## Setting up auth for the UI.
 - In the UI .env file and set the following values
     VITE_LOCAL_AUTH_KEY: `service_role_key` value that appears when starting the database.
-    AUTH_URL:'http://localhost:54321/auth/v1/'
-- Run src/test/java/app/database/utils/local/InitLocalDb.java. This will initialize a test database.
-- Run using `java -jar target/app.jar`
+    VITE_LOCAL_AUTH_URL:'http://localhost:54321/auth/v1/'
+  
+## Create an admin account for local development
 
-The API will be available at http://localhost:7070/
+- In the UI, register a user with the email test@gatherspiel.com and the password 123456.
 
 
 # Contribution guidelines
@@ -26,13 +41,13 @@ Also, follow the guidelines below:
 - Logic should be covered by unit or integration tests. 
 
 
+### Running the backend
+- Run using `java -jar target/app.jar`. The API will be available at http://localhost:7070/
+  
 ### Viewing automated emails related to authentication
 
 Navigate to local mail server at http://localhost:54324
-### Creating a new user
 
-- Navigate to http://localhost:54323
-- Go to the authentication dashboard and create a new user with the email `test@freegather.org` and the password `test`
 
 ### Running integration tests
 
