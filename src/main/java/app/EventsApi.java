@@ -18,6 +18,8 @@ public class EventsApi {
       ctx -> {
 
         try {
+
+          logger.info("Attempting to delete event");
           var eventId = ctx.pathParam("id");
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
@@ -41,7 +43,7 @@ public class EventsApi {
     );
 
     app.delete(
-      "groups/{groupId}/events/{id}",
+      "groups/{groupId}/events/{id}/",
       ctx -> {
 
         try {
