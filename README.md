@@ -4,8 +4,20 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 ## Prequisitcs
 - Clone the [backend repo](https://github.com/gatherspiel/backend)
+- Clone the [database repo](https://github.com/gatherspiel/database)
+- Install the following dependencies
+  - OpenJDK version 17.
+  - [Maven 3.8.7](https://maven.apache.org/install.html) or a later version.
+  - [Docker 27.5.1](https://docs.docker.com/engine/install/) or a later version. 
+
+## Setup the database
+
+- Navigate to the database repo and run the command `npx supabase start'
+
+## Run the backend
 - Compile the API using `mvn clean package`. 
 - Set the AUTH_URL environment variable to `http://localhost:54321/auth/v1/`
+
 
 - Clone the [database repo](https://github.com/free-gather/database), setup the Supabase cli, and then run 
    `npx supabase start` to start the database.
