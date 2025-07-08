@@ -19,7 +19,6 @@ public class EventsApi {
 
         try {
 
-          logger.info("Attempting to delete event");
           var eventId = ctx.pathParam("id");
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
@@ -47,13 +46,13 @@ public class EventsApi {
       ctx -> {
 
         try {
-          var eventId = Integer.parseInt(ctx.queryParam("id"));
-          var groupId = Integer.parseInt(ctx.queryParam("id"));
+          var eventId = Integer.parseInt(ctx.pathParam("id"));
+          var groupId = Integer.parseInt(ctx.pathParam("groupId"));
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
           sessionContext.createEventService().deleteEvent(eventId, groupId);
 
-          ctx.json("Deleted event:"+eventId);
+          logger.info("Deleted event:"+eventId);
           ctx.status(HttpStatus.OK);
         } catch(NumberFormatException e) {
           ctx.result(e.getMessage());
@@ -71,7 +70,7 @@ public class EventsApi {
         ctx -> {
 
           try {
-            var groupId = Integer.parseInt(ctx.queryParam("id"));
+            var groupId = Integer.parseInt(ctx.pathParam("groupId"));
             var event = ctx.bodyAsClass(Event.class);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
@@ -94,7 +93,7 @@ public class EventsApi {
         ctx -> {
 
           try {
-            var groupId = Integer.parseInt(ctx.queryParam("id"));
+            var groupId = Integer.parseInt(ctx.pathParam("groupId"));
             var event = ctx.bodyAsClass(Event.class);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
