@@ -67,7 +67,7 @@ public class LocationsRepository {
   }
 
   public int insertLocation(EventLocation location) throws Exception {
-    
+
     int locationId = getLocation(location, conn);
     if (locationId == -1) {
       String query =
