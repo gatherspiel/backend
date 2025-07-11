@@ -72,10 +72,9 @@ public class EventsApi {
           try {
             var groupId = Integer.parseInt(ctx.pathParam("groupId"));
             var event = ctx.bodyAsClass(Event.class);
-
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
             var createdEvent = sessionContext.createEventService().createEvent(event, groupId);
-            ctx.result("Created event with id:"+event.getId());
+            ctx.result("Created event with id:"+createdEvent.getId());
             ctx.status(HttpStatus.OK);
           } catch(NumberFormatException e) {
             ctx.result(e.getMessage());
