@@ -69,10 +69,10 @@ public class Event {
     if(locationSplit.length == 3) {
       String[] locationSplit2 = locationSplit[2].trim().split(" ");
       if(locationSplit2.length == 2) {
-        eventLocation.setStreetAddress(locationSplit[0]);
-        eventLocation.setCity(locationSplit[1]);
-        eventLocation.setState(locationSplit2[0]);
-        eventLocation.setZipCode(Integer.parseInt(locationSplit2[1]));
+        eventLocation.setStreetAddress(locationSplit[0].trim());
+        eventLocation.setCity(locationSplit[1].trim());
+        eventLocation.setState(locationSplit2[0].trim());
+        eventLocation.setZipCode(Integer.parseInt(locationSplit2[1].trim()));
         return;
       }
     }
