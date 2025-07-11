@@ -1,9 +1,10 @@
 package app.result;
 
-import app.data.event.Event;
+import app.groups.data.Event;
 import app.groups.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,8 +55,11 @@ public class GroupSearchResult {
     String description,
     String dayOfWeek,
     String address,
-    String city
-  ) {
+    String city,
+    LocalDateTime startTime,
+    LocalDateTime endTime,
+    boolean isRecurring
+  ) throws Exception{
     if (!groupData.containsKey(groupId)) {
       logger.warn(
         "Group with id {} does not exist. Event will not be added to group search result",
@@ -72,6 +76,9 @@ public class GroupSearchResult {
     event.setDay(dayOfWeek);
     event.setLocation(address);
     event.setId(eventId);
+    event.setStartTime(startTime);
+    event.setEndTime(endTime);
+    event.setIsRecurring(isRecurring);
     group.addEvent(event);
   }
 

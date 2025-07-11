@@ -1,10 +1,8 @@
-package app.users;
+package app;
 
-import app.data.auth.UserType;
-import app.users.data.RegisterUserRequest;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
 import org.apache.logging.log4j.Logger;
 import service.auth.AuthService;
 import utils.LogUtils;
@@ -12,7 +10,7 @@ import utils.LogUtils;
 public class UsersApi {
   public static Logger logger = LogUtils.getLogger();
 
-  public static void createEndpoints(Javalin app){
+  public static void userEndpoints(Javalin app){
     app.post(
         "/users/register",
         ctx -> {
@@ -22,24 +20,24 @@ public class UsersApi {
             var response = AuthService.registerUser(ctx);
 
             logger.info("User created successfully");
-            ctx.status(200);
+            ctx.status(HttpStatus.OK);
             ctx.json(response);
           } catch(AuthService.RegisterUserInvalidDataException e){
-            ctx.status(400);
+            ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
           }
           catch(MismatchedInputException e){
             if(e.getMessage().contains("app.user.data.RegisterUserRequest")){
               ctx.result(ctx.body() + " is not valid input for the POST /users/register endpoint");
-              ctx.status(400);
+              ctx.status(HttpStatus.BAD_REQUEST);
             } else {
               ctx.result(e.getMessage());
-              ctx.status(500);
+              ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
             }
           }catch (Exception e){
             e.printStackTrace();
             ctx.result(e.getMessage());
-            ctx.status(500);
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
           }
         }
     );

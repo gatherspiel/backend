@@ -1,7 +1,7 @@
 package service.update;
 
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.GroupsRepository;
@@ -10,33 +10,38 @@ import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
+import java.sql.Connection;
+
 public class GroupEditService {
 
   Logger logger;
   GroupsRepository groupsRepository;
   UserPermissionsRepository userPermissionsRepository;
-  public GroupEditService() {
+  Connection connection;
+  User user;
+  public GroupEditService(Connection connection, User user) {
     logger = LogUtils.getLogger();
-    groupsRepository = new GroupsRepository();
-    userPermissionsRepository = new UserPermissionsRepository();
+    groupsRepository = new GroupsRepository(connection);
+    userPermissionsRepository = new UserPermissionsRepository(connection);
+    this.connection = connection;
+    this.user = user;
   }
 
 
-  public void editGroup(User user, Group groupToUpdate, ConnectionProvider connectionProvider) throws Exception{
+  public void editGroup(Group groupToUpdate) throws Exception{
 
     if(groupToUpdate.getId() <=0) {
       throw new InvalidGroupRequestError("Invalid group id: "+groupToUpdate.getId());
     }
     validateGroupData(groupToUpdate);
 
-    if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId(), connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
+    if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId()) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to edit group: " + groupToUpdate.getName());
     }
-    System.out.println("User can edit group");
-    groupsRepository.updateGroup(groupToUpdate, connectionProvider.getDatabaseConnection());
+    groupsRepository.updateGroup(groupToUpdate);
   }
 
-  public Group insertGroup(User user, Group groupToInsert, ConnectionProvider connectionProvider) throws Exception{
+  public Group insertGroup(Group groupToInsert) throws Exception{
 
     validateGroupData(groupToInsert);
     if(!user.isLoggedInUser()){
@@ -45,16 +50,16 @@ public class GroupEditService {
       throw new Exception(message);
     }
 
-    return groupsRepository.insertGroup(user, groupToInsert, connectionProvider.getDatabaseConnection());
+    return groupsRepository.insertGroup(user, groupToInsert);
   }
 
-  public void deleteGroup(User user, int groupId, ConnectionProvider connectionProvider) throws Exception {
+  public void deleteGroup(int groupId) throws Exception {
 
-    if(!userPermissionsRepository.isGroupAdmin(user, groupId, connectionProvider.getDatabaseConnection()) && !user.isSiteAdmin())  {
+    if(!userPermissionsRepository.isGroupAdmin(user, groupId) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to delete group: " + groupId);
     }
 
-    groupsRepository.deleteGroup(groupId, connectionProvider.getDatabaseConnection());
+    groupsRepository.deleteGroup(groupId);
   }
 
   private void validateGroupData(Group group) throws Exception{

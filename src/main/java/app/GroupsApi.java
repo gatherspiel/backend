@@ -1,21 +1,19 @@
-package app.groups;
+package app;
 
+import app.groups.GroupRequestParser;
 import app.groups.data.Group;
 import app.result.error.GroupNotFoundError;
 import app.result.error.InvalidGroupParameterError;
 import app.result.error.InvalidGroupRequestError;
 import app.result.error.PermissionError;
-import app.result.groupPage.GroupPageData;
+import app.groups.data.GroupPageData;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
 import org.apache.logging.log4j.Logger;
-import service.auth.AuthService;
 import service.data.SearchParameterException;
-import service.provider.ReadGroupDataProvider;
-import service.read.ReadGroupService;
-import service.update.GroupEditService;
 import utils.LogUtils;
 
 public class GroupsApi {
@@ -29,21 +27,17 @@ public class GroupsApi {
         ctx -> {
 
           try {
-            var connectionProvider = new ConnectionProvider();
+
+            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
+            var groupService = sessionContext.createReadGroupService();
 
-            var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-            logger.info("Current user:"+currentUser);
-
-            var readGroupDataProvider = ReadGroupDataProvider.create();
-            var groupService = new ReadGroupService(readGroupDataProvider);
-
-            GroupPageData pageData = groupService.getGroupPageData(currentUser, searchParams, connectionProvider);
+            GroupPageData pageData = groupService.getGroupPageData(searchParams);
             logger.info("Retrieved group data");
             ctx.json(pageData);
-            ctx.status(200);
+            ctx.status(HttpStatus.OK);
           } catch (SearchParameterException e) {
             e.printStackTrace();
             ctx.status(404);
@@ -61,30 +55,27 @@ public class GroupsApi {
 
         Group group = null;
         try {
-          var connectionProvider = new ConnectionProvider();
 
-          var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-          var groupEditService = new GroupEditService();
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          var groupEditService = sessionContext.createGroupEditService();
 
           group = ctx.bodyAsClass(Group.class);
-
-          groupEditService.editGroup(currentUser,group, connectionProvider);
+          groupEditService.editGroup(group);
 
           logger.info("Updated group:"+group.id);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
         } catch (UnrecognizedPropertyException | GroupNotFoundError | InvalidGroupRequestError e) {
           logger.error(e.getMessage());
-          ctx.status(400);
+          ctx.status(HttpStatus.BAD_REQUEST);
           ctx.result(e.getMessage());
         } catch(PermissionError e) {
-          ctx.status(403);
+          ctx.status(HttpStatus.UNAUTHORIZED);
           logger.error(e.getMessage());
           ctx.result(e.getMessage());
         }
         catch(Exception e){
           e.printStackTrace();
-
-          ctx.status(500);
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
     );
@@ -96,32 +87,30 @@ public class GroupsApi {
           try {
             Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
-            var connectionProvider = new ConnectionProvider();
-            var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
-            var groupEditService = new GroupEditService();
-
-            Group createdGroup = groupEditService.insertGroup(currentUser,groupToCreate, connectionProvider);
+            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+            var groupEditService = sessionContext.createGroupEditService();
+            Group createdGroup = groupEditService.insertGroup(groupToCreate);
 
             logger.info("Created group group with id:"+createdGroup.id);
             ctx.json(createdGroup);
-            ctx.status(200);
+            ctx.status(HttpStatus.OK);
           } catch (GroupNotFoundError | InvalidGroupRequestError e) {
             logger.error(e.getMessage());
-            ctx.status(400);
+            ctx.status(HttpStatus.NOT_FOUND);
             ctx.result(e.getMessage());
           } catch(PermissionError e) {
-            ctx.status(403);
+            ctx.status(HttpStatus.FORBIDDEN);
             logger.error(e.getMessage());
             ctx.result(e.getMessage());
           } catch (InvalidGroupParameterError e) {
             logger.error(e.getMessage());
-            ctx.status(400);
+            ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
           }
           catch(Exception e){
             e.printStackTrace();
             ctx.result(e.getMessage());
-            ctx.status(500);
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
           }
         }
     );
@@ -131,21 +120,19 @@ public class GroupsApi {
     ctx -> {
 
       try {
-        var connectionProvider = new ConnectionProvider();
-        var currentUser = AuthService.getUser(connectionProvider.getDatabaseConnection(), ctx);
+        var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
 
         int groupId = Integer.parseInt(ctx.queryParam(GROUP_ID_PARAM));
-        var groupEditService = new GroupEditService();
-
-        groupEditService.deleteGroup(currentUser,groupId, connectionProvider);
+        var groupEditService = sessionContext.createGroupEditService();
+        groupEditService.deleteGroup(groupId);
 
         logger.info("Deleted group");
-        ctx.status(200);
+        ctx.status(HttpStatus.OK);
       }
       catch(Exception e){
         e.printStackTrace();
         ctx.result(e.getMessage());
-        ctx.status(500);
+        ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
     );

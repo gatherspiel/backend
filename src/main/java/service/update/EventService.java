@@ -1,8 +1,8 @@
 package service.update;
 
-import app.data.event.Event;
-import app.data.auth.User;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.users.data.User;
+import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
 import service.permissions.GroupPermissionService;
@@ -12,49 +12,59 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EventEditService {
+public class EventService {
 
   Connection connection;
   EventRepository eventRepository;
   GroupPermissionService groupPermissionService;
+  User user;
 
-  public EventEditService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService){
+  public EventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
     this.connection = connection;
     this.eventRepository = eventRepository;
     this.groupPermissionService = groupPermissionService;
+    this.user = user;
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    return eventRepository.getEvent(eventId, connection);
+    var event = eventRepository.getEvent(eventId);
+
+    if(event.isPresent()){
+      if(groupPermissionService.canEditGroup(event.get().getGroupId())) {
+        event.get().setUserCanEditPermission(true);
+      } else {
+        event.get().setUserCanEditPermission(false);
+      }
+    }
+    return event;
   }
 
   /**
    *
    * @param event
    * @param groupId
-   * @param user
    * @return Event with a unique id.
    */
-  public Event addEvent(Event event, int groupId, User user) throws Exception{
+  public Event createEvent(Event event, int groupId) throws Exception{
 
-    if(!groupPermissionService.canEditGroup(user, groupId, connection)){
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.addEvent(event, groupId, connection);
+    return eventRepository.addEvent(event, groupId);
   }
 
-  public Event updateEvent(Event event, int groupId, User user) throws Exception{
-    if(!groupPermissionService.canEditGroup(user, groupId, connection)){
+  public Event updateEvent(Event event, int groupId) throws Exception{
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.updateEvent(event, groupId, connection);
+    return eventRepository.updateEvent(event);
   }
 
-  public void deleteEvent(Event event, int groupId, User user) throws Exception {
-    if(!groupPermissionService.canEditGroup(user, groupId, connection)){
+  public void deleteEvent(int eventId, int groupId) throws Exception {
+    if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    eventRepository.deleteEvent(event, groupId, connection);
+    eventRepository.deleteEvent(eventId, groupId);
   }
 
   public static Event createEventObject(

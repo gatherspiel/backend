@@ -18,7 +18,7 @@ public class ConnectionProvider {
     var dbPassword = Params.getDatabasePassword();
 
     if(!dbPassword.isPresent()){
-      logger.info("Using local database connection provider");
+      logger.info("Using local database conn provider");
       var connectionProvider = new LocalDevConnectionProvider();
       return connectionProvider.getDatabaseConnection();
     }
@@ -29,14 +29,14 @@ public class ConnectionProvider {
               "user=postgres.karqyskuudnvfxohwkok&" +
               "password=" +
               dbPassword.get();
-      Connection connection = DriverManager.getConnection(url);
-      return connection;
+      Connection conn = DriverManager.getConnection(url);
+      return conn;
     }
   }
 
   public Connection getConnectionWithManualCommit() throws Exception {
-    Connection connection = getDatabaseConnection();
-    connection.setAutoCommit(false);
-    return connection;
+    Connection conn = getDatabaseConnection();
+    conn.setAutoCommit(false);
+    return conn;
   }
 }

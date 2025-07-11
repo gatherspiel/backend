@@ -1,4 +1,4 @@
-package app.data;
+package app.location;
 
 public class GameRestaurant {
   private Integer id;

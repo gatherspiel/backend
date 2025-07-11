@@ -1,6 +1,6 @@
 package database.content;
 
-import app.data.LocationTag;
+import app.location.LocationTag;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -11,26 +11,27 @@ import java.sql.ResultSet;
 public class LocationTagRepository {
 
   Logger logger;
-
-  public LocationTagRepository(){
+  Connection conn;
+  public LocationTagRepository(Connection conn){
+    this.conn = conn;
     logger = LogUtils.getLogger();
   }
 
 
-  public void insertLocationTags(LocationTag[] locationTags, Connection conn) throws Exception{
+  public void insertLocationTags(LocationTag[] locationTags) throws Exception{
     for(LocationTag locationTag: locationTags) {
 
       for(String city: locationTag.getLocations()){
-        insertLocationTag(city, locationTag.getName(), conn);
+        insertLocationTag(city, locationTag.getName());
 
       }
     }
   }
 
-  public void insertLocationTag(String city, String locationTag, Connection conn) throws Exception {
-    LocationsRepository locationsRepository = new LocationsRepository();
+  public void insertLocationTag(String city, String locationTag) throws Exception {
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
 
-    int locationId = locationsRepository.getLocationIdForCity(city, conn);
+    int locationId = locationsRepository.getLocationIdForCity(city);
 
     //TODO: After creating unique index, use ON CONFLICT clause instead of a separate query.
 

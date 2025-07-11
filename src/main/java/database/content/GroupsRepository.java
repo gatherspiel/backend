@@ -1,9 +1,9 @@
 package database.content;
 
-import app.data.event.Event;
-import app.data.event.EventLocation;
+import app.groups.data.Event;
+import app.groups.data.EventLocation;
 import app.groups.data.Group;
-import app.data.auth.User;
+import app.users.data.User;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -19,9 +19,16 @@ import java.util.Set;
 public class GroupsRepository {
 
   private static Logger logger = LogUtils.getLogger();
-  public void insertGroups(Group[] groups, Connection conn) throws Exception {
-    LocationsRepository locationsRepository = new LocationsRepository();
-    Set<String> urlsInDb = getGroupsInDatabase(groups, conn);
+
+  private Connection conn;
+
+  public GroupsRepository(Connection conn){
+    this.conn = conn;
+  }
+
+  public void insertGroups(Group[] groups) throws Exception {
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
+    Set<String> urlsInDb = getGroupsInDatabase(groups);
     for (Group group : groups) {
       if (!urlsInDb.contains(group.url)) {
         urlsInDb.add(group.url);
@@ -39,8 +46,7 @@ public class GroupsRepository {
           int groupId = rs.getInt(1);
           for (String location : group.getCities()) {
             int locationId = locationsRepository.getLocationIdForCity(
-              location.trim(),
-              conn
+              location.trim()
             );
 
             String groupLocationQuery =
@@ -62,7 +68,7 @@ public class GroupsRepository {
 
   // This is a workaround for an issue related to using prepared statements with duplicates.
   // TODO: Use SQL in clause to optimize performance.
-  public Set<String> getGroupsInDatabase(Group[] groups, Connection conn)
+  public Set<String> getGroupsInDatabase(Group[] groups)
     throws Exception {
     String query = "SELECT url from groups";
 
@@ -76,7 +82,7 @@ public class GroupsRepository {
     return urlsInDb;
   }
 
-  public int getGroupId(Group group, Connection conn) throws Exception {
+  public int getGroupId(Group group) throws Exception {
     String query = "SELECT * from groups where url = ?";
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, group.url);
@@ -88,7 +94,7 @@ public class GroupsRepository {
     return rs.getInt(1);
   }
 
-  public Group insertGroup(User groupAdmin, Group groupToInsert, Connection conn) throws Exception{
+  public Group insertGroup(User groupAdmin, Group groupToInsert) throws Exception{
 
     String groupInsertQuery=
         """
@@ -130,7 +136,7 @@ public class GroupsRepository {
     }
   }
 
-  public Optional<Group> getGroup(int groupId, Connection conn) throws Exception{
+  public Optional<Group> getGroup(int groupId) throws Exception{
     try {
       String query = """
           SELECT 
@@ -189,7 +195,11 @@ public class GroupsRepository {
           }
 
           EventLocation eventLocation = new EventLocation();
-          eventLocation.setState(rs.getString("state"));
+
+          String state = rs.getString("state");
+          if(state != null){
+            eventLocation.setState(state);
+          }
           eventLocation.setStreetAddress(rs.getString("street_address"));
           eventLocation.setZipCode(rs.getInt("zip_code"));
           eventLocation.setCity(rs.getString("city"));
@@ -210,7 +220,7 @@ public class GroupsRepository {
     }
   }
 
-  public void updateGroup(Group groupToUpdate, Connection conn) throws Exception{
+  public void updateGroup(Group groupToUpdate) throws Exception{
     try {
       String updateQuery =    """
              UPDATE groups
@@ -235,7 +245,7 @@ public class GroupsRepository {
   }
 
 
-  public void deleteGroup(int groupId, Connection conn) throws Exception{
+  public void deleteGroup(int groupId) throws Exception{
     try {
       String deleteQuery =    """
              DELETE FROM groups

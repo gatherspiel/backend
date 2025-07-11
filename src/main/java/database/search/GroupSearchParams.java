@@ -60,7 +60,7 @@ public class GroupSearchParams {
     });
   }
 
-  public PreparedStatement generateSearchQuery(Connection connection) throws Exception {
+  public PreparedStatement generateSearchQuery(Connection conn) throws Exception {
     String query = getQueryForAllResults();
 
     ArrayList<String> whereClauses = new ArrayList<>();
@@ -73,7 +73,7 @@ public class GroupSearchParams {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-      PreparedStatement select = connection.prepareStatement(query);
+      PreparedStatement select = conn.prepareStatement(query);
       int i = 1;
       for(String param: params.keySet()){
         select.setString(i, params.get(param));
@@ -83,7 +83,7 @@ public class GroupSearchParams {
       return select;
 
     } else {
-      return connection.prepareStatement(query);
+      return conn.prepareStatement(query);
     }
   }
 
@@ -97,7 +97,9 @@ public class GroupSearchParams {
                     groups.url,
                     groups.description,
                     events.name as eventName,
-                    events.description,
+                    events.description as eventDescription,
+                    event_time.start_time,
+                    event_time.end_time,
                     event_time.day_of_week,
                     locations.state,
                     locations.street_address,
@@ -121,7 +123,7 @@ public class GroupSearchParams {
     return !locationGroupFilter.isEmpty();
   }
   //TODO: Rename method to indicate that only cities can be part of location groups
-  public PreparedStatement getQueryForLocationGroups(Connection connection) throws Exception {
+  public PreparedStatement getQueryForLocationGroups(Connection conn) throws Exception {
 
     String query = """
                        SELECT city, name from locations
@@ -130,7 +132,7 @@ public class GroupSearchParams {
                        WHERE name = ?
                    """;
 
-    PreparedStatement select = connection.prepareStatement(query);
+    PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, locationGroupFilter.toLowerCase());
     return select;
   }

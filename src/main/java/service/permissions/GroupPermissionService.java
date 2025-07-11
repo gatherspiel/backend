@@ -1,43 +1,43 @@
 package service.permissions;
 
-import app.data.auth.User;
+import app.users.data.User;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
-import database.utils.ConnectionProvider;
 
 import java.sql.Connection;
 
 
-/*
- TODO: Consider creating a permission repository class for each user type and passing it as a constructor parameter
- */
 public class GroupPermissionService {
 
   private UserPermissionsRepository userPermissionsRepository;
   private GroupsRepository groupsRepository;
-  public GroupPermissionService(){
-    userPermissionsRepository = new UserPermissionsRepository();
-    groupsRepository = new GroupsRepository();
+  private Connection conn;
+  private User user;
+  public GroupPermissionService(Connection conn, User user){
+    userPermissionsRepository = new UserPermissionsRepository(conn);
+    groupsRepository = new GroupsRepository(conn);
+    this.conn = conn;
+    this.user = user;
   }
 
-  public void setGroupAdmin(User currentUser, User userToUpdate, int groupId, Connection connection) throws Exception{
-    if(!currentUser.isSiteAdmin() && !userPermissionsRepository.canUpdateGroupAdmin(currentUser, groupId, connection)){
-      throw new Exception("User " + currentUser.getId() + " does not have permission to edit group " + groupId);
+  public void setGroupAdmin(User userToUpdate, int groupId) throws Exception{
+    if(!user.isSiteAdmin() && !userPermissionsRepository.canUpdateGroupAdmin(user, groupId)){
+      throw new Exception("User " + user.getId() + " does not have permission to edit group " + groupId);
     }
-    userPermissionsRepository.setGroupAdmin(userToUpdate, groupId, connection);
+    userPermissionsRepository.setGroupAdmin(userToUpdate, groupId);
   }
 
-  public void addGroupModerator(User currentUser,User userToUpdate, int groupId, Connection connection) throws Exception{
-    if(!canEditGroup(currentUser, groupId, connection)){
-      throw new Exception("User " + currentUser.getId() + " does not have permission to edit group " + groupId);
+  public void addGroupModerator(User userToUpdate, int groupId) throws Exception{
+    if(!canEditGroup(groupId)){
+      throw new Exception("User " + user.getId() + " does not have permission to edit group " + groupId);
     }
-    userPermissionsRepository.addGroupModerator(userToUpdate, groupId, connection);
+    userPermissionsRepository.addGroupModerator(userToUpdate, groupId);
   }
 
-  public boolean canEditGroup(User user, int groupId, Connection connection) throws Exception {
+  public boolean canEditGroup( int groupId) throws Exception {
     if(user.isSiteAdmin()){
-      return groupsRepository.getGroup(groupId, connection).isPresent();
+      return groupsRepository.getGroup(groupId).isPresent();
     }
-    return userPermissionsRepository.hasGroupEditorRole(user, groupId, connection);
+    return userPermissionsRepository.hasGroupEditorRole(user, groupId);
   }
 }

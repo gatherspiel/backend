@@ -1,8 +1,8 @@
 package service.read;
 
-import app.data.Convention;
-import app.data.GameRestaurant;
-import app.data.GameStore;
+import app.location.Convention;
+import app.location.GameRestaurant;
+import app.location.GameStore;
 import app.result.GameLocationData;
 import database.content.ConventionsRepository;
 import database.content.GameRestaurantRepository;
@@ -21,27 +21,27 @@ import java.util.TreeSet;
 public class GameLocationsService {
 
   Logger logger;
-
-  public GameLocationsService(){
+  Connection conn;
+  public GameLocationsService( Connection conn){
+    this.conn= conn;
     logger = LogUtils.getLogger();
   }
 
-  public GameLocationData getGameLocations(ConnectionProvider connectionProvider, LocalDate date) throws Exception{
+  public GameLocationData getGameLocations(LocalDate date) throws Exception{
 
     logger.info("Retrieving game locations");
-    Connection connection = connectionProvider.getDatabaseConnection();
-    ConventionsRepository conventionsRepository = new ConventionsRepository();
-    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date, connection);
+    ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
+    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date);
 
     logger.info("Retrieving game restaurants");
 
-    GameRestaurantRepository restaurantRepository = new GameRestaurantRepository();
-    HashMap<Integer, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants(connection);
+    GameRestaurantRepository restaurantRepository = new GameRestaurantRepository(conn);
+    HashMap<Integer, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants();
 
     logger.info("Retrieving game stores");
 
-    GameStoreRepository gameStoreRepository = new GameStoreRepository();
-    HashMap<Integer, GameStore> gameStores= gameStoreRepository.getGameStores(connection);
+    GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
+    HashMap<Integer, GameStore> gameStores= gameStoreRepository.getGameStores();
 
     logger.info("Done retrieving data");
 
@@ -53,29 +53,27 @@ public class GameLocationsService {
     return locationData;
   }
 
-  public void insertAddress(ConnectionProvider connectionProvider, String address) throws Exception{
-    LocationsRepository locationsRepository = new LocationsRepository();
-    locationsRepository.insertLocation(address, connectionProvider.getDatabaseConnection());
+  public void insertAddress(String address) throws Exception{
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
+    locationsRepository.insertLocation(address);
   }
 
-  public int countLocations(ConnectionProvider connectionProvider) throws  Exception{
-    LocationsRepository locationsRepository = new LocationsRepository();
-    return locationsRepository.countLocations(connectionProvider.getDatabaseConnection());
+  public int countLocations() throws  Exception{
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
+    return locationsRepository.countLocations();
   }
 
   public TreeSet<String> getAllEventLocations(
-      ConnectionProvider connectionProvider,
       String areaFilter) throws Exception{
-    LocationsRepository locationsRepository = new LocationsRepository();
-    Connection connection = connectionProvider.getDatabaseConnection();
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
 
-    ArrayList<String> cities = locationsRepository.listALlLocationCities(areaFilter, connection);
+    ArrayList<String> cities = locationsRepository.listALlLocationCities(areaFilter, conn);
 
     return new TreeSet<>(cities);
   }
 
-  public int addCity(ConnectionProvider connectionProvider, String cityName) throws Exception {
-    LocationsRepository locationsRepository = new LocationsRepository();
-    return locationsRepository.getLocationIdForCity(cityName, connectionProvider.getDatabaseConnection());
+  public int addCity(String cityName) throws Exception {
+    LocationsRepository locationsRepository = new LocationsRepository(conn);
+    return locationsRepository.getLocationIdForCity(cityName);
   }
 }

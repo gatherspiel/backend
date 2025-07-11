@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import app.data.event.EventLocation;
+import app.groups.data.EventLocation;
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterException;
@@ -15,15 +15,16 @@ import utils.LogUtils;
 public class LocationsRepository {
 
   Logger logger;
-
-  public LocationsRepository(){
+  Connection conn;
+  public LocationsRepository(Connection conn){
+    this.conn = conn;
     logger = LogUtils.getLogger();
   }
 
   /*
     Retrieves a location id for the city. The city will be saved in the database if it is not already there.
      */
-  public int getLocationIdForCity(String city, Connection conn)
+  public int getLocationIdForCity(String city)
     throws Exception {
 
     city = SameLocationData.getDatabaseCityName(city);
@@ -47,7 +48,7 @@ public class LocationsRepository {
     throw new Exception();
   }
 
-  public int insertLocation(String address, Connection conn) throws Exception{
+  public int insertLocation(String address) throws Exception{
     String[] data = address.split(",");
 
 
@@ -62,11 +63,11 @@ public class LocationsRepository {
     location.setState(data[2].trim().split(" ")[0]);
     location.setZipCode(Integer.parseInt(data[2].trim().split(" ")[1]));
 
-    return insertLocation(location, conn);
+    return insertLocation(location);
   }
 
-  public int insertLocation(EventLocation location, Connection conn) throws Exception {
-
+  public int insertLocation(EventLocation location) throws Exception {
+    
     int locationId = getLocation(location, conn);
     if (locationId == -1) {
       String query =
@@ -139,7 +140,7 @@ public class LocationsRepository {
     return data;
   }
 
-  public int countLocations(Connection conn)throws Exception{
+  public int countLocations()throws Exception{
 
     try {
       String query = "SELECT COUNT(*) from locations";

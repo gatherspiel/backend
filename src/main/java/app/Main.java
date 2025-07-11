@@ -1,11 +1,12 @@
 package app;
 
-import app.groups.GroupsApi;
-import app.request.BulkUpdateInputRequest;
-import app.users.UsersApi;
+import app.admin.request.BulkUpdateInputRequest;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HttpStatus;
+import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
@@ -33,13 +34,19 @@ public class Main {
               );
             }
           );
+
+          config.jsonMapper(new JavalinJackson().updateMapper(mapper->{
+            mapper.registerModule(new JavaTimeModule());
+          }));
         }
       )
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
 
-    UsersApi.createEndpoints(app);
+    UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
+    EventsApi.eventEndpoints(app);
+
     app.get(
       "/countLocations",
       ctx -> {
@@ -54,30 +61,29 @@ public class Main {
 
         long start = System.currentTimeMillis();
         try {
-          var connectionProvider = new ConnectionProvider();
+
+          var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
 
-          var searchService = new SearchService();
-
+          var searchService = sessionContext.createSearchService();
           var groupSearchResult = searchService.getGroups(
-            searchParams,
-            connectionProvider
+            searchParams
           );
 
           long end = System.currentTimeMillis();
 
           logger.info("Search time:"+((end-start)/100));
           ctx.json(groupSearchResult);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
 
           logger.info("Finished search");
 
         } catch (Exception e) {
           e.printStackTrace();
           ctx.result("Invalid search parameter");
-          ctx.status(400);
+          ctx.status(HttpStatus.BAD_REQUEST);
         }
       }
     );
@@ -87,13 +93,14 @@ public class Main {
         ctx->{
 
           var connectionProvider = new ConnectionProvider();
-          GameLocationsService gameLocationsService = new GameLocationsService();
+          var conn = connectionProvider.getDatabaseConnection();
+          GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
-          var gameLocationData = gameLocationsService.getGameLocations(connectionProvider, LocalDate.now());
+          var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
           logger.info("Retrieved game location data");
 
           ctx.json(gameLocationData);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
 
         });
 
@@ -101,14 +108,16 @@ public class Main {
         "/listCities",
         ctx->{
           var connectionProvider = new ConnectionProvider();
-          GameLocationsService gameLocationsService = new GameLocationsService();
+          var conn = connectionProvider.getDatabaseConnection();
+
+          GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
           String areaFilter = ctx.queryParam("area");
 
-          var cities = gameLocationsService.getAllEventLocations(connectionProvider, areaFilter);
+          var cities = gameLocationsService.getAllEventLocations(areaFilter);
           logger.info("Retrieved event cities");
           ctx.json(cities);
-          ctx.status(200);
+          ctx.status(HttpStatus.OK);
         });
 
     //TODO: Consider deleting this endpoint.

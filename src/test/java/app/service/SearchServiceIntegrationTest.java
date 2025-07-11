@@ -31,7 +31,7 @@ public class SearchServiceIntegrationTest {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService();
+      searchService = new SearchService(conn);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing database:" + e.getMessage());
@@ -41,8 +41,7 @@ public class SearchServiceIntegrationTest {
   @Test
   public void testAllGroupsAreReturned_NoSearchParams() throws Exception {
     GroupSearchResult result = searchService.getGroups(
-      new LinkedHashMap<>(),
-      testConnectionProvider
+      new LinkedHashMap<>()
     );
     assertEquals(39, result.countGroups());
   }
@@ -50,8 +49,7 @@ public class SearchServiceIntegrationTest {
   @Test
   public void testAllEventsAreReturned_NoSearchParams() throws Exception {
     GroupSearchResult result = searchService.getGroups(
-      new LinkedHashMap<String, String>(),
-      testConnectionProvider
+      new LinkedHashMap<String, String>()
     );
 
     assertEquals(37, result.countEvents());
@@ -78,8 +76,7 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.DAY_OF_WEEK, day);
 
     GroupSearchResult result = searchService.getGroups(
-      params,
-      testConnectionProvider
+      params
     );
     assertEquals(expected, result.countEvents());
   }
@@ -96,8 +93,7 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.CITY, location);
 
     GroupSearchResult result = searchService.getGroups(
-      params,
-      testConnectionProvider
+      params
     );
     Assertions.assertAll(
       () -> assertEquals(expectedEvents, result.countEvents()),
@@ -126,8 +122,7 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.DAY_OF_WEEK, day);
 
     GroupSearchResult searchResult = searchService.getGroups(
-      params,
-      testConnectionProvider
+      params
     );
     Assertions.assertAll(
       () -> assertEquals(expectedEvents, searchResult.countEvents()),
@@ -146,8 +141,7 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, city);
     GroupSearchResult result = searchService.getGroups(
-        params,
-        testConnectionProvider
+        params
     );
 
     Map<Integer, Group> groupData = result.getGroupData();
@@ -174,8 +168,7 @@ public class SearchServiceIntegrationTest {
       RuntimeException.class,
       () -> {
         GroupSearchResult result = searchService.getGroups(
-          params,
-          testConnectionProvider
+          params
         );
       }
     );
@@ -188,8 +181,7 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.CITY, "test");
 
     GroupSearchResult searchResult = searchService.getGroups(
-      params,
-      testConnectionProvider
+      params
     );
     assertEquals(0, searchResult.countEvents());
   }
@@ -202,9 +194,7 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.CITY, "College Park");
 
     GroupSearchResult result = searchService.getGroups(
-      params,
-      testConnectionProvider
-    );
+      params);
     assertEquals(2, result.countEvents());
     assertEquals(1, result.countGroups());
   }
@@ -212,7 +202,7 @@ public class SearchServiceIntegrationTest {
   @Test
   public void testGroupsAreOrderedAlphabetically() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    GroupSearchResult result = searchService.getGroups(params);
 
     Group[] previous = new Group[1];
 
@@ -237,7 +227,7 @@ public class SearchServiceIntegrationTest {
   public void testSearchResultResponse_DMV_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "DMV");
-    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    GroupSearchResult result = searchService.getGroups(params);
     assertEquals(37, result.countEvents());
   }
 
@@ -245,7 +235,7 @@ public class SearchServiceIntegrationTest {
   public void testSearchResultResponse_dmv_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
-    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    GroupSearchResult result = searchService.getGroups(params);
     assertEquals(37, result.countEvents());
   }
 
@@ -253,7 +243,7 @@ public class SearchServiceIntegrationTest {
   public void testSearchResultResponse_unknownLocation_noResults() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "test");
-    GroupSearchResult result = searchService.getGroups(params, testConnectionProvider);
+    GroupSearchResult result = searchService.getGroups(params);
     assertEquals(0, result.countEvents());
   }
 }

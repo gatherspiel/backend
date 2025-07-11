@@ -1,4 +1,6 @@
-package app.data.auth;
+package app.users.data;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PermissionName {
 
@@ -8,6 +10,11 @@ public enum PermissionName {
 
   PermissionName(String name){
     this.name = name;
+  }
+
+  @JsonValue
+  public String getValue(){
+    return this.name;
   }
 
   @Override
