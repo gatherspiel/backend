@@ -84,6 +84,11 @@ public class GroupPageData {
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
 
+        //Event is not ready to be published because it does not have a location
+        if(event.getLocation() == null){
+          continue;
+        }
+
         if(event.getIsRecurring()) { //Event is recurring
 
           //TODO: Update logic for recurring events

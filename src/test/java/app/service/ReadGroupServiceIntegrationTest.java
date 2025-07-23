@@ -165,6 +165,19 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
+  public void testEventsWithoutValidLocations_areNotVisibleInGroupData() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Alexandria-Arlington Regional Gaming Group");
+
+    GroupPageData result = groupService.getGroupPageData(
+        params
+    );
+
+    assertEquals(result.getEventData().size(),0);
+  }
+
+  @Test
   public void testValidNameAndValidTag_Group_CorrectNumberOfEventsWithFourEventsEachWeek() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -175,7 +188,6 @@ public class ReadGroupServiceIntegrationTest {
     );
 
     Set<GroupPageEventData> eventData = result.getEventData();
-    int eventCount = 0;
 
     LocalDate prevDate = null;
     for(GroupPageEventData data: eventData) {
@@ -183,8 +195,6 @@ public class ReadGroupServiceIntegrationTest {
       if(prevDate != null){
         assertTrue(data.getEventDate().isAfter(prevDate));
       }
-      eventCount++;
-
       prevDate = data.getEventDate();
     }
 
