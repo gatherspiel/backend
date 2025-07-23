@@ -10,10 +10,6 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
   - [Maven 3.8.7](https://maven.apache.org/install.html) or a later version.
   - [Docker 27.5.1](https://docs.docker.com/engine/install/) or a later version. 
 
-## Setup the database
-
-- Navigate to the database repo and run the command `npx supabase start'
-
 ## Setup the backend
 - Run src/test/java/app/database/utils/local/InitLocalDb.java. This will initialize a database with test data.
 
@@ -25,6 +21,10 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 ## Setting up auth for the UI.
 - In the UI .env file and set the following values
     VITE_LOCAL_AUTH_KEY: `service_role_key` value that appears when starting the database.
+## Setup the database
+
+- Navigate to the database repo and run the command `npx supabase start'
+
     VITE_LOCAL_AUTH_URL:'http://localhost:54321/auth/v1/'
   
 ## Create an admin account for local development
