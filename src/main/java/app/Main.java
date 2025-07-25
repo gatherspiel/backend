@@ -1,10 +1,13 @@
 package app;
 
 import app.admin.request.BulkUpdateInputRequest;
+import app.cache.CacheConnection;
+import app.result.GroupSearchResult;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
@@ -12,11 +15,11 @@ import service.*;
 import service.auth.AuthService;
 import service.auth.supabase.SupabaseAuthProvider;
 import service.read.GameLocationsService;
-import service.read.SearchService;
 import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class Main {
 
@@ -66,16 +69,24 @@ public class Main {
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
+          var cacheConnection = new CacheConnection(ctx);
 
-          var searchService = sessionContext.createSearchService();
-          var groupSearchResult = searchService.getGroups(
-            searchParams
-          );
+          Optional<GroupSearchResult> cachedData = cacheConnection.getCachedSearchResult();
+          if(cachedData.isPresent()){
+           ctx.json(cachedData);
+          } else {
+            var searchService = sessionContext.createSearchService();
+            var groupSearchResult = searchService.getGroups(
+                searchParams
+            );
 
-          long end = System.currentTimeMillis();
+            long end = System.currentTimeMillis();
 
-          logger.info("Search time:"+((end-start)/100));
-          ctx.json(groupSearchResult);
+            cacheConnection.cacheSearchResult(groupSearchResult);
+            logger.info("Search time:"+((end-start)/100));
+            ctx.json(groupSearchResult);
+          }
+
           ctx.status(HttpStatus.OK);
 
           logger.info("Finished search");
@@ -138,5 +149,11 @@ public class Main {
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
     );
+
+    app.after(ctx->{
+      if(!ctx.method().equals(HandlerType.GET)){
+        
+      }
+    });
   }
 }
