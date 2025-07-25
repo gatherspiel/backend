@@ -63,7 +63,6 @@ public class SearchRepository {
     GroupSearchResult searchResult = new GroupSearchResult();
     while (rs.next()) {
 
-      System.out.println("Found item");
       Integer groupId = rs.getInt("groupId");
 
       String groupName = rs.getString("name");
