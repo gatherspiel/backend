@@ -100,7 +100,6 @@ public class SearchRepository {
           endTime = end.toLocalDateTime();
         }
         if (start == null){
-          logger.warn("A null value for the event day is being used as a temporary placeholder to represent recurring events ");
           isRecurring = true;
         }
 

@@ -10,6 +10,7 @@ import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
@@ -46,7 +47,7 @@ public class Main {
       )
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
-
+    
     UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
     EventsApi.eventEndpoints(app);

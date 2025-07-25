@@ -18,7 +18,6 @@ public class ConnectionProvider {
     var dbPassword = Params.getDatabasePassword();
 
     if(!dbPassword.isPresent()){
-      logger.info("Using local database conn provider");
       var connectionProvider = new LocalDevConnectionProvider();
       return connectionProvider.getDatabaseConnection();
     }
