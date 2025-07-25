@@ -62,8 +62,6 @@ public class ConventionsRepository {
       }
     }
 
-    logger.info("Found conventions");
-
     for(Integer conventionId: conventionDays.keySet()){
       int days = conventionDays.get(conventionId);
       if(days > 1){

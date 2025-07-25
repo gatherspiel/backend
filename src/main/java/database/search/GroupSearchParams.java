@@ -38,8 +38,9 @@ public class GroupSearchParams {
 
     this.logger = LogUtils.getLogger();
     this.params = new LinkedHashMap<String, String>();
+
     params.keySet().forEach(param->{
-      if(param == DAY_OF_WEEK){
+      if(param.equals(DAY_OF_WEEK)){
 
         try {
           SearchParameterValidator.validateDay(params.get(param));
@@ -48,11 +49,11 @@ public class GroupSearchParams {
         }
 
         this.params.put(param, params.get(param).toLowerCase());
-      } else if(param == CITY) {
+      } else if(param.equals(CITY)) {
         this.params.put(param, params.get(param));
-      } else if (param == AREA) {
+      } else if (param.equals(AREA)) {
         locationGroupFilter = params.get(param);
-      } if (param == NAME){
+      } else if (param.equals(NAME)){
         this.params.put(param, params.get(param).replace("_", " "));
       }else {
         logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
@@ -60,8 +61,8 @@ public class GroupSearchParams {
     });
   }
 
-  public PreparedStatement generateSearchQuery(Connection conn) throws Exception {
-    String query = getQueryForAllResults();
+  public PreparedStatement generateSearchQuery(Connection conn, boolean isHomepage) throws Exception {
+    String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithDetails();
 
     ArrayList<String> whereClauses = new ArrayList<>();
 
@@ -87,7 +88,27 @@ public class GroupSearchParams {
     }
   }
 
-  private static String getQueryForAllResults() {
+  private static String getQueryForHomepageSearchResult(){
+    String query = """
+      SELECT
+        DISTINCT ON (events.id, groups.id, groups.name)
+          groups.id as groupId,
+          groups.name,
+          groups.url,
+          groups.description,
+          locs.city as groupCity
+        FROM groups
+       LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+       LEFT JOIN events on event_group_map.event_id = events.id
+       LEFT JOIN event_time on event_time.event_id = events.id
+       LEFT JOIN locations on events.location_id = locations.id
+       LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+       LEFT JOIN locations as locs on location_group_map.location_id = locs.id      
+      """;
+    return query;
+  }
+
+  private static String getQueryForAllResultsWithDetails() {
       String query = """
            SELECT
                    DISTINCT ON (events.id, groups.id, groups.name)
