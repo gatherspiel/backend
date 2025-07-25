@@ -2,12 +2,12 @@ package app;
 
 import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
+import app.groups.data.HomepageGroup;
 import app.result.GroupSearchResult;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
-import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
@@ -71,12 +71,13 @@ public class Main {
           );
           var cacheConnection = new CacheConnection(ctx);
 
-          Optional<GroupSearchResult> cachedData = cacheConnection.getCachedSearchResult();
+          var cachedData = Optional.empty();
+          //Optional<GroupSearchResult> cachedData = cacheConnection.getCachedSearchResult();
           if(cachedData.isPresent()){
            ctx.json(cachedData);
           } else {
             var searchService = sessionContext.createSearchService();
-            var groupSearchResult = searchService.getGroups(
+            var groupSearchResult = searchService.getGroupsForHomepage(
                 searchParams
             );
 
@@ -84,11 +85,29 @@ public class Main {
 
             cacheConnection.cacheSearchResult(groupSearchResult);
             logger.info("Search time:"+((end-start)/100));
-            ctx.json(groupSearchResult);
+
+
+            GroupSearchResult result = new GroupSearchResult();
+
+            int count = 0;
+            for(HomepageGroup group: groupSearchResult.getGroupData().values()){
+              String city = "";
+              if(group.getCities().length != 0){
+                city = group.getCities()[0];
+              }
+              result.addGroup(group.getId(),"","", "","");
+
+              Thread.sleep(500);
+              if(count == 10){
+                break;
+              }
+              count++;
+            }
+
+            System.out.println(count);
+            ctx.json(result);
+            ctx.status(HttpStatus.OK);
           }
-
-          ctx.status(HttpStatus.OK);
-
           logger.info("Finished search");
 
         } catch (Exception e) {
@@ -149,11 +168,5 @@ public class Main {
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
     );
-
-    app.after(ctx->{
-      if(!ctx.method().equals(HandlerType.GET)){
-        
-      }
-    });
   }
 }

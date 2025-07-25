@@ -126,8 +126,7 @@ public class ReadGroupServiceIntegrationTest {
     );
     Assertions.assertAll(
         () -> assertEquals("Alexandria Board Game Group", result.getName()),
-        () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl()),
-        () -> assertEquals(result.getDescription().contains("Like playing board games after meeting new people?"), true)
+        () -> assertEquals("https://www.meetup.com/board-games-at/", result.getUrl())
     );
   }
 

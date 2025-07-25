@@ -1,6 +1,6 @@
 package app.cache;
 
-import app.result.GroupSearchResult;
+import app.result.HomeResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import database.search.GroupSearchParams;
 import io.javalin.http.Context;
@@ -37,7 +37,7 @@ public class CacheConnection {
     this.objectMapper = new ObjectMapper();
   }
 
-  public Optional<GroupSearchResult> getCachedSearchResult() throws Exception{
+  public Optional<HomeResult> getCachedSearchResult() throws Exception{
 
     String data = context.cookieStore().get(cacheKey);
     if(data == null){
@@ -48,13 +48,17 @@ public class CacheConnection {
 
     logger.info("Found cached search result");
 
-    GroupSearchResult cachedData = objectMapper.readValue(data, GroupSearchResult.class);
-    return Optional.of(cachedData);
+    CompressedHomepageSearchResult cachedData = objectMapper.readValue(data, CompressedHomepageSearchResult.class);
+    return Optional.of(cachedData.getHomepageSearchResult());
   }
 
-  public void cacheSearchResult(GroupSearchResult searchResult) throws Exception{
+  public void cacheSearchResult(HomeResult searchResult) throws Exception{
     logger.info("Caching search result");
-    String cacheData = objectMapper.writeValueAsString(searchResult);
+
+    CompressedHomepageSearchResult compressed = new CompressedHomepageSearchResult();
+    compressed.addGroups(searchResult);
+
+    String cacheData = objectMapper.writeValueAsString(compressed);
     context.cookieStore().set(cacheKey, cacheData);
   }
 
