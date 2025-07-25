@@ -35,7 +35,6 @@ public class GroupsApi {
             var groupService = sessionContext.createReadGroupService();
 
             GroupPageData pageData = groupService.getGroupPageData(searchParams);
-            logger.info("Retrieved group data");
             ctx.json(pageData);
             ctx.status(HttpStatus.OK);
           } catch (SearchParameterException e) {

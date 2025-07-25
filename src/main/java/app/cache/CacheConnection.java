@@ -7,17 +7,9 @@ import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterOutputStream;
 
 
 public class CacheConnection {
@@ -44,7 +36,6 @@ public class CacheConnection {
     if(area !=null){
       key+= GroupSearchParams.AREA+"_"+area+"_";
     }
-    System.out.println("Key:"+key);
     this.cacheKey = key;
     this.objectMapper = new ObjectMapper();
   }
@@ -54,11 +45,11 @@ public class CacheConnection {
     try {
       String data = cache.get(cacheKey);
       if(data == null){
-        logger.info("Did not find cached search result with key "+cacheKey);
         return Optional.empty();
       }
 
-      logger.info("Found cached result");
+      LogUtils.printDebugLog("Found cached result");
+      logger.debug("Found cached result");
       CompressedHomepageSearchResult cachedData = objectMapper.readValue(data, CompressedHomepageSearchResult.class);
       return Optional.of(cachedData.getHomepageSearchResult());
     } catch (Exception e) {

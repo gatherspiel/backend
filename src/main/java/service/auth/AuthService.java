@@ -94,7 +94,12 @@ public class AuthService {
   public User getUser(Context ctx) throws Exception{
     logger.info("Retrieving current user");
 
-    Optional<String> username =  authProvider.getUsernameFromToken(ctx.header("authToken"));
+    String userToken = ctx.header("authToken");
+    if(userToken == null){
+      return getReadOnlyUser();
+    }
+
+    Optional<String> username =  authProvider.getUsernameFromToken(userToken);
 
     if(!username.isPresent()){
       return getReadOnlyUser();
