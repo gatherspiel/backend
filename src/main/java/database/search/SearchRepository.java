@@ -1,7 +1,7 @@
 package database.search;
 
 import app.result.GroupSearchResult;
-import net.bytebuddy.asm.Advice;
+import app.result.HomeResult;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -25,11 +25,37 @@ public class SearchRepository {
     this.conn = conn;
   }
 
-  public GroupSearchResult getGroups(
+  public HomeResult getGroupsForHomepage(
     GroupSearchParams searchParams
   )
     throws Exception {
-    PreparedStatement statement = searchParams.generateSearchQuery(conn);
+    PreparedStatement statement = searchParams.generateSearchQuery(conn, true);
+    ResultSet rs = statement.executeQuery();
+
+    Set<String> locationsWithTag = getLocationsWithTag(searchParams);
+
+    HomeResult searchResult = new HomeResult();
+    while (rs.next()) {
+
+      Integer groupId = rs.getInt("groupId");
+
+      String groupName = rs.getString("name");
+      String url = rs.getString("url");
+      String groupCity = rs.getString("groupCity");
+
+      if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
+        searchResult.addGroup(groupId, groupName, url, groupCity);
+
+      }
+    }
+    return searchResult;
+  }
+
+  public GroupSearchResult getGroupsWithDetails(
+      GroupSearchParams searchParams
+  )
+      throws Exception {
+    PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
     Set<String> locationsWithTag = getLocationsWithTag(searchParams);
@@ -61,7 +87,7 @@ public class SearchRepository {
         LocalDateTime startTime = LocalDateTime.now();
 
         if(dayOfWeek != null){
-          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));
+          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));;
         }
         LocalDateTime endTime = startTime.plusHours(1);
 
@@ -83,24 +109,24 @@ public class SearchRepository {
               streetAddress + ", " + city + ", " + state + " " + zipCode;
 
           if (
-            streetAddress == null ||
-            city == null ||
-            state == null ||
-            zipCode == null
+              streetAddress == null ||
+                  city == null ||
+                  state == null ||
+                  zipCode == null
           ) {
             address = "";
           }
           searchResult.addEvent(
-            groupId,
-            eventId,
-            eventName,
-            description,
-            dayOfWeek,
-            address,
-            city,
-            startTime,
-            endTime,
-            isRecurring
+              groupId,
+              eventId,
+              eventName,
+              description,
+              dayOfWeek,
+              address,
+              city,
+              startTime,
+              endTime,
+              isRecurring
           );
         }
       }

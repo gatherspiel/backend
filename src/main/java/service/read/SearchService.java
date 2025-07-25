@@ -2,9 +2,9 @@ package service.read;
 
 import app.groups.data.Group;
 import app.result.GroupSearchResult;
+import app.result.HomeResult;
 import database.search.GroupSearchParams;
 import database.search.SearchRepository;
-import database.utils.ConnectionProvider;
 
 import java.sql.Connection;
 import java.util.LinkedHashMap;
@@ -16,12 +16,13 @@ public class SearchService {
     this.searchRepository = new SearchRepository(conn);
   }
 
-  public GroupSearchResult getGroups(
+  public HomeResult getGroupsForHomepage(
     LinkedHashMap<String, String> searchParams
   ) throws Exception
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
-    GroupSearchResult groups = searchRepository.getGroups(params);
+    HomeResult groups = searchRepository.getGroupsForHomepage(params);
+
     return groups;
   }
 
@@ -31,7 +32,7 @@ public class SearchService {
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
 
-    GroupSearchResult groups = searchRepository.getGroups(params);
+    GroupSearchResult groups = searchRepository.getGroupsWithDetails(params);
     if(groups.countGroups() > 1 ){
       throw new Exception("Multiple groups were found");
     }

@@ -2,10 +2,10 @@ package app.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import app.groups.data.Group;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.result.GroupSearchResult;
+import app.groups.data.HomepageGroup;
+import app.result.HomeResult;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
@@ -40,7 +40,7 @@ public class SearchServiceIntegrationTest {
 
   @Test
   public void testAllGroupsAreReturned_NoSearchParams() throws Exception {
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
       new LinkedHashMap<>()
     );
     assertEquals(39, result.countGroups());
@@ -48,23 +48,23 @@ public class SearchServiceIntegrationTest {
 
   @Test
   public void testAllEventsAreReturned_NoSearchParams() throws Exception {
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
       new LinkedHashMap<String, String>()
     );
 
-    assertEquals(37, result.countEvents());
+    assertEquals(39, result.countGroups());
   }
 
   @ParameterizedTest
   @CsvSource(
     {
-      "sunday, 4, 4",
-      "monday, 6, 6",
-      "tuesday, 3, 3",
-      "wednesday, 6, 6",
-      "thursday, 6, 6",
-      "friday, 3, 3",
-      "saturday, 9, 9"
+      "sunday, 4",
+      "monday, 6",
+      "tuesday, 3",
+      "wednesday, 5",
+      "thursday, 5",
+      "friday, 3",
+      "saturday, 9"
     }
   )
   public void testEventsAreReturned_WithDayAsSearchParam(
@@ -75,28 +75,26 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.DAY_OF_WEEK, day);
 
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
       params
     );
-    assertEquals(expected, result.countEvents());
+    assertEquals(expected, result.countGroups());
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 1, 2", "Falls Church, 0, 2" })
+  @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
   public void testEventsAreReturned_WithLocationAsSearchParam(
     String location,
-    int expectedEvents,
     int expectedGroups
   )
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, location);
 
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
       params
     );
     Assertions.assertAll(
-      () -> assertEquals(expectedEvents, result.countEvents()),
       () -> assertEquals(expectedGroups, result.countGroups())
     );
   }
@@ -104,16 +102,15 @@ public class SearchServiceIntegrationTest {
   @ParameterizedTest
   @CsvSource(
     {
-      "Alexandria, Sunday, 0,0",
-      "Alexandria, Monday, 2,2",
-      "Manassas, Sunday, 1, 1",
-      "Manassas, Saturday, 0, 0"
+      "Alexandria, Sunday,0",
+      "Alexandria, Monday,2",
+      "Manassas, Sunday, 1",
+      "Manassas, Saturday, 0"
     }
   )
   public void testEventsAreReturned_WithLocationAndDayAsSearchParam(
     String location,
     String day,
-    int expectedEvents,
     int expectedGroups
   )
     throws Exception {
@@ -121,11 +118,10 @@ public class SearchServiceIntegrationTest {
     params.put(GroupSearchParams.CITY, location);
     params.put(GroupSearchParams.DAY_OF_WEEK, day);
 
-    GroupSearchResult searchResult = searchService.getGroups(
+    HomeResult searchResult = searchService.getGroupsForHomepage(
       params
     );
     Assertions.assertAll(
-      () -> assertEquals(expectedEvents, searchResult.countEvents()),
       () -> assertEquals(expectedGroups, searchResult.countGroups())
     );
   }
@@ -140,14 +136,14 @@ public class SearchServiceIntegrationTest {
   public void testDuplicateAndNull_LocationResultsAreNotShown(String city) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, city);
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
         params
     );
 
-    Map<Integer, Group> groupData = result.getGroupData();
+    Map<Integer, HomepageGroup> groupData = result.getGroupData();
 
     for(Integer groupId: groupData.keySet()) {
-      Group group = groupData.get(groupId);
+      HomepageGroup group = groupData.get(groupId);
       Set<String> cities = new HashSet<String>();
       for(String groupCity: group.getCities()){
         if(groupCity != null) {
@@ -167,7 +163,7 @@ public class SearchServiceIntegrationTest {
     Exception exception = assertThrows(
       RuntimeException.class,
       () -> {
-        GroupSearchResult result = searchService.getGroups(
+        HomeResult result = searchService.getGroupsForHomepage(
           params
         );
       }
@@ -180,10 +176,10 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, "test");
 
-    GroupSearchResult searchResult = searchService.getGroups(
+    HomeResult searchResult = searchService.getGroupsForHomepage(
       params
     );
-    assertEquals(0, searchResult.countEvents());
+    assertEquals(0, searchResult.countGroups());
   }
 
   @Test
@@ -193,18 +189,17 @@ public class SearchServiceIntegrationTest {
     params.put("Test parameter", "test");
     params.put(GroupSearchParams.CITY, "College Park");
 
-    GroupSearchResult result = searchService.getGroups(
+    HomeResult result = searchService.getGroupsForHomepage(
       params);
-    assertEquals(2, result.countEvents());
     assertEquals(1, result.countGroups());
   }
 
   @Test
   public void testGroupsAreOrderedAlphabetically() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    GroupSearchResult result = searchService.getGroups(params);
+    HomeResult result = searchService.getGroupsForHomepage(params);
 
-    Group[] previous = new Group[1];
+    HomepageGroup[] previous = new HomepageGroup[1];
 
     result.getGroupData().forEach((id, current) -> {
       if (previous[0] != null) {
@@ -227,23 +222,23 @@ public class SearchServiceIntegrationTest {
   public void testSearchResultResponse_DMV_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "DMV");
-    GroupSearchResult result = searchService.getGroups(params);
-    assertEquals(37, result.countEvents());
+    HomeResult result = searchService.getGroupsForHomepage(params);
+    assertEquals(39, result.countGroups());
   }
 
   @Test
   public void testSearchResultResponse_dmv_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
-    GroupSearchResult result = searchService.getGroups(params);
-    assertEquals(37, result.countEvents());
+    HomeResult result = searchService.getGroupsForHomepage(params);
+    assertEquals(39, result.countGroups());
   }
 
   @Test
   public void testSearchResultResponse_unknownLocation_noResults() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "test");
-    GroupSearchResult result = searchService.getGroups(params);
-    assertEquals(0, result.countEvents());
+    HomeResult result = searchService.getGroupsForHomepage(params);
+    assertEquals(0, result.countGroups());
   }
 }

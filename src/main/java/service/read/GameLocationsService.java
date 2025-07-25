@@ -29,21 +29,14 @@ public class GameLocationsService {
 
   public GameLocationData getGameLocations(LocalDate date) throws Exception{
 
-    logger.info("Retrieving game locations");
     ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
     HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date);
-
-    logger.info("Retrieving game restaurants");
 
     GameRestaurantRepository restaurantRepository = new GameRestaurantRepository(conn);
     HashMap<Integer, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants();
 
-    logger.info("Retrieving game stores");
-
     GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
     HashMap<Integer, GameStore> gameStores= gameStoreRepository.getGameStores();
-
-    logger.info("Done retrieving data");
 
     GameLocationData locationData = new GameLocationData();
     locationData.setConventions(conventions);

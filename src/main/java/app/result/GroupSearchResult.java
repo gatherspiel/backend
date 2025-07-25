@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
-class GroupResutlComparator implements Comparator<Group> {
+class GroupResultComparator implements Comparator<Group> {
   public int compare(Group group1, Group group2){
     return group1.getName().compareTo(group2.getName());
   }
 }
+
 public class GroupSearchResult {
 
   //TODO: Update data structure
@@ -104,7 +105,7 @@ public class GroupSearchResult {
 
     /*Results are sorted here instead of in the database query due to the fact that the database isn't configured
     to correctly sort '-' characters*/
-    return groupData.entrySet().stream().sorted(Map.Entry.comparingByValue(new GroupResutlComparator())).collect(
+    return groupData.entrySet().stream().sorted(Map.Entry.comparingByValue(new GroupResultComparator())).collect(
         Collectors.toMap(
             Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
   }

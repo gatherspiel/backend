@@ -1,10 +1,15 @@
 package app.groups.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
   public Event[] events;
   public int id;
   public String url;
   public String[] cities;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public String description;
   public String name;
 
@@ -38,7 +43,7 @@ public class Group {
   }
 
   public String getDescription(){
-    return description;
+    return null;
   }
 
   public String getName() {

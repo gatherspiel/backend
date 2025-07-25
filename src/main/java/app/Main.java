@@ -1,10 +1,13 @@
 package app;
 
 import app.admin.request.BulkUpdateInputRequest;
+import app.cache.CacheConnection;
+import app.result.HomeResult;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +20,7 @@ import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class Main {
 
@@ -67,18 +71,24 @@ public class Main {
             ctx
           );
 
-          var searchService = sessionContext.createSearchService();
-          var groupSearchResult = searchService.getGroups(
-            searchParams
-          );
+          var cacheConnection = new CacheConnection(ctx);
+          Optional<HomeResult> cachedData = cacheConnection.getCachedSearchResult();
+          if(cachedData.isPresent()){
+            ctx.json(cachedData.get());
+            ctx.status(HttpStatus.OK);
+          } else {
+            var searchService = sessionContext.createSearchService();
+            var groupSearchResult = searchService.getGroupsForHomepage(
+                searchParams
+            );
 
-          long end = System.currentTimeMillis();
+            cacheConnection.cacheSearchResult(groupSearchResult);
+            long end = System.currentTimeMillis();
 
-          logger.info("Search time:"+((end-start)/100));
-          ctx.json(groupSearchResult);
-          ctx.status(HttpStatus.OK);
-
-          logger.info("Finished search");
+            logger.info("Search time:" + ((end - start) / 100));
+            ctx.json(groupSearchResult);
+            ctx.status(HttpStatus.OK);
+          }
 
         } catch (Exception e) {
           e.printStackTrace();
@@ -97,7 +107,6 @@ public class Main {
           GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
           var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
-          logger.info("Retrieved game location data");
 
           ctx.json(gameLocationData);
           ctx.status(HttpStatus.OK);
@@ -115,7 +124,6 @@ public class Main {
           String areaFilter = ctx.queryParam("area");
 
           var cities = gameLocationsService.getAllEventLocations(areaFilter);
-          logger.info("Retrieved event cities");
           ctx.json(cities);
           ctx.status(HttpStatus.OK);
         });
@@ -138,5 +146,11 @@ public class Main {
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
     );
+
+    app.after(ctx->{
+      if(!ctx.method().equals(HandlerType.GET)){
+
+      }
+    });
   }
 }
