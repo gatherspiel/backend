@@ -40,6 +40,7 @@ public class CompressedHomepageSearchResult {
     return groupData;
   }
 
+  @JsonIgnore
   public HomeResult getHomepageSearchResult(){
     HomeResult homepageSearchResult = new HomeResult();
     for(CompressedGroup compressedGroup: groupData.values()){

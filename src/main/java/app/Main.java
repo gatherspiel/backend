@@ -2,12 +2,12 @@ package app;
 
 import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
-import app.groups.data.HomepageGroup;
-import app.result.GroupSearchResult;
+import app.result.HomeResult;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +15,7 @@ import service.*;
 import service.auth.AuthService;
 import service.auth.supabase.SupabaseAuthProvider;
 import service.read.GameLocationsService;
+import service.read.SearchService;
 import service.user.UserService;
 import utils.LogUtils;
 
@@ -69,46 +70,25 @@ public class Main {
           var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
             ctx
           );
-          var cacheConnection = new CacheConnection(ctx);
 
-          var cachedData = Optional.empty();
-          //Optional<GroupSearchResult> cachedData = cacheConnection.getCachedSearchResult();
+          var cacheConnection = new CacheConnection(ctx);
+          Optional<HomeResult> cachedData = cacheConnection.getCachedSearchResult();
           if(cachedData.isPresent()){
-           ctx.json(cachedData);
+            ctx.json(cachedData.get());
+            ctx.status(HttpStatus.OK);
           } else {
             var searchService = sessionContext.createSearchService();
             var groupSearchResult = searchService.getGroupsForHomepage(
                 searchParams
             );
 
+            cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
-            cacheConnection.cacheSearchResult(groupSearchResult);
-            logger.info("Search time:"+((end-start)/100));
-
-
-            GroupSearchResult result = new GroupSearchResult();
-
-            int count = 0;
-            for(HomepageGroup group: groupSearchResult.getGroupData().values()){
-              String city = "";
-              if(group.getCities().length != 0){
-                city = group.getCities()[0];
-              }
-              result.addGroup(group.getId(),"","", "","");
-
-              Thread.sleep(500);
-              if(count == 10){
-                break;
-              }
-              count++;
-            }
-
-            System.out.println(count);
-            ctx.json(result);
+            logger.info("Search time:" + ((end - start) / 100));
+            ctx.json(groupSearchResult);
             ctx.status(HttpStatus.OK);
           }
-          logger.info("Finished search");
 
         } catch (Exception e) {
           e.printStackTrace();
@@ -127,7 +107,6 @@ public class Main {
           GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
           var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
-          logger.info("Retrieved game location data");
 
           ctx.json(gameLocationData);
           ctx.status(HttpStatus.OK);
@@ -145,7 +124,6 @@ public class Main {
           String areaFilter = ctx.queryParam("area");
 
           var cities = gameLocationsService.getAllEventLocations(areaFilter);
-          logger.info("Retrieved event cities");
           ctx.json(cities);
           ctx.status(HttpStatus.OK);
         });
@@ -168,5 +146,11 @@ public class Main {
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
     );
+
+    app.after(ctx->{
+      if(!ctx.method().equals(HandlerType.GET)){
+
+      }
+    });
   }
 }
