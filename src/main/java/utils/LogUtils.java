@@ -14,7 +14,7 @@ public class LogUtils {
   }
 
   public static void printDebugLog(String message) {
-    if (("prod").equals(System.getenv("ENV"))) {
+    if (!("prod").equals(System.getenv("ENV"))) {
       if (debugLogger != null) {
         debugLogger.info(message);
       }

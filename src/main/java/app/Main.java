@@ -47,7 +47,7 @@ public class Main {
       )
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
-    
+
     UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
     EventsApi.eventEndpoints(app);
@@ -149,8 +149,9 @@ public class Main {
     );
 
     app.after(ctx->{
-      if(!ctx.method().equals(HandlerType.GET)){
-
+      if(!ctx.method().equals(HandlerType.GET) && !ctx.method().equals(HandlerType.OPTIONS)){
+        System.out.println(ctx.method());
+        CacheConnection.clearCache();
       }
     });
   }

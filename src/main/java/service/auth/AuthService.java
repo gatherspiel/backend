@@ -95,9 +95,6 @@ public class AuthService {
     logger.info("Retrieving current user");
 
     String userToken = ctx.header("authToken");
-    if(userToken == null){
-      return getReadOnlyUser();
-    }
 
     Optional<String> username =  authProvider.getUsernameFromToken(userToken);
 
@@ -169,8 +166,12 @@ public class AuthService {
     return true;
   }
 
-  //TODO: Consider moving this function and the one below it outside of AuthService.
   public static User getUser(Connection conn, Context ctx) throws Exception{
+
+    String userToken = ctx.header("authToken");
+    if(userToken == null){
+      return getReadOnlyUser();
+    }
 
     UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
     SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
