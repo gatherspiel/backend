@@ -9,7 +9,6 @@ public class Group {
   public String url;
   public String[] cities;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   public String description;
   public String name;
 
@@ -43,7 +42,7 @@ public class Group {
   }
 
   public String getDescription(){
-    return null;
+    return description;
   }
 
   public String getName() {

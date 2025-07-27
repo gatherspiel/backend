@@ -9,7 +9,6 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 public class UserRepository extends BaseRepository {
 
   Logger logger;
