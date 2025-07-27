@@ -17,7 +17,6 @@ public class LocalDevConnectionProvider extends LocalConnectionProvider {
       System.out.println("Did not find driver");
       throw new RuntimeException(e);
     }
-    logger.info("Loaded database Driver");
     String url =
         "jdbc:postgresql://127.0.0.1:54322/postgres?user=postgres&password=postgres";
     Connection conn = DriverManager.getConnection(url);

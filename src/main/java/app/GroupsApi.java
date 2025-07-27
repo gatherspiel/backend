@@ -1,5 +1,6 @@
 package app;
 
+import app.cache.CacheConnection;
 import app.groups.GroupRequestParser;
 import app.groups.data.Group;
 import app.result.error.GroupNotFoundError;
@@ -16,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterException;
 import utils.LogUtils;
 
+import java.util.Optional;
+
 public class GroupsApi {
 
   public static Logger logger = LogUtils.getLogger();
@@ -23,30 +26,36 @@ public class GroupsApi {
 
   public static void groupEndpoints(Javalin app) {
     app.get(
-        "/groups",
-        ctx -> {
+      "/groups",
+      ctx -> {
 
-          try {
+        try {
 
+          GroupPageData groupPageData;
+          CacheConnection cacheConnection = new CacheConnection(ctx);
+
+          Optional<GroupPageData> data = cacheConnection.getCachedGroupPage();
+          if(data.isPresent()){
+            groupPageData = data.get();
+          }else {
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
             var groupService = sessionContext.createReadGroupService();
-
-            GroupPageData pageData = groupService.getGroupPageData(searchParams);
-            logger.info("Retrieved group data");
-            ctx.json(pageData);
-            ctx.status(HttpStatus.OK);
-          } catch (SearchParameterException e) {
-            e.printStackTrace();
-            ctx.status(404);
-          } catch(Exception e){
-            e.printStackTrace();
-            ctx.result(e.getMessage());
-            ctx.status(500);
+            groupPageData = groupService.getGroupPageData(searchParams);
           }
+          ctx.json(groupPageData);
+          ctx.status(HttpStatus.OK);
+        } catch (SearchParameterException e) {
+          e.printStackTrace();
+          ctx.status(404);
+        } catch(Exception e){
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(500);
         }
+      }
     );
 
     app.put(

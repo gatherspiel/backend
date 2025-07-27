@@ -10,6 +10,7 @@ import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import service.*;
 import service.auth.AuthService;
@@ -148,8 +149,9 @@ public class Main {
     );
 
     app.after(ctx->{
-      if(!ctx.method().equals(HandlerType.GET)){
-
+      if(!ctx.method().equals(HandlerType.GET) && !ctx.method().equals(HandlerType.OPTIONS)){
+        System.out.println(ctx.method());
+        CacheConnection.clearCache();
       }
     });
   }
