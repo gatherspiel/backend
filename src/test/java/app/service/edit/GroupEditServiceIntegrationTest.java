@@ -9,12 +9,7 @@ import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.auth.AuthService;
-import service.permissions.GroupPermissionService;
-import service.provider.ReadGroupDataProvider;
-import service.read.ReadGroupService;
-import service.update.GroupEditService;
-import service.user.UserService;
+
 
 import java.sql.Connection;
 import java.util.Optional;

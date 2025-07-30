@@ -6,6 +6,7 @@ public enum EventLocationState {
   DC("DC"),
   MD("MD"),
   VA("VA"),
+  TBD("TBD"),
   WV("WV");
 
   private String name;
@@ -32,7 +33,8 @@ public enum EventLocationState {
         return eventLocationState;
       }
     }
-    throw new Exception("Invalid string:"+stateStr +" for UserType enum");
+
+    return EventLocationState.TBD;
   }
 
 }

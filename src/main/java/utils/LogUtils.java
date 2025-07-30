@@ -1,6 +1,6 @@
 package utils;
 
-import database.content.GameStoreRepository;
+import app.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,7 +8,7 @@ public class LogUtils {
 
   static Logger debugLogger = null;
   public static Logger getLogger() {
-    var debugLogger = LogManager.getLogger(GameStoreRepository.class);
+    var debugLogger = LogManager.getLogger(Main.class);
     LogUtils.debugLogger = debugLogger;
     return debugLogger;
   }

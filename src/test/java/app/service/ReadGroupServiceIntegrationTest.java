@@ -1,31 +1,28 @@
 package app.service;
 
 import app.SessionContext;
-import app.groups.data.Group;
+import app.groups.data.*;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.groups.data.GroupPageData;
-import app.groups.data.GroupPageEventData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
-import io.javalin.http.Context;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import service.auth.AuthService;
 import service.permissions.GroupPermissionService;
-import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
-import service.user.UserService;
+import service.update.EventService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,9 +37,12 @@ public class ReadGroupServiceIntegrationTest {
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
   private static SessionContext sessionContext;
-  Context ctx = mock(Context.class);
+  private static SessionContext adminContext;
 
   private static MockedStatic<AuthService> authMock;
+
+  private static final String ADMIN_USERNAME = "unitTest";
+
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
@@ -54,6 +54,7 @@ public class ReadGroupServiceIntegrationTest {
       authMock.when(()->AuthService.getReadOnlyUser()).thenReturn(new User("reader@dmvboardgames.com", UserType.READONLY, 123));
 
       sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
 
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
       DbUtils.initializeData(testConnectionProvider);
@@ -169,10 +170,10 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria-Arlington Regional Gaming Group");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = adminContext.createReadGroupService().getGroupPageData(
         params
     );
-
+    
     assertEquals(result.getEventData().size(),0);
   }
 
