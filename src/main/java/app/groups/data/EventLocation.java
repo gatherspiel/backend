@@ -15,7 +15,11 @@ public class EventLocation {
   }
 
   public void setState(String eventLocationState) throws Exception{
-    this.state = EventLocationState.fromString(eventLocationState);
+    if(eventLocationState == null){
+      this.state = EventLocationState.fromString("TBD");
+    } else {
+      this.state = EventLocationState.fromString(eventLocationState);
+    }
   }
 
   public String getState(){

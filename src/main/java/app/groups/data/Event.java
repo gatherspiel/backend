@@ -66,6 +66,7 @@ public class Event {
     EventLocation eventLocation = new EventLocation();
     this.eventLocation = eventLocation;
     String[] locationSplit = location.split(",");
+
     if(locationSplit.length == 3) {
       String[] locationSplit2 = locationSplit[2].trim().split(" ");
       if(locationSplit2.length == 2) {

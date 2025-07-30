@@ -6,6 +6,7 @@ public enum EventLocationState {
   DC("DC"),
   MD("MD"),
   VA("VA"),
+  TBD("TBD"),
   WV("WV");
 
   private String name;

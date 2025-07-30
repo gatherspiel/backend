@@ -29,12 +29,14 @@ public class EventsApi {
           }
 
           ctx.json(event.get());
+          ctx.status(HttpStatus.OK);
         } catch(NumberFormatException e) {
           ctx.result(e.getMessage());
           ctx.status(HttpStatus.BAD_REQUEST);
         } catch(Exception e) {
           e.printStackTrace();
           ctx.result(e.getMessage());
+          logger.debug("Error:"+e.getMessage());
           ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
