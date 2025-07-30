@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;
-import service.BulkUpdateService;
+import service.update.BulkUpdateService;
 import service.user.UserService;
 
 public class DbUtils {

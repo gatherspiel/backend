@@ -45,6 +45,9 @@ public class HomeResult {
     }
   }
 
+  public void addGroupData(HomepageGroup group){
+    groupData.put(group.getId(), group);
+  }
 
   public HomepageGroup getFirstGroup() {
     if(groupData.isEmpty()){

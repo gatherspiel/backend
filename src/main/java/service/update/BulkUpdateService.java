@@ -1,4 +1,4 @@
-package service;
+package service.update;
 
 import app.admin.request.BulkUpdateRequest;
 import database.content.*;
