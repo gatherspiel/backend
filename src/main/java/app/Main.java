@@ -150,7 +150,6 @@ public class Main {
 
     app.after(ctx->{
       if(!ctx.method().equals(HandlerType.GET) && !ctx.method().equals(HandlerType.OPTIONS)){
-        System.out.println(ctx.method());
         CacheConnection.clearCache();
       }
     });
