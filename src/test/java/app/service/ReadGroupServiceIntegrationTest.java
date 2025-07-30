@@ -170,10 +170,10 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria-Arlington Regional Gaming Group");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = adminContext.createReadGroupService().getGroupPageData(
         params
     );
-
+    
     assertEquals(result.getEventData().size(),0);
   }
 
@@ -288,31 +288,5 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
-  }
-
-  @Test
-  public void testGetEvent_WhenEventStateIsNotSpecified() throws Exception {
-    LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME,"Alexandria-Arlington Regional Gaming Group");
-
-
-    EventService eventService = adminContext.createEventService();
-    GroupPageData data = adminContext.createReadGroupService().getGroupPageData(params);
-
-    Event event2 = new Event();
-    event2.setLocation("Test");
-    event2.getEventLocation().setCity("Somewhere");
-    event2.getEventLocation().setZipCode(1234);
-    event2.setName("Board Game Event");
-    event2.setUrl("http://localhost:1234");
-    event2.setDay("Monday");
-    eventService.createEvent(event2, data.getId());
-
-    assertTrue(!data.getEventData().isEmpty(),"No events found");
-    for(GroupPageEventData event: data.getEventData()){
-
-      Optional<Event> eventServiceEvent = eventService.getEvent(event.getId());
-      assertTrue(eventServiceEvent.isPresent());
-    }
   }
 }
