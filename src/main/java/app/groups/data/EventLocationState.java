@@ -33,7 +33,8 @@ public enum EventLocationState {
         return eventLocationState;
       }
     }
-    throw new Exception("Invalid string:"+stateStr +" for UserType enum");
+
+    return EventLocationState.TBD;
   }
 
 }
