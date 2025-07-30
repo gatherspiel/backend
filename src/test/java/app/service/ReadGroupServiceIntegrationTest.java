@@ -291,7 +291,7 @@ public class ReadGroupServiceIntegrationTest {
     EventService eventService = readOnlyContext.createEventService();
     GroupPageData data = readOnlyContext.createReadGroupService().getGroupPageData(params);
 
-    assertTrue(data.getEventData().size()>0);
+    assertTrue(!data.getEventData().isEmpty(),"No events found");
     for(GroupPageEventData event: data.getEventData()){
 
       Optional<Event> eventServiceEvent = eventService.getEvent(event.getId());
