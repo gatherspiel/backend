@@ -4,9 +4,11 @@ import app.SessionContext;
 import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.result.HomeResult;
 import app.users.data.PermissionName;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
+import database.search.GroupSearchParams;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -369,6 +371,7 @@ public class EventServiceIntegrationTest {
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
   }
+
 
   @AfterEach
   public void deleteAllEvents() throws Exception{

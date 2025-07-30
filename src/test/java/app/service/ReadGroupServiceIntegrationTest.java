@@ -1,12 +1,11 @@
 package app.service;
 
 import app.SessionContext;
-import app.groups.data.Group;
+import app.groups.data.*;
+import app.result.HomeResult;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.groups.data.GroupPageData;
-import app.groups.data.GroupPageEventData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
@@ -20,12 +19,14 @@ import service.auth.AuthService;
 import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
+import service.update.EventService;
 import service.user.UserService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -277,5 +278,24 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
+  }
+
+  @Test
+  public void testGetEvent_whenEventHasIncompleteData() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME,"Alexandria-Arlington Regional Gaming Group");
+
+
+    var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+
+    EventService eventService = readOnlyContext.createEventService();
+    GroupPageData data = readOnlyContext.createReadGroupService().getGroupPageData(params);
+
+    assertTrue(data.getEventData().size()>0);
+    for(GroupPageEventData event: data.getEventData()){
+
+      Optional<Event> eventServiceEvent = eventService.getEvent(event.getId());
+      assertTrue(eventServiceEvent.isPresent());
+    }
   }
 }
