@@ -167,18 +167,23 @@ public class GroupSearchParams {
     }
 
     String location = ctx.queryParam(GroupSearchParams.CITY);
-    if(location!=null && !location.isEmpty()){
+    if(location != null && !location.isEmpty()){
       paramMap.put(GroupSearchParams.CITY, location);
     }
 
     String area = ctx.queryParam(GroupSearchParams.AREA);
-    if(area!=null && !area.isEmpty()){
+    if(area != null && !area.isEmpty()){
       paramMap.put(GroupSearchParams.AREA, area);
     }
 
     String name = ctx.queryParam(GroupSearchParams.NAME);
-    if(name!=null && !name.isEmpty()){
+    if(name != null && !name.isEmpty()){
       paramMap.put(GroupSearchParams.NAME, name);
+    }
+
+    String distance = ctx.queryParam(GroupSearchParams.DISTANCE);
+    if(distance != null && !distance.isEmpty()){
+      paramMap.put(GroupSearchParams.DISTANCE, distance);
     }
 
     return paramMap;

@@ -29,19 +29,28 @@ public class SearchService {
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
 
-    //TOOD: If distance parameter is specified, return all the results from the query.
-    HomeResult groups = searchRepository.getGroupsForHomepage(params);
+    String searchCity = searchParams.get(GroupSearchParams.CITY);
+    String distance = searchParams.get(GroupSearchParams.DISTANCE);
 
-    if(searchParams.containsKey(GroupSearchParams.DISTANCE)){
-      if(!searchParams.containsKey(GroupSearchParams.CITY)){
+    if(distance != null){
+
+      var updatedParams = new LinkedHashMap<>(searchParams);
+      updatedParams.remove(GroupSearchParams.CITY);
+
+      HomeResult groups = searchRepository.getGroupsForHomepage(params);
+
+      if(searchCity == null){
         throw new SearchParameterException("City not specified for distance filter");
       }
       return filterResultsByDistance(
-          groups,
-          searchParams.get(GroupSearchParams.CITY),
-          Integer.parseInt(searchParams.get(GroupSearchParams.DISTANCE)));
+        groups,
+        searchParams.get(GroupSearchParams.CITY),
+        Integer.parseInt(searchParams.get(GroupSearchParams.DISTANCE)));
+
+    } else {
+      return searchRepository.getGroupsForHomepage(params);
     }
-    return groups;
+
   }
 
 
@@ -68,7 +77,11 @@ public class SearchService {
 
         if(!distance.isPresent()){
           // TODO: Sanitize city name parameter and group city before adding them to log file
-          logger.warn("Could not find distance between cities");
+
+          var cityOutputA = searchCity.replaceAll("[^a-zA-Z0-9\\s]", "");
+          var cityOutputB = groupCity.replaceAll("[^a-zA-Z0-9\\s]", "");
+
+          logger.warn("Could not find distance between cities " + cityOutputA + " and " + cityOutputB);
         }
         if(distance.get()<=maxDistance){
           result.addGroupData(group);

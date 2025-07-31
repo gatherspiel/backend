@@ -1,5 +1,6 @@
 package service.data;
 
+//Data is stored in a string to optimize speed when converting it for use in distance searches.
 public class ZipCodeAndCityData {
   public static final String data = """
       20013,Washington,DC,38.8933,-77.0146
