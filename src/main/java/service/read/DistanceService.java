@@ -33,8 +33,11 @@ class LatLong {
 
   public double getDistance(LatLong other){
 
+    System.out.println(this);
+    System.out.println(other);
+
     double latDistance = Math.toRadians(other.getLatitude() - latitude);
-    double lonDistance = Math.toRadians(other.getLatitude() - longtitude);
+    double lonDistance = Math.toRadians(other.getLongitude() - longtitude);
 
     double latRadiansA = Math.toRadians(latitude);
     double latRadiansB = Math.toRadians(longtitude);
@@ -43,6 +46,10 @@ class LatLong {
                Math.pow(Math.sin(lonDistance/2),2) * Math.cos(latRadiansA) * Math.cos(latRadiansB);
 
     return RADIUS * 2 * Math.asin(Math.sqrt(a));
+  }
+
+  public String toString(){
+    return latitude + ":"+longtitude;
   }
 }
 
@@ -63,8 +70,8 @@ public class DistanceService {
       String[] data = row.split(",");
 
       int zipCode = Integer.parseInt(data[0].trim());
-      String city = data[1];
-      LatLong location = new LatLong(data[3], data[4]);
+      String city = data[3];
+      LatLong location = new LatLong(data[1], data[2]);
 
       zipCodeLocations.put(zipCode, location);
 
@@ -75,11 +82,16 @@ public class DistanceService {
     }
 
     for(String city: cityZipCodes.keySet()){
+      System.out.println("Calculating location of:"+city);
       double latitude = 0;
       double longtitude = 0;
 
       Set<LatLong> locations = cityZipCodes.get(city);
+
+      System.out.println(locations.size());
+
       for(LatLong location: locations){
+        System.out.println(location);
         latitude += location.getLatitude();
         longtitude += location.getLongitude();
       }
@@ -87,6 +99,8 @@ public class DistanceService {
       double locationCount = locations.size();
       latitude = latitude/locationCount;
       longtitude = longtitude/locationCount;
+
+      System.out.println("Average "+ latitude+":"+longtitude);
 
       cityLocations.put(city, new LatLong(latitude, longtitude));
     }
@@ -100,6 +114,7 @@ public class DistanceService {
       return Optional.empty();
     }
 
+    System.out.println(city+":"+city2);
     Double distance = cityLocations.get(city).getDistance(cityLocations.get(city2));
     return Optional.of(distance);
   }

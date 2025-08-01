@@ -21,7 +21,7 @@ public class DistanceServiceTest {
     assertTrue(distance.isPresent());
     assertAll(
         ()->assertTrue(distance.get()<10, ""+distance.get()),
-        ()->assertTrue(distance.get()>10, ""+distance.get())
+        ()->assertTrue(distance.get()>0, ""+distance.get())
     );
   }
 
