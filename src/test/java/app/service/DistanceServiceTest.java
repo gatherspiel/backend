@@ -25,6 +25,16 @@ public class DistanceServiceTest {
     );
   }
 
+  @Test
+  public void testDistanceCalculationNearbyLocations_2(){
+    Optional<Double> distance = DistanceService.getDistance("Fairfax","Falls Church");
+    assertTrue(distance.isPresent());
+    assertAll(
+        ()->assertTrue(distance.get()<10, ""+distance.get()),
+        ()->assertTrue(distance.get()>0, ""+distance.get())
+    );
+  }
+
 
   @Test
   public void testDistanceCalculations_LocationsInDifferentStates(){

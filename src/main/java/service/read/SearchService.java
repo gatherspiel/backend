@@ -27,7 +27,6 @@ public class SearchService {
     LinkedHashMap<String, String> searchParams
   ) throws Exception
   {
-    GroupSearchParams params = new GroupSearchParams(searchParams);
 
     String searchCity = searchParams.get(GroupSearchParams.CITY);
     String distance = searchParams.get(GroupSearchParams.DISTANCE);
@@ -36,6 +35,8 @@ public class SearchService {
 
       var updatedParams = new LinkedHashMap<>(searchParams);
       updatedParams.remove(GroupSearchParams.CITY);
+
+      GroupSearchParams params = new GroupSearchParams(updatedParams);
 
       HomeResult groups = searchRepository.getGroupsForHomepage(params);
 
@@ -48,6 +49,8 @@ public class SearchService {
         Integer.parseInt(searchParams.get(GroupSearchParams.DISTANCE)));
 
     } else {
+      GroupSearchParams params = new GroupSearchParams(searchParams);
+
       return searchRepository.getGroupsForHomepage(params);
     }
 
@@ -76,15 +79,15 @@ public class SearchService {
         Optional<Double> distance = DistanceService.getDistance(searchCity, groupCity);
 
         if(!distance.isPresent()){
-          // TODO: Sanitize city name parameter and group city before adding them to log file
 
           var cityOutputA = searchCity.replaceAll("[^a-zA-Z0-9\\s]", "");
           var cityOutputB = groupCity.replaceAll("[^a-zA-Z0-9\\s]", "");
 
           logger.warn("Could not find distance between cities " + cityOutputA + " and " + cityOutputB);
         }
-        if(distance.get()<=maxDistance){
+        else if(distance.get()<=maxDistance){
           result.addGroupData(group);
+          System.out.println("Adding group:"+group.getName());
           break;
         }
       }

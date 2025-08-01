@@ -32,7 +32,7 @@ public class ZipCodeAndCityData {
                 20045,38.8949,77.0279,Washington
                 20260,38.9181,77.0222,Washington
                 20374,38.8306,77.0162,Washington
-                22046,38.88688278,77.18019867,Falls Church
+                22046,38.88688278,77.1793,Falls Church
                 22201,38.8858,77.0951,Arlington
                 22202,38.8565,77.0512,Arlington
                 22203,38.8736,77.1178,Arlington
@@ -82,14 +82,14 @@ public class ZipCodeAndCityData {
                 22036,38.8021,77.4302,Fairfax
                 22039,38.7497,77.3141,Fairfax Station
                 22041,38.8465,77.1465,Baileys Crossroads
-                22041,39.8465,77.1465,Falls Church
+                22041,38.8465,77.1465,Falls Church
                 22042,38.8645,77.1936,Mosby
-                22042,39.8645,77.1936,Falls Church
+                22042,38.8645,77.1936,Falls Church
                 22043,38.9012,77.1971,Pimmit
-                22043,39.9012,77.1971,Falls Church
+                22043,38.9012,77.1971,Falls Church
                 22044,38.8591,77.1567,Seven Corners
                 22044,38.8591,77.1567,Falls Church
-                22066,39.0137,77.3069,Great Falls
+                22066,38.0137,77.3069,Great Falls
                 22067,38.9712,77.2305,Greenway
                 22067,38.9712,77.2305,Mclean
                 22079,38.6817,77.2042,Mason Neck

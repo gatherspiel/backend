@@ -56,8 +56,13 @@ public class GroupSearchParams {
       } else if (param.equals(NAME)){
         this.params.put(param, params.get(param).replace("_", " "));
       }else {
-        logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
+        if (!param.equals(DISTANCE)) {
+          logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
+
+        }
       }
+
+
     });
   }
 

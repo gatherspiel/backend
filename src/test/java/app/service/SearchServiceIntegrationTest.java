@@ -247,7 +247,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
+  @CsvSource({ "Fairfax, 1", "Falls Church, 1" })
   public void testSearchDistanceZero_returnsAllResultsInCity(
       String location,
       int expectedGroups) throws Exception
@@ -277,7 +277,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 4", "Falls Church, 4" })
+  @CsvSource({ "Fairfax, 3", "Falls Church, 6" })
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -294,7 +294,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 6", "Falls Church, 6" })
+  @CsvSource({ "Fairfax, 16", "Falls Church, 19" })
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -311,7 +311,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 100", "Falls Church, 100" })
+  @CsvSource({ "Fairfax, 37", "Falls Church, 37" })
   public void testSearchDistanceLongDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -326,6 +326,25 @@ public class SearchServiceIntegrationTest {
         () -> assertEquals(expectedGroups, result.countGroups())
     );
   }
+
+  @Test
+  public void testSearchWithOnlyCityAsParameter_returnsResultForGroupInMultipleCities() throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, "Arlington");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+
+    boolean hasGroup = false;
+    for(HomepageGroup group: result.getGroupData().values()){
+      if(group.getName().equals("Beer & Board Games")){
+        hasGroup = true;
+      }
+    }
+    assertTrue(hasGroup);
+  }
+
 
   @Test
   public void testSearchDistanceZeroInArlington_returnsResultForGroupInMultipleCities() throws Exception

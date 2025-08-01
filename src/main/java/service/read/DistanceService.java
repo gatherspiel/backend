@@ -1,5 +1,6 @@
 package service.read;
 
+import database.search.SameLocationData;
 import service.data.ZipCodeAndCityData;
 
 import java.util.HashMap;
@@ -32,10 +33,6 @@ class LatLong {
   }
 
   public double getDistance(LatLong other){
-
-    System.out.println(this);
-    System.out.println(other);
-
     double latDistance = Math.toRadians(other.getLatitude() - latitude);
     double lonDistance = Math.toRadians(other.getLongitude() - longtitude);
 
@@ -100,22 +97,25 @@ public class DistanceService {
       latitude = latitude/locationCount;
       longtitude = longtitude/locationCount;
 
-      System.out.println("Average "+ latitude+":"+longtitude);
-
       cityLocations.put(city, new LatLong(latitude, longtitude));
     }
   }
 
   public static Optional<Double> getDistance(String city, String city2){
-    if(!cityLocations.containsKey(city)){
+
+    String dbCity = SameLocationData.getDatabaseCityName(city);
+    String dbCity2 = SameLocationData.getDatabaseCityName(city2);
+
+    if(!cityLocations.containsKey(dbCity)){
+      System.out.println("No data for:"+city);
       return Optional.empty();
     }
-    if(!cityLocations.containsKey(city2)){
+    if(!cityLocations.containsKey(dbCity2)){
+      System.out.println("No data for:"+city2);
       return Optional.empty();
     }
 
-    System.out.println(city+":"+city2);
-    Double distance = cityLocations.get(city).getDistance(cityLocations.get(city2));
+    Double distance = cityLocations.get(dbCity).getDistance(cityLocations.get(dbCity2));
     return Optional.of(distance);
   }
 
