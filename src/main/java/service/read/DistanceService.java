@@ -62,7 +62,7 @@ public class DistanceService {
 
       String[] data = row.split(",");
 
-      int zipCode = Integer.parseInt(data[0]);
+      int zipCode = Integer.parseInt(data[0].trim());
       String city = data[1];
       LatLong location = new LatLong(data[3], data[4]);
 
