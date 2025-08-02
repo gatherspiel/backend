@@ -247,7 +247,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 1", "Falls Church, 1" })
+  @CsvSource({ "Fairfax, 2", "Falls Church, 1" })
   public void testSearchDistanceZero_returnsAllResultsInCity(
       String location,
       int expectedGroups) throws Exception
@@ -271,13 +271,14 @@ public class SearchServiceIntegrationTest {
       ()->{
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
         params.put(GroupSearchParams.DISTANCE, "0");
+        searchService.getGroupsForHomepage(params);
       }
     );
     assertTrue(exception.getMessage().contains("City not specified for distance filter"));
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 3", "Falls Church, 6" })
+  @CsvSource({ "Fairfax, 3", "Falls Church, 7" })
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -294,7 +295,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 16", "Falls Church, 19" })
+  @CsvSource({ "Fairfax, 18", "Falls Church, 20" })
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception

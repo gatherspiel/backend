@@ -79,16 +79,12 @@ public class DistanceService {
     }
 
     for(String city: cityZipCodes.keySet()){
-      System.out.println("Calculating location of:"+city);
       double latitude = 0;
       double longtitude = 0;
 
       Set<LatLong> locations = cityZipCodes.get(city);
 
-      System.out.println(locations.size());
-
       for(LatLong location: locations){
-        System.out.println(location);
         latitude += location.getLatitude();
         longtitude += location.getLongitude();
       }
@@ -107,11 +103,9 @@ public class DistanceService {
     String dbCity2 = SameLocationData.getDatabaseCityName(city2);
 
     if(!cityLocations.containsKey(dbCity)){
-      System.out.println("No data for:"+city);
       return Optional.empty();
     }
     if(!cityLocations.containsKey(dbCity2)){
-      System.out.println("No data for:"+city2);
       return Optional.empty();
     }
 

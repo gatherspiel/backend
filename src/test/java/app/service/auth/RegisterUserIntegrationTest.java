@@ -42,9 +42,7 @@ public class RegisterUserIntegrationTest {
 
       transactionConn = testConnectionProvider.getConnectionWithManualCommit();
 
-      System.out.println("Creating tables");
       DbUtils.createTables(conn);
-      System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
       userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn));

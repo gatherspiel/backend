@@ -75,7 +75,6 @@ public class SearchService {
 
     for(HomepageGroup group: groups.getGroupData().values()){
       for(String groupCity: group.getCities()){
-
         Optional<Double> distance = DistanceService.getDistance(searchCity, groupCity);
 
         if(!distance.isPresent()){
@@ -87,7 +86,6 @@ public class SearchService {
         }
         else if(distance.get()<=maxDistance){
           result.addGroupData(group);
-          System.out.println("Adding group:"+group.getName());
           break;
         }
       }

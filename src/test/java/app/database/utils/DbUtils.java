@@ -28,9 +28,7 @@ public class DbUtils {
         stringBuilder.append(scanner.nextLine() + " ");
       }
       String query = stringBuilder.toString();
-
       stat.execute(query);
-      System.out.println("Created tables for integration tests");
     } catch (Exception e) {
       System.out.println("Error creating tables for integration tests:" + e.getMessage());
       throw e;

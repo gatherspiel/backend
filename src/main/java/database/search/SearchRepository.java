@@ -41,7 +41,13 @@ public class SearchRepository {
 
       String groupName = rs.getString("name");
       String url = rs.getString("url");
-      String groupCity = rs.getString("groupCity");
+
+      String groupCity;
+      if(rs.getString("city") != null){
+        groupCity = rs.getString("city");
+      } else {
+        groupCity = rs.getString("groupCity");
+      }
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
         searchResult.addGroup(groupId, groupName, url, groupCity);

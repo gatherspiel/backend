@@ -42,6 +42,8 @@ public class HomeResult {
       group.setUrl(url);
       group.addCity(groupCity);
       groupData.put(id, group);
+    } else {
+      groupData.get(id).addCity(groupCity);
     }
   }
 

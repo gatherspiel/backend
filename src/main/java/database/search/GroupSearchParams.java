@@ -101,6 +101,7 @@ public class GroupSearchParams {
           groups.name,
           groups.url,
           groups.description,
+          locations.city as city,
           locs.city as groupCity
         FROM groups
        LEFT JOIN event_group_map on groups.id = event_group_map.group_id

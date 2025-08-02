@@ -31,8 +31,5 @@ public class FilterZipCodes {
       })
       .toList();
 
-    records.forEach((dataRow)->{
-      System.out.println(String.join(",", dataRow));
-    });
   }
 }
