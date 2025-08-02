@@ -22,9 +22,7 @@ public class LocationUpdateIntegrationTest {
     try {
       conn = testConnectionProvider.getDatabaseConnection();
 
-      System.out.println("Creating tables");
       DbUtils.createTables(conn);
-      System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
       gameLocationsService = new GameLocationsService(conn);
     } catch (Exception e) {

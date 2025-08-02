@@ -41,9 +41,7 @@ public class EditPermissionServiceIntegrationTest {
     conn = testConnectionProvider.getDatabaseConnection();
 
     try {
-      System.out.println("Creating tables");
       DbUtils.createTables(conn);
-      System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
       adminContext = CreateUserUtils.createContextWithNewAdminUser( ADMIN_USERNAME,testConnectionProvider);

@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.groups.data.Group;
 import app.groups.data.HomepageGroup;
 import app.result.HomeResult;
+import app.utils.CreateGroupUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import service.read.DistanceService;
 import service.read.SearchService;
 
 public class SearchServiceIntegrationTest {
@@ -27,6 +30,7 @@ public class SearchServiceIntegrationTest {
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
+    DistanceService.loadData();
     try {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
@@ -241,4 +245,144 @@ public class SearchServiceIntegrationTest {
     HomeResult result = searchService.getGroupsForHomepage(params);
     assertEquals(0, result.countGroups());
   }
+
+  @ParameterizedTest
+  @CsvSource({ "Fairfax, 2", "Falls Church, 1" })
+  public void testSearchDistanceZero_returnsAllResultsInCity(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "0");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+  @Test
+  public void testSearchDistanceWithoutLocation_throwsError() throws Exception{
+
+    Exception exception = assertThrows(
+      Exception.class,
+      ()->{
+        LinkedHashMap<String, String> params = new LinkedHashMap<>();
+        params.put(GroupSearchParams.DISTANCE, "0");
+        searchService.getGroupsForHomepage(params);
+      }
+    );
+    assertTrue(exception.getMessage().contains("City not specified for distance filter"));
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Fairfax, 3", "Falls Church, 7" })
+  public void testSearchDistanceNearby_returnsCorrectNumberOfResults(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "2");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Fairfax, 18", "Falls Church, 20" })
+  public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "10");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Fairfax, 37", "Falls Church, 37" })
+  public void testSearchDistanceLongDistance_returnsCorrectNumberOfResults(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "999");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+  @Test
+  public void testSearchWithOnlyCityAsParameter_returnsResultForGroupInMultipleCities() throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, "Arlington");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+
+    boolean hasGroup = false;
+    for(HomepageGroup group: result.getGroupData().values()){
+      if(group.getName().equals("Beer & Board Games")){
+        hasGroup = true;
+      }
+    }
+    assertTrue(hasGroup);
+  }
+
+
+  @Test
+  public void testSearchDistanceZeroInArlington_returnsResultForGroupInMultipleCities() throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, "Arlington");
+    params.put(GroupSearchParams.DISTANCE, "0");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+
+    boolean hasGroup = false;
+    for(HomepageGroup group: result.getGroupData().values()){
+      if(group.getName().equals("Beer & Board Games")){
+        hasGroup = true;
+      }
+    }
+    assertTrue(hasGroup);
+  }
+
+  @Test
+  public void testSearchDistanceZeroInDC_returnsResultForGroupInMultipleCities() throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, "DC");
+    params.put(GroupSearchParams.DISTANCE, "0");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+
+    boolean hasGroup = false;
+    for(HomepageGroup group: result.getGroupData().values()){
+      if(group.getName().equals("Beer & Board Games")){
+        hasGroup = true;
+      }
+    }
+    assertTrue(hasGroup);
+  }
+
 }

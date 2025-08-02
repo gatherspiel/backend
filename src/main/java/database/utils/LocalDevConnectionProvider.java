@@ -14,7 +14,6 @@ public class LocalDevConnectionProvider extends LocalConnectionProvider {
     try {
       Class.forName("org.postgresql.Driver");
     } catch (ClassNotFoundException e) {
-      System.out.println("Did not find driver");
       throw new RuntimeException(e);
     }
     String url =

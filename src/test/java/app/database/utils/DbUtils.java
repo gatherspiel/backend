@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Scanner;
 
 import database.utils.LocalConnectionProvider;
-import service.BulkUpdateService;
+import service.update.BulkUpdateService;
 import service.user.UserService;
 
 public class DbUtils {
@@ -28,9 +28,7 @@ public class DbUtils {
         stringBuilder.append(scanner.nextLine() + " ");
       }
       String query = stringBuilder.toString();
-
       stat.execute(query);
-      System.out.println("Created tables for integration tests");
     } catch (Exception e) {
       System.out.println("Error creating tables for integration tests:" + e.getMessage());
       throw e;
