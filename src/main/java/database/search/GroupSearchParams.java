@@ -17,7 +17,7 @@ public class GroupSearchParams {
   public static final String CITY = "city";
   public static final String AREA = "area";
   public static final String NAME = "name";
-
+  public static final String DISTANCE = "distance";
   //Query parameters for filtering results by a specific field value
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
@@ -56,8 +56,13 @@ public class GroupSearchParams {
       } else if (param.equals(NAME)){
         this.params.put(param, params.get(param).replace("_", " "));
       }else {
-        logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
+        if (!param.equals(DISTANCE)) {
+          logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
+
+        }
       }
+
+
     });
   }
 
@@ -96,6 +101,7 @@ public class GroupSearchParams {
           groups.name,
           groups.url,
           groups.description,
+          locations.city as city,
           locs.city as groupCity
         FROM groups
        LEFT JOIN event_group_map on groups.id = event_group_map.group_id
@@ -167,18 +173,23 @@ public class GroupSearchParams {
     }
 
     String location = ctx.queryParam(GroupSearchParams.CITY);
-    if(location!=null && !location.isEmpty()){
+    if(location != null && !location.isEmpty()){
       paramMap.put(GroupSearchParams.CITY, location);
     }
 
     String area = ctx.queryParam(GroupSearchParams.AREA);
-    if(area!=null && !area.isEmpty()){
+    if(area != null && !area.isEmpty()){
       paramMap.put(GroupSearchParams.AREA, area);
     }
 
     String name = ctx.queryParam(GroupSearchParams.NAME);
-    if(name!=null && !name.isEmpty()){
+    if(name != null && !name.isEmpty()){
       paramMap.put(GroupSearchParams.NAME, name);
+    }
+
+    String distance = ctx.queryParam(GroupSearchParams.DISTANCE);
+    if(distance != null && !distance.isEmpty()){
+      paramMap.put(GroupSearchParams.DISTANCE, distance);
     }
 
     return paramMap;

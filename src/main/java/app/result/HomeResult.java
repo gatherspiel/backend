@@ -42,9 +42,14 @@ public class HomeResult {
       group.setUrl(url);
       group.addCity(groupCity);
       groupData.put(id, group);
+    } else {
+      groupData.get(id).addCity(groupCity);
     }
   }
 
+  public void addGroupData(HomepageGroup group){
+    groupData.put(group.getId(), group);
+  }
 
   public HomepageGroup getFirstGroup() {
     if(groupData.isEmpty()){

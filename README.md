@@ -30,7 +30,7 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 ## Create an admin account for local development
 
 - In the UI, register a user with the email test@gatherspiel.com and the password 123456.
-- Navigate to the user table in the public schema. For the user with the email test@gatherspiel,com,
+- Access the database at http://localhost:54323. Navigate to the user table in the public schema. For the user with the email test@gatherspiel,com,
   set the user_role_level to site_admin and set the "IS_ACTIVE" flag to true.
 
 

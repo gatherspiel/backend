@@ -47,9 +47,7 @@ public class GroupEditServiceIntegrationTest {
 
     try {
       conn = testConnectionProvider.getDatabaseConnection();
-      System.out.println("Creating tables");
       DbUtils.createTables(conn);
-      System.out.println("Initializing data");
       DbUtils.initializeData(testConnectionProvider);
 
       adminContext = CreateUserUtils.createContextWithNewAdminUser( ADMIN_USERNAME,testConnectionProvider);

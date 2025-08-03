@@ -1,4 +1,4 @@
-package service;
+package service.read;
 
 import database.TestRepository;
 

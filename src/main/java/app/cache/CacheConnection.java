@@ -27,6 +27,7 @@ public class CacheConnection {
     String location = ctx.queryParam(GroupSearchParams.CITY);
     String area = ctx.queryParam(GroupSearchParams.AREA);
     String name = ctx.queryParam(GroupSearchParams.NAME);
+    String distance = ctx.queryParam(GroupSearchParams.DISTANCE);
 
     String key = "";
     if(day != null){
@@ -40,6 +41,9 @@ public class CacheConnection {
     }
     if(name !=null){
       key+= GroupSearchParams.NAME+"_"+name;
+    }
+    if(distance !=null){
+      key+= GroupSearchParams.DISTANCE+"_"+distance;
     }
     this.cacheKey = key;
     this.objectMapper = new ObjectMapper();

@@ -10,13 +10,13 @@ import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import service.*;
 import service.auth.AuthService;
 import service.auth.supabase.SupabaseAuthProvider;
+import service.read.DistanceService;
 import service.read.GameLocationsService;
-import service.read.SearchService;
+import service.read.TestService;
+import service.update.BulkUpdateService;
 import service.user.UserService;
 import utils.LogUtils;
 
@@ -48,6 +48,7 @@ public class Main {
       .get("/", ctx -> ctx.result("Hello World"))
       .start(7070);
 
+    DistanceService.loadData();
     UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
     EventsApi.eventEndpoints(app);
@@ -150,7 +151,6 @@ public class Main {
 
     app.after(ctx->{
       if(!ctx.method().equals(HandlerType.GET) && !ctx.method().equals(HandlerType.OPTIONS)){
-        System.out.println(ctx.method());
         CacheConnection.clearCache();
       }
     });
