@@ -1,5 +1,6 @@
 package service.auth.supabase;
 
+import app.result.error.StackTraceShortener;
 import app.users.data.RegisterUserRequest;
 import app.users.data.RegisterUserResponse;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -91,7 +92,8 @@ public class SupabaseAuthProvider implements AuthProvider {
     } catch (Exception e){
       logger.error("Failed to register user with url:{}", url);
       logger.error(e.getMessage());
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 

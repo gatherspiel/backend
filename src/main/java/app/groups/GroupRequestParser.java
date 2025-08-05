@@ -1,7 +1,7 @@
 package app.groups;
 
 import app.groups.data.Group;
-import app.result.error.InvalidGroupParameterError;
+import app.result.error.group.InvalidGroupParameterError;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 
