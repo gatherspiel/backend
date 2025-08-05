@@ -228,7 +228,9 @@ public class ZipCodeAndCityData {
                 21703,39.3756,77.4693,Frederick
                 21704,39.3474,77.3714,Frederick
                 21705,39.4138,77.4082,Frederick
-                25443,39.4249,77.8196,Jefferson County 
+                25443,39.4249,77.8196,Jefferson County
+                22192,38.6833,77.3161,Lake Ridge
+                25414, 39.2510,77.8690, Charles Town
           
              
    

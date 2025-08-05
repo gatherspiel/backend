@@ -312,7 +312,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 37", "Falls Church, 37" })
+  @CsvSource({ "Fairfax, 38", "Falls Church, 38" })
   public void testSearchDistanceLongDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception

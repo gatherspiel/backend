@@ -2,7 +2,7 @@ package database.permissions;
 
 import app.users.data.GroupAdminType;
 import app.users.data.User;
-import app.result.error.GroupNotFoundError;
+import app.result.error.group.GroupNotFoundError;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
