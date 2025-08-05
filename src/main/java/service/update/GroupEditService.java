@@ -2,11 +2,10 @@ package service.update;
 
 import app.groups.data.Group;
 import app.users.data.User;
-import app.result.error.InvalidGroupRequestError;
+import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
-import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

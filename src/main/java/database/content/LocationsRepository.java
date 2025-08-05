@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import app.groups.data.EventLocation;
+import app.result.error.StackTraceShortener;
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterException;
@@ -150,7 +151,8 @@ public class LocationsRepository {
       rs.next();
       return rs.getInt(1);
     } catch (Exception e){
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
 
   }

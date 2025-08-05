@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import app.result.error.StackTraceShortener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.util.PSQLException;
@@ -65,7 +66,8 @@ public class EventTimeRepository {
       return rs.next();
     } catch (PSQLException e) {
       logger.error("Query error in hasEventDay");
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 

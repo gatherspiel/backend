@@ -3,6 +3,8 @@ package database.content;
 import app.groups.data.Event;
 import app.groups.data.EventLocation;
 import app.groups.data.Group;
+import app.result.error.StackTraceShortener;
+import app.result.error.group.DuplicateGroupNameError;
 import app.users.data.User;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -96,23 +98,34 @@ public class GroupsRepository {
 
   public Group insertGroup(User groupAdmin, Group groupToInsert) throws Exception{
 
-    String groupInsertQuery=
-        """
-            INSERT INTO groups (name, url, description)
-            VALUES(?,?,?)
-            returning id;
-        """;
+    int groupId = -1;
+    try {
+      String groupInsertQuery=
+          """
+              INSERT INTO groups (name, url, description)
+              VALUES(?,?,?)
+              returning id;
+          """;
 
-    PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
-    groupInsert.setString(1, groupToInsert.getName());
-    groupInsert.setString(2, groupToInsert.getUrl());
-    groupInsert.setString(3, groupToInsert.getDescription());
-    ResultSet rs = groupInsert.executeQuery();
+      PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
+      groupInsert.setString(1, groupToInsert.getName());
+      groupInsert.setString(2, groupToInsert.getUrl());
+      groupInsert.setString(3, groupToInsert.getDescription());
+      ResultSet rs = groupInsert.executeQuery();
 
-    if(!rs.next()){
-      throw new Exception("Failed to insert group");
+      if(!rs.next()){
+        throw new Exception("Failed to insert group");
+      }
+      groupId = rs.getInt(1);
+    } catch(Exception e){
+      logger.error(e.getMessage());
+      if(e.getMessage().contains("duplicate key value")){
+        throw new DuplicateGroupNameError("Group with url already exists");
+      }
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw e;
     }
-    int groupId = rs.getInt(1);
+
 
     try {
 
@@ -132,7 +145,8 @@ public class GroupsRepository {
       return groupToInsert;
     } catch(Exception e) {
       logger.error("Failed to set user:"+groupAdmin.getEmail() + "with id:" + groupAdmin.getId() + " as group admin");
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 
@@ -216,7 +230,8 @@ public class GroupsRepository {
       }
     } catch(Exception e){
       logger.error("Error inserting group");
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 
@@ -240,7 +255,8 @@ public class GroupsRepository {
 
     } catch (Exception e){
       logger.error("Failed to update group");
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 
@@ -258,7 +274,8 @@ public class GroupsRepository {
 
     } catch (Exception e){
       logger.error("Failed to update group");
-      throw e;
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
     }
   }
 

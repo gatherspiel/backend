@@ -3,9 +3,10 @@ package app;
 import app.cache.CacheConnection;
 import app.groups.GroupRequestParser;
 import app.groups.data.Group;
-import app.result.error.GroupNotFoundError;
-import app.result.error.InvalidGroupParameterError;
-import app.result.error.InvalidGroupRequestError;
+import app.result.error.group.DuplicateGroupNameError;
+import app.result.error.group.GroupNotFoundError;
+import app.result.error.group.InvalidGroupParameterError;
+import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.groups.data.GroupPageData;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -111,7 +112,7 @@ public class GroupsApi {
             ctx.status(HttpStatus.FORBIDDEN);
             logger.error(e.getMessage());
             ctx.result(e.getMessage());
-          } catch (InvalidGroupParameterError e) {
+          } catch (InvalidGroupParameterError  | DuplicateGroupNameError e) {
             logger.error(e.getMessage());
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
