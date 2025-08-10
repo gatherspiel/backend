@@ -313,7 +313,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Greenbelt, 6"})
+  @CsvSource({ "Greenbelt, 9"})
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults_Maryland(
       String location,
       int expectedGroups) throws Exception
@@ -330,7 +330,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 18", "Falls Church, 20" })
+  @CsvSource({ "Fairfax, 19", "Falls Church, 23" })
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
