@@ -279,13 +279,48 @@ public class SearchServiceIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({ "Fairfax, 3", "Falls Church, 7" })
-  public void testSearchDistanceNearby_returnsCorrectNumberOfResults(
+  public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Virginia(
       String location,
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, location);
     params.put(GroupSearchParams.DISTANCE, "2");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+
+  @ParameterizedTest
+  @CsvSource({ "Silver Spring, 6"})
+  public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Maryland(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "4");
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    Assertions.assertAll(
+        () -> assertEquals(expectedGroups, result.countGroups())
+    );
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Greenbelt, 6"})
+  public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults_Maryland(
+      String location,
+      int expectedGroups) throws Exception
+  {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.CITY, location);
+    params.put(GroupSearchParams.DISTANCE, "10");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
