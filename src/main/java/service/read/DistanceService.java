@@ -62,8 +62,8 @@ public class DistanceService {
     String[] rows = ZipCodeAndCityData.data.split("\n");
     HashMap<String, Set<LatLong>> cityZipCodes = new HashMap<>();
 
-    for(String row: rows){
 
+      for(String row: rows){
       String[] data = row.split(",");
 
       int zipCode = Integer.parseInt(data[0].trim());

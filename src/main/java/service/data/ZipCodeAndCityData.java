@@ -57,23 +57,23 @@ public class ZipCodeAndCityData {
                 20153,38.8188,77.292,Chantilly
                 20170,38.9807,77.3799,Herndon
                 20171,38.9257,77.398,Oak Hill
-                20171,39.9257,77.398,Herndon
+                20171,38.9257,77.398,Herndon
                 20172,38.9209,77.3953,Herndon
                 20190,38.9597,77.3374,Reston
-                20190,39.9597,77.3374,Herndon
+                20190,38.9597,77.3374,Herndon
                 20191,38.9325,77.3491,Reston
-                20191,39.9325,77.3491,Herndon
+                20191,38.9325,77.3491,Herndon
                 20194,38.9801,77.3417,Reston
-                20194,39.9801,77.3417,Herndon
+                20194,38.9801,77.3417,Herndon
                 20195,38.9768,77.3485,Reston
-                20195,39.9768,77.3485,Herndon
+                20195,38.9768,77.3485,Herndon
                 22003,38.8382,77.2128,Annandale
                 22009,38.7935,77.2718,Springfield
                 22009,38.7935,77.2718,Burke
                 22015,38.7887,77.2813,Springfield
                 22015,38.7887,77.2813,Burke
                 22027,38.8947,77.2209,Dunn Loring
-                22027,39.8947,77.2209,Vienna
+                22027,38.8947,77.2209,Vienna
                 22031,38.8598,77.2589,Fairfax
                 22032,38.8208,77.2909,Fairfax
                 22033,38.8779,77.3835,Fairfax
@@ -163,7 +163,7 @@ public class ZipCodeAndCityData {
                 20166,38.9643,77.4677,Sterling
                 20167,39.0062,77.4288,Sterling
                 20166,38.9643,77.4677,Dulles
-                20722,38.9321,77.9476,Brentwood
+                20722,38.9321,76.9476,Brentwood
                 20715,38.9862,76.7389,Bowie
                 20716,38.927,76.7149,Bowie
                 20717,38.0066,76.7794,Bowie
@@ -178,10 +178,10 @@ public class ZipCodeAndCityData {
                 20785,38.9183,76.8721,Hyattsville
                 20787,38.0031,76.9724,Hyattsville
                 20788,38.9724,76.9724,Hyattsville
-                20768,38.001,76.8768,Greenbelt
-                20770,38.0035,76.8755,Greenbelt
-                20740,38.9974,76.9284,College Park
-                20741,38.996,76.9284,College Park
+                20768,39.00470,76.87580,Greenbelt
+                20770,39.00155,76.8755,Greenbelt
+                20740,39.00126,76.92572,College Park
+                20741,38.98080,76.88766,College Park
                 20847,39.0838,77.1529,Rockville
                 20848,39.0753,77.1165,Rockville
                 20849,39.084,77.1537,Rockville
@@ -192,22 +192,22 @@ public class ZipCodeAndCityData {
                 20854,39.0353,77.215,Rockville
                 20855,39.1396,77.1362,Rockville
                 20859,39.0183,77.2089,Rockville
-                20901,39.0245,77.0094,Silver Spring
-                20902,39.0436,77.0424,Silver Spring
-                20903,39.0169,77.9848,Silver Spring
-                20904,39.066,77.9783,Silver Spring
-                20905,39.066,77.9783,Silver Spring
-                20906,39.0912,77.0554,Silver Spring
-                20907,39.9965,77.0341,Silver Spring
-                20908,39.1035,77.0763,Silver Spring
-                20910,39.0015,77.0357,Silver Spring
-                20911,39.9954,77.0319,Silver Spring
-                20912,39.9819,77.0006,Silver Spring
-                20913,39.9829,77.0209,Silver Spring
+                20901,39.02490,77.00829,Silver Spring
+                20902,39.04107,77.04505,Silver Spring
+                20903,39.0140,76.98226,Silver Spring
+                20904,39.06123,76.97888,Silver Spring
+                20905,39.11182,76.99355,Silver Spring
+                20906,38.08528,77.05895,Silver Spring
+                20907,38.99090,77.02670,Silver Spring
+                20908,38.99090,77.02670,Silver Spring
+                20910,39.00335,77.03544,Silver Spring
+                20911,38.99090,77.02670,Silver Spring
+                20912,38.98264,77.00389,Silver Spring
+                20913,38.98290,77.0209,Silver Spring
                 20914,39.0756,77.0022,Silver Spring
-                20915,39.0431,77.0479,Silver Spring
-                20916,39.0796,77.0735,Silver Spring
-                20918,39.0213,77.0149,Silver Spring
+                20915,38.99090,77.02670,Silver Spring
+                20916,39.07960,77.07350,Silver Spring
+                20918,38.99090,77.02670,Silver Spring
                 20877,39.139336,77.182953,Gaithersburg
                 20878,39.115209,77.25161,Gaithersburg
                 20879,39.1712,77.1842,Gaithersburg
@@ -222,7 +222,7 @@ public class ZipCodeAndCityData {
                 20874,39.1292,77.2953,Germantown
                 20875,39.1733,77.2716,Germantown
                 20876,39.2074,77.2311,Germantown
-                21716,39.3149,77.6135,Brunswick
+                21716,39.3149,77.6230,Brunswick
                 21701,39.4393,77.3428,Frederick
                 21702,39.478,77.4561,Frederick
                 21703,39.3756,77.4693,Frederick
@@ -231,11 +231,6 @@ public class ZipCodeAndCityData {
                 25443,39.4249,77.8196,Jefferson County
                 22192,38.6833,77.3161,Lake Ridge
                 25414, 39.2510,77.8690, Charles Town
-          
-             
-   
-       
-         
         """
     );
     data = sb.toString();
