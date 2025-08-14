@@ -63,6 +63,20 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @Test
+  public void testUserCannotCreateGroup_whenNotLoggedIn() throws Exception {
+
+    Exception exception = assertThrows(
+        Exception.class,
+        ()->{
+          Group group = CreateGroupUtils.createGroup(readOnlyUserContext.getUser(), conn);
+
+
+        }
+    );
+    assertTrue(exception.getMessage().contains("Cannot insert"));
+  }
+
+  @Test
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     Group updated = CreateGroupUtils.createGroupObject();

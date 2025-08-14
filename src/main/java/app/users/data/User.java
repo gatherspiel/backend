@@ -11,7 +11,7 @@ public class User {
   }
 
   public boolean isLoggedInUser(){
-    return email != null && !email.isBlank();
+    return email != null && !email.isBlank() && userType != UserType.READONLY;
   }
 
   public int getId(){
