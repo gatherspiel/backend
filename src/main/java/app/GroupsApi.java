@@ -32,21 +32,28 @@ public class GroupsApi {
 
         try {
 
-          GroupPageData groupPageData;
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+
+          Optional<GroupPageData> data = Optional.empty();
           CacheConnection cacheConnection = new CacheConnection(ctx);
 
-          Optional<GroupPageData> data = cacheConnection.getCachedGroupPage();
-          if(data.isPresent()){
-            groupPageData = data.get();
-          }else {
-            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          //Only read from
+          if(!sessionContext.getUser().isLoggedInUser()) {
+
+            data = cacheConnection.getCachedGroupPage();
+          }
+          if(data.isEmpty()){
             var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
                 ctx
             );
             var groupService = sessionContext.createReadGroupService();
-            groupPageData = groupService.getGroupPageData(searchParams);
+            data = Optional.of(groupService.getGroupPageData(searchParams));
+
+            if(!sessionContext.getUser().isLoggedInUser()){
+              cacheConnection.cacheGroupPage(data.get());
+            }
           }
-          ctx.json(groupPageData);
+          ctx.json(data.get());
           ctx.status(HttpStatus.OK);
         } catch (SearchParameterException e) {
           e.printStackTrace();
