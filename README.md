@@ -2,7 +2,7 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 # Setup guide
 
-## Prequisitcs
+## Prequisites
 - Clone the [backend repo](https://github.com/gatherspiel/backend)
 - Clone the [database repo](https://github.com/gatherspiel/database)
 - Install the following dependencies
