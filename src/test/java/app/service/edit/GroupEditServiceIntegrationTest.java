@@ -9,6 +9,7 @@ import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.update.GroupEditService;
 
 
 import java.sql.Connection;
@@ -66,14 +67,35 @@ public class GroupEditServiceIntegrationTest {
   public void testUserCannotCreateGroup_whenNotLoggedIn() throws Exception {
 
     Exception exception = assertThrows(
-        Exception.class,
-        ()->{
-          Group group = CreateGroupUtils.createGroup(readOnlyUserContext.getUser(), conn);
-
-
-        }
+      Exception.class,
+      ()->{
+        CreateGroupUtils.createGroup(readOnlyUserContext.getUser(), conn);
+      }
     );
     assertTrue(exception.getMessage().contains("Cannot insert"));
+  }
+
+  @Test
+  public void testCannotCreateTwoGroupsWithSameName()  throws Exception {
+    Group group = new Group();
+    Group group2 = new Group();
+
+    group.setName("Test");
+    group.setUrl("localhost:8080");
+
+    group2.setName("Test");
+    group2.setUrl("localhost:8080");
+
+    GroupEditService groupEditService = adminContext.createGroupEditService();
+
+    Exception exception = assertThrows(
+      Exception.class,
+      ()->{
+        groupEditService.insertGroup(group);
+        groupEditService.insertGroup(group2);
+      }
+    );
+    assertTrue(exception.getMessage().contains("Cannot create multiple groups with the same name"));
   }
 
   @Test
@@ -133,6 +155,7 @@ public class GroupEditServiceIntegrationTest {
     Optional<Group> updatedFromDb = standardUserContext.createReadGroupService().getGroup(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
+
 
   @Test
   public void testUserCannotEditGroupThatDoesNotExist() throws Exception{

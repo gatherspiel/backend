@@ -17,7 +17,7 @@ create table if not exists groups (
   url character varying not null,
   description character varying null,
   constraint groups_pkey primary key (id),
-  constraint unique_groups unique (url)
+  constraint unique_groups unique (name)
 );
 
 create table if not exists location_group_map (

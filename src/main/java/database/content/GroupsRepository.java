@@ -119,8 +119,8 @@ public class GroupsRepository {
       groupId = rs.getInt(1);
     } catch(Exception e){
       logger.error(e.getMessage());
-      if(e.getMessage().contains("duplicate key value")){
-        throw new DuplicateGroupNameError("Group with url already exists");
+      if(e.getMessage().contains("already exists")){
+        throw new DuplicateGroupNameError("Cannot create multiple groups with the same name");
       }
       e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       throw e;
