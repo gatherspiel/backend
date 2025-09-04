@@ -112,6 +112,19 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testDeleteGroupWithEvents() throws Exception {
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    EventService eventService = adminContext.createEventService();
+    eventService.createEvent(event1, group.getId());
+
+    adminContext.createGroupEditService().deleteGroup(group.getId());
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+
+    assertFalse(groupFromDb.isPresent());
+  }
+
+  @Test
   public void testCreateMultipleEvents_eventsHaveCorrectData() throws Exception{
 
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);

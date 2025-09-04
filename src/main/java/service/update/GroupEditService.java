@@ -54,9 +54,17 @@ public class GroupEditService {
 
   public void deleteGroup(int groupId) throws Exception {
 
+    System.out.println(user.getAdminLevel());
     if(!userPermissionsRepository.isGroupAdmin(user, groupId) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to delete group: " + groupId);
     }
+
+    /**
+     * TODO
+     * -Get group page data
+     * -Delete all the events
+     * -Delete the group.
+     */
 
     groupsRepository.deleteGroup(groupId);
   }
