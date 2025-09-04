@@ -37,7 +37,6 @@ public class GroupsApi {
           Optional<GroupPageData> data = Optional.empty();
           CacheConnection cacheConnection = new CacheConnection(ctx);
 
-          //Only read from
           if(!sessionContext.getUser().isLoggedInUser()) {
 
             data = cacheConnection.getCachedGroupPage();
