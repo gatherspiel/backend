@@ -141,8 +141,6 @@ public class GroupsApi {
         int groupId = Integer.parseInt(ctx.queryParam(GROUP_ID_PARAM));
         var groupEditService = sessionContext.createGroupEditService();
         groupEditService.deleteGroup(groupId);
-
-        logger.info("Deleted group");
         ctx.status(HttpStatus.OK);
       }
       catch(Exception e){

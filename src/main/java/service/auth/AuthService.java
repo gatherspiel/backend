@@ -162,7 +162,7 @@ public class AuthService {
       logger.error("Authorization failed with error", e);
       throw (e);
     }
-    logger.info("Authorized");
+    logger.info("Authorized: " + request.getEmail());
     return true;
   }
 

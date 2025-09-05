@@ -129,8 +129,8 @@ public class SupabaseAuthProvider implements AuthProvider {
 
       httpClient.close();
 
-      logger.info("Authorized");
       String email = httpResponse.get("email").textValue();
+      logger.info("Authorized: "+email);
 
       return Optional.of(email);
     } catch (Exception e) {

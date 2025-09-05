@@ -57,11 +57,11 @@ public class CacheConnection {
         return Optional.empty();
       }
 
-      LogUtils.printDebugLog("Found cached result");
+      LogUtils.printDebugLog("Found cached search result");
       CompressedHomepageSearchResult cachedData = objectMapper.readValue(data, CompressedHomepageSearchResult.class);
       return Optional.of(cachedData.getHomepageSearchResult());
     } catch (Exception e) {
-      logger.warn("Failed to retrieve cache result for search page because of error: "+e.getMessage());
+      logger.warn("Failed to retrieve cached search result because of error: "+e.getMessage());
       return Optional.empty();
     }
   }
@@ -74,7 +74,7 @@ public class CacheConnection {
       String cacheData = objectMapper.writeValueAsString(compressed);
       searchResultCache.put(cacheKey, cacheData);
 
-      LogUtils.printDebugLog("Cached result with key "+cacheKey);
+      LogUtils.printDebugLog("Cached search result");
     } catch (Exception e){
       logger.warn("Failed to cache result because of error:"+e.getMessage());
     }
