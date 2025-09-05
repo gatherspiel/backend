@@ -16,13 +16,11 @@ import org.mockito.MockedStatic;
 import service.auth.AuthService;
 import service.permissions.GroupPermissionService;
 import service.read.ReadGroupService;
-import service.update.EventService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 

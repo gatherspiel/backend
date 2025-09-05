@@ -4,9 +4,11 @@ import app.groups.data.Group;
 import app.users.data.User;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
+import database.content.EventRepository;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
 import org.apache.logging.log4j.Logger;
+import service.read.SearchService;
 import utils.LogUtils;
 
 import java.sql.Connection;
@@ -41,42 +43,30 @@ public class GroupEditService {
   }
 
   public Group insertGroup(Group groupToInsert) throws Exception{
-
     validateGroupData(groupToInsert);
     if(!user.isLoggedInUser()){
       var message = "Cannot insert group. User is not logged in";
       logger.error(message);
       throw new Exception(message);
     }
-
     return groupsRepository.insertGroup(user, groupToInsert);
   }
 
   public void deleteGroup(int groupId) throws Exception {
-
-    System.out.println(user.getAdminLevel());
     if(!userPermissionsRepository.isGroupAdmin(user, groupId) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to delete group: " + groupId);
     }
 
-    /**
-     * TODO
-     * -Get group page data
-     * -Delete all the events
-     * -Delete the group.
-     */
-
+    EventRepository eventRepository = new EventRepository(connection);
+    eventRepository.deleteAllEventsInGroup(groupId);
     groupsRepository.deleteGroup(groupId);
   }
 
   private void validateGroupData(Group group) throws Exception{
-
     if(group.getName().contains("_")){
       var message = "Group name cannot have _ characters";
       logger.info(message);
       throw new Exception(message);
     }
-
-
   }
 }

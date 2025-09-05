@@ -41,9 +41,41 @@ public class EventTimeRepository {
     }
   }
 
+  public void deleteOrphanedTimeData() throws Exception{
+    String query =
+        """
+          DELETE from event_time where event_id NOT IN (
+            SELECT event_id from event_group_map
+          )
+        """;
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.executeUpdate();
+  }
+
+  public void deleteEventTimeInfoForGroup(int groupId) throws Exception {
+    String deleteQuery = """
+        DELETE from event_time
+        WHERE event_time.event_id IN (
+          SELECT
+            event_time.event_id
+            FROM groups
+            LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+            LEFT JOIN events on event_group_map.event_id = events.id
+            LEFT JOIN event_time on event_time.event_id = events.id
+            LEFT JOIN locations on events.location_id = locations.id
+            LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+            LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+            WHERE groups.id = ?
+        )
+      """;
+    PreparedStatement delete = conn.prepareStatement(deleteQuery);
+    delete.setInt(1, groupId);
+    delete.executeUpdate();
+  }
+
   public void deleteEventTimeInfo(int eventId) throws Exception {
 
-    String query = "DELETE  FROM event_time where event_id = ?";
+    String query = "DELETE FROM event_time where event_id = ?";
     PreparedStatement delete = conn.prepareStatement(query);
     delete.setInt(1, eventId);
     delete.executeUpdate();

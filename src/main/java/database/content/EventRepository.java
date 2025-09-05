@@ -11,7 +11,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import service.data.SearchParameterValidator;
 
@@ -70,7 +72,6 @@ public class EventRepository {
     }
   }
 
-
   public Event addEvent(Event event, int groupId) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository(conn);
@@ -105,7 +106,6 @@ public class EventRepository {
   }
 
   public void deleteEvent(int eventId, int groupId) throws Exception {
-
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
     eventTimeRepository.deleteEventTimeInfo(eventId);
 
@@ -116,6 +116,25 @@ public class EventRepository {
     PreparedStatement statement = conn.prepareStatement(query);
     statement.setInt(1, eventId);
     statement.executeUpdate();
+  }
+
+  public void deleteAllEventsInGroup(int groupId) throws Exception {
+
+    EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
+
+    eventTimeRepository.deleteEventTimeInfoForGroup(groupId);
+    eventTimeRepository.deleteOrphanedTimeData();
+
+    deleteEventGroupMapItems(groupId);
+
+    String query =
+      """
+        DELETE from events where id NOT IN (
+          SELECT event_id from event_group_map
+        )
+      """;
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.executeUpdate();
   }
 
   public Event updateEvent(Event event) throws Exception{
@@ -260,7 +279,13 @@ public class EventRepository {
     insert.executeUpdate();
   }
 
-  //TODO: Update
+  private void deleteEventGroupMapItems(int groupId) throws Exception {
+    String query =
+        "DELETE from event_group_map WHERE group_id = ?";
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, groupId);
+    delete.executeUpdate();
+  }
   private void deleteEventGroupMapItem(int groupId, int eventId) throws Exception {
     String query =
         "DELETE from event_group_map WHERE group_id = ? AND event_id = ?";
@@ -269,8 +294,6 @@ public class EventRepository {
     delete.setInt(2, eventId);
 
     delete.executeUpdate();
-
-
   }
 
 
