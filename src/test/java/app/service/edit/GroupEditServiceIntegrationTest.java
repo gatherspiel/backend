@@ -274,6 +274,14 @@ public class GroupEditServiceIntegrationTest {
   }
 
   @Test
+  public void testDeleteGroupWithLocationsAndRecurringEvents() throws Exception {
+    adminContext.createGroupEditService().deleteGroup(22);
+
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(22);
+    assertFalse(groupFromDb.isPresent());
+  }
+
+  @Test
   public void testDeleteGroupWithEvents() throws Exception {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
