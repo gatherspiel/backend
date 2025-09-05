@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EventServiceIntegrationTest {
 
-  private static final String EVENT_NAME_1="Catan Event";
-  private static final String EVENT_NAME_2="Power Grid";
-
   private static Event event1;
   private static Event event2;
+
+  private static final String EVENT_NAME_1="Catan Event";
+  private static final String EVENT_NAME_2="Power Grid";
 
   private static final String LOCATION_1 ="Crystal City";
   private static final String LOCATION_2="Ballston";
@@ -44,11 +44,6 @@ public class EventServiceIntegrationTest {
   private static final String GROUP_ADMIN_USERNAME = "groupAdmin";
   private static final String STANDARD_USER_USERNAME = "testUser";
 
-
-  private static IntegrationTestConnectionProvider testConnectionProvider;
-  private static Connection conn;
-
-
   private static LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
   private static LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
 
@@ -58,6 +53,8 @@ public class EventServiceIntegrationTest {
   private static EventLocation location1;
   private static EventLocation location2;
 
+  private static IntegrationTestConnectionProvider testConnectionProvider;
+  private static Connection conn;
 
   private static SessionContext adminContext;
   private static SessionContext groupAdminContext;
@@ -111,6 +108,7 @@ public class EventServiceIntegrationTest {
     assertEquals(EVENT_NAME_1, eventFromDb.getName());
   }
 
+
   @Test
   public void testCreateMultipleEvents_eventsHaveCorrectData() throws Exception{
 
@@ -147,7 +145,6 @@ public class EventServiceIntegrationTest {
 
     assertTrue(eventFromDbA.getPermissions().get(PermissionName.USER_CAN_EDIT));
     assertTrue(eventFromDbB.getPermissions().get(PermissionName.USER_CAN_EDIT));
-
   }
 
   @Test

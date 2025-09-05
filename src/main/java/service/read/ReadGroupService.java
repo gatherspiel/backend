@@ -34,6 +34,8 @@ public class ReadGroupService{
   public Optional<Group> getGroup(int groupId) throws Exception{
     return this.groupsRepository.getGroup(groupId);
   }
+
+
   public GroupPageData getGroupPageData(
       LinkedHashMap<String, String> params
       ) throws Exception{

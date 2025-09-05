@@ -37,7 +37,6 @@ public class GroupsApi {
           Optional<GroupPageData> data = Optional.empty();
           CacheConnection cacheConnection = new CacheConnection(ctx);
 
-          //Only read from
           if(!sessionContext.getUser().isLoggedInUser()) {
 
             data = cacheConnection.getCachedGroupPage();
@@ -142,8 +141,6 @@ public class GroupsApi {
         int groupId = Integer.parseInt(ctx.queryParam(GROUP_ID_PARAM));
         var groupEditService = sessionContext.createGroupEditService();
         groupEditService.deleteGroup(groupId);
-
-        logger.info("Deleted group");
         ctx.status(HttpStatus.OK);
       }
       catch(Exception e){

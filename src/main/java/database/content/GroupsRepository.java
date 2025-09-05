@@ -263,17 +263,26 @@ public class GroupsRepository {
 
   public void deleteGroup(int groupId) throws Exception{
     try {
-      String deleteQuery =    """
+      String deleteLocationGroupMapQuery = """
+        DELETE FROM location_group_map
+        WHERE group_id = ?    
+      """;
+
+      PreparedStatement deleteLocationMap = conn.prepareStatement(deleteLocationGroupMapQuery);
+      deleteLocationMap.setInt(1, groupId);
+      deleteLocationMap.executeUpdate();
+
+      String deleteGroupQuery =    """
              DELETE FROM groups
              WHERE id = ?
           """;
 
-      PreparedStatement delete = conn.prepareStatement(deleteQuery);
-      delete.setInt(1, groupId);
-      delete.executeUpdate();
+      PreparedStatement deleteGroup = conn.prepareStatement(deleteGroupQuery);
+      deleteGroup.setInt(1, groupId);
+      deleteGroup.executeUpdate();
 
     } catch (Exception e){
-      logger.error("Failed to update group");
+      logger.error("Failed to delete group with id "+groupId);
       e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       throw(e);
     }

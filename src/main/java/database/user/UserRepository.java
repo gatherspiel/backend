@@ -90,7 +90,6 @@ public class UserRepository extends BaseRepository {
       return null;
     }
 
-    logger.info(rs.getString("email"));
     User user = new User(
         email,
         UserType.fromDatabaseString(rs.getString("user_role_level")),
@@ -112,7 +111,6 @@ public class UserRepository extends BaseRepository {
       return null;
     }
 
-    logger.info(rs.getString("email"));
     User user = new User(
         email,
         UserType.fromDatabaseString(rs.getString("user_role_level")),

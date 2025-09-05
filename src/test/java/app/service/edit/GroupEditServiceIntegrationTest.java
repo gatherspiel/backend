@@ -1,18 +1,22 @@
 package app.service.edit;
 
 import app.SessionContext;
-import app.groups.data.Group;
+import app.groups.data.*;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
+import database.search.GroupSearchParams;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.update.EventService;
 import service.update.GroupEditService;
 
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +28,6 @@ public class GroupEditServiceIntegrationTest {
   private static final String USERNAME_3 = "user2@test";
   private static final String USERNAME_4 = "user3@test";
 
-
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
 
@@ -33,6 +36,27 @@ public class GroupEditServiceIntegrationTest {
   private static SessionContext standardUserContext2;
   private static SessionContext standardUserContext3;
   private static SessionContext readOnlyUserContext;
+
+  private static Event event1;
+  private static Event event2;
+
+  private static final String EVENT_NAME_1="Catan Event";
+  private static final String EVENT_NAME_2="Power Grid";
+
+  private static final String LOCATION_1 = "1234 Crystal Drive, Arlington,VA 22222";
+  private static final String LOCATION_2 = "1234 Main Street, Arlington,VA 22222";
+
+  private static final String SUMMARY_1="Resource management and trading Euro";
+  private static final String SUMMARY_2="Come play Power Grid";
+
+  private static final String URL_1="http://localhost:8000";
+  private static final String URL_2="http://localhost:8001";
+
+  private static LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
+  private static LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
+
+  private static LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
+  private static LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
   private static void assertGroupsAreEqual(Group group1, Group group2){
     assertEquals(group1.id, group2.id);
@@ -56,6 +80,9 @@ public class GroupEditServiceIntegrationTest {
       standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_3,testConnectionProvider);
       standardUserContext3 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_4,testConnectionProvider);
       readOnlyUserContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+
+      event1 = EventService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
+      event2 = EventService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_2, START_TIME_2, END_TIME_2);
 
     } catch(Exception e){
       e.printStackTrace();
@@ -112,7 +139,6 @@ public class GroupEditServiceIntegrationTest {
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
   }
-
 
   @Test
   public void testUserCannotEditGroup_whenTheyAreStandardUser() throws Exception{
@@ -245,5 +271,65 @@ public class GroupEditServiceIntegrationTest {
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"));
+  }
+
+  @Test
+  public void testDeleteGroupWithLocationsAndRecurringEvents() throws Exception {
+    adminContext.createGroupEditService().deleteGroup(22);
+
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(22);
+    assertFalse(groupFromDb.isPresent());
+  }
+
+  @Test
+  public void testDeleteGroupWithEvents() throws Exception {
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    EventService eventService = adminContext.createEventService();
+    eventService.createEvent(event1, group.getId());
+
+    eventService.deleteEvent(event1.getId(),group.getId());
+    adminContext.createGroupEditService().deleteGroup(group.getId());
+
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+    assertFalse(groupFromDb.isPresent());
+
+    Optional<Event> event = eventService.getEvent(event1.getId());
+    assertFalse(event.isPresent());
+  }
+
+  @Test
+  public void testDeleteGroupWithEvents_otherGroupEventsRemain() throws Exception {
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    Group group2 = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    EventService eventService = adminContext.createEventService();
+    eventService.createEvent(event1, group.getId());
+    eventService.createEvent(event2, group2.getId());
+
+    adminContext.createGroupEditService().deleteGroup(group.getId());
+
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+    assertFalse(groupFromDb.isPresent());
+
+    Optional<Event> event = eventService.getEvent(event1.getId());
+    assertFalse(event.isPresent());
+
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME, group2.getName());
+
+    GroupPageData groupData = adminContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+    Optional<GroupPageEventData> eventFromDbOptional = groupData.getEventData().stream().findFirst();
+    assertTrue(eventFromDbOptional.isPresent());
+
+    GroupPageEventData eventFromDb = eventFromDbOptional.get();
+
+    assertEquals(eventFromDb.getName(),event2.getName());
+    assertEquals(eventFromDb.getDescription(),event2.getDescription());
+    assertEquals(eventFromDb.getStartTime(),event2.getStartTime());
   }
 }
