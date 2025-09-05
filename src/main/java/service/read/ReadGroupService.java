@@ -16,7 +16,6 @@ import java.util.Optional;
 
 public class ReadGroupService{
 
-
   SearchService searchService;
   GroupPermissionService groupPermissionService;
   GroupsRepository groupsRepository;
@@ -34,7 +33,6 @@ public class ReadGroupService{
   public Optional<Group> getGroup(int groupId) throws Exception{
     return this.groupsRepository.getGroup(groupId);
   }
-
 
   public GroupPageData getGroupPageData(
       LinkedHashMap<String, String> params
