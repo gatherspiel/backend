@@ -5,35 +5,36 @@ import app.location.GameRestaurant;
 import app.location.GameStore;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 public class GameLocationData {
-  public Map<Integer, Convention> conventions;
-  public Map<Integer,GameRestaurant> gameRestaurants;
-  public Map<Integer,GameStore> gameStores;
+  public TreeMap<String, Convention> conventions;
+  public TreeMap<String,GameRestaurant> gameRestaurants;
+  public TreeMap<String,GameStore> gameStores;
 
   public GameLocationData(){}
 
-  public Map<Integer,Convention> getConventions(){
+  public TreeMap<String,Convention> getConventions(){
     return conventions;
   }
 
-  public void setConventions(Map<Integer,Convention> conventions){
+  public void setConventions(TreeMap<String,Convention> conventions){
     this.conventions = conventions;
   }
 
-  public Map<Integer,GameRestaurant> getGameRestaurants(){
+  public TreeMap<String,GameRestaurant> getGameRestaurants(){
     return gameRestaurants;
   }
 
-  public void setGameRestaurants(Map<Integer,GameRestaurant> gameRestaurants){
+  public void setGameRestaurants(TreeMap<String,GameRestaurant> gameRestaurants){
     this.gameRestaurants = gameRestaurants;
   }
 
-  public Map<Integer,GameStore> getGameStores(){
+  public Map<String,GameStore> getGameStores(){
     return gameStores;
   }
 
-  public void setGameStores(Map<Integer,GameStore>  gameStores){
+  public void setGameStores(TreeMap<String,GameStore>  gameStores){
     this.gameStores = gameStores;
   }
 }

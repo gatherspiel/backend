@@ -8,7 +8,9 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.TreeMap;
 
+import com.sun.source.tree.Tree;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -23,7 +25,7 @@ public class ConventionsRepository {
   }
 
 
-  public HashMap<Integer, Convention> getConventions(LocalDate searchStartDate) throws Exception{
+  public TreeMap<String, Convention> getConventions(LocalDate searchStartDate) throws Exception{
     String query = "SELECT * from events\n" +
         "JOIN event_time on event_time.event_id = events.id\n" +
         "WHERE is_convention is TRUE\n" +
@@ -38,7 +40,9 @@ public class ConventionsRepository {
     HashMap<Integer, Integer> conventionDays = new HashMap<Integer, Integer>();
     while(rs.next()){
 
-      int conventionId = rs.getInt("event_id");
+      String conventionName = rs.getString("name");
+      Integer conventionId = rs.getInt("id");
+
       if(!conventions.containsKey(conventionId)){
         Convention convention = new Convention();
         convention.setId(conventionId);
@@ -68,7 +72,12 @@ public class ConventionsRepository {
         conventions.get(conventionId).addDays(days - 1);
       }
     }
-    return conventions;
+
+    TreeMap<String,Convention> data = new TreeMap<>();
+    for(Integer conventionId: conventions.keySet()){
+      data.put(conventions.get(conventionId).getName(), conventions.get(conventionId));
+    }
+    return data;
   }
   public void insertConventions(Convention[] conventions)
     throws Exception {

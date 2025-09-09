@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class GameLocationsService {
@@ -30,13 +31,13 @@ public class GameLocationsService {
   public GameLocationData getGameLocations(LocalDate date) throws Exception{
 
     ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
-    HashMap<Integer, Convention> conventions = conventionsRepository.getConventions(date);
+    TreeMap<String, Convention> conventions = conventionsRepository.getConventions(date);
 
     GameRestaurantRepository restaurantRepository = new GameRestaurantRepository(conn);
-    HashMap<Integer, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants();
+    TreeMap<String, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants();
 
     GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
-    HashMap<Integer, GameStore> gameStores= gameStoreRepository.getGameStores();
+    TreeMap<String, GameStore> gameStores= gameStoreRepository.getGameStores();
 
     GameLocationData locationData = new GameLocationData();
     locationData.setConventions(conventions);

@@ -38,7 +38,7 @@ public class LocationServiceIntegrationTest {
   }
 
   @Test
-  public void testGameLocationsAreReturned() throws Exception {
+  public void testGameLocationsAreReturnedInAlphabeticalOrder() throws Exception {
     GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
     Assertions.assertAll(
         () -> assertEquals(5, data.getConventions().size()),
@@ -51,8 +51,8 @@ public class LocationServiceIntegrationTest {
   public void testConventionHasCorrectDays() throws Exception {
     GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
 
-    for(Integer id: data.conventions.keySet()){
-      Convention convention = data.conventions.get(id);
+    for(String name: data.conventions.keySet()){
+      Convention convention = data.conventions.get(name);
       if(convention.getName().equals("NOVA Open")) {
         String[] days = convention.getDays();
         String[] expected = new String[]{"2025-08-27", "2025-08-28", "2025-08-29", "2025-08-30", "2025-08-31"};
