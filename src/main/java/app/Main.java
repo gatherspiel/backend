@@ -87,7 +87,7 @@ public class Main {
             cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
-            logger.info("Search time:" + ((end - start) / 100));
+            logger.info("Search time:" + ((end - start) / 1000));
             ctx.json(groupSearchResult);
             ctx.status(HttpStatus.OK);
           }
