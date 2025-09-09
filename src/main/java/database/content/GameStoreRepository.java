@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -18,13 +19,13 @@ public class GameStoreRepository {
 
   }
 
-  public HashMap<Integer, GameStore> getGameStores() throws Exception{
+  public TreeMap<String, GameStore> getGameStores() throws Exception{
     String query =
         "SELECT * from game_stores JOIN locations on game_stores.location_id = locations.id";
     PreparedStatement select = conn.prepareStatement(query);
 
     ResultSet rs = select.executeQuery();
-    HashMap<Integer, GameStore> gameStores = new HashMap<Integer,GameStore>();
+    TreeMap<String, GameStore> gameStores = new TreeMap<String,GameStore>();
     while(rs.next()){
       GameStore gameStore = new GameStore();
       gameStore.setName(rs.getString("name"));
@@ -38,7 +39,7 @@ public class GameStoreRepository {
       String addressStr = streetAddress +", "+ city + ", "+state+" "+zipCode;
       gameStore.setLocation(addressStr);
 
-      gameStores.put(gameStore.getId(), gameStore);
+      gameStores.put(gameStore.getName(), gameStore);
     }
     return gameStores;
 
