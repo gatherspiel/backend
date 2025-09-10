@@ -2,9 +2,11 @@ package app.result.listing;
 
 import app.groups.data.Event;
 import app.groups.data.Group;
+import app.result.group.WeeklyEventData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,38 @@ public class GroupSearchResult {
     }
   }
 
-  public void addEvent(
+  public void addWeeklyEvent(
+      Integer groupId,
+      Integer eventId,
+      String name,
+      String description,
+      String dayOfWeek,
+      String address,
+      LocalTime startTime,
+      LocalTime endTime
+  ) throws Exception{
+    if (!groupData.containsKey(groupId)) {
+      logger.warn(
+          "Group with id {} does not exist. Event will not be added to group search result",
+          groupId
+      );
+      return;
+    }
+
+    Group group = groupData.get(groupId);
+    WeeklyEventData eventData = new WeeklyEventData(
+        name,
+        description,
+        address,
+        eventId,
+        startTime,
+        endTime,
+        dayOfWeek
+    );
+    group.addWeeklyEvent(eventData);
+  }
+
+  public void addOneTimeEvent(
     Integer groupId,
     Integer eventId,
     String name,
@@ -78,7 +111,7 @@ public class GroupSearchResult {
     event.setId(eventId);
     event.setStartTime(startTime);
     event.setEndTime(endTime);
-    group.addEvent(event);
+    group.addOneTimeEvent(event);
   }
 
   public Group getFirstGroup() {

@@ -80,7 +80,6 @@ create table if not exists event_time (
 );
 
 
-
 create table if not exists event_group_map (
   group_id integer null,
   event_id integer null,

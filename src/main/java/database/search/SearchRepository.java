@@ -8,10 +8,7 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
+import java.time.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,8 +59,7 @@ public class SearchRepository {
   )
       throws Exception {
 
-
-    //TODO: Add query here for recurring events.
+    //TODO: Add query here for one time events.
     PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
@@ -91,23 +87,9 @@ public class SearchRepository {
         String city = rs.getString("city");
         String state = rs.getString("state");
         String zipCode = rs.getString("zip_code");
-        boolean isRecurring = false;
 
-        LocalDateTime startTime = LocalDateTime.now();
-
-        if(dayOfWeek != null){
-          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));;
-        }
-        LocalDateTime endTime = startTime.plusHours(1);
-
-        Timestamp start = rs.getTimestamp("start_time");
-        Timestamp end = rs.getTimestamp("end_time");
-        if(start != null) {
-          startTime = start.toLocalDateTime();
-        }
-        if(end != null){
-          endTime = end.toLocalDateTime();
-        }
+        LocalTime startTime = LocalTime.ofInstant(rs.getTime("start_time").toInstant(), ZoneId.systemDefault());
+        LocalTime endTime = LocalTime.ofInstant(rs.getTime("end_time").toInstant(), ZoneId.systemDefault());
 
         if (eventId != 0) {
           String address =
@@ -121,7 +103,65 @@ public class SearchRepository {
           ) {
             address = "";
           }
-          searchResult.addEvent(
+          searchResult.addWeeklyEvent(
+              groupId,
+              eventId,
+              eventName,
+              description,
+              dayOfWeek,
+              address,
+              startTime,
+              endTime
+          );
+        }
+      }
+    }
+    addOneTimeEvents(searchParams, searchResult, locationsWithTag);
+    return searchResult;
+  }
+
+  private void addOneTimeEvents(GroupSearchParams searchParams, GroupSearchResult searchResult, Set<String> locationsWithTag) throws Exception {
+
+    PreparedStatement statement = searchParams.generateQueryForOneTimeEvents(conn);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+
+      Integer groupId = rs.getInt("groupId");
+
+      String groupName = rs.getString("name");
+      String url = rs.getString("url");
+      String groupSummary = rs.getString("description");
+      String groupCity = rs.getString("groupCity");
+
+      if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
+
+        Integer eventId = rs.getInt("eventId");
+        String eventName = rs.getString("eventname");
+        String description = rs.getString("eventDescription");
+        String dayOfWeek = rs.getString("day_of_week");
+
+        String streetAddress = rs.getString("street_address");
+        String city = rs.getString("city");
+        String state = rs.getString("state");
+        String zipCode = rs.getString("zip_code");
+
+        LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
+        LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+
+        if (eventId != 0) {
+          String address =
+              streetAddress + ", " + city + ", " + state + " " + zipCode;
+
+          if (
+              streetAddress == null ||
+                  city == null ||
+                  state == null ||
+                  zipCode == null
+          ) {
+            address = "";
+          }
+          searchResult.addOneTimeEvent(
               groupId,
               eventId,
               eventName,
@@ -135,7 +175,6 @@ public class SearchRepository {
         }
       }
     }
-    return searchResult;
   }
 
   private Set<String> getLocationsWithTag(

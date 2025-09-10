@@ -224,7 +224,7 @@ public class GroupsRepository {
 
 
         if(!rs.next()){
-          group.setEvents(events.toArray(new Event[0]));
+          group.setOneTimeEvents(events.toArray(new Event[0]));
           return Optional.of(group);
         }
       }

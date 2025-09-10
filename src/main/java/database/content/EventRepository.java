@@ -8,12 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import service.data.SearchParameterValidator;
 
@@ -33,7 +30,7 @@ public class EventRepository {
 
     for (Group group : groups) {
       int groupId = groupsRepository.getGroupId(group);
-      for (Event event : group.events) {
+      for (Event event : group.oneTimeEvents) {
         int eventId = getEventId(event.getName(), group.url);
         if (eventId == -1) {
           if (!SearchParameterValidator.isValidAddress(event.getLocation())) {

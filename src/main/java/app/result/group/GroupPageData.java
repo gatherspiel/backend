@@ -5,7 +5,6 @@ import app.groups.data.Group;
 import app.users.data.PermissionName;
 
 import java.time.*;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -83,25 +82,16 @@ public class GroupPageData {
     return this.weeklyEventData;
   }
 
-  public void addWeeklyEventData(
-      String name,
-      String description,
-      String link, int id,
-      LocalTime startTime,
-      LocalTime endTime,
-      DayOfWeek dayOfWeek)
-  {
-    WeeklyEventData eventData = new WeeklyEventData(name, description, link, id, startTime, endTime, dayOfWeek);
+  public void addWeeklyEventData(WeeklyEventData eventData) {
     weeklyEventData.add(eventData);
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
-    LocalDateTime currentDate = LocalDateTime.now();
 
-    if(group.getEvents() != null){
-      for(Event event: group.getEvents()) {
+    if(group.getOneTimeEvents() != null){
+      for(Event event: group.getOneTimeEvents()) {
 
         //Event is not ready to be published because it does not have a location
         if(event.getLocation() == null){
@@ -110,9 +100,7 @@ public class GroupPageData {
 
         WeeklyEventData recurringEvent = event.getWeeklyEventData();
         if(recurringEvent != null) { //Event is recurring
-            var startTime = event.getStartTime();
-            var endTime = event.getEndTime();
-            data.addWeeklyEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
+            data.addWeeklyEventData(recurringEvent);
         }
         else if(event.getStartTime() != null && event.getEndTime() != null) {
           var startTime = event.getStartTime();
