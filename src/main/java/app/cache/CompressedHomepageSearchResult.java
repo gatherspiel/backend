@@ -1,7 +1,7 @@
 package app.cache;
 
-import app.groups.data.HomepageGroup;
-import app.result.HomeResult;
+import app.result.listing.HomepageGroup;
+import app.result.listing.HomeResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;

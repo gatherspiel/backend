@@ -1,10 +1,9 @@
 package app.groups.data;
 
+import app.result.group.WeeklyEventData;
 import app.users.data.PermissionName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,7 +15,6 @@ public class Event {
   private String description;
   private String name;
   private String url;
-  private Boolean isRecurring = false;
   private LocalDateTime startTime;
   private LocalDateTime endTime;
 
@@ -26,6 +24,8 @@ public class Event {
   private Integer groupId;
 
   private HashMap<PermissionName, Boolean> permissions;
+
+  private WeeklyEventData weeklyEventData;
 
   public Event() {
     permissions = new HashMap<>();
@@ -128,7 +128,6 @@ public class Event {
     return endTime;
   }
 
-
   /*
  The start and end time are represented as strings as a workaround for a serialization limitation with the
  LocalDateTime object
@@ -152,10 +151,6 @@ public class Event {
     this.eventLocation = eventLocation;
   }
 
-  public boolean getIsRecurring(){
-    return isRecurring;
-  }
-
   public void setGroupName(String groupName){
     this.groupName = groupName;
   }
@@ -172,8 +167,12 @@ public class Event {
     return groupId;
   }
 
-  public void setIsRecurring(boolean isRecurring){
-    this.isRecurring = isRecurring;
+  public void setWeeklyEventData(WeeklyEventData weeklyEventData){
+    this.weeklyEventData = weeklyEventData;
+  }
+
+  public WeeklyEventData getWeeklyEventData(){
+    return weeklyEventData;
   }
 
   public String toString(){

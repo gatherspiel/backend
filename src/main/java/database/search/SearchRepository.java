@@ -1,7 +1,7 @@
 package database.search;
 
-import app.result.GroupSearchResult;
-import app.result.HomeResult;
+import app.result.listing.GroupSearchResult;
+import app.result.listing.HomeResult;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -61,6 +61,9 @@ public class SearchRepository {
       GroupSearchParams searchParams
   )
       throws Exception {
+
+
+    //TODO: Add query here for recurring events.
     PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
@@ -105,9 +108,6 @@ public class SearchRepository {
         if(end != null){
           endTime = end.toLocalDateTime();
         }
-        if (start == null){
-          isRecurring = true;
-        }
 
         if (eventId != 0) {
           String address =
@@ -130,8 +130,7 @@ public class SearchRepository {
               address,
               city,
               startTime,
-              endTime,
-              isRecurring
+              endTime
           );
         }
       }

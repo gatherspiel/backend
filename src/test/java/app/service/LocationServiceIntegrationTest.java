@@ -3,7 +3,7 @@ package app.service;
 import app.location.Convention;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.result.GameLocationData;
+import app.result.listing.GameLocationData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package app.result;
+package app.result.listing;
 
 import app.groups.data.Event;
 import app.groups.data.Group;
@@ -58,8 +58,7 @@ public class GroupSearchResult {
     String address,
     String city,
     LocalDateTime startTime,
-    LocalDateTime endTime,
-    boolean isRecurring
+    LocalDateTime endTime
   ) throws Exception{
     if (!groupData.containsKey(groupId)) {
       logger.warn(
@@ -79,7 +78,6 @@ public class GroupSearchResult {
     event.setId(eventId);
     event.setStartTime(startTime);
     event.setEndTime(endTime);
-    event.setIsRecurring(isRecurring);
     group.addEvent(event);
   }
 

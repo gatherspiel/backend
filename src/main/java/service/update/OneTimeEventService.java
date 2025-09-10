@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EventService {
+public class OneTimeEventService {
 
   Connection connection;
   EventRepository eventRepository;
   GroupPermissionService groupPermissionService;
   User user;
 
-  public EventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
+  public OneTimeEventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
     this.connection = connection;
     this.eventRepository = eventRepository;
     this.groupPermissionService = groupPermissionService;

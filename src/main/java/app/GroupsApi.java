@@ -8,7 +8,7 @@ import app.result.error.group.GroupNotFoundError;
 import app.result.error.group.InvalidGroupParameterError;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
-import app.groups.data.GroupPageData;
+import app.result.group.GroupPageData;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;

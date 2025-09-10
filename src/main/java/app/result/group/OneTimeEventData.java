@@ -1,5 +1,6 @@
-package app.groups.data;
+package app.result.group;
 
+import app.groups.data.Event;
 import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.time.LocalDate;
@@ -7,14 +8,14 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Objects;
 
-class GroupPageEventDataComparator implements Comparator<GroupPageEventData> {
-  public int compare(GroupPageEventData eventData1, GroupPageEventData eventData2) {
+class OneTimeEventDataComparator implements Comparator<OneTimeEventData> {
+  public int compare(OneTimeEventData eventData1, OneTimeEventData eventData2) {
     return eventData1.getStartTime().compareTo(eventData2.getStartTime());
   }
 }
 
 // Event that will be shown on a group page.
-public class GroupPageEventData {
+public class OneTimeEventData {
 
   private LocalDate eventDate;
 
@@ -25,7 +26,7 @@ public class GroupPageEventData {
   private LocalDateTime endTime;
   private int id;
 
-  public GroupPageEventData(
+  public OneTimeEventData(
       String name,
       String description,
       String location,
@@ -109,7 +110,6 @@ public class GroupPageEventData {
   @Override
   public int hashCode(){
     return Objects.hash(
-        eventDate,
         name,
         description,
         location,

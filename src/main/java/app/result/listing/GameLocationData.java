@@ -1,4 +1,4 @@
-package app.result;
+package app.result.listing;
 
 import app.location.Convention;
 import app.location.GameRestaurant;

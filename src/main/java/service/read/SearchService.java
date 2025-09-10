@@ -1,9 +1,9 @@
 package service.read;
 
 import app.groups.data.Group;
-import app.groups.data.HomepageGroup;
-import app.result.GroupSearchResult;
-import app.result.HomeResult;
+import app.result.listing.HomepageGroup;
+import app.result.listing.GroupSearchResult;
+import app.result.listing.HomeResult;
 import database.search.GroupSearchParams;
 import database.search.SearchRepository;
 import org.apache.logging.log4j.Logger;

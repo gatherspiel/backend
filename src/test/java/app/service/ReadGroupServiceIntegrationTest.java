@@ -2,6 +2,9 @@ package app.service;
 
 import app.SessionContext;
 import app.groups.data.*;
+import app.result.group.GroupPageData;
+import app.result.group.OneTimeEventData;
+import app.result.group.WeeklyEventData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
@@ -20,6 +23,8 @@ import service.read.ReadGroupService;
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -88,9 +93,7 @@ public class ReadGroupServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        GroupPageData result = groupService.getGroupPageData(
-            params
-        );
+        groupService.getGroupPageData(params);
       }
     );
     assertTrue(exception.getMessage().contains("No group found"));
@@ -105,17 +108,14 @@ public class ReadGroupServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        GroupPageData result = groupService.getGroupPageData(
-            params
-        );
+        groupService.getGroupPageData(params);
       }
     );
     assertTrue(exception.getMessage().contains("No group found"));
   }
 
-
   @Test
-  public void testValidNameAndValidTag_correctGroupInformation() throws Exception{
+  public void testValidNameAndValidTag_CorrectGroupInformation() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
@@ -130,39 +130,6 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void testValidNameAndValidTag_Group_ValidEventsWithOneEventEachWeek() throws Exception{
-    LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
-
-    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
-        params
-    );
-
-    Set<GroupPageEventData> eventData = result.getEventData();
-
-    LocalDate prevDate = null;
-    for(GroupPageEventData data: eventData) {
-
-      if(prevDate != null){
-        assertTrue(data.getEventDate().isAfter(prevDate));
-      }
-
-      Assertions.assertAll(
-         () -> assertEquals(data.getStartTime().getDayOfWeek(), DayOfWeek.MONDAY),
-         () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
-          data.getDescription()),
-      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street,Alexandria,VA 22314")
-      );
-      prevDate = data.getEventDate();
-    }
-
-    assertTrue(eventData.size()==4 || eventData.size()==5);
-
-  }
-
-  @Test
   public void testEventsWithoutValidLocations_areNotVisibleInGroupData() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -171,8 +138,36 @@ public class ReadGroupServiceIntegrationTest {
     GroupPageData result = adminContext.createReadGroupService().getGroupPageData(
         params
     );
-    
-    assertEquals(result.getEventData().size(),0);
+
+    assertEquals(result.getOneTimeEventData().size(),0);
+  }
+
+  @Test
+  public void testValidNameAndValidTag_Group_ValidRecurringEventsWithOneEventEachWeek() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
+
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+    Set<WeeklyEventData> eventData = result.getWeeklyEventData();
+
+    for(WeeklyEventData data: eventData) {
+
+
+      Assertions.assertAll(
+         () -> assertEquals(data.getDayOfWeek(), DayOfWeek.MONDAY),
+         () -> assertEquals(data.getName(), "Game Night at Glory Days"),
+      () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
+          data.getDescription()),
+      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street,Alexandria,VA 22314")
+      );
+    }
+
+    assertTrue(eventData.size()==1);
+
   }
 
   @Test
@@ -185,18 +180,48 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
 
-    Set<GroupPageEventData> eventData = result.getEventData();
+    Set<WeeklyEventData> eventData = result.getWeeklyEventData();
 
-    LocalDate prevDate = null;
-    for(GroupPageEventData data: eventData) {
+    int correctEventNames = 0;
+    for(WeeklyEventData data: eventData) {
 
-      if(prevDate != null){
-        assertTrue(data.getEventDate().isAfter(prevDate));
+      if(data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")){
+        assertEquals(DayOfWeek.SUNDAY,data.getDayOfWeek());
+        assertEquals("We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",
+            data.getDescription());
+        assertEquals(LocalTime.NOON.plusHours(1),data.getStartTime());
+        assertEquals(LocalTime.NOON.plusHours(5),data.getEndTime());
+        correctEventNames ++;
       }
-      prevDate = data.getEventDate();
-    }
 
-    assertTrue(eventData.size()<=16 || eventData.size()<=20);
+      if(data.getName().equals("Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00")){
+        assertEquals(DayOfWeek.WEDNESDAY,data.getDayOfWeek());
+        assertEquals("Let's play board games. Not the ones your ancestors played but the really cool ones of the new millennium. We play everything from fun, social games to light to heavy strategy games.",
+            data.getDescription());
+        assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
+        assertEquals(LocalTime.NOON.plusHours(10),data.getEndTime());
+        correctEventNames ++;
+      }
+
+      if(data.getName().equals("Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza")){
+        assertEquals(DayOfWeek.FRIDAY,data.getDayOfWeek());
+        assertEquals("We play a variety of game with a focus on Eurogames",data.getDescription());
+        assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
+        assertEquals(LocalTime.NOON.plusHours(10),data.getEndTime());
+        correctEventNames ++;
+      }
+
+      if(data.getName().equals("Bring Your Own Game Night in DC at Nanny O’Briens")){
+        assertEquals(DayOfWeek.MONDAY,data.getDayOfWeek());
+        assertEquals("Hello again! After a long hiatus, the Monday meet up at Nanny O’Briens is back! We’ll have some games to play, but feel free to bring your favorites as well. Stop by for a game and a drink, and say hello! We’ll be in the back room",
+            data.getDescription());
+        assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
+        assertEquals(LocalTime.NOON.plusHours(10).plusMinutes(30),data.getEndTime());
+        correctEventNames ++;
+      }
+    }
+    assertEquals(4,correctEventNames);
+    assertEquals(0, result.getOneTimeEventData().size());
   }
 
   @Test
