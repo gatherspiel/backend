@@ -8,7 +8,7 @@ class WeeklyEventDataComparator implements Comparator<WeeklyEventData> {
   public int compare(WeeklyEventData eventData1, WeeklyEventData eventData2) {
 
     int compare = eventData1.getDay().getValue() - eventData2.getDay().getValue();
-    
+
     if(compare != 0){
       return compare;
     }
