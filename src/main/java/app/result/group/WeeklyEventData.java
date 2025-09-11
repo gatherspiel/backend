@@ -1,7 +1,6 @@
 package app.result.group;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 
@@ -17,28 +16,11 @@ public class WeeklyEventData {
   private String location;
   private LocalTime startTime;
   private LocalTime endTime;
-  private DayOfWeek dayOfWeek;
+  private DayOfWeek day;
   private int id;
 
-  public WeeklyEventData(
-      String name,
-      String description,
-      String location,
-      int id,
-      LocalTime startTime,
-      LocalTime endTime,
-      String day)
-  {
-    this.name = name;
-    this.description = description;
-    this.location = location;
-    this.id = id;
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.dayOfWeek = DayOfWeek.valueOf(day);
-  }
 
-  public void setName(){
+  public void setName(String name){
     this.name = name;
   }
 
@@ -67,6 +49,9 @@ public class WeeklyEventData {
   }
 
   public LocalTime getStartTime(){
+    if(startTime == null){
+      return LocalTime.MIN;
+    }
     return startTime;
   }
 
@@ -75,20 +60,24 @@ public class WeeklyEventData {
   }
 
   public LocalTime getEndTime(){
+    if(endTime == null){
+      return LocalTime.MAX;
+    }
     return endTime;
   }
 
-  public void setDayOfWeek(String dayOfWeek){
-    this.dayOfWeek = DayOfWeek.valueOf(dayOfWeek);
+  public void setDay(String day){
+    this.day = DayOfWeek.valueOf(day.toUpperCase());
   }
 
-  public DayOfWeek getDayOfWeek(){
-    return dayOfWeek;
+  public DayOfWeek getDay(){
+    return day;
   }
 
-  public void setId(String id){
+  public void setId(Integer id){
     this.id = id;
   }
+
   public Integer getId(){
     return id;
   }

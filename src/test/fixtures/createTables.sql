@@ -138,7 +138,7 @@ create table if not exists event_admin_data (
 );
 
 
-create table  if not exists group_admin_data (
+create table if not exists group_admin_data (
   user_id integer not null,
   group_id integer not null,
   group_admin_level group_admin_level null,
@@ -147,5 +147,14 @@ create table  if not exists group_admin_data (
   constraint group_admin_data_pkey primary key (user_id, group_id)
 );
 
+CREATE TABLE IF NOT EXISTS weekly_event_time (
+    id serial,
+    event_id integer null,
+    day_of_week public.dayofweek null,
+    start_time time with time zone null,
+    end_time time with time zone null,
+    constraint weekly_event_time_pkey primary key (id),
+    constraint weekly_event_time_event_id_fkey foreign KEY (event_id) references events (id)
+)
 
 

@@ -8,6 +8,7 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -88,8 +89,21 @@ public class SearchRepository {
         String state = rs.getString("state");
         String zipCode = rs.getString("zip_code");
 
-        LocalTime startTime = LocalTime.ofInstant(rs.getTime("start_time").toInstant(), ZoneId.systemDefault());
-        LocalTime endTime = LocalTime.ofInstant(rs.getTime("end_time").toInstant(), ZoneId.systemDefault());
+        Timestamp startData = rs.getTimestamp("start_time");
+        Timestamp endData = rs.getTimestamp("end_time");
+        LocalTime startTime = LocalTime.MIN;
+        LocalTime endTime = LocalTime.MAX;
+
+        if(startData != null){
+          System.out.println(startData);
+          var startDateTime = startData.toLocalDateTime();
+          startTime = startTime.plusHours(startDateTime.getHour()).plusMinutes(startTime.getMinute());
+        }
+
+        if(endData != null){
+          var endDateTime = endData.toLocalDateTime();
+          endTime = LocalTime.MIN.plusHours(endDateTime.getHour()).plusMinutes(endDateTime.getMinute());
+        }
 
         if (eventId != 0) {
           String address =
@@ -146,8 +160,18 @@ public class SearchRepository {
         String state = rs.getString("state");
         String zipCode = rs.getString("zip_code");
 
-        LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
-        LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+        var startData = rs.getTime("start_time");
+        var endData = rs.getTime("end_time");
+        LocalDateTime startTime = LocalDateTime.MIN;
+        LocalDateTime endTime = LocalDateTime.MAX;
+
+        if(startData != null){
+          startTime = rs.getTimestamp("start_time").toLocalDateTime();
+        }
+
+        if(endData != null){
+          endTime = rs.getTimestamp("end_time").toLocalDateTime();
+        }
 
         if (eventId != 0) {
           String address =

@@ -1,6 +1,7 @@
 package app.database.utils;
 
 import app.admin.request.BulkUpdateRequest;
+import app.groups.data.Group;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -42,7 +43,11 @@ public class DbUtils {
     try {
       File file = new File("src/test/fixtures/listingData.json");
       ObjectMapper mapper = new ObjectMapper();
+
+      System.out.println("Reading data");
       BulkUpdateRequest data = mapper.readValue(file, BulkUpdateRequest.class);
+      System.out.println("Done reading data");
+
 
       BulkUpdateService bulkUpdateService = new BulkUpdateService();
       bulkUpdateService.deleteUsers(testConnectionProvider);

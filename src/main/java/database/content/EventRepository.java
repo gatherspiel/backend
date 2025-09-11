@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
+import app.result.group.WeeklyEventData;
 import service.data.SearchParameterValidator;
 
 public class EventRepository {
@@ -22,15 +23,19 @@ public class EventRepository {
     this.conn = conn;
   }
 
-  //TODO: Make this logic use address objects.
   public void addEvents(Group[] groups) throws Exception {
     GroupsRepository groupsRepository = new GroupsRepository(conn);
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
 
+    System.out.println("Adding events");
     for (Group group : groups) {
       int groupId = groupsRepository.getGroupId(group);
-      for (Event event : group.oneTimeEvents) {
+
+      System.out.println("Adding weekly event data for group: " + group.getName());
+      System.out.println(group.getWeeklyEventData().length);
+      for (WeeklyEventData event : group.getWeeklyEventData()) {
+
         int eventId = getEventId(event.getName(), group.url);
         if (eventId == -1) {
           if (!SearchParameterValidator.isValidAddress(event.getLocation())) {
@@ -64,7 +69,9 @@ public class EventRepository {
         }
         updateEventGroupMap(groupId, eventId, conn);
         event.setId(eventId);
-        eventTimeRepository.setEventDay(event);
+
+        System.out.println(event.getStartTime());
+        eventTimeRepository.setWeeklyRecurrence(event);
       }
     }
   }

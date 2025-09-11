@@ -15,7 +15,6 @@ public class Group {
   public String description;
   public String name;
 
-
   public Integer getId() {
     return id;
   }
@@ -74,7 +73,7 @@ public class Group {
 
   public WeeklyEventData[] getWeeklyEventData() {
 
-    if(oneTimeEvents == null || oneTimeEvents.length == 0){
+    if(weeklyEventData == null || weeklyEventData.length == 0){
       return new WeeklyEventData[0];
     }
     return weeklyEventData;

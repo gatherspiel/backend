@@ -1,14 +1,13 @@
 package database.content;
 
 import app.groups.data.Event;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import app.result.error.StackTraceShortener;
+import app.result.group.WeeklyEventData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.util.PSQLException;
@@ -39,6 +38,19 @@ public class EventTimeRepository {
       insert.setInt(2, event.getId());
       insert.executeUpdate();
     }
+  }
+
+  public void setWeeklyRecurrence(WeeklyEventData event) throws Exception {
+    String query =
+        "INSERT into weekly_event_time (event_id, day_of_week, start_time,end_time) VALUES(?, cast(? AS dayofweek), ?, ?)";
+
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1,event.getId());
+    insert.setString(2, event.getDay().toString().toLowerCase());
+    insert.setTime(3, Time.valueOf(event.getStartTime()));
+    insert.setTime(4, Time.valueOf(event.getEndTime()));
+
+    insert.executeUpdate();
   }
 
   public void deleteOrphanedTimeData() throws Exception{

@@ -70,15 +70,15 @@ public class GroupSearchResult {
     }
 
     Group group = groupData.get(groupId);
-    WeeklyEventData eventData = new WeeklyEventData(
-        name,
-        description,
-        address,
-        eventId,
-        startTime,
-        endTime,
-        dayOfWeek
-    );
+
+    WeeklyEventData eventData = new WeeklyEventData();
+    eventData.setName(name);
+    eventData.setDescription(description);
+    eventData.setLocation(address);
+    eventData.setId(eventId);
+    eventData.setStartTime(startTime);
+    eventData.setEndTime(endTime);
+    eventData.setDay(dayOfWeek);
     group.addWeeklyEvent(eventData);
   }
 

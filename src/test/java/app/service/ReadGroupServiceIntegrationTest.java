@@ -3,7 +3,6 @@ package app.service;
 import app.SessionContext;
 import app.groups.data.*;
 import app.result.group.GroupPageData;
-import app.result.group.OneTimeEventData;
 import app.result.group.WeeklyEventData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
@@ -22,9 +21,7 @@ import service.read.ReadGroupService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -158,7 +155,7 @@ public class ReadGroupServiceIntegrationTest {
 
 
       Assertions.assertAll(
-         () -> assertEquals(data.getDayOfWeek(), DayOfWeek.MONDAY),
+         () -> assertEquals(data.getDay(), DayOfWeek.MONDAY),
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
       () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
           data.getDescription()),
@@ -176,7 +173,7 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
 
-    GroupPageData result = groupService.getGroupPageData(
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
     );
 
@@ -186,7 +183,7 @@ public class ReadGroupServiceIntegrationTest {
     for(WeeklyEventData data: eventData) {
 
       if(data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")){
-        assertEquals(DayOfWeek.SUNDAY,data.getDayOfWeek());
+        assertEquals(DayOfWeek.SUNDAY,data.getDay());
         assertEquals("We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",
             data.getDescription());
         assertEquals(LocalTime.NOON.plusHours(1),data.getStartTime());
@@ -195,7 +192,7 @@ public class ReadGroupServiceIntegrationTest {
       }
 
       if(data.getName().equals("Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00")){
-        assertEquals(DayOfWeek.WEDNESDAY,data.getDayOfWeek());
+        assertEquals(DayOfWeek.WEDNESDAY,data.getDay());
         assertEquals("Let's play board games. Not the ones your ancestors played but the really cool ones of the new millennium. We play everything from fun, social games to light to heavy strategy games.",
             data.getDescription());
         assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
@@ -204,7 +201,7 @@ public class ReadGroupServiceIntegrationTest {
       }
 
       if(data.getName().equals("Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza")){
-        assertEquals(DayOfWeek.FRIDAY,data.getDayOfWeek());
+        assertEquals(DayOfWeek.FRIDAY,data.getDay());
         assertEquals("We play a variety of game with a focus on Eurogames",data.getDescription());
         assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
         assertEquals(LocalTime.NOON.plusHours(10),data.getEndTime());
@@ -212,7 +209,7 @@ public class ReadGroupServiceIntegrationTest {
       }
 
       if(data.getName().equals("Bring Your Own Game Night in DC at Nanny O’Briens")){
-        assertEquals(DayOfWeek.MONDAY,data.getDayOfWeek());
+        assertEquals(DayOfWeek.MONDAY,data.getDay());
         assertEquals("Hello again! After a long hiatus, the Monday meet up at Nanny O’Briens is back! We’ll have some games to play, but feel free to bring your favorites as well. Stop by for a game and a drink, and say hello! We’ll be in the back room",
             data.getDescription());
         assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
