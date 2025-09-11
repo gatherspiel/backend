@@ -114,11 +114,11 @@ public class GroupSearchResult {
     group.addOneTimeEvent(event);
   }
 
-  public Group getFirstGroup() {
+  public Optional<Group> getFirstGroup() {
     if(groupData.isEmpty()){
-      return null;
+      return Optional.empty();
     }
-    return groupData.get(groupData.keySet().toArray()[0]);
+    return Optional.of(groupData.get(groupData.keySet().toArray()[0]));
   }
   public int countGroups() {
     return groupData.size();

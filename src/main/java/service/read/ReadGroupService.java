@@ -39,11 +39,11 @@ public class ReadGroupService{
       LinkedHashMap<String, String> params
       ) throws Exception{
 
-    Group group = searchService.getSingleGroup(params);
-    if(group == null){
+    Optional<Group> group = searchService.getSingleGroup(params);
+    if(group.isEmpty()){
       throw new SearchParameterException("No group found with parameters:"+params);
     }
-    GroupPageData groupPageData = GroupPageData.createFromSearchResult(group);
+    GroupPageData groupPageData = GroupPageData.createFromSearchResult(group.get());
 
     boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
     groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);

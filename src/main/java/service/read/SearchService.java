@@ -57,7 +57,7 @@ public class SearchService {
   }
 
 
-  public Group getSingleGroup(
+  public Optional<Group> getSingleGroup(
       LinkedHashMap<String, String> searchParams) throws Exception
   {
     GroupSearchParams params = new GroupSearchParams(searchParams);
@@ -66,6 +66,7 @@ public class SearchService {
     if(groups.countGroups() > 1 ){
       throw new Exception("Multiple groups were found");
     }
+
     return groups.getFirstGroup();
   }
 

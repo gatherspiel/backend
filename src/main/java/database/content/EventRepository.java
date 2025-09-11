@@ -28,12 +28,9 @@ public class EventRepository {
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
 
-    System.out.println("Adding events");
     for (Group group : groups) {
       int groupId = groupsRepository.getGroupId(group);
 
-      System.out.println("Adding weekly event data for group: " + group.getName());
-      System.out.println(group.getWeeklyEventData().length);
       for (WeeklyEventData event : group.getWeeklyEventData()) {
 
         int eventId = getEventId(event.getName(), group.url);
@@ -70,7 +67,6 @@ public class EventRepository {
         updateEventGroupMap(groupId, eventId, conn);
         event.setId(eventId);
 
-        System.out.println(event.getStartTime());
         eventTimeRepository.setWeeklyRecurrence(event);
       }
     }

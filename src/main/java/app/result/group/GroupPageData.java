@@ -89,29 +89,30 @@ public class GroupPageData {
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
-
     if(group.getOneTimeEvents() != null){
       for(Event event: group.getOneTimeEvents()) {
 
-        //Event is not ready to be published because it does not have a location
+        //Event is not ready to be published because it does not have a location.
         if(event.getLocation() == null){
           continue;
         }
 
-        WeeklyEventData recurringEvent = event.getWeeklyEventData();
-        if(recurringEvent != null) { //Event is recurring
-            data.addWeeklyEventData(recurringEvent);
-        }
-        else if(event.getStartTime() != null && event.getEndTime() != null) {
+        if(event.getStartTime() != null && event.getEndTime() != null) {
           var startTime = event.getStartTime();
           var endTime = event.getEndTime();
           data.addOneTimeEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
         }
       }
     }
+
+    var weeklyEventData = group.getWeeklyEventData();
+    if(weeklyEventData!= null){
+      for(WeeklyEventData event: weeklyEventData){
+        data.addWeeklyEventData(event);
+      }
+    }
     return data;
   }
-
 
   public HashMap<PermissionName,Boolean> getPermissions(){
     return permissions;

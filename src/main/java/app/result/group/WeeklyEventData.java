@@ -6,7 +6,16 @@ import java.util.Comparator;
 
 class WeeklyEventDataComparator implements Comparator<WeeklyEventData> {
   public int compare(WeeklyEventData eventData1, WeeklyEventData eventData2) {
-    return eventData1.getStartTime().compareTo(eventData2.getStartTime());
+
+    int compare = eventData1.getDay().compareTo(eventData2.getDay());
+
+    if(compare == 0){
+      compare = eventData1.getStartTime().compareTo(eventData2.getStartTime());
+    } else {
+      compare = eventData1.getName().compareTo(eventData2.getName());
+
+    }
+    return compare;
   }
 }
 

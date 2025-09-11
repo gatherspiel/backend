@@ -71,6 +71,7 @@ public class GroupSearchParams {
       whereClauses.add(paramQueryMap.get(param));
     }
 
+
     if (!whereClauses.isEmpty()) {
       query = query + " WHERE ";
       query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
@@ -123,22 +124,18 @@ public class GroupSearchParams {
       whereClauses.add(paramQueryMap.get(param));
     }
 
-    if (!whereClauses.isEmpty()) {
-      query = query + " WHERE ";
-      query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
+    whereClauses.add("start_time IS NOT NULL");
+    query = query + " WHERE ";
+    query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-      PreparedStatement select = conn.prepareStatement(query);
-      int i = 1;
-      for(String param: params.keySet()){
-        select.setString(i, params.get(param));
-        i++;
-      }
-
-      return select;
-
-    } else {
-      return conn.prepareStatement(query);
+    PreparedStatement select = conn.prepareStatement(query);
+    int i = 1;
+    for(String param: params.keySet()){
+      select.setString(i, params.get(param));
+      i++;
     }
+    return select;
+
   }
 
   private static String getQueryForHomepageSearchResult(){

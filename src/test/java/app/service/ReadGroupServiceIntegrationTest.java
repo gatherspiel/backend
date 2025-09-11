@@ -90,9 +90,10 @@ public class ReadGroupServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        groupService.getGroupPageData(params);
+        sessionContext.createReadGroupService().getGroupPageData(params);
       }
     );
+    exception.printStackTrace();
     assertTrue(exception.getMessage().contains("No group found"));
   }
 
@@ -159,7 +160,7 @@ public class ReadGroupServiceIntegrationTest {
          () -> assertEquals(data.getName(), "Game Night at Glory Days"),
       () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
           data.getDescription()),
-      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street,Alexandria,VA 22314")
+      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314")
       );
     }
 
@@ -195,6 +196,7 @@ public class ReadGroupServiceIntegrationTest {
         assertEquals(DayOfWeek.WEDNESDAY,data.getDay());
         assertEquals("Let's play board games. Not the ones your ancestors played but the really cool ones of the new millennium. We play everything from fun, social games to light to heavy strategy games.",
             data.getDescription());
+
         assertEquals(LocalTime.NOON.plusHours(6).plusMinutes(30),data.getStartTime());
         assertEquals(LocalTime.NOON.plusHours(10),data.getEndTime());
         correctEventNames ++;
@@ -218,7 +220,10 @@ public class ReadGroupServiceIntegrationTest {
       }
     }
     assertEquals(4,correctEventNames);
+
     assertEquals(0, result.getOneTimeEventData().size());
+
+
   }
 
   @Test

@@ -57,24 +57,21 @@ public class SearchRepository {
 
   public GroupSearchResult getGroupsWithDetails(
       GroupSearchParams searchParams
-  )
-      throws Exception {
+  ) throws Exception {
 
-    //TODO: Add query here for one time events.
     PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
     Set<String> locationsWithTag = getLocationsWithTag(searchParams);
-
     GroupSearchResult searchResult = new GroupSearchResult();
     while (rs.next()) {
 
       Integer groupId = rs.getInt("groupId");
-
       String groupName = rs.getString("name");
       String url = rs.getString("url");
       String groupSummary = rs.getString("description");
       String groupCity = rs.getString("groupCity");
+
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
         searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
@@ -95,9 +92,8 @@ public class SearchRepository {
         LocalTime endTime = LocalTime.MAX;
 
         if(startData != null){
-          System.out.println(startData);
           var startDateTime = startData.toLocalDateTime();
-          startTime = startTime.plusHours(startDateTime.getHour()).plusMinutes(startTime.getMinute());
+          startTime = startTime.plusHours(startDateTime.getHour()).plusMinutes(startDateTime.getMinute());
         }
 
         if(endData != null){
@@ -117,19 +113,27 @@ public class SearchRepository {
           ) {
             address = "";
           }
-          searchResult.addWeeklyEvent(
-              groupId,
-              eventId,
-              eventName,
-              description,
-              dayOfWeek,
-              address,
-              startTime,
-              endTime
-          );
+
+          /* Groups that have no events will be returned from the query with empty event data. If a group has at
+          least one event, each result associated with the group will have event data.
+           */
+          if(dayOfWeek != null){
+            searchResult.addWeeklyEvent(
+                groupId,
+                eventId,
+                eventName,
+                description,
+                dayOfWeek,
+                address,
+                startTime,
+                endTime
+            );
+          }
+
         }
       }
     }
+
     addOneTimeEvents(searchParams, searchResult, locationsWithTag);
     return searchResult;
   }
@@ -139,6 +143,7 @@ public class SearchRepository {
     PreparedStatement statement = searchParams.generateQueryForOneTimeEvents(conn);
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
+
 
       Integer groupId = rs.getInt("groupId");
 
@@ -154,6 +159,7 @@ public class SearchRepository {
         String eventName = rs.getString("eventname");
         String description = rs.getString("eventDescription");
         String dayOfWeek = rs.getString("day_of_week");
+
 
         String streetAddress = rs.getString("street_address");
         String city = rs.getString("city");

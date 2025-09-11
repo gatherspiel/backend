@@ -9,6 +9,7 @@ import app.result.group.OneTimeEventData;
 import app.users.data.PermissionName;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
+import database.search.GroupSearchParams;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -203,6 +204,7 @@ public class EventServiceIntegrationTest {
     assertEquals(eventB.getName(), eventFromDbB.getName());
   }
 
+  //TODO: Add test for recurring event.
   @Test
   public void testCreateMultipleEvents_GroupPageData_HasCorrectEvents() throws Exception {
 
@@ -224,11 +226,14 @@ public class EventServiceIntegrationTest {
     for(Event event: eventsToAdd){
       var createdEvent = eventEditService.createEvent(event, group.getId());
       createdEvents.put(createdEvent.getId(), createdEvent);
-
     }
 
     var groupService = adminContext.createReadGroupService();
-    GroupPageData data = groupService.getGroupPageData(new LinkedHashMap<>());
+
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME, group.getName());
+
+    GroupPageData data = groupService.getGroupPageData(params);
 
     var groupEvents = data.getOneTimeEventData();
     assertEquals(groupEvents.size(), 3);
