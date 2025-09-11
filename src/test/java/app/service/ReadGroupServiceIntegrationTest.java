@@ -22,9 +22,7 @@ import service.read.ReadGroupService;
 import java.sql.Connection;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -178,11 +176,13 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
 
-    Set<WeeklyEventData> eventData = result.getWeeklyEventData();
-
+    TreeSet<WeeklyEventData> eventData = result.getWeeklyEventData();
     int correctEventNames = 0;
+
+    DayOfWeek[] days = new DayOfWeek[4];
     for(WeeklyEventData data: eventData) {
 
+      days[correctEventNames] = data.getDay();
       if(data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")){
         assertEquals(DayOfWeek.SUNDAY,data.getDay());
         assertEquals("We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",
@@ -219,8 +219,13 @@ public class ReadGroupServiceIntegrationTest {
         correctEventNames ++;
       }
     }
-    assertEquals(4,correctEventNames);
 
+    assertEquals(days[0],DayOfWeek.MONDAY);
+    assertEquals(days[1],DayOfWeek.WEDNESDAY);
+    assertEquals(days[2],DayOfWeek.FRIDAY);
+    assertEquals(days[3],DayOfWeek.SUNDAY);
+
+    assertEquals(4,correctEventNames);
     assertEquals(0, result.getOneTimeEventData().size());
 
 

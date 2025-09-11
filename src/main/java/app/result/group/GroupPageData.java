@@ -63,7 +63,7 @@ public class GroupPageData {
     this.description = description;
   }
 
-  public Set<OneTimeEventData> getOneTimeEventData(){
+  public TreeSet<OneTimeEventData> getOneTimeEventData(){
     return this.oneTimeEventData;
   }
 
@@ -78,7 +78,7 @@ public class GroupPageData {
     oneTimeEventData.add(eventData);
   }
 
-  public Set<WeeklyEventData> getWeeklyEventData(){
+  public TreeSet<WeeklyEventData> getWeeklyEventData(){
     return this.weeklyEventData;
   }
 
