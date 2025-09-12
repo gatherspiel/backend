@@ -5,13 +5,12 @@ import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
-import app.result.group.OneTimeEventData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.update.OneTimeEventService;
+import service.update.EventService;
 import service.update.GroupEditService;
 
 
@@ -82,8 +81,8 @@ public class GroupEditServiceIntegrationTest {
       standardUserContext3 = CreateUserUtils.createContextWithNewStandardUser( USERNAME_4,testConnectionProvider);
       readOnlyUserContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
-      event1 = OneTimeEventService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
-      event2 = OneTimeEventService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_2, START_TIME_2, END_TIME_2);
+      event1 = EventService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
+      event2 = EventService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_2, START_TIME_2, END_TIME_2);
 
     } catch(Exception e){
       e.printStackTrace();
@@ -286,7 +285,7 @@ public class GroupEditServiceIntegrationTest {
   public void testDeleteGroupWithEvents() throws Exception {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = adminContext.createEventService();
+    EventService oneTimeEventService = adminContext.createEventService();
     oneTimeEventService.createEvent(event1, group.getId());
 
     oneTimeEventService.deleteEvent(event1.getId(),group.getId());
@@ -304,7 +303,7 @@ public class GroupEditServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     Group group2 = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = adminContext.createEventService();
+    EventService oneTimeEventService = adminContext.createEventService();
     oneTimeEventService.createEvent(event1, group.getId());
     oneTimeEventService.createEvent(event2, group2.getId());
 
@@ -324,10 +323,10 @@ public class GroupEditServiceIntegrationTest {
         params
     );
 
-    Optional<OneTimeEventData> eventFromDbOptional = groupData.getOneTimeEventData().stream().findFirst();
+    Optional<Event> eventFromDbOptional = groupData.getOneTimeEventData().stream().findFirst();
     assertTrue(eventFromDbOptional.isPresent());
 
-    OneTimeEventData eventFromDb = eventFromDbOptional.get();
+    Event eventFromDb = eventFromDbOptional.get();
 
     assertEquals(eventFromDb.getName(),event2.getName());
     assertEquals(eventFromDb.getDescription(),event2.getDescription());

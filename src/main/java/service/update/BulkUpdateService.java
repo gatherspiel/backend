@@ -63,7 +63,7 @@ public class BulkUpdateService {
 
     try {
       EventRepository eventRepository = new EventRepository(conn);
-      eventRepository.addEvents(data.getGroups());
+      eventRepository.addOneTimeEvents(data.getGroups());
     } catch (Exception e) {
       logger.error("Error inserting events");
       throw e;

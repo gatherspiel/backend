@@ -5,7 +5,6 @@ import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
-import app.result.group.OneTimeEventData;
 import app.users.data.PermissionName;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
@@ -13,11 +12,12 @@ import database.search.GroupSearchParams;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.update.OneTimeEventService;
+import service.update.EventService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -45,14 +45,13 @@ public class EventServiceIntegrationTest {
   private static final String GROUP_ADMIN_USERNAME = "groupAdmin";
   private static final String STANDARD_USER_USERNAME = "testUser";
 
-  private static LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
-  private static LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
+  private static final LocalDateTime START_TIME_1 = LocalDateTime.now().plusHours(1);
+  private static final LocalDateTime END_TIME_1 = LocalDateTime.now().plusHours(5);
 
-  private static LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
-  private static LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
+  private static final LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
+  private static final LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
-  private static EventLocation location1;
-  private static EventLocation location2;
+
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
@@ -64,14 +63,15 @@ public class EventServiceIntegrationTest {
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
-
+    EventLocation location1;
+    EventLocation location2;
     try {
 
       conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
 
-      event1= OneTimeEventService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
-      event2= OneTimeEventService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_2, START_TIME_2, END_TIME_2);
+      event1= EventService.createEventObject(EVENT_NAME_1, LOCATION_1, SUMMARY_1, URL_1, START_TIME_1, END_TIME_1);
+      event2= EventService.createEventObject(EVENT_NAME_2, LOCATION_2, SUMMARY_2, URL_2, START_TIME_2, END_TIME_2);
 
       location1 = new EventLocation();
       location1.setZipCode(2202);
@@ -102,7 +102,7 @@ public class EventServiceIntegrationTest {
   public void testCreateOneEvent() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = adminContext.createEventService();
+    EventService oneTimeEventService = adminContext.createEventService();
     Event event = oneTimeEventService.createEvent(event1, group.getId());
     Event eventFromDb = oneTimeEventService.getEvent(event.getId()).get();
 
@@ -111,11 +111,11 @@ public class EventServiceIntegrationTest {
 
 
   @Test
-  public void testCreateMultipleEvents_eventsHaveCorrectData() throws Exception{
+  public void testCreateMultipleOneTimeEvents_EventsHaveCorrectData() throws Exception{
 
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = groupAdminContext.createEventService();
+    EventService oneTimeEventService = groupAdminContext.createEventService();
 
     Event eventA = oneTimeEventService.createEvent(event1, group.getId());
     Event eventB = oneTimeEventService.createEvent(event2, group.getId());
@@ -135,8 +135,8 @@ public class EventServiceIntegrationTest {
     assertEquals(URL_1, eventFromDbA.getUrl());
     assertEquals(URL_2, eventFromDbB.getUrl());
 
-    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES), eventFromDbA.getStartTime());
-    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.MINUTES), eventFromDbB.getStartTime());
+    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbA.getStartTime());
+    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbB.getStartTime());
 
     assertEquals(group.getId(), eventFromDbA.getGroupId());
     assertEquals(group.getId(), eventFromDbB.getGroupId());
@@ -149,11 +149,67 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testCreateOneTimeEventAndRecurringEvent_EventsHaveCorrectData() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    final LocalTime startTime = LocalTime.NOON.plusHours(2);
+    final LocalTime endTime = LocalTime.NOON.plusHours(4).plusMinutes(30);
+    EventLocation eventLocation = new EventLocation();
+    eventLocation.setZipCode(20006);
+    eventLocation.setStreetAddress("1667 K St NW");
+    eventLocation.setState("DC");
+    eventLocation.setCity("Washington");
+
+    Event recurringEvent = EventService.createRecurringEventObjectWithData(startTime, endTime);
+    recurringEvent.setEventLocation(eventLocation);
+
+    eventService.createEvent(event1, group.getId());
+    eventService.createEvent(recurringEvent, group.getId());
+
+    Event eventFromDbA = eventService.getEvent(event1.getId()).get();
+    Event recurringEventFromDb = eventService.getEvent(recurringEvent.getId()).get();
+
+    assertEquals(EVENT_NAME_1, eventFromDbA.getName());
+    assertEquals(recurringEvent.getName(), recurringEventFromDb.getName());
+
+    assertEquals(SUMMARY_1, eventFromDbA.getDescription());
+    assertEquals(recurringEvent.getDescription(), recurringEventFromDb.getDescription());
+
+    assertEquals(event1.getDay(), eventFromDbA.getDay());
+    assertEquals(recurringEvent.getDay(), recurringEventFromDb.getDay());
+
+    assertEquals(URL_1, eventFromDbA.getUrl());
+    assertEquals(recurringEvent.getUrl(), recurringEventFromDb.getUrl());
+
+    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbA.getStartTime());
+    assertEquals(recurringEvent.getStartTime(), recurringEventFromDb.getStartTime());
+
+    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalDate(), eventFromDbA.getStartDate());
+    assertNull(recurringEventFromDb.getStartDate());
+
+    assertEquals(END_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalDate(), eventFromDbA.getEndDate());
+    assertEquals(recurringEvent.getEndDate(), recurringEventFromDb.getEndDate());
+
+    assertEquals(END_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbA.getEndTime());
+    assertEquals(recurringEvent.getEndTime(), recurringEventFromDb.getEndTime());
+
+    assertEquals(group.getId(), eventFromDbA.getGroupId());
+    assertEquals(group.getId(), recurringEventFromDb.getGroupId());
+
+    assertEquals(group.getName(), eventFromDbA.getGroupName());
+    assertEquals(group.getName(), recurringEventFromDb.getGroupName());
+
+    assertTrue(eventFromDbA.getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(recurringEventFromDb.getPermissions().get(PermissionName.USER_CAN_EDIT));
+  }
+
+  @Test
   public void testCreateEvent_GroupDoesNotExist() throws Exception {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        OneTimeEventService oneTimeEventService = groupAdminContext.createEventService();
+        EventService oneTimeEventService = groupAdminContext.createEventService();
         oneTimeEventService.createEvent(event1, -1);
       }
     );
@@ -165,10 +221,10 @@ public class EventServiceIntegrationTest {
 
     Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = groupAdminContext.createEventService();
-    Event eventA = oneTimeEventService.createEvent(OneTimeEventService.createEventObjectWithTestData(), group1.getId());
+    EventService oneTimeEventService = groupAdminContext.createEventService();
+    Event eventA = oneTimeEventService.createEvent(EventService.createOneTimeEventObjectWithData(), group1.getId());
 
-    Event updated = OneTimeEventService.createEventObjectWithTestData();
+    Event updated = EventService.createOneTimeEventObjectWithData();
     updated.setId(eventA.getId());
 
     oneTimeEventService.updateEvent(updated, group1.getId());
@@ -186,12 +242,12 @@ public class EventServiceIntegrationTest {
     Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
     Group group2 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = groupAdminContext.createEventService();
+    EventService oneTimeEventService = groupAdminContext.createEventService();
 
-    Event eventA = oneTimeEventService.createEvent(OneTimeEventService.createEventObjectWithTestData(), group1.getId());
-    Event eventB = oneTimeEventService.createEvent(OneTimeEventService.createEventObjectWithTestData(), group2.getId());
+    Event eventA = oneTimeEventService.createEvent(EventService.createOneTimeEventObjectWithData(), group1.getId());
+    Event eventB = oneTimeEventService.createEvent(EventService.createOneTimeEventObjectWithData(), group2.getId());
 
-    Event updated = OneTimeEventService.createEventObjectWithTestData();
+    Event updated = EventService.createOneTimeEventObjectWithData();
     updated.setId(eventA.getId());
     updated.setName("Test");
 
@@ -214,11 +270,14 @@ public class EventServiceIntegrationTest {
 
     ArrayList<Event> eventsToAdd = new ArrayList<>();
     for(int i =0; i< 3;i++){
-      var eventData= OneTimeEventService.createEventObjectWithTestData();
+      var eventData= EventService.createOneTimeEventObjectWithData();
       var startTime = LocalDateTime.now().plusHours(i);;
       var endTime  = LocalDateTime.now().plusHours(2+i);
-      eventData.setStartTime(startTime);
-      eventData.setEndTime(endTime);
+      eventData.setStartTime(startTime.toLocalTime());
+      eventData.setStartDate(startTime.toLocalDate());
+
+      eventData.setEndDate(endTime.toLocalDate());
+      eventData.setEndTime(endTime.toLocalTime());
       eventsToAdd.add(eventData);
     }
 
@@ -239,7 +298,7 @@ public class EventServiceIntegrationTest {
     assertEquals(groupEvents.size(), 3);
 
     Set<Integer> ids = new HashSet<>();
-    for(OneTimeEventData eventData: data.getOneTimeEventData()){
+    for(Event eventData: data.getOneTimeEventData()){
       var eventId = eventData.getId();
       ids.add(eventId);
 
@@ -261,9 +320,9 @@ public class EventServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
     var eventEditService = groupAdminContext.createEventService();
-    Event event = eventEditService.createEvent(OneTimeEventService.createEventObjectWithTestData(), group.getId());
+    Event event = eventEditService.createEvent(EventService.createOneTimeEventObjectWithData(), group.getId());
 
-    Event updatedEventData = OneTimeEventService.createEventObjectWithTestData();
+    Event updatedEventData = EventService.createOneTimeEventObjectWithData();
     updatedEventData.setId(event.getId());
     eventEditService.updateEvent(updatedEventData, group.getId());
 
@@ -278,7 +337,7 @@ public class EventServiceIntegrationTest {
 
     var eventEditService = groupAdminContext.createEventService();
 
-    var eventToCreate = OneTimeEventService.createEventObjectWithTestData();
+    var eventToCreate = EventService.createOneTimeEventObjectWithData();
     eventToCreate.setStartTime(null);
     eventToCreate.setEndTime(null);
     eventToCreate.setDay("monday");
@@ -287,7 +346,7 @@ public class EventServiceIntegrationTest {
     Optional<Event> originalEventFromDb = eventEditService.getEvent(event.getId());
     assertTrue(originalEventFromDb.isPresent());
 
-    Event updatedEventData = OneTimeEventService.createEventObjectWithTestData();
+    Event updatedEventData = EventService.createOneTimeEventObjectWithData();
     updatedEventData.setId(event.getId());
     eventEditService.updateEvent(updatedEventData, group.getId());
 
@@ -305,9 +364,9 @@ public class EventServiceIntegrationTest {
     Exception exception = assertThrows(
       Exception.class,
       () -> {
-        OneTimeEventService editService = groupAdminContext.createEventService();
+        EventService editService = groupAdminContext.createEventService();
 
-        Event updated = OneTimeEventService.createEventObjectWithTestData();
+        Event updated = EventService.createOneTimeEventObjectWithData();
         editService.updateEvent(updated, group2.getId());
       }
     );
@@ -322,7 +381,7 @@ public class EventServiceIntegrationTest {
     Exception exception = assertThrows(
         Exception.class,
         () -> {
-          Event updated = OneTimeEventService.createEventObjectWithTestData();
+          Event updated = EventService.createOneTimeEventObjectWithData();
           standardUserContext.createEventService().updateEvent(updated, event.getId());
         }
     );
@@ -332,7 +391,7 @@ public class EventServiceIntegrationTest {
   @Test
   public void testGroupAdmin_CanDeleteEvent_ForTheirGroup() throws Exception{
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
-    OneTimeEventService oneTimeEventService = groupAdminContext.createEventService();
+    EventService oneTimeEventService = groupAdminContext.createEventService();
 
     Event event = oneTimeEventService.createEvent(event1, group.getId());
     oneTimeEventService.deleteEvent(event.getId(), group.getId());
@@ -346,14 +405,14 @@ public class EventServiceIntegrationTest {
     CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
     Group group2 = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    OneTimeEventService oneTimeEventService = adminContext.createEventService();
+    EventService oneTimeEventService = adminContext.createEventService();
 
     Event event = oneTimeEventService.createEvent(event1, group2.getId());
     Exception exception = assertThrows(
         Exception.class,
         () -> {
 
-          OneTimeEventService editServiceB = groupAdminContext.createEventService();
+          EventService editServiceB = groupAdminContext.createEventService();
           editServiceB.deleteEvent(event.getId(), group2.getId());
         }
     );

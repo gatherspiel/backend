@@ -3,11 +3,9 @@ package database.content;
 import app.groups.data.Event;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import app.result.error.StackTraceShortener;
-import app.result.group.WeeklyEventData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.util.PSQLException;
@@ -26,7 +24,7 @@ public class EventTimeRepository {
   //TODO: Handle case where a date and time is specified.
   public void setEventDay(Event event) throws Exception {
     if (!hasEventDay(event)) {
-      String day = event.getDay();
+      String day = event.getDay().toString();
       if(day == null){
         logger.warn("No day has been specified. The current day will be used");
         day = LocalDateTime.now().getDayOfWeek().toString();
@@ -40,7 +38,7 @@ public class EventTimeRepository {
     }
   }
 
-  public void setWeeklyRecurrence(WeeklyEventData event) throws Exception {
+  public void setWeeklyRecurrence(Event event) throws Exception {
 
     String query =
         "INSERT into weekly_event_time (event_id, day_of_week, start_time,end_time) VALUES(?, cast(? AS dayofweek), ?, ?)";
@@ -96,11 +94,11 @@ public class EventTimeRepository {
 
   public boolean hasEventDay(Event event) throws Exception {
 
-    if(event.getDay().isBlank()){
+    if(event.getDay() == null){
       return false;
     }
     try {
-      String day = event.getDay();
+      String day = event.getDay().toString();
       String query =
         "SELECT * from event_time where day_of_week = cast(? AS dayofweek) AND event_id = ?";
       PreparedStatement select = conn.prepareStatement(query);
@@ -116,7 +114,7 @@ public class EventTimeRepository {
     }
   }
 
-  public void setEventDate(int eventId, LocalDateTime start, LocalDateTime end)
+  public void createEventDate(int eventId, LocalDateTime start, LocalDateTime end)
     throws Exception {
 
     String query =
@@ -125,8 +123,26 @@ public class EventTimeRepository {
     insert.setInt(1, eventId);
     insert.setTimestamp(2, Timestamp.valueOf(start));
     insert.setTimestamp(3, Timestamp.valueOf(end));
-
     insert.executeUpdate();
+  }
 
+  public void updateEventDate(int eventId, LocalDateTime start, LocalDateTime end)
+      throws Exception {
+
+    System.out.println(start);
+
+    String query =
+      """
+        UPDATE  event_time SET
+          start_time = ?,
+          end_time = ?
+        WHERE event_id = ?
+          """;
+    PreparedStatement update = conn.prepareStatement(query);
+    update.setTimestamp(1, Timestamp.valueOf(start));
+    update.setTimestamp(2, Timestamp.valueOf(end));
+    update.setInt(3, eventId);
+
+    update.executeUpdate();
   }
 }

@@ -3,8 +3,10 @@ package app.result.group;
 import app.groups.data.Event;
 import app.groups.data.Group;
 import app.users.data.PermissionName;
+import service.update.EventService;
 
 import java.time.*;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,8 +20,37 @@ public class GroupPageData {
   private String url;
   private String description;
   private HashMap<PermissionName, Boolean> permissions;
-  private TreeSet<OneTimeEventData> oneTimeEventData;
-  private TreeSet<WeeklyEventData> weeklyEventData;
+  private TreeSet<Event> oneTimeEventData;
+  private TreeSet<Event> weeklyEventData;
+
+  class WeeklyEventDataComparator implements Comparator<Event> {
+    public int compare(Event eventData1, Event eventData2) {
+
+      int compare = eventData1.getDay().getValue() - eventData2.getDay().getValue();
+
+      if(compare != 0){
+        return compare;
+      }
+
+      compare = eventData1.getStartTime().compareTo(eventData2.getStartTime());
+      if(compare != 0){
+        return compare;
+      }
+
+      return  eventData1.getName().compareTo(eventData2.getName());
+    }
+  }
+
+  class OneTimeEventDataComparator implements Comparator<Event> {
+    public int compare(Event eventData1, Event eventData2) {
+      int compare = eventData1.getStartTime().compareTo(eventData2.getStartTime());
+      if(compare == 0){
+        compare = eventData1.getStartDate().compareTo(eventData2.getStartDate());
+      }
+      return compare;
+    }
+  }
+
 
   private GroupPageData(int id, String name, String url, String description){
     this.id = id;
@@ -27,8 +58,8 @@ public class GroupPageData {
     this.url = url;
     this.description = description;
     this.permissions = new HashMap<>();
-    this.oneTimeEventData = new TreeSet<OneTimeEventData>(new OneTimeEventDataComparator());
-    this.weeklyEventData = new TreeSet<WeeklyEventData>(new WeeklyEventDataComparator());
+    this.oneTimeEventData = new TreeSet<Event>(new OneTimeEventDataComparator());
+    this.weeklyEventData = new TreeSet<Event>(new WeeklyEventDataComparator());
   }
 
   public int getId(){
@@ -63,52 +94,38 @@ public class GroupPageData {
     this.description = description;
   }
 
-  public TreeSet<OneTimeEventData> getOneTimeEventData(){
+  public TreeSet<Event> getOneTimeEventData(){
     return this.oneTimeEventData;
   }
 
-  public void addOneTimeEventData(
-      String name,
-      String description,
-      String link, int id,
-      LocalDateTime startTime,
-      LocalDateTime endTime)
+  public void addEvent(Event event)
   {
-    OneTimeEventData eventData = new OneTimeEventData(name, description, link, id, startTime, endTime);
-    oneTimeEventData.add(eventData);
+    if(event.getIsRecurring()){
+      weeklyEventData.add(event);
+    }else {
+      oneTimeEventData.add(event);
+    }
   }
 
-  public TreeSet<WeeklyEventData> getWeeklyEventData(){
+  public TreeSet<Event> getWeeklyEventData(){
     return this.weeklyEventData;
   }
 
-  public void addWeeklyEventData(WeeklyEventData eventData) {
+  public void addWeeklyEventData(Event eventData) {
     weeklyEventData.add(eventData);
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
-    if(group.getOneTimeEvents() != null){
-      for(Event event: group.getOneTimeEvents()) {
+    if(group.getEvents() != null){
+      for(Event event: group.getEvents()) {
 
         //Event is not ready to be published because it does not have a location.
-        if(event.getLocation() == null){
+        if (event.getLocation() == null) {
           continue;
         }
-
-        if(event.getStartTime() != null && event.getEndTime() != null) {
-          var startTime = event.getStartTime();
-          var endTime = event.getEndTime();
-          data.addOneTimeEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
-        }
-      }
-    }
-
-    var weeklyEventData = group.getWeeklyEventData();
-    if(weeklyEventData!= null){
-      for(WeeklyEventData event: weeklyEventData){
-        data.addWeeklyEventData(event);
+        data.addEvent(event);
       }
     }
     return data;

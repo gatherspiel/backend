@@ -2,7 +2,6 @@ package app.result.listing;
 
 import app.groups.data.Event;
 import app.groups.data.Group;
-import app.result.group.WeeklyEventData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
@@ -71,15 +70,16 @@ public class GroupSearchResult {
 
     Group group = groupData.get(groupId);
 
-    WeeklyEventData eventData = new WeeklyEventData();
-    eventData.setName(name);
-    eventData.setDescription(description);
-    eventData.setLocation(address);
-    eventData.setId(eventId);
-    eventData.setStartTime(startTime);
-    eventData.setEndTime(endTime);
-    eventData.setDay(dayOfWeek);
-    group.addWeeklyEvent(eventData);
+    Event event = new Event();
+    event.setName(name);
+    event.setDescription(description);
+    event.setLocation(address);
+    event.setId(eventId);
+    event.setStartTime(startTime);
+    event.setEndTime(endTime);
+    event.setDay(dayOfWeek);
+    event.setIsRecurring(true);
+    group.addEvent(event);
   }
 
   public void addOneTimeEvent(
@@ -105,13 +105,15 @@ public class GroupSearchResult {
     group.addCity(city);
     Event event = new Event();
     event.setName(name);
-    event.getDescription(description);
+    event.setDescription(description);
     event.setDay(dayOfWeek);
     event.setLocation(address);
     event.setId(eventId);
-    event.setStartTime(startTime);
-    event.setEndTime(endTime);
-    group.addOneTimeEvent(event);
+    event.setStartTime(startTime.toLocalTime());
+    event.setStartDate(startTime.toLocalDate());
+    event.setEndTime(endTime.toLocalTime());
+    event.setEndDate(endTime.toLocalDate());
+    group.addEvent(event);
   }
 
   public Optional<Group> getFirstGroup() {

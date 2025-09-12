@@ -7,12 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
-import app.result.group.WeeklyEventData;
 import service.data.SearchParameterValidator;
 
 public class EventRepository {
@@ -23,7 +19,7 @@ public class EventRepository {
     this.conn = conn;
   }
 
-  public void addEvents(Group[] groups) throws Exception {
+  public void addOneTimeEvents(Group[] groups) throws Exception {
     GroupsRepository groupsRepository = new GroupsRepository(conn);
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -31,8 +27,11 @@ public class EventRepository {
     for (Group group : groups) {
       int groupId = groupsRepository.getGroupId(group);
 
-      for (WeeklyEventData event : group.getWeeklyEventData()) {
+      for (Event event : group.getEvents()) {
 
+        if(event.getIsRecurring()){
+          continue;
+        }
         int eventId = getEventId(event.getName(), group.url);
         if (eventId == -1) {
           if (!SearchParameterValidator.isValidAddress(event.getLocation())) {
@@ -72,7 +71,7 @@ public class EventRepository {
     }
   }
 
-  public Event addEvent(Event event, int groupId) throws Exception{
+  public Event addOneTimeEvent(Event event, int groupId) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -98,14 +97,17 @@ public class EventRepository {
     event.setId(eventId);
 
     if(event.getStartTime() != null && event.getEndTime() != null){
-      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+      eventTimeRepository.createEventDate(
+          event.getId(),
+          event.getStartDate().atTime(event.getStartTime()),
+          event.getEndDate().atTime(event.getEndTime()));
     } else {
       eventTimeRepository.setEventDay(event);
     }
     return event;
   }
 
-  public void deleteEvent(int eventId, int groupId) throws Exception {
+  public void deleteOneTimeEvent(int eventId, int groupId) throws Exception {
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
     eventTimeRepository.deleteEventTimeInfo(eventId);
 
@@ -137,7 +139,7 @@ public class EventRepository {
     delete.executeUpdate();
   }
 
-  public Event updateEvent(Event event) throws Exception{
+  public Event updateOneTimeEvent(Event event) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -165,15 +167,18 @@ public class EventRepository {
     update.executeUpdate();
 
     if(event.getStartTime() != null && event.getEndTime() != null){
-      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+      eventTimeRepository.updateEventDate(
+        event.getId(),
+        event.getStartDate().atTime(event.getStartTime()),
+        event.getEndDate().atTime(event.getEndTime()));
     }
     return event;
   }
 
-  public Optional<Event> getEvent(int id) throws Exception{
+  public Optional<Event> getOneTimeEvent(int id) throws Exception{
     String query = """
         
-        SELECT 
+        SELECT
          events.id as eventId,
          events.url,
          events.name as eventName,
@@ -204,7 +209,7 @@ public class EventRepository {
       Event event = new Event();
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
-      event.getDescription(rs.getString("eventDescription"));
+      event.setDescription(rs.getString("eventDescription"));
 
       Timestamp start = rs.getTimestamp("start_time");
       Timestamp end = rs.getTimestamp("end_time");
@@ -215,15 +220,14 @@ public class EventRepository {
       event.setGroupId(groupId);
 
       if(start != null){
-        event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-
-      } else {
-        String dayOfWeek = rs.getString("day_of_week");
-        var startTime = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));
-        event.setStartTime(startTime);
+        var startDateTime = rs.getTimestamp("start_time").toLocalDateTime();
+        event.setStartTime(startDateTime.toLocalTime());
+        event.setStartDate(startDateTime.toLocalDate());
       }
       if(end != null){
-        event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+        var endDateTime = rs.getTimestamp("end_time").toLocalDateTime();
+        event.setEndTime(endDateTime.toLocalTime());
+        event.setEndDate(endDateTime.toLocalDate());
       } else {
         event.setEndTime(event.getStartTime().plusHours(1));
       }

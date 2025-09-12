@@ -8,18 +8,20 @@ import database.content.EventRepository;
 import service.permissions.GroupPermissionService;
 
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class OneTimeEventService {
+public class EventService {
 
   Connection connection;
   EventRepository eventRepository;
   GroupPermissionService groupPermissionService;
   User user;
 
-  public OneTimeEventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
+  public EventService(Connection connection, EventRepository eventRepository, GroupPermissionService groupPermissionService, User user){
     this.connection = connection;
     this.eventRepository = eventRepository;
     this.groupPermissionService = groupPermissionService;
@@ -27,7 +29,7 @@ public class OneTimeEventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    var event = eventRepository.getEvent(eventId);
+    var event = eventRepository.getOneTimeEvent(eventId);
 
     if(event.isPresent()){
       if(groupPermissionService.canEditGroup(event.get().getGroupId())) {
@@ -50,21 +52,21 @@ public class OneTimeEventService {
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.addEvent(event, groupId);
+    return eventRepository.addOneTimeEvent(event, groupId);
   }
 
   public Event updateEvent(Event event, int groupId) throws Exception{
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.updateEvent(event);
+    return eventRepository.updateOneTimeEvent(event);
   }
 
   public void deleteEvent(int eventId, int groupId) throws Exception {
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    eventRepository.deleteEvent(eventId, groupId);
+    eventRepository.deleteOneTimeEvent(eventId, groupId);
   }
 
   public static Event createEventObject(
@@ -78,21 +80,39 @@ public class OneTimeEventService {
     Event event = new Event();
     event.setName(eventName);
     event.setLocation(location);
-    event.getDescription(description);
+    event.setDescription(description);
     event.setUrl(url);
-    event.setStartTime(startTime);
-    event.setEndTime(endTime);
+    event.setStartDate(startTime.toLocalDate());
+    event.setStartTime(startTime.toLocalTime());
+    event.setEndDate(endTime.toLocalDate());
+    event.setEndTime(endTime.toLocalTime());
     return event;
   }
 
-  public static Event createEventObjectWithTestData() throws Exception{
+  public static Event createRecurringEventObjectWithData(LocalTime start, LocalTime end) throws Exception {
     Event event = new Event();
     event.setName("Event_"+ UUID.randomUUID());
     event.setLocation("Event_"+ UUID.randomUUID());
-    event.getDescription("Event_"+ UUID.randomUUID());
+    event.setDescription("Event_"+ UUID.randomUUID());
     event.setUrl("localhost:/1234/"+UUID.randomUUID());
-    event.setStartTime(LocalDateTime.now().plusHours(1));
-    event.setEndTime(LocalDateTime.now().plusHours(5));
+
+    event.setIsRecurring(true);
+    event.setStartTime(start);
+    event.setEndTime(end);
+
+    return event;
+  }
+
+  public static Event createOneTimeEventObjectWithData() throws Exception{
+    Event event = new Event();
+    event.setName("Event_"+ UUID.randomUUID());
+    event.setLocation("Event_"+ UUID.randomUUID());
+    event.setDescription("Event_"+ UUID.randomUUID());
+    event.setUrl("localhost:/1234/"+UUID.randomUUID());
+    event.setStartTime(LocalTime.now());
+    event.setStartDate(LocalDate.now());
+    event.setEndTime(LocalTime.now().plusHours(5));
+    event.setEndDate(LocalDate.now());
     event.setEventLocation(generateEventLocation());
     return event;
   }

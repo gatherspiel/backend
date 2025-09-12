@@ -10,7 +10,6 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.sun.source.tree.Tree;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -113,7 +112,7 @@ public class ConventionsRepository {
           Integer.parseInt(data[0]),
           Integer.parseInt(data[1])
         );
-        eventTimeRepository.setEventDate(convention.getId(), localDate.atStartOfDay(), localDate.atStartOfDay().plusHours(1));
+        eventTimeRepository.createEventDate(convention.getId(), localDate.atStartOfDay(), localDate.atStartOfDay().plusHours(1));
       }
     }
   }

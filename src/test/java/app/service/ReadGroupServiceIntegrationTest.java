@@ -3,7 +3,6 @@ package app.service;
 import app.SessionContext;
 import app.groups.data.*;
 import app.result.group.GroupPageData;
-import app.result.group.WeeklyEventData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
@@ -148,17 +147,18 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
 
-    Set<WeeklyEventData> eventData = result.getWeeklyEventData();
+    Set<Event> eventData = result.getWeeklyEventData();
 
-    for(WeeklyEventData data: eventData) {
+    for(Event data: eventData) {
 
 
       Assertions.assertAll(
-         () -> assertEquals(data.getDay(), DayOfWeek.MONDAY),
-         () -> assertEquals(data.getName(), "Game Night at Glory Days"),
-      () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
+        () -> assertEquals(data.getDay(), DayOfWeek.MONDAY),
+        () -> assertEquals(data.getName(), "Game Night at Glory Days"),
+        () -> assertTrue(data.getDescription().contains("We will be playing board games at Glory Days Grill in Alexandria"),
           data.getDescription()),
-      () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314")
+        () -> assertEquals(data.getLocation().toString(), "3141 Duke Street, Alexandria, VA 22314"),
+        () -> assertTrue(data.getIsRecurring())
       );
     }
 
@@ -176,13 +176,15 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
 
-    TreeSet<WeeklyEventData> eventData = result.getWeeklyEventData();
+    TreeSet<Event> eventData = result.getWeeklyEventData();
     int correctEventNames = 0;
 
     DayOfWeek[] days = new DayOfWeek[4];
-    for(WeeklyEventData data: eventData) {
+    for(Event data: eventData) {
 
       days[correctEventNames] = data.getDay();
+
+      assertTrue(data.getIsRecurring());
       if(data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")){
         assertEquals(DayOfWeek.SUNDAY,data.getDay());
         assertEquals("We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",

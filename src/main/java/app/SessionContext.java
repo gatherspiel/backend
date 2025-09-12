@@ -9,7 +9,7 @@ import service.permissions.GroupPermissionService;
 import service.provider.ReadGroupDataProvider;
 import service.read.ReadGroupService;
 import service.read.SearchService;
-import service.update.OneTimeEventService;
+import service.update.EventService;
 import service.update.GroupEditService;
 import service.user.UserService;
 
@@ -25,8 +25,8 @@ public class SessionContext {
     this.conn = conn;
   }
 
-  public OneTimeEventService createEventService(){
-    return new OneTimeEventService(conn, new EventRepository(conn), createGroupPermissionService(), user);
+  public EventService createEventService(){
+    return new EventService(conn, new EventRepository(conn), createGroupPermissionService(), user);
   }
 
   public GroupPermissionService createGroupPermissionService(){
