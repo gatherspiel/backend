@@ -38,7 +38,7 @@ public class EventTimeRepository {
     }
   }
 
-  public void setWeeklyRecurrence(Event event) throws Exception {
+  public void createWeeklyRecurrence(Event event) throws Exception {
 
     String query =
         "INSERT into weekly_event_time (event_id, day_of_week, start_time,end_time) VALUES(?, cast(? AS dayofweek), ?, ?)";
@@ -49,14 +49,36 @@ public class EventTimeRepository {
     insert.setTime(3, Time.valueOf(event.getStartTime()));
     insert.setTime(4, Time.valueOf(event.getEndTime()));
 
-    insert.executeUpdate();
+    int update = insert.executeUpdate();
+  }
+
+  public void updateWeeklyRecurrence(Event event) throws Exception {
+
+
+    String query =
+      """
+        UPDATE weekly_event_time
+        SET
+          start_time = ?,
+          end_time = ?,
+          day_of_week = cast(? AS dayofweek)
+        WHERE event_id = ?
+      """;
+
+    PreparedStatement update = conn.prepareStatement(query);
+    update.setTime(1, Time.valueOf(event.getStartTime()));
+    update.setTime(2, Time.valueOf(event.getEndTime()));
+    update.setString(3, event.getDay().toString().toLowerCase());
+    update.setInt(4,event.getId());
+
+    update.executeUpdate();
   }
 
   public void deleteOrphanedTimeData() throws Exception{
     String query =
         """
           DELETE from event_time where event_id NOT IN (
-            SELECT event_id from event_group_map
+          SELECT event_id from event_group_map
           )
         """;
     PreparedStatement delete = conn.prepareStatement(query);
@@ -152,8 +174,6 @@ public class EventTimeRepository {
 
   public void updateEventDate(int eventId, LocalDateTime start, LocalDateTime end)
       throws Exception {
-
-    System.out.println(start);
 
     String query =
       """

@@ -16,6 +16,7 @@ import service.update.EventService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -220,7 +221,7 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
-  public void testCreateOneEvent_AndUpdateEvent() throws Exception{
+  public void testCreateOneTimeEvent_AndEditEvent() throws Exception{
 
     Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
@@ -236,6 +237,34 @@ public class EventServiceIntegrationTest {
     assertEquals(updated.getName(),eventFromDbA.getName());
     assertEquals(updated.getStartTime(), eventFromDbA.getStartTime());
     assertEquals(updated.getEndTime(), eventFromDbA.getEndTime());
+  }
+
+  @Test
+  public void testCreateRecurringEvent_AndEditEvent() throws Exception{
+
+    Group group1 = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService eventService = groupAdminContext.createEventService();
+    Event recurring = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+    recurring.setDay("Monday");
+
+    Event created = eventService.createEvent(recurring, group1.getId());
+
+    Event updated = EventService.createRecurringEventObjectWithData(
+        LocalTime.NOON.plusHours(6),
+        LocalTime.NOON.plusHours(9));
+    updated.setDay("Friday");
+    updated.setId(created.getId());
+
+    System.out.println("Updating event with id:"+updated.getId());
+
+    eventService.updateEvent(updated, group1.getId());
+    Event eventFromDbA = eventService.getEvent(updated.getId()).get();
+
+    assertEquals(updated.getName(),eventFromDbA.getName());
+    assertEquals(LocalTime.NOON.plusHours(6), eventFromDbA.getStartTime());
+    assertEquals(LocalTime.NOON.plusHours(9), eventFromDbA.getEndTime());
+    assertEquals(DayOfWeek.FRIDAY, eventFromDbA.getDay());
 
   }
 

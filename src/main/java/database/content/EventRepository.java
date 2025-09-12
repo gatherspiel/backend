@@ -66,7 +66,7 @@ public class EventRepository {
         updateEventGroupMap(groupId, eventId, conn);
         event.setId(eventId);
 
-        eventTimeRepository.setWeeklyRecurrence(event);
+        eventTimeRepository.createWeeklyRecurrence(event);
       }
     }
   }
@@ -106,7 +106,7 @@ public class EventRepository {
         eventTimeRepository.setEventDay(event);
       }
     } else {
-      eventTimeRepository.setWeeklyRecurrence(event);
+      eventTimeRepository.createWeeklyRecurrence(event);
     }
 
     return event;
@@ -145,7 +145,7 @@ public class EventRepository {
     delete.executeUpdate();
   }
 
-  public Event updateOneTimeEvent(Event event) throws Exception{
+  public Event updateEvent(Event event) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -172,11 +172,14 @@ public class EventRepository {
 
     update.executeUpdate();
 
-    if(event.getStartTime() != null && event.getEndTime() != null){
+    if(event.getStartTime() != null && event.getEndTime() != null && !event.getIsRecurring()){
       eventTimeRepository.updateEventDate(
         event.getId(),
         event.getStartDate().atTime(event.getStartTime()),
         event.getEndDate().atTime(event.getEndTime()));
+    }
+    if(event.getIsRecurring()){
+      eventTimeRepository.updateWeeklyRecurrence(event);
     }
     return event;
   }
