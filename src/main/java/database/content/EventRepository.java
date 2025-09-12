@@ -181,7 +181,7 @@ public class EventRepository {
     return event;
   }
 
-  public Optional<Event> getOneTimeEvent(int id) throws Exception{
+  public Optional<Event> getEvent(int id) throws Exception{
     String query = """
         
         SELECT
@@ -249,6 +249,7 @@ public class EventRepository {
         event.setStartTime(recurringEventStartTime.toLocalDateTime().toLocalTime());
         event.setEndTime(recurringEventEndTime.toLocalDateTime().toLocalTime());
         event.setDay(rs.getString("event_day"));
+        event.setIsRecurring(true);
       }
 
       event.setId(rs.getInt("eventId"));

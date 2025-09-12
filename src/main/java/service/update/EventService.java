@@ -30,7 +30,7 @@ public class EventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    var event = eventRepository.getOneTimeEvent(eventId);
+    var event = eventRepository.getEvent(eventId);
 
     if(event.isPresent()){
       if(groupPermissionService.canEditGroup(event.get().getGroupId())) {

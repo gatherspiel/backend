@@ -202,6 +202,9 @@ public class EventServiceIntegrationTest {
 
     assertTrue(eventFromDbA.getPermissions().get(PermissionName.USER_CAN_EDIT));
     assertTrue(recurringEventFromDb.getPermissions().get(PermissionName.USER_CAN_EDIT));
+
+    assertFalse(eventFromDbA.getIsRecurring());
+    assertTrue(recurringEventFromDb.getIsRecurring());
   }
 
   @Test
