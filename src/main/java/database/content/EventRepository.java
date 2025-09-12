@@ -19,7 +19,7 @@ public class EventRepository {
     this.conn = conn;
   }
 
-  public void addOneTimeEvents(Group[] groups) throws Exception {
+  public void addEvents(Group[] groups) throws Exception {
     GroupsRepository groupsRepository = new GroupsRepository(conn);
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -71,7 +71,7 @@ public class EventRepository {
     }
   }
 
-  public Event addOneTimeEvent(Event event, int groupId) throws Exception{
+  public Event addEvent(Event event, int groupId) throws Exception{
 
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
@@ -96,18 +96,24 @@ public class EventRepository {
     updateEventGroupMap(groupId, eventId, conn);
     event.setId(eventId);
 
-    if(event.getStartTime() != null && event.getEndTime() != null){
-      eventTimeRepository.createEventDate(
-          event.getId(),
-          event.getStartDate().atTime(event.getStartTime()),
-          event.getEndDate().atTime(event.getEndTime()));
+    if(!event.getIsRecurring()){
+      if(event.getStartTime() != null && event.getEndTime() != null){
+        eventTimeRepository.createEventDate(
+            event.getId(),
+            event.getStartDate().atTime(event.getStartTime()),
+            event.getEndDate().atTime(event.getEndTime()));
+      } else {
+        eventTimeRepository.setEventDay(event);
+      }
     } else {
-      eventTimeRepository.setEventDay(event);
+      eventTimeRepository.setWeeklyRecurrence(event);
     }
+
     return event;
   }
 
-  public void deleteOneTimeEvent(int eventId, int groupId) throws Exception {
+  public void deleteEvent(int eventId, int groupId) throws Exception {
+
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
     eventTimeRepository.deleteEventTimeInfo(eventId);
 
@@ -183,9 +189,11 @@ public class EventRepository {
          events.url,
          events.name as eventName,
          events.description as eventDescription,
-         start_time,
-         end_time,
-         day_of_week,
+         event_time.start_time as oneTimeEventStartTime,
+         weekly_event_time.start_time as recurringEventStartTime,
+         event_time.end_time as oneTimeEventEndTime,
+         weekly_event_time.end_time as recurringEventEndTime,
+         COALESCE(event_time.day_of_week,weekly_event_time.day_of_week) as event_day,
          groups.id as groupId,
          groups.name as groupName,
          locations.city as city,
@@ -198,6 +206,7 @@ public class EventRepository {
         LEFT JOIN locations on events.location_id = locations.id
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
+        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
         where events.id = ? 
         
         """;
@@ -211,26 +220,37 @@ public class EventRepository {
       event.setName(rs.getString("eventName"));
       event.setDescription(rs.getString("eventDescription"));
 
-      Timestamp start = rs.getTimestamp("start_time");
-      Timestamp end = rs.getTimestamp("end_time");
+
 
       String groupName = rs.getString("groupName");
       int groupId  = rs.getInt("groupId");
       event.setGroupName(groupName);
       event.setGroupId(groupId);
 
-      if(start != null){
-        var startDateTime = rs.getTimestamp("start_time").toLocalDateTime();
+
+      Timestamp oneTimeEventStartTime = rs.getTimestamp("oneTimeEventStartTime");
+      Timestamp oneTimeEventEndTime = rs.getTimestamp("oneTimeEventEndTime");
+      if(oneTimeEventStartTime != null){
+        var startDateTime = oneTimeEventStartTime.toLocalDateTime();
         event.setStartTime(startDateTime.toLocalTime());
         event.setStartDate(startDateTime.toLocalDate());
       }
-      if(end != null){
-        var endDateTime = rs.getTimestamp("end_time").toLocalDateTime();
+      if(oneTimeEventEndTime != null){
+        var endDateTime = oneTimeEventEndTime.toLocalDateTime();
         event.setEndTime(endDateTime.toLocalTime());
         event.setEndDate(endDateTime.toLocalDate());
       } else {
         event.setEndTime(event.getStartTime().plusHours(1));
       }
+
+      Timestamp recurringEventStartTime = rs.getTimestamp("recurringEventStartTime");
+      Timestamp recurringEventEndTime = rs.getTimestamp("recurringEventEndTime");
+      if(recurringEventStartTime != null && recurringEventEndTime != null){
+        event.setStartTime(recurringEventStartTime.toLocalDateTime().toLocalTime());
+        event.setEndTime(recurringEventEndTime.toLocalDateTime().toLocalTime());
+        event.setDay(rs.getString("event_day"));
+      }
+
       event.setId(rs.getInt("eventId"));
 
       EventLocation eventLocation = new EventLocation();

@@ -82,14 +82,38 @@ public class EventTimeRepository {
     PreparedStatement delete = conn.prepareStatement(deleteQuery);
     delete.setInt(1, groupId);
     delete.executeUpdate();
+
+    String weeklyDeleteQuery = """
+        DELETE from weekly_event_time
+        WHERE weekly_event_time.event_id IN (
+          SELECT
+            weekly_event_time.event_id
+            FROM groups
+            LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+            LEFT JOIN events on event_group_map.event_id = events.id
+            LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
+            LEFT JOIN locations on events.location_id = locations.id
+            LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+            LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+            WHERE groups.id = ?
+        )
+      """;
+    PreparedStatement weeklyDelete = conn.prepareStatement(weeklyDeleteQuery);
+    weeklyDelete.setInt(1, groupId);
+    weeklyDelete.executeUpdate();
   }
 
   public void deleteEventTimeInfo(int eventId) throws Exception {
 
-    String query = "DELETE FROM event_time where event_id = ?";
-    PreparedStatement delete = conn.prepareStatement(query);
-    delete.setInt(1, eventId);
-    delete.executeUpdate();
+    String oneTimeDeleteQuery = "DELETE FROM event_time where event_id = ?";
+    PreparedStatement oneTimeDelete = conn.prepareStatement(oneTimeDeleteQuery);
+    oneTimeDelete.setInt(1, eventId);
+    oneTimeDelete.executeUpdate();
+
+    String recurringDeleteQuery = "DELETE FROM weekly_event_time where event_id = ?";
+    PreparedStatement recurringDelete = conn.prepareStatement(recurringDeleteQuery);
+    recurringDelete.setInt(1, eventId);
+    recurringDelete.executeUpdate();
   }
 
   public boolean hasEventDay(Event event) throws Exception {

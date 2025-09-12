@@ -260,7 +260,6 @@ public class EventServiceIntegrationTest {
     assertEquals(eventB.getName(), eventFromDbB.getName());
   }
 
-  //TODO: Add test for recurring event.
   @Test
   public void testCreateMultipleEvents_GroupPageData_HasCorrectEvents() throws Exception {
 
@@ -386,6 +385,44 @@ public class EventServiceIntegrationTest {
         }
     );
     assertTrue(exception.getMessage().contains("does not have permission"),exception.getMessage());
+  }
+
+  @Test
+  public void testDeleteRecurringEvent_oneTimeEventRemains() throws Exception{
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event oneTimeEvent = EventService.createOneTimeEventObjectWithData();
+    Event recurringEvent = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+
+    eventService.createEvent(oneTimeEvent, group.getId());
+    eventService.createEvent(recurringEvent, group.getId());
+    eventService.deleteEvent(recurringEvent.getId(),group.getId());
+
+    Optional<Event> oneTimeEventFromDb = eventService.getEvent(oneTimeEvent.getId());
+    Optional<Event> recurringEventFromDb = eventService.getEvent(recurringEvent.getId());
+
+    assertTrue(oneTimeEventFromDb.isPresent());
+    assertFalse(recurringEventFromDb.isPresent());
+  }
+
+  @Test
+  public void testDeleteOneTimeEvent_recurringEventRemains() throws Exception{
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event oneTimeEvent = EventService.createOneTimeEventObjectWithData();
+    Event recurringEvent = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+
+    eventService.createEvent(oneTimeEvent, group.getId());
+    eventService.createEvent(recurringEvent, group.getId());
+    eventService.deleteEvent(oneTimeEvent.getId(),group.getId());
+
+    Optional<Event> oneTimeEventFromDb = eventService.getEvent(oneTimeEvent.getId());
+    Optional<Event> recurringEventFromDb = eventService.getEvent(recurringEvent.getId());
+
+    assertTrue(recurringEventFromDb.isPresent());
+    assertFalse(oneTimeEventFromDb.isPresent());
   }
 
   @Test

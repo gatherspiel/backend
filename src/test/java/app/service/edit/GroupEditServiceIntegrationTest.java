@@ -16,6 +16,7 @@ import service.update.GroupEditService;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -285,17 +286,24 @@ public class GroupEditServiceIntegrationTest {
   public void testDeleteGroupWithEvents() throws Exception {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
-    EventService oneTimeEventService = adminContext.createEventService();
-    oneTimeEventService.createEvent(event1, group.getId());
+    EventService eventService = adminContext.createEventService();
 
-    oneTimeEventService.deleteEvent(event1.getId(),group.getId());
+
+    Event recurringEvent = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+    eventService.createEvent(recurringEvent, group.getId());
+    eventService.createEvent(event1, group.getId());
+
     adminContext.createGroupEditService().deleteGroup(group.getId());
 
     Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
     assertFalse(groupFromDb.isPresent());
 
-    Optional<Event> event = oneTimeEventService.getEvent(event1.getId());
-    assertFalse(event.isPresent());
+    Optional<Event> eventFromDb = eventService.getEvent(event1.getId());
+    Optional<Event> recurringEventFromDb = eventService.getEvent(recurringEvent.getId());
+
+    assertFalse(recurringEventFromDb.isPresent());
+    assertFalse(eventFromDb.isPresent());
+
   }
 
   @Test

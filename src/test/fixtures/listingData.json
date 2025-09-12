@@ -172,7 +172,7 @@
     ],
     "groups": [
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Monday",
             "id": 1,
@@ -188,7 +188,7 @@
         "name": "Alexandria Board Game Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 10,
         "url": "https://www.meetup.com/alexandria-board-gaming/",
         "cities": ["Alexandria"],
@@ -196,7 +196,7 @@
         "name": "Alexandria Board Gaming"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -212,7 +212,7 @@
         "name": "Alexandria-Arlington Regional Gaming Group"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Sunday",
             "id": 1,
@@ -257,7 +257,7 @@
         "name": "Beer & Board Games"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Monday",
             "id": 1,
@@ -273,7 +273,7 @@
         "name": "Boardgames, Food & Friends"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -289,7 +289,7 @@
         "name": "Chantilly Tabletop Gaming Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 27,
         "url": "https://www.meetup.com/county-center-board-tabletop-games/",
         "cities": ["Woodbridge"],
@@ -297,7 +297,7 @@
         "name": "County Center Board and Tabletop Games"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 18,
         "url": "https://www.meetup.com/dc-gaming-group",
         "cities": ["Brentwood","DC"],
@@ -305,7 +305,7 @@
         "name": "DC Gaming Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 19,
         "url": "https://www.meetup.com/fairfax-home-tabletop-board-games",
         "cities": ["Fairfax"],
@@ -313,7 +313,7 @@
         "name": "Fairfax Home Tabletop Board Games"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 7,
         "url": "https://www.meetup.com/fantasy-and-legacy-board-games-the-board-room-clarendon/",
         "cities": ["Arlington"],
@@ -321,7 +321,7 @@
         "name": "Fantasy and Fun Board Games @ The Board Room (Clarendon)"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Wednesday",
             "id": 1,
@@ -337,7 +337,7 @@
         "name": "Fun Times in the DMV"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -353,7 +353,7 @@
         "name": "Gaithersburg Board Games Meetup Group"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Monday",
             "id": 1,
@@ -404,7 +404,7 @@
         "name": "Game Nights at Crossroads"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 24,
         "url": "https://www.meetup.com/gamers-of-the-abyss/",
         "cities": ["Greenbelt","Silver Spring"],
@@ -412,7 +412,7 @@
         "name": "Gamers of the Abyss"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -428,7 +428,7 @@
         "name": "Games & Comics Pair O'Dice Game Center"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 34,
         "url": "https://gcom.clubexpress.com/",
         "cities": ["Maryland"],
@@ -436,7 +436,7 @@
         "name": "Games Club of Maryland"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -452,7 +452,7 @@
         "name": "Hyattsville Gaming Conclave"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 39,
         "url": "https://groups.io/g/kgb",
         "cities": ["Alexandria"],
@@ -460,7 +460,7 @@
         "name": "Kingstowne Gaming Bridage"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 23,
         "url": "https://www.meetup.com/leagueofextraordinarygamers",
         "cities": ["Ashburn"],
@@ -468,7 +468,7 @@
         "name": "League of Extraordinary Gamers"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Monday",
             "id": 1,
@@ -512,7 +512,7 @@
         "name": "Maryland and DC Area Game Night"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 6,
         "url": "https://www.meetup.com/mega-meeple-group/",
         "cities": ["Alexandria"],
@@ -520,7 +520,7 @@
         "name": "Meeple Board Game Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 38,
         "url": "http://novaboardgamegroup.com/2025-Winter-OpenGameSessions.pdf",
         "cities": ["Falls Church", "Arlington"],
@@ -528,7 +528,7 @@
         "name": "NOVA BoardGame Group"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Tuesday",
             "id": 1,
@@ -551,7 +551,7 @@
         "name": "NonTraditional Board Games"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Monday",
             "id": 1,
@@ -567,7 +567,7 @@
         "name": "Olney Board Games Meetup Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 37,
         "url": "https://www.meetup.com/potomac-tea-and-knife-society/",
         "cities": ["Washington, DC"],
@@ -575,7 +575,7 @@
         "name": "Potomac Tea and Knife Society"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Sunday",
             "id": 1,
@@ -591,7 +591,7 @@
         "name": "RTTG - Western Loudon Tabletop Games"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Wednesday",
             "id": 5,
@@ -614,7 +614,7 @@
         "name": "Reston Gaming Meetup Group"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Sunday",
             "id": 1,
@@ -630,7 +630,7 @@
         "name": "Rockville Gamers - we have cake!"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 13,
         "url": "https://www.meetup.com/rockville-strategy-games/",
         "cities": ["Rockville"],
@@ -638,7 +638,7 @@
         "name": "Rockville Strategy Games"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Tuesday",
             "id": 1,
@@ -661,7 +661,7 @@
         "name": "Table Games Meetup"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 11,
         "url": "https://www.meetup.com/dc-area-board-games/",
         "cities": ["Arlington","Falls Church"],
@@ -669,7 +669,7 @@
         "name": "The DC Area Board Game Club"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 15,
         "url": "https://www.meetup.com/boardgames-383/",
         "cities": ["Springfield"],
@@ -677,7 +677,7 @@
         "name": "The Fairfax Board Game Group"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -700,7 +700,7 @@
         "name": "The Herndon Boardgame Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 28,
         "url": "https://www.meetup.com/boardgamegroup/",
         "cities": ["Woodbridge"],
@@ -708,7 +708,7 @@
         "name": "The Prince William Boardgames Meetup Group"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 17,
         "url": "https://www.meetup.com/northern-virginia-weeknight-euros-and-more/",
         "cities": ["Arlington"],
@@ -716,7 +716,7 @@
         "name": "Trains, Trade, Trouble: Eurogames and more"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Wednesday",
             "id": 6,
@@ -739,7 +739,7 @@
         "name": "Tri-State Game Nights"
       },
       {
-        "weeklyEventData": [],
+        "events": [],
         "id": 12,
         "url": "https://www.meetup.com/wr-board-game-friends-dc/",
         "cities": ["DC"],
@@ -747,7 +747,7 @@
         "name": "WR Board Game Friends (NOMA, DC)"
       },
       {
-        "weeklyEventData": [
+        "events": [
           {
             "day": "Saturday",
             "id": 1,
@@ -763,7 +763,7 @@
         "name": "Woodbridge Tabletop Game Night"
       },
       {
-        "weeklyEventData": [
+        "events": [
         ],
         "url": "https://www.meetup.com/bowie-board-games-meetup-group/",
         "cities": ["Bowie"],
