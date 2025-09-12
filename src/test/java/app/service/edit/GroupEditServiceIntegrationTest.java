@@ -165,7 +165,7 @@ public class GroupEditServiceIntegrationTest {
     updated.setId(group.getId());
     adminContext.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+    Optional<Group> updatedFromDb = adminContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
 
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
@@ -179,7 +179,7 @@ public class GroupEditServiceIntegrationTest {
     updated.setId(group.getId());
     standardUserContext.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb = standardUserContext.createReadGroupService().getGroup(group.getId());
+    Optional<Group> updatedFromDb = standardUserContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
 
@@ -226,7 +226,7 @@ public class GroupEditServiceIntegrationTest {
     updated.setId(group.getId());
     standardUserContext2.createGroupEditService().editGroup(updated);
 
-    Optional<Group> updatedFromDb  = standardUserContext2.createReadGroupService().getGroup(group.getId());
+    Optional<Group> updatedFromDb  = standardUserContext2.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
 
@@ -256,7 +256,7 @@ public class GroupEditServiceIntegrationTest {
 
     standardUserContext.createGroupEditService().deleteGroup(group.getId());
 
-    Optional<Group> groupInDb = standardUserContext.createReadGroupService().getGroup(group.getId());
+    Optional<Group> groupInDb = standardUserContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertTrue(groupInDb.isEmpty());
   }
 
@@ -278,7 +278,7 @@ public class GroupEditServiceIntegrationTest {
   public void testDeleteGroupWithLocationsAndRecurringEvents() throws Exception {
     adminContext.createGroupEditService().deleteGroup(22);
 
-    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(22);
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroupWithOneTimeEvents(22);
     assertFalse(groupFromDb.isPresent());
   }
 
@@ -295,7 +295,7 @@ public class GroupEditServiceIntegrationTest {
 
     adminContext.createGroupEditService().deleteGroup(group.getId());
 
-    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertFalse(groupFromDb.isPresent());
 
     Optional<Event> eventFromDb = eventService.getEvent(event1.getId());
@@ -317,7 +317,7 @@ public class GroupEditServiceIntegrationTest {
 
     adminContext.createGroupEditService().deleteGroup(group.getId());
 
-    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroup(group.getId());
+    Optional<Group> groupFromDb = adminContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertFalse(groupFromDb.isPresent());
 
     Optional<Event> event = oneTimeEventService.getEvent(event1.getId());

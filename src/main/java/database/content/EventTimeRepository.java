@@ -49,7 +49,7 @@ public class EventTimeRepository {
     insert.setTime(3, Time.valueOf(event.getStartTime()));
     insert.setTime(4, Time.valueOf(event.getEndTime()));
 
-    int update = insert.executeUpdate();
+    insert.executeUpdate();
   }
 
   public void updateWeeklyRecurrence(Event event) throws Exception {

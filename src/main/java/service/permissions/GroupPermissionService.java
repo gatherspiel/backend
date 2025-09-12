@@ -36,7 +36,7 @@ public class GroupPermissionService {
 
   public boolean canEditGroup( int groupId) throws Exception {
     if(user.isSiteAdmin()){
-      return groupsRepository.getGroup(groupId).isPresent();
+      return groupsRepository.getGroupWithOneTimeEvents(groupId).isPresent();
     }
     return userPermissionsRepository.hasGroupEditorRole(user, groupId);
   }

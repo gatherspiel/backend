@@ -150,7 +150,7 @@ public class GroupsRepository {
     }
   }
 
-  public Optional<Group> getGroup(int groupId) throws Exception{
+  public Optional<Group> getGroupWithOneTimeEvents(int groupId) throws Exception{
     try {
       String query = """
           SELECT 

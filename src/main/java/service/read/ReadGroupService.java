@@ -30,8 +30,8 @@ public class ReadGroupService{
     this.user = dataProvider.getUser();
   }
 
-  public Optional<Group> getGroup(int groupId) throws Exception{
-    return this.groupsRepository.getGroup(groupId);
+  public Optional<Group> getGroupWithOneTimeEvents(int groupId) throws Exception{
+    return this.groupsRepository.getGroupWithOneTimeEvents(groupId);
   }
 
 
