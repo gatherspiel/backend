@@ -1,6 +1,5 @@
-package app.groups.data;
+package app.result.listing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class HomepageGroup {
 

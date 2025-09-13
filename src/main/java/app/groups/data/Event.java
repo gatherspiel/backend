@@ -3,22 +3,22 @@ package app.groups.data;
 import app.users.data.PermissionName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 
+//TODO: Update Event class to have a separate values for the time and date.
 public class Event {
   private Integer id;
-  private String day;
   private String description;
   private String name;
   private String url;
-  private Boolean isRecurring = false;
-  private LocalDateTime startTime;
-  private LocalDateTime endTime;
+  private LocalDate startDate;
+  private LocalDate endDate;
 
   private EventLocation eventLocation;
 
@@ -27,10 +27,22 @@ public class Event {
 
   private HashMap<PermissionName, Boolean> permissions;
 
+  private boolean isRecurring = false;
+  private LocalTime startTime;
+  private LocalTime endTime;
+  private DayOfWeek dayOfWeek;
+
   public Event() {
     permissions = new HashMap<>();
   }
 
+  public void setIsRecurring(boolean isRecurring){
+    this.isRecurring = isRecurring;
+  }
+
+  public boolean getIsRecurring(){
+    return isRecurring;
+  }
   public Integer getId() {
     return id;
   }
@@ -39,18 +51,40 @@ public class Event {
     this.id = id;
   }
 
-  public String getDay() {
-    if(startTime == null){
-      return day;
+  public void setDay(String day){
+    if(day == null){
+      return;
     }
-    return (startTime).getDayOfWeek().toString();
+    this.dayOfWeek = DayOfWeek.valueOf(day.toUpperCase());
   }
 
-  public void setDay(String day) {
-    if(day != null){
-      this.day = day.toLowerCase();
-    }
+  public DayOfWeek getDay(){
+    return dayOfWeek;
   }
+
+  public void setStartTime(LocalTime startTime){
+    this.startTime = startTime;
+  }
+
+  public LocalTime getStartTime(){
+    if(startTime == null){
+      return LocalTime.MIN;
+    }
+    return startTime.truncatedTo(ChronoUnit.MINUTES);
+  }
+
+  public void setEndTime(LocalTime endTime){
+    this.endTime = endTime;
+  }
+
+  public LocalTime getEndTime(){
+    if(endTime == null){
+      return LocalTime.MAX;
+    }
+    return endTime.truncatedTo(ChronoUnit.MINUTES);
+  }
+
+
 
   public String getLocation() {
     return eventLocation.toString();
@@ -84,7 +118,7 @@ public class Event {
     return this.description;
   }
 
-  public void getDescription(String description) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
@@ -104,30 +138,21 @@ public class Event {
     this.url = url;
   }
 
-  public void setStartTime(LocalDateTime startTime){
-    if(startTime != null){
-      this.startTime = startTime.truncatedTo(ChronoUnit.MINUTES);
-    } else {
-      this.startTime = startTime;
-    }
+  public void setStartDate(LocalDate startDate){
+    this.startDate = startDate;
   }
 
-  public LocalDateTime getStartTime(){
-    return startTime;
+  public LocalDate getStartDate(){
+    return startDate;
   }
 
-  public void setEndTime(LocalDateTime endTime){
-    if(endTime != null){
-      this.endTime = endTime.truncatedTo(ChronoUnit.MINUTES);
-    } else {
-      this.endTime = endTime;
-    }
+  public void setEndDate(LocalDate endDate){
+    this.endDate = endDate;
   }
 
-  public LocalDateTime getEndTime(){
-    return endTime;
+  public LocalDate getEndDate(){
+    return endDate;
   }
-
 
   /*
  The start and end time are represented as strings as a workaround for a serialization limitation with the
@@ -152,10 +177,6 @@ public class Event {
     this.eventLocation = eventLocation;
   }
 
-  public boolean getIsRecurring(){
-    return isRecurring;
-  }
-
   public void setGroupName(String groupName){
     this.groupName = groupName;
   }
@@ -172,13 +193,10 @@ public class Event {
     return groupId;
   }
 
-  public void setIsRecurring(boolean isRecurring){
-    this.isRecurring = isRecurring;
-  }
 
   public String toString(){
-    return "Event data \n id:"+this.id +"\nday:"+this.day+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
-        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime;
+    return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
+        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime + "\n startDate:"+this.startDate + "\n endDate:" + this.endDate;
   }
 
   public void setPermissions(HashMap<PermissionName, Boolean> permissions){

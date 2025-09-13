@@ -2,16 +2,18 @@ package app.groups.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
-  public Event[] events;
+
+  public ArrayList<Event> events;
   public int id;
   public String url;
   public String[] cities;
 
   public String description;
   public String name;
-
 
   public Integer getId() {
     return id;
@@ -53,15 +55,11 @@ public class Group {
     this.name = name;
   }
 
-  public void setEvents(Event[] events) {
+  public void setEvents(ArrayList<Event> events) {
     this.events = events;
   }
 
-  public Event[] getEvents() {
-
-    if(events == null || events.length == 0){
-      return new Event[0];
-    }
+  public ArrayList<Event> getEvents() {
     return events;
   }
 
@@ -69,7 +67,7 @@ public class Group {
   public String toString() {
     return (
       "Events:" +
-      events +
+          events +
       "\n" +
       "id:" +
       id +
@@ -93,22 +91,19 @@ public class Group {
     if (events == null) {
       return 0;
     }
-    return events.length;
+    return events.size();
   }
 
   public void addEvent(Event event) {
     if (events == null) {
-      events = new Event[] { event };
-      return;
+      events = new ArrayList<Event>();
+
     }
-    Event[] updated = new Event[events.length + 1];
-    System.arraycopy(events, 0, updated, 0, events.length);
-    updated[events.length] = event;
-    events = updated;
+    events.add(event);
   }
 
-  public void addCity(String city) {
 
+  public void addCity(String city) {
 
     if(city == null){
       return;
@@ -118,7 +113,6 @@ public class Group {
       cities = new String[] { city };
       return;
     }
-
 
     //TODO: Consider using set to improve efficiency.
     for(String existing: cities){
@@ -132,5 +126,4 @@ public class Group {
     updated[cities.length] = city;
     cities = updated;
   }
-
 }

@@ -24,7 +24,6 @@ public class GroupSearchParams {
 
   private String locationGroupFilter = "";
 
-  private static final String SORT_ORDER = " ORDER BY groups.name, groups.id, events.id ASC ";
   private Logger logger;
 
   static {
@@ -58,22 +57,20 @@ public class GroupSearchParams {
       }else {
         if (!param.equals(DISTANCE)) {
           logger.warn("Invalid parameter " + param + " submitted. It will not be used in the search query");
-
         }
       }
-
-
     });
   }
 
   public PreparedStatement generateSearchQuery(Connection conn, boolean isHomepage) throws Exception {
-    String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithDetails();
+    String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
 
     ArrayList<String> whereClauses = new ArrayList<>();
 
     for(String param: params.keySet()){
       whereClauses.add(paramQueryMap.get(param));
     }
+
 
     if (!whereClauses.isEmpty()) {
       query = query + " WHERE ";
@@ -93,6 +90,54 @@ public class GroupSearchParams {
     }
   }
 
+  public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
+    String query = """
+           SELECT
+               DISTINCT ON (events.id, groups.id, groups.name)
+                events.id as eventId,
+                groups.id as groupId,
+                groups.name,
+                groups.url,
+                groups.description,
+                events.name as eventName,
+                events.description as eventDescription,
+                event_time.start_time,
+                event_time.end_time,
+                event_time.day_of_week,
+                locations.state,
+                locations.street_address,
+                locations.zip_code,
+                locations.city as city,
+                locs.city as groupCity
+              FROM groups
+              LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+              LEFT JOIN events on event_group_map.event_id = events.id
+              LEFT JOIN event_time on event_time.event_id = events.id
+              LEFT JOIN locations on events.location_id = locations.id
+              LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+              LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+             
+        """;
+    ArrayList<String> whereClauses = new ArrayList<>();
+
+    for(String param: params.keySet()){
+      whereClauses.add(paramQueryMap.get(param));
+    }
+
+    whereClauses.add("start_time IS NOT NULL");
+    query = query + " WHERE ";
+    query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
+
+    PreparedStatement select = conn.prepareStatement(query);
+    int i = 1;
+    for(String param: params.keySet()){
+      select.setString(i, params.get(param));
+      i++;
+    }
+    return select;
+
+  }
+
   private static String getQueryForHomepageSearchResult(){
     String query = """
       SELECT
@@ -106,40 +151,40 @@ public class GroupSearchParams {
         FROM groups
        LEFT JOIN event_group_map on groups.id = event_group_map.group_id
        LEFT JOIN events on event_group_map.event_id = events.id
-       LEFT JOIN event_time on event_time.event_id = events.id
+       LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
        LEFT JOIN locations on events.location_id = locations.id
        LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-       LEFT JOIN locations as locs on location_group_map.location_id = locs.id      
+       LEFT JOIN locations as locs on location_group_map.location_id = locs.id 
       """;
     return query;
   }
 
-  private static String getQueryForAllResultsWithDetails() {
+  private static String getQueryForAllResultsWithRecurringEvents() {
       String query = """
            SELECT
-                   DISTINCT ON (events.id, groups.id, groups.name)
-                    events.id as eventId,
-                    groups.id as groupId,
-                    groups.name,
-                    groups.url,
-                    groups.description,
-                    events.name as eventName,
-                    events.description as eventDescription,
-                    event_time.start_time,
-                    event_time.end_time,
-                    event_time.day_of_week,
-                    locations.state,
-                    locations.street_address,
-                    locations.zip_code,
-                    locations.city as city,
-                    locs.city as groupCity
-                  FROM groups
-                  LEFT JOIN event_group_map on groups.id = event_group_map.group_id
-                  LEFT JOIN events on event_group_map.event_id = events.id
-                  LEFT JOIN event_time on event_time.event_id = events.id
-                  LEFT JOIN locations on events.location_id = locations.id
-                  LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-                  LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+             DISTINCT ON (events.id, groups.id, groups.name)
+              events.id as eventId,
+              groups.id as groupId,
+              groups.name,
+              groups.url,
+              groups.description,
+              events.name as eventName,
+              events.description as eventDescription,
+              weekly_event_time.start_time as start_time,
+              weekly_event_time.end_time as end_time,
+              weekly_event_time.day_of_week as day_of_week,
+              locations.state,
+              locations.street_address,
+              locations.zip_code,
+              locations.city as city,
+              locs.city as groupCity
+            FROM groups
+              LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+              LEFT JOIN events on event_group_map.event_id = events.id
+              LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
+              LEFT JOIN locations on events.location_id = locations.id
+              LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+              LEFT JOIN locations as locs on location_group_map.location_id = locs.id
           
         """;
 

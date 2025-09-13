@@ -1,6 +1,5 @@
-package app.result;
+package app.result.listing;
 
-import app.groups.data.HomepageGroup;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;

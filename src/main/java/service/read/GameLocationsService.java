@@ -3,19 +3,17 @@ package service.read;
 import app.location.Convention;
 import app.location.GameRestaurant;
 import app.location.GameStore;
-import app.result.GameLocationData;
+import app.result.listing.GameLocationData;
 import database.content.ConventionsRepository;
 import database.content.GameRestaurantRepository;
 import database.content.GameStoreRepository;
 import database.content.LocationsRepository;
-import database.utils.ConnectionProvider;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 

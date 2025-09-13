@@ -7,13 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import service.data.SearchParameterValidator;
 
@@ -25,7 +19,6 @@ public class EventRepository {
     this.conn = conn;
   }
 
-  //TODO: Make this logic use address objects.
   public void addEvents(Group[] groups) throws Exception {
     GroupsRepository groupsRepository = new GroupsRepository(conn);
     LocationsRepository locationsRepository = new LocationsRepository(conn);
@@ -33,7 +26,12 @@ public class EventRepository {
 
     for (Group group : groups) {
       int groupId = groupsRepository.getGroupId(group);
-      for (Event event : group.events) {
+
+      for (Event event : group.getEvents()) {
+
+        if(event.getIsRecurring()){
+          continue;
+        }
         int eventId = getEventId(event.getName(), group.url);
         if (eventId == -1) {
           if (!SearchParameterValidator.isValidAddress(event.getLocation())) {
@@ -67,7 +65,8 @@ public class EventRepository {
         }
         updateEventGroupMap(groupId, eventId, conn);
         event.setId(eventId);
-        eventTimeRepository.setEventDay(event);
+
+        eventTimeRepository.createWeeklyRecurrence(event);
       }
     }
   }
@@ -97,15 +96,24 @@ public class EventRepository {
     updateEventGroupMap(groupId, eventId, conn);
     event.setId(eventId);
 
-    if(event.getStartTime() != null && event.getEndTime() != null){
-      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+    if(!event.getIsRecurring()){
+      if(event.getStartTime() != null && event.getEndTime() != null){
+        eventTimeRepository.createEventDate(
+            event.getId(),
+            event.getStartDate().atTime(event.getStartTime()),
+            event.getEndDate().atTime(event.getEndTime()));
+      } else {
+        eventTimeRepository.setEventDay(event);
+      }
     } else {
-      eventTimeRepository.setEventDay(event);
+      eventTimeRepository.createWeeklyRecurrence(event);
     }
+
     return event;
   }
 
   public void deleteEvent(int eventId, int groupId) throws Exception {
+
     EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
     eventTimeRepository.deleteEventTimeInfo(eventId);
 
@@ -164,8 +172,14 @@ public class EventRepository {
 
     update.executeUpdate();
 
-    if(event.getStartTime() != null && event.getEndTime() != null){
-      eventTimeRepository.setEventDate(event.getId(), event.getStartTime(), event.getEndTime());
+    if(event.getStartTime() != null && event.getEndTime() != null && !event.getIsRecurring()){
+      eventTimeRepository.updateEventDate(
+        event.getId(),
+        event.getStartDate().atTime(event.getStartTime()),
+        event.getEndDate().atTime(event.getEndTime()));
+    }
+    if(event.getIsRecurring()){
+      eventTimeRepository.updateWeeklyRecurrence(event);
     }
     return event;
   }
@@ -173,14 +187,16 @@ public class EventRepository {
   public Optional<Event> getEvent(int id) throws Exception{
     String query = """
         
-        SELECT 
+        SELECT
          events.id as eventId,
          events.url,
          events.name as eventName,
          events.description as eventDescription,
-         start_time,
-         end_time,
-         day_of_week,
+         event_time.start_time as oneTimeEventStartTime,
+         weekly_event_time.start_time as recurringEventStartTime,
+         event_time.end_time as oneTimeEventEndTime,
+         weekly_event_time.end_time as recurringEventEndTime,
+         COALESCE(event_time.day_of_week,weekly_event_time.day_of_week) as event_day,
          groups.id as groupId,
          groups.name as groupName,
          locations.city as city,
@@ -193,6 +209,7 @@ public class EventRepository {
         LEFT JOIN locations on events.location_id = locations.id
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
+        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
         where events.id = ? 
         
         """;
@@ -204,29 +221,40 @@ public class EventRepository {
       Event event = new Event();
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
-      event.getDescription(rs.getString("eventDescription"));
+      event.setDescription(rs.getString("eventDescription"));
 
-      Timestamp start = rs.getTimestamp("start_time");
-      Timestamp end = rs.getTimestamp("end_time");
+
 
       String groupName = rs.getString("groupName");
       int groupId  = rs.getInt("groupId");
       event.setGroupName(groupName);
       event.setGroupId(groupId);
 
-      if(start != null){
-        event.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
 
-      } else {
-        String dayOfWeek = rs.getString("day_of_week");
-        var startTime = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));
-        event.setStartTime(startTime);
+      Timestamp oneTimeEventStartTime = rs.getTimestamp("oneTimeEventStartTime");
+      Timestamp oneTimeEventEndTime = rs.getTimestamp("oneTimeEventEndTime");
+      if(oneTimeEventStartTime != null){
+        var startDateTime = oneTimeEventStartTime.toLocalDateTime();
+        event.setStartTime(startDateTime.toLocalTime());
+        event.setStartDate(startDateTime.toLocalDate());
       }
-      if(end != null){
-        event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+      if(oneTimeEventEndTime != null){
+        var endDateTime = oneTimeEventEndTime.toLocalDateTime();
+        event.setEndTime(endDateTime.toLocalTime());
+        event.setEndDate(endDateTime.toLocalDate());
       } else {
         event.setEndTime(event.getStartTime().plusHours(1));
       }
+
+      Timestamp recurringEventStartTime = rs.getTimestamp("recurringEventStartTime");
+      Timestamp recurringEventEndTime = rs.getTimestamp("recurringEventEndTime");
+      if(recurringEventStartTime != null && recurringEventEndTime != null){
+        event.setStartTime(recurringEventStartTime.toLocalDateTime().toLocalTime());
+        event.setEndTime(recurringEventEndTime.toLocalDateTime().toLocalTime());
+        event.setDay(rs.getString("event_day"));
+        event.setIsRecurring(true);
+      }
+
       event.setId(rs.getInt("eventId"));
 
       EventLocation eventLocation = new EventLocation();

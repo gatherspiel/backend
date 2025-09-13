@@ -1,9 +1,12 @@
-package app.groups.data;
+package app.result.group;
 
+import app.groups.data.Event;
+import app.groups.data.Group;
 import app.users.data.PermissionName;
+import service.update.EventService;
 
 import java.time.*;
-import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,7 +20,37 @@ public class GroupPageData {
   private String url;
   private String description;
   private HashMap<PermissionName, Boolean> permissions;
-  private TreeSet<GroupPageEventData> groupPageEventData;
+  private TreeSet<Event> oneTimeEventData;
+  private TreeSet<Event> weeklyEventData;
+
+  class WeeklyEventDataComparator implements Comparator<Event> {
+    public int compare(Event eventData1, Event eventData2) {
+
+      int compare = eventData1.getDay().getValue() - eventData2.getDay().getValue();
+
+      if(compare != 0){
+        return compare;
+      }
+
+      compare = eventData1.getStartTime().compareTo(eventData2.getStartTime());
+      if(compare != 0){
+        return compare;
+      }
+
+      return  eventData1.getName().compareTo(eventData2.getName());
+    }
+  }
+
+  class OneTimeEventDataComparator implements Comparator<Event> {
+    public int compare(Event eventData1, Event eventData2) {
+      int compare = eventData1.getStartTime().compareTo(eventData2.getStartTime());
+      if(compare == 0){
+        compare = eventData1.getStartDate().compareTo(eventData2.getStartDate());
+      }
+      return compare;
+    }
+  }
+
 
   private GroupPageData(int id, String name, String url, String description){
     this.id = id;
@@ -25,7 +58,8 @@ public class GroupPageData {
     this.url = url;
     this.description = description;
     this.permissions = new HashMap<>();
-    this.groupPageEventData = new TreeSet<GroupPageEventData>(new GroupPageEventDataComparator());
+    this.oneTimeEventData = new TreeSet<Event>(new OneTimeEventDataComparator());
+    this.weeklyEventData = new TreeSet<Event>(new WeeklyEventDataComparator());
   }
 
   public int getId(){
@@ -60,57 +94,42 @@ public class GroupPageData {
     this.description = description;
   }
 
-  public Set<GroupPageEventData> getEventData(){
-    return this.groupPageEventData;
+  public TreeSet<Event> getOneTimeEventData(){
+    return this.oneTimeEventData;
   }
 
-  public void addEventData(
-      String name,
-      String description,
-      String link, int id,
-      LocalDateTime startTime,
-      LocalDateTime endTime)
+  public void addEvent(Event event)
   {
-    GroupPageEventData eventData = new GroupPageEventData(name, description, link, id, startTime, endTime);
+    if(event.getIsRecurring()){
+      weeklyEventData.add(event);
+    }else {
+      oneTimeEventData.add(event);
+    }
+  }
 
-    groupPageEventData.add(eventData);
+  public TreeSet<Event> getWeeklyEventData(){
+    return this.weeklyEventData;
+  }
+
+  public void addWeeklyEventData(Event eventData) {
+    weeklyEventData.add(eventData);
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
 
-    LocalDateTime currentDate = LocalDateTime.now();
-
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
 
-        //Event is not ready to be published because it does not have a location
-        if(event.getLocation() == null){
+        //Event is not ready to be published because it does not have a location.
+        if (event.getLocation() == null) {
           continue;
         }
-
-        if(event.getIsRecurring()) { //Event is recurring
-
-          //TODO: Update logic for recurring events
-          String day = event.getDay();
-          LocalDateTime nextEventDate = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(day.toUpperCase())));
-
-          while (nextEventDate.minusDays(TIME_RANGE_DAYS + 1).isBefore(currentDate)) {
-            data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(), nextEventDate, nextEventDate);
-            nextEventDate = nextEventDate.plusDays(7);
-          }
-        }
-        else if(event.getStartTime() != null && event.getEndTime() != null) {
-          var startTime = event.getStartTime();
-          var endTime = event.getEndTime();
-          data.addEventData(event.getName(), event.getDescription(), event.getLocation(), event.getId(),startTime, endTime);
-        }
+        data.addEvent(event);
       }
     }
-
     return data;
   }
-
 
   public HashMap<PermissionName,Boolean> getPermissions(){
     return permissions;

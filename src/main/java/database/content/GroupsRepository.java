@@ -150,7 +150,7 @@ public class GroupsRepository {
     }
   }
 
-  public Optional<Group> getGroup(int groupId) throws Exception{
+  public Optional<Group> getGroupWithOneTimeEvents(int groupId) throws Exception{
     try {
       String query = """
           SELECT 
@@ -200,12 +200,12 @@ public class GroupsRepository {
           event.setId(rs.getInt("eventId"));
           event.setUrl(rs.getString("eventUrl"));
           event.setName(rs.getString("eventName"));
-          event.getDescription(rs.getString("eventDescription"));
+          event.setDescription(rs.getString("eventDescription"));
 
           Timestamp startTime = rs.getTimestamp("start_time");
           if(startTime !=null){
-            event.setStartTime(startTime.toLocalDateTime());
-            event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+            event.setStartTime(startTime.toLocalDateTime().toLocalTime());
+            event.setEndTime(rs.getTimestamp("end_time").toLocalDateTime().toLocalTime());
           }
 
           EventLocation eventLocation = new EventLocation();
@@ -224,7 +224,6 @@ public class GroupsRepository {
 
 
         if(!rs.next()){
-          group.setEvents(events.toArray(new Event[0]));
           return Optional.of(group);
         }
       }

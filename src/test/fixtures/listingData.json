@@ -218,28 +218,36 @@
             "id": 1,
             "location": "2000 Pennsylvania Avenue NW #3500, Washington, DC 20006",
             "description": "We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",
-            "name": "High Interaction Board Games at Western Market Food Hall in DC"
+            "name": "High Interaction Board Games at Western Market Food Hall in DC",
+            "startTime": "13:00",
+            "endTime": "17:00"
           },
           {
             "day": "Wednesday",
             "id": 2,
             "location": "925 N Garfield St, Arlington, VA 22201",
             "description": "Let's play board games. Not the ones your ancestors played but the really cool ones of the new millennium. We play everything from fun, social games to light to heavy strategy games.",
-            "name": "Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00"
+            "name": "Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00",
+            "startTime": "18:30",
+            "endTime": "22:00"
           },
           {
             "day": "Monday",
             "id": 3,
             "location": "3319 Connecticut Avenue Northwest, Washington, DC 20008",
             "description": "Hello again! After a long hiatus, the Monday meet up at Nanny O’Briens is back! We’ll have some games to play, but feel free to bring your favorites as well. Stop by for a game and a drink, and say hello! We’ll be in the back room",
-            "name": "Bring Your Own Game Night in DC at Nanny O’Briens"
+            "name": "Bring Your Own Game Night in DC at Nanny O’Briens",
+            "startTime": "18:30",
+            "endTime": "22:30"
           },
           {
             "day": "Friday",
             "id": 4,
             "location": "2100 Crystal Drive, Arlington, VA 22202",
             "description": "We play a variety of game with a focus on Eurogames",
-            "name": "Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza"
+            "name": "Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza",
+            "startTime": "18:30",
+            "endTime": "22:00"
           }
         ],
         "id": 1,

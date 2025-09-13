@@ -33,6 +33,8 @@ public class ZipCodeAndCityData {
                 20260,38.9181,77.0222,Washington
                 20374,38.8306,77.0162,Washington
                 22046,38.88688278,77.1793,Falls Church
+                20146,39.0438,77.4879,Ashburn
+                20147,39.0333,77.4915,Ashburn
                 22201,38.8858,77.0951,Arlington
                 22202,38.8565,77.0512,Arlington
                 22203,38.8736,77.1178,Arlington
@@ -153,8 +155,6 @@ public class ZipCodeAndCityData {
                 22193,38.6486,77.3446,Woodbridge
                 22194,38.6356,77.262,Woodbridge
                 22195,38.658,77.25,Woodbridge
-                20146,38.0438,77.4879,Ashburn
-                20147,38.0333,77.4915,Ashburn
                 20134,38.1337,77.7065,Purcellville
                 20132,38.172,77.7306,Purcellville
                 20160,38.1153,77.6916,Purcellville
