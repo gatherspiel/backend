@@ -1,10 +1,11 @@
-package app.result;
+package app.result.listing;
 
 import app.groups.data.Event;
 import app.groups.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,39 @@ public class GroupSearchResult {
     }
   }
 
-  public void addEvent(
+  public void addWeeklyEvent(
+      Integer groupId,
+      Integer eventId,
+      String name,
+      String description,
+      String dayOfWeek,
+      String address,
+      LocalTime startTime,
+      LocalTime endTime
+  ) throws Exception{
+    if (!groupData.containsKey(groupId)) {
+      logger.warn(
+          "Group with id {} does not exist. Event will not be added to group search result",
+          groupId
+      );
+      return;
+    }
+
+    Group group = groupData.get(groupId);
+
+    Event event = new Event();
+    event.setName(name);
+    event.setDescription(description);
+    event.setLocation(address);
+    event.setId(eventId);
+    event.setStartTime(startTime);
+    event.setEndTime(endTime);
+    event.setDay(dayOfWeek);
+    event.setIsRecurring(true);
+    group.addEvent(event);
+  }
+
+  public void addOneTimeEvent(
     Integer groupId,
     Integer eventId,
     String name,
@@ -58,8 +91,7 @@ public class GroupSearchResult {
     String address,
     String city,
     LocalDateTime startTime,
-    LocalDateTime endTime,
-    boolean isRecurring
+    LocalDateTime endTime
   ) throws Exception{
     if (!groupData.containsKey(groupId)) {
       logger.warn(
@@ -73,21 +105,22 @@ public class GroupSearchResult {
     group.addCity(city);
     Event event = new Event();
     event.setName(name);
-    event.getDescription(description);
+    event.setDescription(description);
     event.setDay(dayOfWeek);
     event.setLocation(address);
     event.setId(eventId);
-    event.setStartTime(startTime);
-    event.setEndTime(endTime);
-    event.setIsRecurring(isRecurring);
+    event.setStartTime(startTime.toLocalTime());
+    event.setStartDate(startTime.toLocalDate());
+    event.setEndTime(endTime.toLocalTime());
+    event.setEndDate(endTime.toLocalDate());
     group.addEvent(event);
   }
 
-  public Group getFirstGroup() {
+  public Optional<Group> getFirstGroup() {
     if(groupData.isEmpty()){
-      return null;
+      return Optional.empty();
     }
-    return groupData.get(groupData.keySet().toArray()[0]);
+    return Optional.of(groupData.get(groupData.keySet().toArray()[0]));
   }
   public int countGroups() {
     return groupData.size();

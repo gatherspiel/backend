@@ -2,7 +2,7 @@ package app;
 
 import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
-import app.result.HomeResult;
+import app.result.listing.HomeResult;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -87,7 +87,7 @@ public class Main {
             cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
-            logger.info("Search time:" + ((end - start) / 100));
+            logger.info("Search time:" + ((end - start) / 1000));
             ctx.json(groupSearchResult);
             ctx.status(HttpStatus.OK);
           }

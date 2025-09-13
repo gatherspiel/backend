@@ -1,7 +1,7 @@
 package app.cache;
 
-import app.groups.data.GroupPageData;
-import app.result.HomeResult;
+import app.result.group.GroupPageData;
+import app.result.listing.HomeResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import database.search.GroupSearchParams;
 import io.javalin.http.Context;

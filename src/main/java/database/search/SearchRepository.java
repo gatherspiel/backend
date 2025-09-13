@@ -1,7 +1,7 @@
 package database.search;
 
-import app.result.GroupSearchResult;
-import app.result.HomeResult;
+import app.result.listing.GroupSearchResult;
+import app.result.listing.HomeResult;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -9,9 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
+import java.time.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,15 +57,93 @@ public class SearchRepository {
 
   public GroupSearchResult getGroupsWithDetails(
       GroupSearchParams searchParams
-  )
-      throws Exception {
+  ) throws Exception {
+
     PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
     Set<String> locationsWithTag = getLocationsWithTag(searchParams);
-
     GroupSearchResult searchResult = new GroupSearchResult();
     while (rs.next()) {
+
+      Integer groupId = rs.getInt("groupId");
+      String groupName = rs.getString("name");
+      String url = rs.getString("url");
+      String groupSummary = rs.getString("description");
+      String groupCity = rs.getString("groupCity");
+
+
+      if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
+
+        Integer eventId = rs.getInt("eventId");
+        String eventName = rs.getString("eventname");
+        String description = rs.getString("eventDescription");
+        String dayOfWeek = rs.getString("day_of_week");
+
+        String streetAddress = rs.getString("street_address");
+        String city = rs.getString("city");
+        String state = rs.getString("state");
+        String zipCode = rs.getString("zip_code");
+
+        Timestamp startData = rs.getTimestamp("start_time");
+        Timestamp endData = rs.getTimestamp("end_time");
+        LocalTime startTime = LocalTime.MIN;
+        LocalTime endTime = LocalTime.MAX;
+
+        if(startData != null){
+          var startDateTime = startData.toLocalDateTime();
+          startTime = startTime.plusHours(startDateTime.getHour()).plusMinutes(startDateTime.getMinute());
+        }
+
+        if(endData != null){
+          var endDateTime = endData.toLocalDateTime();
+          endTime = LocalTime.MIN.plusHours(endDateTime.getHour()).plusMinutes(endDateTime.getMinute());
+        }
+
+        if (eventId != 0) {
+          String address =
+              streetAddress + ", " + city + ", " + state + " " + zipCode;
+
+          if (
+              streetAddress == null ||
+                  city == null ||
+                  state == null ||
+                  zipCode == null
+          ) {
+            address = "";
+          }
+
+          /* Groups that have no events will be returned from the query with empty event data. If a group has at
+          least one event, each result associated with the group will have event data.
+           */
+          if(dayOfWeek != null){
+            searchResult.addWeeklyEvent(
+                groupId,
+                eventId,
+                eventName,
+                description,
+                dayOfWeek,
+                address,
+                startTime,
+                endTime
+            );
+          }
+
+        }
+      }
+    }
+
+    addOneTimeEvents(searchParams, searchResult, locationsWithTag);
+    return searchResult;
+  }
+
+  private void addOneTimeEvents(GroupSearchParams searchParams, GroupSearchResult searchResult, Set<String> locationsWithTag) throws Exception {
+
+    PreparedStatement statement = searchParams.generateQueryForOneTimeEvents(conn);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+
 
       Integer groupId = rs.getInt("groupId");
 
@@ -84,29 +160,23 @@ public class SearchRepository {
         String description = rs.getString("eventDescription");
         String dayOfWeek = rs.getString("day_of_week");
 
+
         String streetAddress = rs.getString("street_address");
         String city = rs.getString("city");
         String state = rs.getString("state");
         String zipCode = rs.getString("zip_code");
-        boolean isRecurring = false;
 
-        LocalDateTime startTime = LocalDateTime.now();
+        var startData = rs.getTime("start_time");
+        var endData = rs.getTime("end_time");
+        LocalDateTime startTime = LocalDateTime.MIN;
+        LocalDateTime endTime = LocalDateTime.MAX;
 
-        if(dayOfWeek != null){
-          startTime = startTime.with(TemporalAdjusters.nextOrSame(DayOfWeek.valueOf(dayOfWeek.toUpperCase())));;
+        if(startData != null){
+          startTime = rs.getTimestamp("start_time").toLocalDateTime();
         }
-        LocalDateTime endTime = startTime.plusHours(1);
 
-        Timestamp start = rs.getTimestamp("start_time");
-        Timestamp end = rs.getTimestamp("end_time");
-        if(start != null) {
-          startTime = start.toLocalDateTime();
-        }
-        if(end != null){
-          endTime = end.toLocalDateTime();
-        }
-        if (start == null){
-          isRecurring = true;
+        if(endData != null){
+          endTime = rs.getTimestamp("end_time").toLocalDateTime();
         }
 
         if (eventId != 0) {
@@ -121,7 +191,7 @@ public class SearchRepository {
           ) {
             address = "";
           }
-          searchResult.addEvent(
+          searchResult.addOneTimeEvent(
               groupId,
               eventId,
               eventName,
@@ -130,13 +200,11 @@ public class SearchRepository {
               address,
               city,
               startTime,
-              endTime,
-              isRecurring
+              endTime
           );
         }
       }
     }
-    return searchResult;
   }
 
   private Set<String> getLocationsWithTag(

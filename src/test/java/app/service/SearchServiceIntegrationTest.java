@@ -4,10 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.groups.data.Group;
-import app.groups.data.HomepageGroup;
-import app.result.HomeResult;
-import app.utils.CreateGroupUtils;
+import app.result.listing.HomepageGroup;
+import app.result.listing.HomeResult;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
