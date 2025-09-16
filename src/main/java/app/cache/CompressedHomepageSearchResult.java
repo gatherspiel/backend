@@ -25,7 +25,7 @@ public class CompressedHomepageSearchResult {
       HomeResult result
   ) {
 
-    for(HomepageGroup group: result.getGroupData().values()) {
+    for(HomepageGroup group: result.getGroupDataMap().values()) {
 
       CompressedGroup compressedGroup = new CompressedGroup();
       compressedGroup.setA(group.getId());

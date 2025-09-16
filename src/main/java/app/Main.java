@@ -62,7 +62,7 @@ public class Main {
     );
 
     app.get(
-      "/searchEvents",
+      "/searchGroups",
       ctx -> {
 
         long start = System.currentTimeMillis();
@@ -84,6 +84,7 @@ public class Main {
                 searchParams
             );
 
+
             cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
@@ -101,34 +102,33 @@ public class Main {
     );
 
     app.get(
-        "/searchLocations",
-        ctx->{
+      "/searchLocations",
+      ctx->{
 
-          var connectionProvider = new ConnectionProvider();
-          var conn = connectionProvider.getDatabaseConnection();
-          GameLocationsService gameLocationsService = new GameLocationsService(conn);
+        var connectionProvider = new ConnectionProvider();
+        var conn = connectionProvider.getDatabaseConnection();
+        GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
-          var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
+        var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
 
-          ctx.json(gameLocationData);
-          ctx.status(HttpStatus.OK);
-
-        });
+        ctx.json(gameLocationData);
+        ctx.status(HttpStatus.OK);
+      });
 
     app.get(
-        "/listCities",
-        ctx->{
-          var connectionProvider = new ConnectionProvider();
-          var conn = connectionProvider.getDatabaseConnection();
+      "/listCities",
+      ctx->{
+        var connectionProvider = new ConnectionProvider();
+        var conn = connectionProvider.getDatabaseConnection();
 
-          GameLocationsService gameLocationsService = new GameLocationsService(conn);
+        GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
-          String areaFilter = ctx.queryParam("area");
+        String areaFilter = ctx.queryParam("area");
 
-          var cities = gameLocationsService.getAllEventLocations(areaFilter);
-          ctx.json(cities);
-          ctx.status(HttpStatus.OK);
-        });
+        var cities = gameLocationsService.getAllEventLocations(areaFilter);
+        ctx.json(cities);
+        ctx.status(HttpStatus.OK);
+      });
 
     //TODO: Consider deleting this endpoint.
     app.post(

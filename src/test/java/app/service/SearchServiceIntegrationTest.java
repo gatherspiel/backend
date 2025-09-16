@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.groups.data.Group;
 import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
+import app.utils.CreateGroupUtils;
+import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
@@ -20,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import service.read.DistanceService;
 import service.read.SearchService;
+import service.update.GroupEditService;
 
 public class SearchServiceIntegrationTest {
   private static SearchService searchService;
@@ -142,7 +146,7 @@ public class SearchServiceIntegrationTest {
         params
     );
 
-    Map<Integer, HomepageGroup> groupData = result.getGroupData();
+    Map<Integer, HomepageGroup> groupData = result.getGroupDataMap();
 
     for(Integer groupId: groupData.keySet()) {
       HomepageGroup group = groupData.get(groupId);
@@ -165,7 +169,7 @@ public class SearchServiceIntegrationTest {
     Exception exception = assertThrows(
       RuntimeException.class,
       () -> {
-        HomeResult result = searchService.getGroupsForHomepage(
+        searchService.getGroupsForHomepage(
           params
         );
       }
@@ -197,13 +201,30 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
-  public void testGroupsAreOrderedAlphabetically() throws Exception {
+  public void testGroupsAreOrderedAlphabeticallyWithUpdate() throws Exception {
+
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin", testConnectionProvider);
+    GroupEditService groupEdit = adminContext.createGroupEditService();
+
+    final Group GROUP_1 = CreateGroupUtils.createGroupObject();
+    final Group GROUP_2 = CreateGroupUtils.createGroupObject();
+    final Group GROUP_3 = CreateGroupUtils.createGroupObject();
+
+    GROUP_1.setName("Castles of Burgundy Group");
+    GROUP_2.setName("Agricola Group");
+    GROUP_3.setName("Zombicide Group");
+
+    groupEdit.insertGroup(GROUP_1);
+    groupEdit.insertGroup(GROUP_2);
+    groupEdit.insertGroup(GROUP_3);
+
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     HomeResult result = searchService.getGroupsForHomepage(params);
+    assertEquals(42, result.countGroups());
 
     HomepageGroup[] previous = new HomepageGroup[1];
 
-    result.getGroupData().forEach((id, current) -> {
+    result.getGroupDataMap().forEach((id, current) -> {
       if (previous[0] != null) {
         String prevName = previous[0].getName();
         String currName = current.getName();
@@ -216,8 +237,12 @@ public class SearchServiceIntegrationTest {
         }
       }
       previous[0] = current;
-
     });
+
+    groupEdit.deleteGroup(GROUP_1.getId());
+    groupEdit.deleteGroup(GROUP_2.getId());
+    groupEdit.deleteGroup(GROUP_3.getId());
+
   }
 
   @Test
@@ -371,7 +396,7 @@ public class SearchServiceIntegrationTest {
     );
 
     boolean hasGroup = false;
-    for(HomepageGroup group: result.getGroupData().values()){
+    for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
       }
@@ -391,7 +416,7 @@ public class SearchServiceIntegrationTest {
     );
 
     boolean hasGroup = false;
-    for(HomepageGroup group: result.getGroupData().values()){
+    for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
       }
@@ -410,7 +435,7 @@ public class SearchServiceIntegrationTest {
     );
 
     boolean hasGroup = false;
-    for(HomepageGroup group: result.getGroupData().values()){
+    for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
       }
