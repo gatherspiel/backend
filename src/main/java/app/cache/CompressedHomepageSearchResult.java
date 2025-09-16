@@ -49,7 +49,11 @@ public class CompressedHomepageSearchResult {
       if(compressedGroup.getC().length != 0){
         locationName = compressedGroup.getC()[0];
       }
-      homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), locationName);
+      
+      //TODO: Optimize
+      for(int i=0;i<compressedGroup.getC().length;i++){
+        homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), compressedGroup.getC()[i]);
+      }
     }
     return homepageSearchResult;
   }
