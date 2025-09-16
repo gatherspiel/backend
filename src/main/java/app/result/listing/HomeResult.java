@@ -1,5 +1,6 @@
 package app.result.listing;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.*;
@@ -17,7 +18,7 @@ class HomepageResultComparator implements Comparator<HomepageGroup> {
 
 public class HomeResult {
 
-  //TODO: Update data structure
+  @JsonIgnore
   private LinkedHashMap<Integer, HomepageGroup> groupData;
 
   @JsonIgnore
@@ -62,13 +63,21 @@ public class HomeResult {
   }
 
 
-  public LinkedHashMap<Integer, HomepageGroup> getGroupData() {
+  @JsonIgnore
+  public LinkedHashMap<Integer, HomepageGroup> getGroupDataMap() {
 
     /*Results are sorted here instead of in the database query due to the fact that the database isn't configured
     to correctly sort '-' characters*/
     return groupData.entrySet().stream().sorted(Map.Entry.comparingByValue(new HomepageResultComparator())).collect(
         Collectors.toMap(
             Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+  }
+
+  @JsonGetter
+  public TreeSet<HomepageGroup> getGroupData(){
+    TreeSet<HomepageGroup> data = new TreeSet<HomepageGroup>(new HomepageResultComparator());
+    data.addAll(groupData.values());
+    return data;
   }
 
   public String toString(){

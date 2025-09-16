@@ -25,7 +25,6 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 - Navigate to the database repo and run the command `npx supabase start'
 
-    VITE_LOCAL_AUTH_URL:'http://localhost:54321/auth/v1/'
   
 ## Create an admin account for local development
 

@@ -74,7 +74,7 @@ public class SearchService {
 
     HomeResult result = new HomeResult();
 
-    for(HomepageGroup group: groups.getGroupData().values()){
+    for(HomepageGroup group: groups.getGroupDataMap().values()){
       for(String groupCity: group.getCities()){
         Optional<Double> distance = DistanceService.getDistance(searchCity, groupCity);
 
