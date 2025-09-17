@@ -2,8 +2,11 @@ package app.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import app.SessionContext;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.groups.data.Event;
+import app.groups.data.EventLocation;
 import app.groups.data.Group;
 import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
@@ -11,6 +14,7 @@ import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
+import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,7 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import service.read.DistanceService;
+import service.read.ReadGroupService;
 import service.read.SearchService;
+import service.update.EventService;
 import service.update.GroupEditService;
 
 public class SearchServiceIntegrationTest {
@@ -243,6 +249,64 @@ public class SearchServiceIntegrationTest {
     groupEdit.deleteGroup(GROUP_2.getId());
     groupEdit.deleteGroup(GROUP_3.getId());
 
+  }
+
+  @Test
+  public void testGroupWithMultipleEvents_LocationsAreInAlphabeticalOrder() throws Exception {
+
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user", testConnectionProvider);
+
+    EventService eventService = adminContext.createEventService();
+    GroupEditService groupEditService = adminContext.createGroupEditService();
+
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName("Group1");
+    Group createdGroup = groupEditService.insertGroup(group);
+
+    Event event1 = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+    Event event2 = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+    Event event3 = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+    Event event4 = EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.MAX);
+
+    EventLocation location = new EventLocation();
+    location.setZipCode(22222);
+    location.setStreetAddress("Street Address");
+    location.setState("VA");
+    location.setCity("A");
+
+    event1.setEventLocation(location);
+    eventService.createEvent(event1, createdGroup.getId());
+
+    location.setCity("C");
+    event2.setEventLocation(location);
+    eventService.createEvent(event2, createdGroup.getId());
+
+    location.setCity("B");
+    event3.setEventLocation(location);
+    eventService.createEvent(event3, createdGroup.getId());
+
+    location.setCity("D");
+    event4.setEventLocation(location);
+    eventService.createEvent(event4, createdGroup.getId());
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+
+    HomeResult result = searchService.getGroupsForHomepage(params);
+
+    HomepageGroup addedGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupData()){
+      if(homepageGroup.getId().equals(createdGroup.getId())) {
+        addedGroup = homepageGroup;
+        break;
+      }
+    }
+
+    assertNotNull(addedGroup);
+
+    String[] sortedCities = {"A","B","C","D"};
+    assertArrayEquals(sortedCities, addedGroup.cities);
+
+    groupEditService.deleteGroup(createdGroup.getId());
   }
 
   @Test
