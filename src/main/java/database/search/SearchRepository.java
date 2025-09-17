@@ -17,7 +17,6 @@ public class SearchRepository {
 
   private Connection conn;
 
-  private static final Logger logger = LogUtils.getLogger();
 
   public SearchRepository(Connection conn){
     this.conn = conn;

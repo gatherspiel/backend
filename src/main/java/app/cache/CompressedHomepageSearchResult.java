@@ -49,7 +49,7 @@ public class CompressedHomepageSearchResult {
       if(compressedGroup.getC().length != 0){
         locationName = compressedGroup.getC()[0];
       }
-      
+
       //TODO: Optimize
       for(int i=0;i<compressedGroup.getC().length;i++){
         homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), compressedGroup.getC()[i]);
