@@ -92,31 +92,30 @@ public class GroupSearchParams {
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
     String query = """
-           SELECT
-               DISTINCT ON (events.id, groups.id, groups.name)
-                events.id as eventId,
-                groups.id as groupId,
-                groups.name,
-                groups.url,
-                groups.description,
-                events.name as eventName,
-                events.description as eventDescription,
-                event_time.start_time,
-                event_time.end_time,
-                event_time.day_of_week,
-                locations.state,
-                locations.street_address,
-                locations.zip_code,
-                locations.city as city,
-                locs.city as groupCity
-              FROM groups
-              LEFT JOIN event_group_map on groups.id = event_group_map.group_id
-              LEFT JOIN events on event_group_map.event_id = events.id
-              LEFT JOIN event_time on event_time.event_id = events.id
-              LEFT JOIN locations on events.location_id = locations.id
-              LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-              LEFT JOIN locations as locs on location_group_map.location_id = locs.id
-             
+      SELECT
+        DISTINCT ON (events.id, groups.id, groups.name)
+          events.id as eventId,
+          groups.id as groupId,
+          groups.name,
+          groups.url,
+          groups.description,
+          events.name as eventName,
+          events.description as eventDescription,
+          event_time.start_time,
+          event_time.end_time,
+          event_time.day_of_week,
+          locations.state,
+          locations.street_address,
+          locations.zip_code,
+          locations.city as city,
+          locs.city as groupCity
+        FROM groups
+        LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+        LEFT JOIN events on event_group_map.event_id = events.id
+        LEFT JOIN event_time on event_time.event_id = events.id
+        LEFT JOIN locations on events.location_id = locations.id
+        LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+        LEFT JOIN locations as locs on location_group_map.location_id = locs.id     
         """;
     ArrayList<String> whereClauses = new ArrayList<>();
 
@@ -161,33 +160,31 @@ public class GroupSearchParams {
 
   private static String getQueryForAllResultsWithRecurringEvents() {
       String query = """
-           SELECT
-             DISTINCT ON (events.id, groups.id, groups.name)
-              events.id as eventId,
-              groups.id as groupId,
-              groups.name,
-              groups.url,
-              groups.description,
-              events.name as eventName,
-              events.description as eventDescription,
-              weekly_event_time.start_time as start_time,
-              weekly_event_time.end_time as end_time,
-              weekly_event_time.day_of_week as day_of_week,
-              locations.state,
-              locations.street_address,
-              locations.zip_code,
-              locations.city as city,
-              locs.city as groupCity
-            FROM groups
-              LEFT JOIN event_group_map on groups.id = event_group_map.group_id
-              LEFT JOIN events on event_group_map.event_id = events.id
-              LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
-              LEFT JOIN locations on events.location_id = locations.id
-              LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-              LEFT JOIN locations as locs on location_group_map.location_id = locs.id
-          
+        SELECT
+          DISTINCT ON (events.id, groups.id, groups.name)
+            events.id as eventId,
+            groups.id as groupId,
+            groups.name,
+            groups.url,
+            groups.description,
+            events.name as eventName,
+            events.description as eventDescription,
+            weekly_event_time.start_time as start_time,
+            weekly_event_time.end_time as end_time,
+            weekly_event_time.day_of_week as day_of_week,
+            locations.state,
+            locations.street_address,
+            locations.zip_code,
+            locations.city as city,
+            locs.city as groupCity
+          FROM groups
+            LEFT JOIN event_group_map on groups.id = event_group_map.group_id
+            LEFT JOIN events on event_group_map.event_id = events.id
+            LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
+            LEFT JOIN locations on events.location_id = locations.id
+            LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+            LEFT JOIN locations as locs on location_group_map.location_id = locs.id
         """;
-
     return query;
   }
 
@@ -198,11 +195,11 @@ public class GroupSearchParams {
   public PreparedStatement getQueryForLocationGroups(Connection conn) throws Exception {
 
     String query = """
-                       SELECT city, name from locations
-                       LEFT JOIN location_tag_mapping on locations.id = location_tag_mapping.location_id
-                       LEFT JOIN location_tag on location_tag.id = location_tag_mapping.location_tag_id
-                       WHERE name = ?
-                   """;
+      SELECT city, name from locations
+      LEFT JOIN location_tag_mapping on locations.id = location_tag_mapping.location_id
+      LEFT JOIN location_tag on location_tag.id = location_tag_mapping.location_tag_id
+      WHERE name = ?
+    """;
 
     PreparedStatement select = conn.prepareStatement(query);
     select.setString(1, locationGroupFilter.toLowerCase());
@@ -240,5 +237,3 @@ public class GroupSearchParams {
     return paramMap;
   }
 }
-
-
