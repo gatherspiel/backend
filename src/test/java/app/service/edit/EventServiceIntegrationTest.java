@@ -256,7 +256,6 @@ public class EventServiceIntegrationTest {
     updated.setDay("Friday");
     updated.setId(created.getId());
 
-    System.out.println("Updating event with id:"+updated.getId());
 
     eventService.updateEvent(updated, group1.getId());
     Event eventFromDbA = eventService.getEvent(updated.getId()).get();

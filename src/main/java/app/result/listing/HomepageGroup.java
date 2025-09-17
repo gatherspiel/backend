@@ -1,6 +1,8 @@
 package app.result.listing;
 
 
+import java.util.Arrays;
+
 public class HomepageGroup {
 
   public int id;
@@ -74,7 +76,7 @@ public class HomepageGroup {
       return;
     }
 
-    //TODO: Consider using set to improve efficiency.
+    //TODO: Consider using TreeSet to improve efficiency.
     for(String existing: cities){
       if(existing.equals(city)){
         return;
@@ -85,6 +87,8 @@ public class HomepageGroup {
     System.arraycopy(cities, 0, updated, 0, cities.length);
     updated[cities.length] = city;
     cities = updated;
+
+    Arrays.sort(cities);
   }
 
 }
