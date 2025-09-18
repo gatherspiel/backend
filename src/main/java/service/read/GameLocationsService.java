@@ -45,6 +45,21 @@ public class GameLocationsService {
     return locationData;
   }
 
+  public TreeMap<String, Convention> getConventions(LocalDate date) throws Exception{
+    ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
+    return conventionsRepository.getConventions(date);
+  }
+
+  public TreeMap<String, GameRestaurant> getGameRestaurants() throws Exception{
+    GameRestaurantRepository restaurantRepository = new GameRestaurantRepository(conn);
+    return restaurantRepository.getGameRestauarants();
+  }
+
+  public TreeMap<String, GameStore> getGameStores() throws Exception{
+    GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
+    return gameStoreRepository.getGameStores();
+  }
+
   public void insertAddress(String address) throws Exception{
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     locationsRepository.insertLocation(address);
