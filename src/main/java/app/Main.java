@@ -107,12 +107,32 @@ public class Main {
 
         var connectionProvider = new ConnectionProvider();
         var conn = connectionProvider.getDatabaseConnection();
+
         GameLocationsService gameLocationsService = new GameLocationsService(conn);
 
-        var gameLocationData = gameLocationsService.getGameLocations(LocalDate.now());
+        String locationType = ctx.queryParam("locationType");
 
-        ctx.json(gameLocationData);
-        ctx.status(HttpStatus.OK);
+        if(locationType == null){
+          ctx.result("Missing locationType parameter");
+          ctx.status(HttpStatus.BAD_REQUEST);
+        }
+        else if(locationType.equals("conventions")){
+          ctx.json(gameLocationsService.getConventions(LocalDate.now()));
+          ctx.status(HttpStatus.OK);
+
+        }
+        else if(locationType.equals("gameRestaurants")){
+          ctx.json(gameLocationsService.getGameRestaurants());
+          ctx.status(HttpStatus.OK);
+        }
+        else if(locationType.equals("gameStores")){
+          ctx.json(gameLocationsService.getGameStores());
+          ctx.status(HttpStatus.OK);
+        } else {
+          ctx.json("Invalid locationType parameter.");
+          ctx.status(HttpStatus.BAD_REQUEST);
+        }
+
       });
 
     app.get(

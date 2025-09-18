@@ -3,6 +3,8 @@ package app.service;
 import app.location.Convention;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.location.GameRestaurant;
+import app.location.GameStore;
 import app.result.listing.GameLocationData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +13,7 @@ import service.read.GameLocationsService;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,11 +42,14 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testGameLocationsAreReturnedInAlphabeticalOrder() throws Exception {
-    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
+    TreeMap<String,Convention> conventions = gameLocationsService.getConventions(LocalDate.of(2025,1,1));
+    TreeMap<String, GameRestaurant> gameRestaurants = gameLocationsService.getGameRestaurants();
+    TreeMap<String, GameStore> gameStores = gameLocationsService.getGameStores();
+
     Assertions.assertAll(
-        () -> assertEquals(5, data.getConventions().size()),
-        () -> assertEquals(14, data.getGameStores().size()),
-        () -> assertEquals(4, data.getGameRestaurants().size())
+        () -> assertEquals(5, conventions.size()),
+        () -> assertEquals(14, gameStores.size()),
+        () -> assertEquals(4, gameRestaurants.size())
     );
   }
 

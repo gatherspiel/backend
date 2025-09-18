@@ -7,8 +7,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class LocalDevConnectionProvider extends LocalConnectionProvider {
-  private static Logger logger = LogUtils.getLogger();
-
 
   public Connection getDatabaseConnection() throws Exception {
     try {
