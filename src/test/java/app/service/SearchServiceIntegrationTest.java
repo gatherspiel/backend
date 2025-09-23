@@ -204,12 +204,33 @@ public class SearchServiceIntegrationTest {
     HomeResult result = searchService.getGroupsForHomepage(
       params);
     assertEquals(1, result.countGroups());
+
+
   }
 
   @Test
+  public void testSearchAllGroups_correctRecurringEventsFlag() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    HomeResult result = searchService.getGroupsForHomepage(params);
+    assertEquals(39, result.countGroups());
+    int recurringEventGroups = 0;
+    int nonRecurringEventGroups = 0;
+
+    for(HomepageGroup group: result.getGroupData()){
+      if(group.getHasRecurringEvents()){
+        recurringEventGroups++;
+      } else {
+        nonRecurringEventGroups++;
+      }
+    }
+
+    assertEquals(recurringEventGroups, 20);
+    assertEquals(nonRecurringEventGroups, 19);
+  }
+  @Test
   public void testGroupsAreOrderedAlphabeticallyWithUpdate() throws Exception {
 
-    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin", testConnectionProvider);
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admtestSearchAllGroups_correctRecurringEventsFlagin", testConnectionProvider);
     GroupEditService groupEdit = adminContext.createGroupEditService();
 
     final Group GROUP_1 = CreateGroupUtils.createGroupObject();
