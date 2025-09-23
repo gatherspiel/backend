@@ -146,7 +146,8 @@ public class GroupSearchParams {
           groups.url,
           groups.description,
           locations.city as city,
-          locs.city as groupCity
+          locs.city as groupCity,
+          weekly_event_time.day_of_week
         FROM groups
        LEFT JOIN event_group_map on groups.id = event_group_map.group_id
        LEFT JOIN events on event_group_map.event_id = events.id

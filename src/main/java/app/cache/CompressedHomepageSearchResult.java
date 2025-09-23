@@ -52,7 +52,7 @@ public class CompressedHomepageSearchResult {
 
       //TODO: Optimize
       for(int i=0;i<compressedGroup.getC().length;i++){
-        homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), compressedGroup.getC()[i]);
+        homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), compressedGroup.getC()[i], compressedGroup.getE());
       }
     }
     return homepageSearchResult;

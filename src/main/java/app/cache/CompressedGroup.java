@@ -9,6 +9,7 @@ public class CompressedGroup {
 
   public String d;
 
+  public Boolean e;
   public Integer getA() {
     return a;
   }
@@ -43,5 +44,11 @@ public class CompressedGroup {
 
   public void setD(String d) {
     this.d = d;
+  }
+
+  public Boolean getE(){return e;}
+
+  public void setE(Boolean e) {
+    this.e = e;
   }
 }
