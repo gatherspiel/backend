@@ -33,17 +33,23 @@ public class HomeResult {
       Integer id,
       String name,
       String url,
-      String groupCity
+      String groupCity,
+      Boolean hasRecurringEvent
   ) {
+
     if (!groupData.containsKey(id)) {
       HomepageGroup group = new HomepageGroup();
       group.setId(id);
       group.setName(name);
       group.setUrl(url);
       group.addCity(groupCity);
+      group.setHasRecurringEvents(hasRecurringEvent);
       groupData.put(id, group);
     } else {
       groupData.get(id).addCity(groupCity);
+      if(hasRecurringEvent){
+        groupData.get(id).setHasRecurringEvents(true);
+      }
     }
   }
 

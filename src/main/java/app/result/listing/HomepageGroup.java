@@ -13,6 +13,8 @@ public class HomepageGroup {
 
   public String name;
 
+  public boolean hasRecurringEvents = false;
+
   public Integer getId() {
     return id;
   }
@@ -38,6 +40,14 @@ public class HomepageGroup {
       return new String[0];
     }
     return cities;
+  }
+
+  public void setHasRecurringEvents(boolean recurringEvents){
+    this.hasRecurringEvents = recurringEvents;
+  }
+
+  public boolean getHasRecurringEvents(){
+    return hasRecurringEvents;
   }
 
   public String getName() {
