@@ -32,6 +32,7 @@ public class CompressedHomepageSearchResult {
       compressedGroup.setB(group.getName());
       compressedGroup.setC(group.getCities());
       compressedGroup.setD(group.getUrl());
+      compressedGroup.setE(group.getHasRecurringEvents());
       groupData.put(group.getId(), compressedGroup);
     }
   }
@@ -44,11 +45,6 @@ public class CompressedHomepageSearchResult {
   public HomeResult getHomepageSearchResult(){
     HomeResult homepageSearchResult = new HomeResult();
     for(CompressedGroup compressedGroup: groupData.values()){
-
-      var locationName = "";
-      if(compressedGroup.getC().length != 0){
-        locationName = compressedGroup.getC()[0];
-      }
 
       //TODO: Optimize
       for(int i=0;i<compressedGroup.getC().length;i++){
