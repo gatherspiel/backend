@@ -204,8 +204,6 @@ public class SearchServiceIntegrationTest {
     HomeResult result = searchService.getGroupsForHomepage(
       params);
     assertEquals(1, result.countGroups());
-
-
   }
 
   @Test
@@ -217,7 +215,7 @@ public class SearchServiceIntegrationTest {
     int nonRecurringEventGroups = 0;
 
     for(HomepageGroup group: result.getGroupData()){
-      if(group.getHasRecurringEvents()){
+      if(group.getRecurringEventDays().size() > 0){
         recurringEventGroups++;
       } else {
         nonRecurringEventGroups++;

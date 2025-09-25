@@ -32,7 +32,7 @@ public class CompressedHomepageSearchResult {
       compressedGroup.setB(group.getName());
       compressedGroup.setC(group.getCities());
       compressedGroup.setD(group.getUrl());
-      compressedGroup.setE(group.getHasRecurringEvents());
+      compressedGroup.setE(group.getRecurringEventDays());
       groupData.put(group.getId(), compressedGroup);
     }
   }
