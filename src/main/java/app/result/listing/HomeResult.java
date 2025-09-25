@@ -3,6 +3,7 @@ package app.result.listing;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,23 @@ public class HomeResult {
       String name,
       String url,
       String groupCity,
-      Boolean hasRecurringEvent
+      TreeSet<DayOfWeek> days
+  ){
+    HomepageGroup group = new HomepageGroup();
+    group.setId(id);
+    group.setName(name);
+    group.setUrl(url);
+    group.addCity(groupCity);
+    group.setRecurringEventDays(days);
+    groupData.put(id, group);
+  }
+
+  public void addGroup(
+      Integer id,
+      String name,
+      String url,
+      String groupCity,
+      DayOfWeek eventDay
   ) {
 
     if (!groupData.containsKey(id)) {
@@ -43,12 +60,18 @@ public class HomeResult {
       group.setName(name);
       group.setUrl(url);
       group.addCity(groupCity);
-      group.setHasRecurringEvents(hasRecurringEvent);
+
+      if(eventDay !=null){
+        TreeSet<DayOfWeek> days = new TreeSet<DayOfWeek>();
+        days.add(eventDay);
+        group.setRecurringEventDays(days);
+      }
+
       groupData.put(id, group);
     } else {
       groupData.get(id).addCity(groupCity);
-      if(hasRecurringEvent){
-        groupData.get(id).setHasRecurringEvents(true);
+      if(eventDay != null){
+        groupData.get(id).getRecurringEventDays().add(eventDay);
       }
     }
   }

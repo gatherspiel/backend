@@ -1,5 +1,8 @@
 package app.cache;
 
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class CompressedGroup {
 
@@ -9,7 +12,7 @@ public class CompressedGroup {
 
   public String d;
 
-  public Boolean e;
+  public TreeSet<DayOfWeek> e;
   public Integer getA() {
     return a;
   }
@@ -46,9 +49,9 @@ public class CompressedGroup {
     this.d = d;
   }
 
-  public Boolean getE(){return e;}
+  public TreeSet<DayOfWeek> getE(){return e;}
 
-  public void setE(Boolean e) {
+  public void setE(TreeSet<DayOfWeek> e) {
     this.e = e;
   }
 }
