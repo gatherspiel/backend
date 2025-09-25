@@ -46,10 +46,15 @@ public class SearchRepository {
         groupCity = rs.getString("groupCity");
       }
 
-
+      String day = rs.getString("day_of_week");
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
-        searchResult.addGroup(groupId, groupName, url, groupCity,rs.getString("day_of_week") != null);
-
+        searchResult.addGroup(
+            groupId,
+            groupName,
+            url,
+            groupCity,
+            day != null ? DayOfWeek.valueOf(day.toUpperCase()) : null
+        );
       }
     }
     return searchResult;

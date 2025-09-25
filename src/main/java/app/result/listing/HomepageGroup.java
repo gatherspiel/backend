@@ -1,7 +1,9 @@
 package app.result.listing;
 
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.TreeSet;
 
 public class HomepageGroup {
 
@@ -13,7 +15,7 @@ public class HomepageGroup {
 
   public String name;
 
-  public boolean hasRecurringEvents = false;
+  public TreeSet<DayOfWeek> recurringEventDays = new TreeSet<>();
 
   public Integer getId() {
     return id;
@@ -42,12 +44,12 @@ public class HomepageGroup {
     return cities;
   }
 
-  public void setHasRecurringEvents(boolean recurringEvents){
-    this.hasRecurringEvents = recurringEvents;
+  public void setRecurringEventDays(TreeSet<DayOfWeek> recurringEventDays){
+    this.recurringEventDays = recurringEventDays;
   }
 
-  public boolean getHasRecurringEvents(){
-    return hasRecurringEvents;
+  public TreeSet<DayOfWeek>  getRecurringEventDays(){
+    return recurringEventDays;
   }
 
   public String getName() {

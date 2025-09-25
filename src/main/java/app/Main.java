@@ -84,7 +84,6 @@ public class Main {
                 searchParams
             );
 
-
             cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
