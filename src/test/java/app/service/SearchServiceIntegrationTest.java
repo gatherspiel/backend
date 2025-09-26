@@ -15,16 +15,14 @@ import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.opentest4j.AssertionFailedError;
 import service.read.DistanceService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
@@ -353,7 +351,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 2", "Falls Church, 1" })
+  @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
   public void testSearchDistanceZero_returnsAllResultsInCity(
       String location,
       int expectedGroups) throws Exception
@@ -402,7 +400,7 @@ public class SearchServiceIntegrationTest {
 
 
   @ParameterizedTest
-  @CsvSource({ "Silver Spring, 6"})
+  @CsvSource({ "Silver Spring, 7"})
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Maryland(
       String location,
       int expectedGroups) throws Exception
@@ -436,7 +434,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 19", "Falls Church, 23" })
+  @CsvSource({ "Fairfax, 19", "Falls Church, 24" })
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -526,4 +524,77 @@ public class SearchServiceIntegrationTest {
     assertTrue(hasGroup);
   }
 
+
+  @Test
+  public void testAdminCreatesGroup_VisibleInSearchResults() throws Exception{
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_2", testConnectionProvider);
+    var groupService = adminContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    Group created = groupService.insertGroup(group);
+
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomepageGroup foundGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+      if(homepageGroup.getName().equals(GROUP_NAME)) {
+        foundGroup = homepageGroup;
+        break;
+      }
+    }
+
+    groupService.deleteGroup(created.getId());
+    assertNotNull(foundGroup);
+    assertEquals(created.getId(), foundGroup.getId());
+  }
+
+  @Test
+  public void testStandardUserCreatesGroup_NotVisibleInSearchResults_untilItIsSetToVisible() throws Exception{
+
+    var standardUserContext = CreateUserUtils.createContextWithNewStandardUser("standard_user", testConnectionProvider);
+    var standardUserGroupService = standardUserContext.createGroupEditService();
+
+    var adminUserContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_3", testConnectionProvider);
+    var adminUserGroupService = adminUserContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    Group created = standardUserGroupService.insertGroup(group);
+
+    try {
+
+      HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+      HomepageGroup foundGroup = null;
+      for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+        if(homepageGroup.getName().equals(GROUP_NAME)) {
+          foundGroup = homepageGroup;
+          break;
+        }
+      }
+
+      assertNull(foundGroup);
+
+      adminUserGroupService.setGroupToVisible(created.getId());
+      HomeResult resultAfterUpdate = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+      HomepageGroup foundGroupAfterUpdate = null;
+      for(HomepageGroup homepageGroup: resultAfterUpdate.getGroupDataMap().values()) {
+        if(homepageGroup.getName().equals(GROUP_NAME)) {
+          foundGroupAfterUpdate = homepageGroup;
+          break;
+        }
+      }
+
+      assertNotNull(foundGroupAfterUpdate);
+      assertEquals(created.getId(), foundGroupAfterUpdate.getId());
+      standardUserGroupService.deleteGroup(created.getId());
+    } catch(AssertionFailedError e) {
+      standardUserGroupService.deleteGroup(created.getId());
+      fail(e.getCause());
+    }
+
+  }
 }

@@ -270,6 +270,10 @@ public class ReadGroupServiceIntegrationTest {
     var sessionContext2 = CreateUserUtils.createContextWithNewStandardUser("test_4",testConnectionProvider);
 
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
+
+    var adminEditService = adminContext.createGroupEditService();
+    adminEditService.setGroupToVisible(group.getId());
+
     ReadGroupService groupService1 = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -298,6 +302,9 @@ public class ReadGroupServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
     groupPermissionService.addGroupModerator(sessionContext2.getUser(), group.getId());
 
+    var adminEditService = adminContext.createGroupEditService();
+    adminEditService.setGroupToVisible(group.getId());
+
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);
     GroupPageData result = readGroupService.getGroupPageData(
@@ -313,6 +320,9 @@ public class ReadGroupServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
 
     var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+
+    var adminEditService = adminContext.createGroupEditService();
+    adminEditService.setGroupToVisible(group.getId());
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.NAME, group.name);

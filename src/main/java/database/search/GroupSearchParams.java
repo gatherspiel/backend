@@ -63,31 +63,25 @@ public class GroupSearchParams {
   }
 
   public PreparedStatement generateSearchQuery(Connection conn, boolean isHomepage) throws Exception {
-    String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
 
+    String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
     ArrayList<String> whereClauses = new ArrayList<>();
 
     for(String param: params.keySet()){
       whereClauses.add(paramQueryMap.get(param));
     }
+    whereClauses.add("is_hidden IS NOT TRUE");
 
+    query = query + " WHERE ";
+    query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-    if (!whereClauses.isEmpty()) {
-      query = query + " WHERE ";
-      query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
-
-      PreparedStatement select = conn.prepareStatement(query);
-      int i = 1;
-      for(String param: params.keySet()){
-        select.setString(i, params.get(param));
-        i++;
-      }
-
-      return select;
-
-    } else {
-      return conn.prepareStatement(query);
+    PreparedStatement select = conn.prepareStatement(query);
+    int i = 1;
+    for(String param: params.keySet()){
+      select.setString(i, params.get(param));
+      i++;
     }
+    return select;
   }
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {

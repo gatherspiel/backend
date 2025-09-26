@@ -56,6 +56,10 @@ public class UserService {
     dataProvider.getRepository().activateUser(email);
   }
 
+  public void deactivateUser(String email) throws Exception {
+    dataProvider.getRepository().deactivateUser(email);
+  }
+
   public boolean userExists(String email) throws Exception {
       User user = dataProvider.getRepository().getUserFromEmail(email);
       return !(user == null);

@@ -38,7 +38,7 @@ public class UserRepository extends BaseRepository {
 
   public User createStandardUser(String email) throws Exception{
     String query =
-        "INSERT INTO users(email, user_role_level) VALUES(?,cast(? as user_role_level)) returning id";
+        "INSERT INTO users(email, user_role_level, is_active) VALUES(?,cast(? as user_role_level), true) returning id";
 
     PreparedStatement insert = connection.prepareStatement(query);
     insert.setString(1, email);
@@ -139,6 +139,19 @@ public class UserRepository extends BaseRepository {
     statement.setString(1, email);
     statement.executeUpdate();
   }
+
+  public void deactivateUser(String email) throws Exception {
+    String query = """
+        UPDATE users
+        SET is_active = FALSE
+        WHERE email = ?
+        """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+    statement.executeUpdate();
+  }
+
 
   public int countUsers() throws Exception{
     String query = """

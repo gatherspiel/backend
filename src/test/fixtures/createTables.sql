@@ -16,6 +16,7 @@ create table if not exists groups (
   name character varying not null,
   url character varying not null,
   description character varying null,
+  is_hidden boolean null default false,
   constraint groups_pkey primary key (id),
   constraint unique_groups unique (name)
 );
@@ -47,7 +48,6 @@ create table if not exists game_restaurants (
   constraint game_restaurants_location_id_fkey foreign KEY (location_id) references locations (id)
 );
 
-
 create table if not exists events (
   id serial not null,
   location_id integer null,
@@ -60,14 +60,11 @@ create table if not exists events (
   constraint events_location_id_fkey foreign KEY (location_id) references locations (id)
 );
 
-
-
 DO $$ BEGIN
     create type dayOfWeek AS enum ('sunday', 'monday', 'tuesday', 'wednesday','thursday','friday', 'saturday');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
-
 
 create table if not exists event_time (
   id serial not null,
@@ -78,7 +75,6 @@ create table if not exists event_time (
   constraint event_time_pkey primary key (id),
   constraint event_time_event_id_fkey foreign KEY (event_id) references events (id)
 );
-
 
 create table if not exists event_group_map (
   group_id integer null,
@@ -113,7 +109,6 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
-
 DO $$ BEGIN
    CREATE TYPE event_admin_level as ENUM('event_moderator');
 EXCEPTION
@@ -132,17 +127,14 @@ create table if not exists event_admin_data (
   user_id integer not null,
   event_id integer not null,
   event_admin_level event_admin_level null,
-
   constraint event_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
   constraint event_admin_data_pkey primary key (user_id, event_id)
 );
-
 
 create table if not exists group_admin_data (
   user_id integer not null,
   group_id integer not null,
   group_admin_level group_admin_level null,
-
   constraint group_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
   constraint group_admin_data_pkey primary key (user_id, group_id)
 );
@@ -156,5 +148,3 @@ CREATE TABLE IF NOT EXISTS weekly_event_time (
     constraint weekly_event_time_pkey primary key (id),
     constraint weekly_event_time_event_id_fkey foreign KEY (event_id) references events (id)
 )
-
-
