@@ -15,10 +15,7 @@ import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -525,5 +522,57 @@ public class SearchServiceIntegrationTest {
     }
     assertTrue(hasGroup);
   }
+
+
+  @Test
+  public void testAdminCreatesGroup_VisibleInSearchResults() throws Exception{
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user", testConnectionProvider);
+    var groupService = adminContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group_" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    Group created = groupService.insertGroup(group);
+
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomepageGroup foundGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+      if(homepageGroup.getName().equals(GROUP_NAME)) {
+        foundGroup = homepageGroup;
+        break;
+      }
+    }
+
+    groupService.deleteGroup(created.getId());
+    assertNotNull(foundGroup);
+    assertEquals(created.getId(), foundGroup.getId());
+  }
+
+
+  @Test
+  public void testStandardUserCreatesGroup_NotVisibleInSearchResults() throws Exception{
+    var adminContext = CreateUserUtils.createContextWithNewStandardUser("standard_user", testConnectionProvider);
+    var groupService = adminContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group_" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    Group created = groupService.insertGroup(group);
+
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomepageGroup foundGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+      if(homepageGroup.getName().equals(GROUP_NAME)) {
+        foundGroup = homepageGroup;
+        break;
+      }
+    }
+
+    groupService.deleteGroup(created.getId());
+    assertNull(foundGroup);
+  }
+
 
 }
