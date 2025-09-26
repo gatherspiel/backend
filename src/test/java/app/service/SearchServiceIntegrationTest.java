@@ -351,7 +351,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
+  @CsvSource({ "Fairfax, 2", "Arlington, 5" })
   public void testSearchDistanceZero_returnsAllResultsInCity(
       String location,
       int expectedGroups) throws Exception
@@ -362,11 +362,6 @@ public class SearchServiceIntegrationTest {
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
-
-    for(HomepageGroup group: result.getGroupData()){
-      System.out.println(group.getName());
-    }
-
     Assertions.assertAll(
         () -> assertEquals(expectedGroups, result.countGroups())
     );
@@ -529,7 +524,7 @@ public class SearchServiceIntegrationTest {
     assertTrue(hasGroup);
   }
 
-/*
+
   @Test
   public void testAdminCreatesGroup_VisibleInSearchResults() throws Exception{
     var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_2", testConnectionProvider);
@@ -603,6 +598,4 @@ public class SearchServiceIntegrationTest {
     }
 
   }
- 
- */
-}
+ }
