@@ -125,6 +125,7 @@ public class RegisterUserIntegrationTest {
     RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
 
     authService.registerUser(request, UserType.USER);
+    userService.deactivateUser(user.getEmail());
 
     Context context = mock(Context.class);
     when(context.header("authToken")).thenReturn(user.getEmail());
@@ -132,6 +133,26 @@ public class RegisterUserIntegrationTest {
 
     assertEquals(readOnly.getEmail(),AuthService.getReadOnlyUser().getEmail());
     assertEquals(readOnly.getAdminLevel(),UserType.READONLY.name());
+  }
+
+  @Test
+  public void testUser_deactivatedAndReactivated_canAuthenticate() throws  Exception {
+    User user = CreateUserUtils.createUserObject(UserType.USER);
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
+
+    authService.registerUser(request, UserType.USER);
+    userService.deactivateUser(user.getEmail());
+    userService.activateUser(user.getEmail());
+
+    User userFromDb = userService.getUser(user.getEmail());
+
+    Context context = mock(Context.class);
+    when(context.header("authToken")).thenReturn(userFromDb.getEmail());
+
+    User userFromAuth = authService.getUser(context);
+
+    assertEquals(userFromAuth.getEmail(),user.getEmail());
+    assertEquals(userFromAuth.getAdminLevel(),UserType.USER.name());
   }
 
   @Test

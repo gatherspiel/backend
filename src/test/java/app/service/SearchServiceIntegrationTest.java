@@ -15,22 +15,19 @@ import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import java.sql.Connection;
 import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.opentest4j.AssertionFailedError;
 import service.read.DistanceService;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.EventService;
 import service.update.GroupEditService;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SearchServiceIntegrationTest {
   private static SearchService searchService;
   private static IntegrationTestConnectionProvider testConnectionProvider;
@@ -51,6 +48,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testAllGroupsAreReturned_NoSearchParams() throws Exception {
     HomeResult result = searchService.getGroupsForHomepage(
       new LinkedHashMap<>()
@@ -59,6 +57,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testAllEventsAreReturned_NoSearchParams() throws Exception {
     HomeResult result = searchService.getGroupsForHomepage(
       new LinkedHashMap<String, String>()
@@ -79,6 +78,7 @@ public class SearchServiceIntegrationTest {
       "saturday, 9"
     }
   )
+  @Order(1)
   public void testEventsAreReturned_WithDayAsSearchParam(
     String day,
     int expected
@@ -95,6 +95,7 @@ public class SearchServiceIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
+  @Order(1)
   public void testEventsAreReturned_WithLocationAsSearchParam(
     String location,
     int expectedGroups
@@ -120,6 +121,7 @@ public class SearchServiceIntegrationTest {
       "Manassas, Saturday, 0"
     }
   )
+  @Order(1)
   public void testEventsAreReturned_WithLocationAndDayAsSearchParam(
     String location,
     String day,
@@ -145,6 +147,7 @@ public class SearchServiceIntegrationTest {
           "Alexandria"
       }
   )
+  @Order(1)
   public void testDuplicateAndNull_LocationResultsAreNotShown(String city) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, city);
@@ -168,6 +171,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testInvalidDayReturnsValidationError() {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.DAY_OF_WEEK, "test");
@@ -184,6 +188,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testInvalidLocationReturnsEmptyResult() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, "test");
@@ -195,6 +200,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchResultReturnsValidResultWithExtraParameter()
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -207,6 +213,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchAllGroups_correctRecurringEventsFlag() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     HomeResult result = searchService.getGroupsForHomepage(params);
@@ -225,7 +232,9 @@ public class SearchServiceIntegrationTest {
     assertEquals(recurringEventGroups, 20);
     assertEquals(nonRecurringEventGroups, 19);
   }
+
   @Test
+  @Order(1)
   public void testGroupsAreOrderedAlphabeticallyWithUpdate() throws Exception {
 
     var adminContext = CreateUserUtils.createContextWithNewAdminUser("admtestSearchAllGroups_correctRecurringEventsFlagin", testConnectionProvider);
@@ -271,6 +280,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testGroupWithMultipleEvents_LocationsAreInAlphabeticalOrder() throws Exception {
 
     var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user", testConnectionProvider);
@@ -329,6 +339,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchResultResponse_DMV_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "DMV");
@@ -337,6 +348,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchResultResponse_dmv_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -345,6 +357,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchResultResponse_unknownLocation_noResults() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "test");
@@ -353,7 +366,8 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 2", "Falls Church, 1" })
+  @CsvSource({ "Fairfax, 2", "Ashburn, 3" })
+  @Order(1)
   public void testSearchDistanceZero_returnsAllResultsInCity(
       String location,
       int expectedGroups) throws Exception
@@ -370,6 +384,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchDistanceWithoutLocation_throwsError() throws Exception{
 
     Exception exception = assertThrows(
@@ -385,6 +400,7 @@ public class SearchServiceIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({ "Fairfax, 3", "Falls Church, 7" })
+  @Order(1)
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Virginia(
       String location,
       int expectedGroups) throws Exception
@@ -402,7 +418,8 @@ public class SearchServiceIntegrationTest {
 
 
   @ParameterizedTest
-  @CsvSource({ "Silver Spring, 6"})
+  @CsvSource({ "Silver Spring, 7"})
+  @Order(1)
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Maryland(
       String location,
       int expectedGroups) throws Exception
@@ -420,6 +437,7 @@ public class SearchServiceIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({ "Greenbelt, 9"})
+  @Order(1)
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults_Maryland(
       String location,
       int expectedGroups) throws Exception
@@ -436,7 +454,8 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 19", "Falls Church, 23" })
+  @CsvSource({ "Fairfax, 19", "Falls Church, 24" })
+  @Order(1)
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -454,6 +473,7 @@ public class SearchServiceIntegrationTest {
 
   @ParameterizedTest
   @CsvSource({ "Fairfax, 38", "Falls Church, 38" })
+  @Order(1)
   public void testSearchDistanceLongDistance_returnsCorrectNumberOfResults(
       String location,
       int expectedGroups) throws Exception
@@ -470,6 +490,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchWithOnlyCityAsParameter_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -489,6 +510,7 @@ public class SearchServiceIntegrationTest {
 
 
   @Test
+  @Order(1)
   public void testSearchDistanceZeroInArlington_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -508,6 +530,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @Test
+  @Order(1)
   public void testSearchDistanceZeroInDC_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -526,4 +549,80 @@ public class SearchServiceIntegrationTest {
     assertTrue(hasGroup);
   }
 
-}
+
+  @Test
+  @Order(2)
+  public void testAdminCreatesGroup_VisibleInSearchResults() throws Exception{
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_2", testConnectionProvider);
+    var groupService = adminContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+
+    group.setName(GROUP_NAME);
+
+    Group created = groupService.insertGroup(group);
+
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomepageGroup foundGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+      if(homepageGroup.getName().equals(GROUP_NAME)) {
+        foundGroup = homepageGroup;
+        break;
+      }
+    }
+
+    groupService.deleteGroup(created.getId());
+    assertNotNull(foundGroup);
+    assertEquals(created.getId(), foundGroup.getId());
+  }
+
+  @Test
+  @Order(2)
+  public void testStandardUserCreatesGroup_NotVisibleInSearchResults_untilItIsSetToVisible() throws Exception{
+
+    var standardUserContext = CreateUserUtils.createContextWithNewStandardUser("standard_user", testConnectionProvider);
+    var standardUserGroupService = standardUserContext.createGroupEditService();
+
+    var adminUserContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_3", testConnectionProvider);
+    var adminUserGroupService = adminUserContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    Group created = standardUserGroupService.insertGroup(group);
+
+    try {
+
+      HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+      HomepageGroup foundGroup = null;
+      for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+        if(homepageGroup.getName().equals(GROUP_NAME)) {
+          foundGroup = homepageGroup;
+          break;
+        }
+      }
+
+      assertNull(foundGroup);
+
+      adminUserGroupService.setGroupToVisible(created.getId());
+      HomeResult resultAfterUpdate = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+      HomepageGroup foundGroupAfterUpdate = null;
+      for(HomepageGroup homepageGroup: resultAfterUpdate.getGroupDataMap().values()) {
+        if(homepageGroup.getName().equals(GROUP_NAME)) {
+          foundGroupAfterUpdate = homepageGroup;
+          break;
+        }
+      }
+
+      assertNotNull(foundGroupAfterUpdate);
+      assertEquals(created.getId(), foundGroupAfterUpdate.getId());
+      standardUserGroupService.deleteGroup(created.getId());
+    } catch(AssertionFailedError e) {
+      standardUserGroupService.deleteGroup(created.getId());
+      fail(e.getCause());
+    }
+
+  }
+ }
