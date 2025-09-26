@@ -140,6 +140,19 @@ public class UserRepository extends BaseRepository {
     statement.executeUpdate();
   }
 
+  public void deactivateUser(String email) throws Exception {
+    String query = """
+        UPDATE users
+        SET is_active = FALSE
+        WHERE email = ?
+        """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+    statement.executeUpdate();
+  }
+
+
   public int countUsers() throws Exception{
     String query = """
          SELECT COUNT(id)

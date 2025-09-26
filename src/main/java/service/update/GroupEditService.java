@@ -62,6 +62,14 @@ public class GroupEditService {
     groupsRepository.deleteGroup(groupId);
   }
 
+  public void setGroupToVisible(int groupId) throws Exception {
+    if(!user.isSiteAdmin())  {
+      throw new PermissionError("User does not have permissions to make group visible" + groupId);
+    }
+    groupsRepository.setGroupToVisible(groupId);
+
+  }
+
   private void validateGroupData(Group group) throws Exception{
     if(group.getName().contains("_")){
       var message = "Group name cannot have _ characters";

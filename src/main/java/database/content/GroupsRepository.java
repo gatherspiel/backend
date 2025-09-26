@@ -102,8 +102,8 @@ public class GroupsRepository {
     try {
       String groupInsertQuery=
           """
-              INSERT INTO groups (name, url, description)
-              VALUES(?,?,?)
+              INSERT INTO groups (name, url, description,is_hidden)
+              VALUES(?,?,?, ?)
               returning id;
           """;
 
@@ -111,6 +111,8 @@ public class GroupsRepository {
       groupInsert.setString(1, groupToInsert.getName());
       groupInsert.setString(2, groupToInsert.getUrl());
       groupInsert.setString(3, groupToInsert.getDescription());
+      groupInsert.setBoolean(4, !groupAdmin.isSiteAdmin());
+
       ResultSet rs = groupInsert.executeQuery();
 
       if(!rs.next()){
@@ -234,6 +236,19 @@ public class GroupsRepository {
     }
   }
 
+  public void setGroupToVisible(int groupId) throws Exception{
+    String updateQuery = "UPDATE groups SET is_hidden = FALSE WHERE id = ?";
+    try {
+      PreparedStatement update = conn.prepareStatement(updateQuery);
+      update.setInt(1, groupId);
+      update.executeUpdate();
+    } catch(Exception e){
+      logger.error("Failed to set group to visible");
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw(e);
+    }
+  }
+
   public void updateGroup(Group groupToUpdate) throws Exception{
     try {
       String updateQuery =    """
@@ -241,7 +256,7 @@ public class GroupsRepository {
               SET name = ?,
               url = ?,
               description = ?
-             WHERE id = ?    
+             WHERE id = ?
           """;
 
       PreparedStatement update = conn.prepareStatement(updateQuery);
