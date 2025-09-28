@@ -2,11 +2,11 @@ package app.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import app.SessionContext;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.groups.data.Event;
 import app.groups.data.EventLocation;
+import app.groups.data.GameTypeTag;
 import app.groups.data.Group;
 import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
@@ -22,7 +22,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.opentest4j.AssertionFailedError;
 import service.read.DistanceService;
-import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.EventService;
 import service.update.GroupEditService;
@@ -623,6 +622,36 @@ public class SearchServiceIntegrationTest {
       standardUserGroupService.deleteGroup(created.getId());
       fail(e.getCause());
     }
+  }
+
+  @Test
+  @Order(3)
+  public void testCreateGroupWithTags_tagsAreVisibleInSearchResults() throws Exception{
+    var adminUserContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_4",testConnectionProvider);
+    var adminUserGroupService = adminUserContext.createGroupEditService();
+
+    final String GROUP_NAME = "Group" + UUID.randomUUID();
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setName(GROUP_NAME);
+
+    GameTypeTag[] gameTypeTags = new GameTypeTag[]{GameTypeTag.EUROGAMES, GameTypeTag.SOCIAL_GAMES};
+    group.setGameTypeTags(gameTypeTags);
+
+    Group inserted = adminUserGroupService.insertGroup(group);
+
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomepageGroup foundGroup = null;
+    for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
+      if(homepageGroup.getName().equals(GROUP_NAME)) {
+        foundGroup = homepageGroup;
+        break;
+      }
+    }
+    assertNotNull(foundGroup);
+    assertEquals(inserted.getId(),foundGroup.getId());
+
+    GameTypeTag[] expected = new GameTypeTag[]{GameTypeTag.EUROGAMES, GameTypeTag.SOCIAL_GAMES};
+    assertArrayEquals(expected, inserted.getGameTypeTags());
 
   }
  }

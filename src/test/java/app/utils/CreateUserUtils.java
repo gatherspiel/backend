@@ -1,12 +1,9 @@
 package app.utils;
 
-import app.SessionContext;
+import app.users.data.SessionContext;
 import app.users.data.User;
 import app.users.data.UserType;
 import database.utils.ConnectionProvider;
-import io.javalin.http.Context;
-import service.auth.AuthService;
-import service.user.UserService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

@@ -1,5 +1,6 @@
 package database.search;
 
+import app.groups.data.GameTypeTag;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
 import org.apache.logging.log4j.Logger;
@@ -47,13 +48,15 @@ public class SearchRepository {
       }
 
       String day = rs.getString("day_of_week");
+
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
         searchResult.addGroup(
             groupId,
             groupName,
             url,
             groupCity,
-            day != null ? DayOfWeek.valueOf(day.toUpperCase()) : null
+            day != null ? DayOfWeek.valueOf(day.toUpperCase()) : null,
+            getTagsFromResultSet(rs)
         );
       }
     }
@@ -79,7 +82,8 @@ public class SearchRepository {
 
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
-        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
+
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity, getTagsFromResultSet(rs));
 
         Integer eventId = rs.getInt("eventId");
         String eventName = rs.getString("eventname");
@@ -149,7 +153,6 @@ public class SearchRepository {
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
 
-
       Integer groupId = rs.getInt("groupId");
 
       String groupName = rs.getString("name");
@@ -158,7 +161,7 @@ public class SearchRepository {
       String groupCity = rs.getString("groupCity");
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
-        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity);
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity,getTagsFromResultSet(rs));
 
         Integer eventId = rs.getInt("eventId");
         String eventName = rs.getString("eventname");
@@ -210,6 +213,19 @@ public class SearchRepository {
         }
       }
     }
+  }
+
+  private GameTypeTag[] getTagsFromResultSet(ResultSet rs) throws Exception{
+    var gameTypeTags = rs.getArray("game_type_tags");
+    var gameTypeTagsToDisplay = new GameTypeTag[0];
+    if(gameTypeTags != null){
+      final var tagData = (String[])gameTypeTags.getArray();
+      gameTypeTagsToDisplay = new GameTypeTag[tagData.length];
+      for(int i=0; i<tagData.length; i++){
+        gameTypeTagsToDisplay[i] = GameTypeTag.valueOf(tagData[i].replace(" ","_").toUpperCase());
+      }
+    }
+    return gameTypeTagsToDisplay;
   }
 
   private Set<String> getLocationsWithTag(

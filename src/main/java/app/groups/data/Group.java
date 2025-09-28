@@ -15,6 +15,8 @@ public class Group {
   public String description;
   public String name;
 
+  public GameTypeTag[] gameTypeTags;
+
   public Integer getId() {
     return id;
   }
@@ -125,5 +127,16 @@ public class Group {
     System.arraycopy(cities, 0, updated, 0, cities.length);
     updated[cities.length] = city;
     cities = updated;
+  }
+
+  public void setGameTypeTags(GameTypeTag[] gameTypeTags){
+    this.gameTypeTags = gameTypeTags;
+  }
+
+  public GameTypeTag[] getGameTypeTags(){
+    if(gameTypeTags == null){
+      return new GameTypeTag[0];
+    }
+    return gameTypeTags;
   }
 }
