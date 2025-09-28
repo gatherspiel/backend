@@ -1,6 +1,5 @@
-package app;
+package app.users.data;
 
-import app.users.data.User;
 import database.content.EventRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.http.Context;

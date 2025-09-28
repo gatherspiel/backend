@@ -11,12 +11,19 @@ create table if not exists locations (
   constraint unique_locations unique (city, state, street_address)
 );
 
+DO $$ BEGIN
+    CREATE TYPE game_type_tag AS ENUM ('Eurogames', 'Light games', 'Social games', 'Wargames','Hidden identity games');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 create table if not exists groups (
   id serial not null,
   name character varying not null,
   url character varying not null,
   description character varying null,
   is_hidden boolean null default false,
+  game_type_tags game_type_tag[],
   constraint groups_pkey primary key (id),
   constraint unique_groups unique (name)
 );
@@ -65,6 +72,7 @@ DO $$ BEGIN
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
+
 
 create table if not exists event_time (
   id serial not null,

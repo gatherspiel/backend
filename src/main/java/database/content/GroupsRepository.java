@@ -102,8 +102,8 @@ public class GroupsRepository {
     try {
       String groupInsertQuery=
           """
-              INSERT INTO groups (name, url, description,is_hidden)
-              VALUES(?,?,?, ?)
+              INSERT INTO groups (name, url, description,is_hidden, game_type_tags)
+              VALUES(?,?,?,?,?)
               returning id;
           """;
 
@@ -112,6 +112,7 @@ public class GroupsRepository {
       groupInsert.setString(2, groupToInsert.getUrl());
       groupInsert.setString(3, groupToInsert.getDescription());
       groupInsert.setBoolean(4, !groupAdmin.isSiteAdmin());
+      groupInsert.setArray(5, conn.createArrayOf("game_type_tag",groupToInsert.getGameTypeTags()));
 
       ResultSet rs = groupInsert.executeQuery();
 
@@ -255,7 +256,8 @@ public class GroupsRepository {
              UPDATE groups
               SET name = ?,
               url = ?,
-              description = ?
+              description = ?,
+              game_type_tags = ?
              WHERE id = ?
           """;
 
@@ -263,7 +265,8 @@ public class GroupsRepository {
       update.setString(1, groupToUpdate.getName());
       update.setString(2, groupToUpdate.getUrl());
       update.setString(3, groupToUpdate.getDescription());
-      update.setInt(4, groupToUpdate.getId());
+      update.setArray(4, conn.createArrayOf("game_type_tag",groupToUpdate.getGameTypeTags()));
+      update.setInt(5, groupToUpdate.getId());
 
       update.executeUpdate();
 

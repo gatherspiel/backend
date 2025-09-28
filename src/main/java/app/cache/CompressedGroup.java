@@ -1,5 +1,7 @@
 package app.cache;
 
+import app.groups.data.GameTypeTag;
+
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -13,6 +15,9 @@ public class CompressedGroup {
   public String d;
 
   public TreeSet<DayOfWeek> e;
+
+  public GameTypeTag[] f;
+
   public Integer getA() {
     return a;
   }
@@ -53,5 +58,13 @@ public class CompressedGroup {
 
   public void setE(TreeSet<DayOfWeek> e) {
     this.e = e;
+  }
+
+  public void setF(GameTypeTag[] f){
+    this.f = f;
+  }
+
+  public GameTypeTag[] getF(){
+    return f;
   }
 }

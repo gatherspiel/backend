@@ -33,6 +33,7 @@ public class CompressedHomepageSearchResult {
       compressedGroup.setC(group.getCities());
       compressedGroup.setD(group.getUrl());
       compressedGroup.setE(group.getRecurringEventDays());
+      compressedGroup.setF(group.getGameTypeTags());
       groupData.put(group.getId(), compressedGroup);
     }
   }
@@ -48,7 +49,14 @@ public class CompressedHomepageSearchResult {
 
       //TODO: Optimize
       for(int i=0;i<compressedGroup.getC().length;i++){
-        homepageSearchResult.addGroup(compressedGroup.getA(), compressedGroup.getB(), compressedGroup.getD(), compressedGroup.getC()[i], compressedGroup.getE());
+        homepageSearchResult.addGroup(
+            compressedGroup.getA(),
+            compressedGroup.getB(),
+            compressedGroup.getD(),
+            compressedGroup.getC()[i],
+            compressedGroup.getE(),
+            compressedGroup.getF()
+        );
       }
     }
     return homepageSearchResult;

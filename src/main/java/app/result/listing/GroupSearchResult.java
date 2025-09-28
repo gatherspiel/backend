@@ -1,6 +1,7 @@
 package app.result.listing;
 
 import app.groups.data.Event;
+import app.groups.data.GameTypeTag;
 import app.groups.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -37,7 +38,8 @@ public class GroupSearchResult {
     String name,
     String url,
     String description,
-    String groupCity
+    String groupCity,
+    GameTypeTag[] gameTypeTags
   ) {
     if (!groupData.containsKey(id)) {
       Group group = new Group();
@@ -46,6 +48,7 @@ public class GroupSearchResult {
       group.setUrl(url);
       group.setDescription(description);
       group.addCity(groupCity);
+      group.setGameTypeTags(gameTypeTags);
       groupData.put(id, group);
     }
   }

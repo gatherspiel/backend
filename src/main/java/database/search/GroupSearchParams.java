@@ -93,6 +93,7 @@ public class GroupSearchParams {
           groups.name,
           groups.url,
           groups.description,
+          groups.game_type_tags,
           events.name as eventName,
           events.description as eventDescription,
           event_time.start_time,
@@ -139,6 +140,7 @@ public class GroupSearchParams {
           groups.name,
           groups.url,
           groups.description,
+          groups.game_type_tags,
           locations.city as city,
           locs.city as groupCity,
           weekly_event_time.day_of_week
@@ -148,7 +150,7 @@ public class GroupSearchParams {
        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
        LEFT JOIN locations on events.location_id = locations.id
        LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-       LEFT JOIN locations as locs on location_group_map.location_id = locs.id 
+       LEFT JOIN locations as locs on location_group_map.location_id = locs.id
       """;
     return query;
   }
@@ -162,6 +164,7 @@ public class GroupSearchParams {
             groups.name,
             groups.url,
             groups.description,
+            groups.game_type_tags,
             events.name as eventName,
             events.description as eventDescription,
             weekly_event_time.start_time as start_time,

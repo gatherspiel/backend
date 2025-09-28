@@ -1,6 +1,6 @@
 package app.service.edit;
 
-import app.SessionContext;
+import app.users.data.SessionContext;
 import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
