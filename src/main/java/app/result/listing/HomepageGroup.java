@@ -1,6 +1,8 @@
 package app.result.listing;
 
 
+import app.groups.data.GameTypeTag;
+
 import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.TreeSet;
@@ -8,14 +10,13 @@ import java.util.TreeSet;
 public class HomepageGroup {
 
   public int id;
-
   public String url;
-
   public String[] cities;
-
   public String name;
 
   public TreeSet<DayOfWeek> recurringEventDays = new TreeSet<>();
+
+  public GameTypeTag[] gameTypeTags;
 
   public Integer getId() {
     return id;
@@ -101,6 +102,14 @@ public class HomepageGroup {
     cities = updated;
 
     Arrays.sort(cities);
+  }
+
+  public void setGameTypeTags(GameTypeTag[] gameTypeTags){
+    this.gameTypeTags = gameTypeTags;
+  }
+
+  public GameTypeTag[] getGameTypeTags(){
+    return gameTypeTags;
   }
 
 }

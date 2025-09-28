@@ -1,6 +1,7 @@
 package app.result.group;
 
 import app.groups.data.Event;
+import app.groups.data.GameTypeTag;
 import app.groups.data.Group;
 import app.users.data.PermissionName;
 import service.update.EventService;
@@ -14,7 +15,6 @@ import java.util.TreeSet;
 
 public class GroupPageData {
 
-  private static final int TIME_RANGE_DAYS = 30;
   private int id;
   private String name;
   private String url;
@@ -22,6 +22,7 @@ public class GroupPageData {
   private HashMap<PermissionName, Boolean> permissions;
   private TreeSet<Event> oneTimeEventData;
   private TreeSet<Event> weeklyEventData;
+  public GameTypeTag[] gameTypeTags;
 
   class WeeklyEventDataComparator implements Comparator<Event> {
     public int compare(Event eventData1, Event eventData2) {
@@ -52,7 +53,7 @@ public class GroupPageData {
   }
 
 
-  private GroupPageData(int id, String name, String url, String description){
+  private GroupPageData(int id, String name, String url, String description, GameTypeTag[] gameTypeTags){
     this.id = id;
     this.name = name;
     this.url = url;
@@ -60,6 +61,7 @@ public class GroupPageData {
     this.permissions = new HashMap<>();
     this.oneTimeEventData = new TreeSet<Event>(new OneTimeEventDataComparator());
     this.weeklyEventData = new TreeSet<Event>(new WeeklyEventDataComparator());
+    this.gameTypeTags = gameTypeTags;
   }
 
   public int getId(){
@@ -116,7 +118,12 @@ public class GroupPageData {
   }
 
   public static GroupPageData createFromSearchResult(Group group) {
-    GroupPageData data = new GroupPageData(group.getId(), group.getName(), group.getUrl(), group.getDescription());
+    GroupPageData data = new GroupPageData(
+        group.getId(),
+        group.getName(),
+        group.getUrl(),
+        group.getDescription(),
+        group.getGameTypeTags());
 
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
@@ -148,5 +155,13 @@ public class GroupPageData {
       return false;
     }
     return permissions.getOrDefault(PermissionName.USER_CAN_EDIT, false);
+  }
+
+  public void setGameTypeTags(GameTypeTag[] gameTypeTags){
+    this.gameTypeTags = gameTypeTags;
+  }
+
+  public GameTypeTag[] getGameTypeTags(){
+    return gameTypeTags;
   }
 }

@@ -1,6 +1,6 @@
 package app.service;
 
-import app.SessionContext;
+import app.users.data.SessionContext;
 import app.groups.data.*;
 import app.result.group.GroupPageData;
 import app.users.data.User;

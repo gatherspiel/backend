@@ -1,5 +1,6 @@
 package app.result.listing;
 
+import app.groups.data.GameTypeTag;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -35,7 +36,8 @@ public class HomeResult {
       String name,
       String url,
       String groupCity,
-      TreeSet<DayOfWeek> days
+      TreeSet<DayOfWeek> days,
+      GameTypeTag[] gameTypeTags
   ){
     HomepageGroup group = new HomepageGroup();
     group.setId(id);
@@ -43,6 +45,7 @@ public class HomeResult {
     group.setUrl(url);
     group.addCity(groupCity);
     group.setRecurringEventDays(days);
+    group.setGameTypeTags(gameTypeTags);
     groupData.put(id, group);
   }
 
@@ -51,7 +54,8 @@ public class HomeResult {
       String name,
       String url,
       String groupCity,
-      DayOfWeek eventDay
+      DayOfWeek eventDay,
+      GameTypeTag[] gameTypeTags
   ) {
 
     if (!groupData.containsKey(id)) {
@@ -60,7 +64,7 @@ public class HomeResult {
       group.setName(name);
       group.setUrl(url);
       group.addCity(groupCity);
-
+      group.setGameTypeTags(gameTypeTags);
       if(eventDay !=null){
         TreeSet<DayOfWeek> days = new TreeSet<DayOfWeek>();
         days.add(eventDay);

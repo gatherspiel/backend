@@ -1,6 +1,6 @@
 package app.service.edit;
 
-import app.SessionContext;
+import app.users.data.SessionContext;
 import app.groups.data.*;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
@@ -10,6 +10,7 @@ import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.read.ReadGroupService;
 import service.update.EventService;
 import service.update.GroupEditService;
 
@@ -339,5 +340,34 @@ public class GroupEditServiceIntegrationTest {
     assertEquals(eventFromDb.getName(),event2.getName());
     assertEquals(eventFromDb.getDescription(),event2.getDescription());
     assertEquals(eventFromDb.getStartTime(),event2.getStartTime());
+  }
+
+  @Test
+  public void testAddGroup_AddTags_AndDeleteTags() throws Exception{
+
+    GroupEditService groupEditService = adminContext.createGroupEditService();
+    ReadGroupService readGroupService = adminContext.createReadGroupService();
+
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    assertArrayEquals(new GameTypeTag[0],group.getGameTypeTags());
+
+    GameTypeTag[] tags = new GameTypeTag[]{GameTypeTag.SOCIAL_GAMES, GameTypeTag.HIDDEN_IDENTITY_GAMES};
+    group.setGameTypeTags(tags);
+    groupEditService.editGroup(group);
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME, group.getName());
+    GroupPageData groupData  = readGroupService.getGroupPageData(params);
+
+    assertEquals(group.getId(), groupData.getId());
+    assertArrayEquals(new GameTypeTag[]{GameTypeTag.SOCIAL_GAMES, GameTypeTag.HIDDEN_IDENTITY_GAMES},groupData.getGameTypeTags());
+
+
+    group.setGameTypeTags(new GameTypeTag[0]);
+    groupEditService.editGroup(group);
+
+    GroupPageData groupData2  = readGroupService.getGroupPageData(params);
+    assertEquals(group.getId(), groupData2.getId());
+    assertArrayEquals(new GameTypeTag[0],groupData2.getGameTypeTags());
   }
 }

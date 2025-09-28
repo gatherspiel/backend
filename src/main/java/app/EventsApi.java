@@ -1,6 +1,7 @@
 package app;
 
 import app.groups.data.Event;
+import app.users.data.SessionContext;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;

@@ -1,8 +1,7 @@
 package app.service.edit.permissions;
 
-import app.SessionContext;
+import app.users.data.SessionContext;
 import app.groups.data.Group;
-import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;
@@ -10,7 +9,6 @@ import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.permissions.GroupPermissionService;
-import service.user.UserService;
 
 import java.sql.Connection;
 

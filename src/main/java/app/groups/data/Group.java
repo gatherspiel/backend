@@ -1,6 +1,7 @@
 package app.groups.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.ArrayList;
 
@@ -14,6 +15,8 @@ public class Group {
 
   public String description;
   public String name;
+
+  public GameTypeTag[] gameTypeTags;
 
   public Integer getId() {
     return id;
@@ -125,5 +128,25 @@ public class Group {
     System.arraycopy(cities, 0, updated, 0, cities.length);
     updated[cities.length] = city;
     cities = updated;
+  }
+
+  @JsonSetter("gameTypeTags")
+  public void setTags(String[] tags){
+
+    this.gameTypeTags = new GameTypeTag[tags.length];
+    for(int i=0; i < tags.length; i++){
+      gameTypeTags[i] = GameTypeTag.valueOf(tags[i].replace(" ","_").toUpperCase());
+    }
+  }
+
+  public void setGameTypeTags(GameTypeTag[] gameTypeTags){
+    this.gameTypeTags = gameTypeTags;
+  }
+
+  public GameTypeTag[] getGameTypeTags(){
+    if(gameTypeTags == null){
+      return new GameTypeTag[0];
+    }
+    return gameTypeTags;
   }
 }
