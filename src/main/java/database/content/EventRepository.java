@@ -139,7 +139,7 @@ public class EventRepository {
       """
         DELETE from events where id NOT IN (
           SELECT event_id from event_group_map
-        )
+        ) AND events.is_convention IS NOT true
       """;
     PreparedStatement delete = conn.prepareStatement(query);
     delete.executeUpdate();

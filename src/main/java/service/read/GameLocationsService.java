@@ -14,6 +14,7 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -26,26 +27,8 @@ public class GameLocationsService {
     logger = LogUtils.getLogger();
   }
 
-  public GameLocationData getGameLocations(LocalDate date) throws Exception{
 
-    ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
-    TreeMap<String, Convention> conventions = conventionsRepository.getConventions(date);
-
-    GameRestaurantRepository restaurantRepository = new GameRestaurantRepository(conn);
-    TreeMap<String, GameRestaurant> gameRestaurants = restaurantRepository.getGameRestauarants();
-
-    GameStoreRepository gameStoreRepository = new GameStoreRepository(conn);
-    TreeMap<String, GameStore> gameStores= gameStoreRepository.getGameStores();
-
-    GameLocationData locationData = new GameLocationData();
-    locationData.setConventions(conventions);
-    locationData.setGameRestaurants(gameRestaurants);
-    locationData.setGameStores(gameStores);
-
-    return locationData;
-  }
-
-  public TreeMap<String, Convention> getConventions(LocalDate date) throws Exception{
+  public LinkedHashMap<String, Convention> getConventions(LocalDate date) throws Exception{
     ConventionsRepository conventionsRepository = new ConventionsRepository(conn);
     return conventionsRepository.getConventions(date);
   }

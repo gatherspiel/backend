@@ -79,6 +79,9 @@ public class EventTimeRepository {
         """
           DELETE from event_time where event_id NOT IN (
           SELECT event_id from event_group_map
+          ) AND event_id NOT IN (
+            SELECT event_id from events WHERE
+            events.is_convention IS true
           )
         """;
     PreparedStatement delete = conn.prepareStatement(query);

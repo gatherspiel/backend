@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import org.apache.logging.log4j.Logger;
@@ -24,19 +25,20 @@ public class ConventionsRepository {
   }
 
 
-  public TreeMap<String, Convention> getConventions(LocalDate searchStartDate) throws Exception{
+  public LinkedHashMap<String, Convention> getConventions(LocalDate searchStartDate) throws Exception{
     String query = "SELECT * from events\n" +
         "JOIN event_time on event_time.event_id = events.id\n" +
         "WHERE is_convention is TRUE\n" +
-        "AND start_time >= ?";
+        "AND start_time >= ?\n" +
+        "ORDER BY start_time ASC";
 
     PreparedStatement select = conn.prepareStatement(query);
     select.setTimestamp(1, Timestamp.valueOf(searchStartDate.atStartOfDay()));
     ResultSet rs = select.executeQuery();
 
-    HashMap<Integer, Convention> conventions = new HashMap<Integer, Convention>();
+    LinkedHashMap<Integer, Convention> conventions = new LinkedHashMap<Integer, Convention>();
 
-    HashMap<Integer, Integer> conventionDays = new HashMap<Integer, Integer>();
+    LinkedHashMap<Integer, Integer> conventionDays = new LinkedHashMap<Integer, Integer>();
     while(rs.next()){
 
       String conventionName = rs.getString("name");
@@ -72,7 +74,7 @@ public class ConventionsRepository {
       }
     }
 
-    TreeMap<String,Convention> data = new TreeMap<>();
+    LinkedHashMap<String,Convention> data = new LinkedHashMap<>();
     for(Integer conventionId: conventions.keySet()){
       data.put(conventions.get(conventionId).getName(), conventions.get(conventionId));
     }
