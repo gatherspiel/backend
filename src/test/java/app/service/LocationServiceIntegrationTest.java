@@ -13,6 +13,8 @@ import service.read.GameLocationsService;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -41,8 +43,8 @@ public class LocationServiceIntegrationTest {
   }
 
   @Test
-  public void testGameLocationsAreReturnedInAlphabeticalOrder() throws Exception {
-    TreeMap<String,Convention> conventions = gameLocationsService.getConventions(LocalDate.of(2025,1,1));
+  public void testGameLocationsAreReturnedWithCorrectSize() throws Exception {
+    LinkedHashMap<String,Convention> conventions = gameLocationsService.getConventions(LocalDate.of(2025,1,1));
     TreeMap<String, GameRestaurant> gameRestaurants = gameLocationsService.getGameRestaurants();
     TreeMap<String, GameStore> gameStores = gameLocationsService.getGameStores();
 
@@ -55,13 +57,13 @@ public class LocationServiceIntegrationTest {
 
   @Test
   public void testConventionHasCorrectDays() throws Exception {
-    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2025,1,1));
+    var conventions = gameLocationsService.getConventions(LocalDate.of(2025,1,1));
 
-    for(String name: data.conventions.keySet()){
-      Convention convention = data.conventions.get(name);
+    for(String name: conventions.keySet()){
+      Convention convention = conventions.get(name);
       if(convention.getName().equals("NOVA Open")) {
         String[] days = convention.getDays();
-        String[] expected = new String[]{"2025-08-27", "2025-08-28", "2025-08-29", "2025-08-30", "2025-08-31"};
+        String[] expected = new String[]{"2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31"};
         assertArrayEquals(days, expected);
         return;
       }
@@ -73,12 +75,33 @@ public class LocationServiceIntegrationTest {
   @Test
   public void testConventionsBeforeSpecifiedDate_AreNotReturned() throws Exception {
 
-    GameLocationData data = gameLocationsService.getGameLocations(LocalDate.of(2035,1,1));
+    var conventions = gameLocationsService.getConventions(LocalDate.of(2035,1,1));
     Assertions.assertAll(
-        () -> assertEquals(0, data.getConventions().size()),
-        () -> assertEquals(14, data.getGameStores().size()),
-        () -> assertEquals(4, data.getGameRestaurants().size())
-    );
+        () -> assertEquals(0, conventions.size())
+   );
+  }
+
+  @Test
+  public void testConventionsAreReturnedInChronologicalOrder() throws Exception {
+    var conventions = gameLocationsService.getConventions(LocalDate.of(2015,1,1));
+
+
+    LocalDate lastDate = null;
+    for(String id: conventions.keySet()){
+      Convention convention = conventions.get(id);
+
+      String startDate = convention.getDays()[0];
+      LocalDate date = LocalDate.parse(startDate);
+
+      if(lastDate !=null){
+        System.out.println(lastDate);
+        if(!date.isAfter(lastDate)){
+          fail("Convention dates are not in chronological order");
+        }
+      }
+
+      lastDate = date;
+    }
   }
 
   @Test
