@@ -83,21 +83,22 @@ public class Main {
       if(!ipAddressRequests.containsKey(ip)){
         ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(1,System.currentTimeMillis()));
       } else {
-        var data = ipAddressRequests.get(ip);
-        if(data.getKey() > RATE_LIMIT){
-          final String rateLimitError = "Exceeded rate limit";
-          logger.error(rateLimitError + "user agent:{}", userAgent);
-          ctx.status(401);
-          throw new Exception(rateLimitError);
-        }
 
+        var data = ipAddressRequests.get(ip);
         Long currentTime = System.currentTimeMillis();
         //Reset rate limit counter
         if(currentTime - data.getValue() > 1000){
           ipAddressRequests.put(ip,new AbstractMap.SimpleEntry<>(1, currentTime));
         }
+        else if(data.getKey() > RATE_LIMIT){
+          final String rateLimitError = "Exceeded rate limit";
+          logger.info(System.currentTimeMillis()-data.getValue());
+          logger.error(rateLimitError + "user agent:{}", userAgent);
+          ctx.status(401);
+          throw new Exception(rateLimitError);
+        }
         else {
-          ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(data.getKey()+1,currentTime));
+          ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(data.getKey()+1,data.getValue()));
         }
       }
     });
