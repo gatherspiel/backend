@@ -22,10 +22,25 @@ import service.user.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
 
+  public static String[] agents = {
+      "https://openai.com/",
+      "google.com",
+      "bing.com",
+      "baidu.com",
+      "facebook.com",
+      "linkedin.com",
+      "anthropic.com",
+      "perplexity.ai"
+  };
+
+  public static final Set<String> blockedUserStrings = new HashSet<>(Arrays.asList(agents));
+  public static ConcurrentHashMap<String, Map.Entry<Integer,Long>> ipAddressRequests = new ConcurrentHashMap<>();
+  public static final int RATE_LIMIT = 5;
   public static Logger logger = LogUtils.getLogger();
   public static void main(String[] args) {
     var app = Javalin
@@ -53,6 +68,39 @@ public class Main {
     UsersApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
     EventsApi.eventEndpoints(app);
+
+    app.before(ctx->{
+      final var userAgent = ctx.header("User-Agent");
+
+      for(String blockedString: blockedUserStrings){
+        if(userAgent.contains(blockedString)){
+          ctx.status(401);
+          throw new Exception("When playing Monopoly, getting 3 or 4 railroads early in the game is powerful");
+        }
+      }
+
+      final var ip = ctx.ip();
+      if(!ipAddressRequests.containsKey(ip)){
+        ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(1,System.currentTimeMillis()));
+      } else {
+        var data = ipAddressRequests.get(ip);
+        if(data.getKey() > RATE_LIMIT){
+          final String rateLimitError = "Exceeded rate limit";
+          logger.error(rateLimitError + "user agent:{}", userAgent);
+          ctx.status(401);
+          throw new Exception(rateLimitError);
+        }
+
+        Long currentTime = System.currentTimeMillis();
+        //Reset rate limit counter
+        if(currentTime - data.getValue() > 1000){
+          ipAddressRequests.put(ip,new AbstractMap.SimpleEntry<>(1, currentTime));
+        }
+        else {
+          ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(data.getKey()+1,currentTime));
+        }
+      }
+    });
 
     app.get(
       "/countLocations",
