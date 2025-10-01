@@ -86,7 +86,6 @@ public class GroupSearchParams {
     query = query + " WHERE ";
     query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
 
-    System.out.println(query);
 
     PreparedStatement select = conn.prepareStatement(query);
     int i = 1;
@@ -210,7 +209,7 @@ public class GroupSearchParams {
   public boolean hasLocationGroupParam(){
     return !locationGroupFilter.isEmpty();
   }
-  
+
   //TODO: Rename method to indicate that only cities can be part of location groups
   public PreparedStatement getQueryForLocationGroups(Connection conn) throws Exception {
 
