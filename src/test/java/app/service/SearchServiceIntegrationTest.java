@@ -55,16 +55,6 @@ public class SearchServiceIntegrationTest {
     assertEquals(39, result.countGroups());
   }
 
-  @Test
-  @Order(1)
-  public void testAllEventsAreReturned_NoSearchParams() throws Exception {
-    HomeResult result = searchService.getGroupsForHomepage(
-      new LinkedHashMap<String, String>()
-    );
-
-    assertEquals(39, result.countGroups());
-  }
-
   @ParameterizedTest
   @CsvSource(
     {
@@ -78,13 +68,13 @@ public class SearchServiceIntegrationTest {
     }
   )
   @Order(1)
-  public void testEventsAreReturned_WithDayAsSearchParam(
+  public void testGroupsAreReturned_WithOneDayAsSearchParam(
     String day,
     int expected
   )
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAY_OF_WEEK, day);
+    params.put(GroupSearchParams.DAYS_OF_WEEK, day);
 
     HomeResult result = searchService.getGroupsForHomepage(
       params
@@ -92,10 +82,36 @@ public class SearchServiceIntegrationTest {
     assertEquals(expected, result.countGroups());
   }
 
+  @Test
+  @Order(1)
+  public void testGroupsAreReturned_WithTwoDaysAsSearchParam() throws Exception{
+
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.DAYS_OF_WEEK, "Sunday,Monday");
+
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    assertEquals(8, result.countGroups());
+  }
+
+  @Test
+  @Order(1)
+  public void testGroupsAreReturned_WithAllDaysAsSearchParam() throws Exception{
+
+    LinkedHashMap<String,String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.DAYS_OF_WEEK, "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
+
+    HomeResult result = searchService.getGroupsForHomepage(
+        params
+    );
+    assertEquals(20, result.countGroups());
+  }
+
   @ParameterizedTest
   @CsvSource({ "Fairfax, 2", "Falls Church, 2" })
   @Order(1)
-  public void testEventsAreReturned_WithLocationAsSearchParam(
+  public void testGroupsAreReturned_WithLocationAsSearchParam(
     String location,
     int expectedGroups
   )
@@ -121,7 +137,7 @@ public class SearchServiceIntegrationTest {
     }
   )
   @Order(1)
-  public void testEventsAreReturned_WithLocationAndDayAsSearchParam(
+  public void testGroupsAreReturned_WithLocationAndDayAsSearchParam(
     String location,
     String day,
     int expectedGroups
@@ -129,7 +145,7 @@ public class SearchServiceIntegrationTest {
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DAY_OF_WEEK, day);
+    params.put(GroupSearchParams.DAYS_OF_WEEK, day);
 
     HomeResult searchResult = searchService.getGroupsForHomepage(
       params
@@ -165,7 +181,6 @@ public class SearchServiceIntegrationTest {
         }
       }
       assertEquals(group.getCities().length,cities.size());
-
     }
   }
 
@@ -173,7 +188,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testInvalidDayReturnsValidationError() {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAY_OF_WEEK, "test");
+    params.put(GroupSearchParams.DAYS_OF_WEEK, "test");
 
     Exception exception = assertThrows(
       RuntimeException.class,
@@ -221,22 +236,21 @@ public class SearchServiceIntegrationTest {
     int nonRecurringEventGroups = 0;
 
     for(HomepageGroup group: result.getGroupData()){
-      if(group.getRecurringEventDays().size() > 0){
+      if(group.getRecurringEventDays().isEmpty()){
         recurringEventGroups++;
       } else {
         nonRecurringEventGroups++;
       }
     }
-
-    assertEquals(recurringEventGroups, 20);
-    assertEquals(nonRecurringEventGroups, 19);
+    assertEquals(19,recurringEventGroups);
+    assertEquals(20,nonRecurringEventGroups);
   }
 
   @Test
   @Order(1)
   public void testGroupsAreOrderedAlphabeticallyWithUpdate() throws Exception {
 
-    var adminContext = CreateUserUtils.createContextWithNewAdminUser("admtestSearchAllGroups_correctRecurringEventsFlagin", testConnectionProvider);
+    var adminContext = CreateUserUtils.createContextWithNewAdminUser("adminTestSearchAllGroups_correctRecurringEventsFlag", testConnectionProvider);
     GroupEditService groupEdit = adminContext.createGroupEditService();
 
     final Group GROUP_1 = CreateGroupUtils.createGroupObject();
@@ -264,18 +278,16 @@ public class SearchServiceIntegrationTest {
 
         if (prevName != null && currName != null) {
           assertTrue(
-              prevName.compareTo(currName) <= 0,
-              "Groups out of order: " + prevName + " after " + currName
+            prevName.compareTo(currName) <= 0,
+            "Groups out of order: " + prevName + " after " + currName
           );
         }
       }
       previous[0] = current;
     });
-
     groupEdit.deleteGroup(GROUP_1.getId());
     groupEdit.deleteGroup(GROUP_2.getId());
     groupEdit.deleteGroup(GROUP_3.getId());
-
   }
 
   @Test
@@ -328,7 +340,6 @@ public class SearchServiceIntegrationTest {
         break;
       }
     }
-
     assertNotNull(addedGroup);
 
     String[] sortedCities = {"A","B","C","D"};
@@ -414,7 +425,6 @@ public class SearchServiceIntegrationTest {
         () -> assertEquals(expectedGroups, result.countGroups())
     );
   }
-
 
   @ParameterizedTest
   @CsvSource({ "Silver Spring, 7"})
@@ -502,11 +512,11 @@ public class SearchServiceIntegrationTest {
     for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
+        break;
       }
     }
     assertTrue(hasGroup);
   }
-
 
   @Test
   @Order(1)
@@ -518,11 +528,11 @@ public class SearchServiceIntegrationTest {
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
-
     boolean hasGroup = false;
     for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
+        break;
       }
     }
     assertTrue(hasGroup);
@@ -543,11 +553,11 @@ public class SearchServiceIntegrationTest {
     for(HomepageGroup group: result.getGroupDataMap().values()){
       if(group.getName().equals("Beer & Board Games")){
         hasGroup = true;
+        break;
       }
     }
     assertTrue(hasGroup);
   }
-
 
   @Test
   @Order(2)
@@ -570,7 +580,6 @@ public class SearchServiceIntegrationTest {
         break;
       }
     }
-
     groupService.deleteGroup(created.getId());
     assertNotNull(foundGroup);
     assertEquals(created.getId(), foundGroup.getId());
@@ -582,7 +591,6 @@ public class SearchServiceIntegrationTest {
 
     var standardUserContext = CreateUserUtils.createContextWithNewStandardUser("standard_user", testConnectionProvider);
     var standardUserGroupService = standardUserContext.createGroupEditService();
-
     var adminUserContext = CreateUserUtils.createContextWithNewAdminUser("admin_user_3", testConnectionProvider);
     var adminUserGroupService = adminUserContext.createGroupEditService();
 
@@ -652,6 +660,5 @@ public class SearchServiceIntegrationTest {
 
     GameTypeTag[] expected = new GameTypeTag[]{GameTypeTag.EUROGAMES, GameTypeTag.SOCIAL_GAMES};
     assertArrayEquals(expected, inserted.getGameTypeTags());
-
   }
  }
