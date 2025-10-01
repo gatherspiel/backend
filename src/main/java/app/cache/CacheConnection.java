@@ -23,7 +23,7 @@ public class CacheConnection {
   private static final Map<String, GroupPageData> groupPageCache = new ConcurrentHashMap<>();
 
   public CacheConnection(Context ctx){
-    String day = ctx.queryParam(GroupSearchParams.DAY_OF_WEEK);
+    String day = ctx.queryParam(GroupSearchParams.DAYS_OF_WEEK);
     String location = ctx.queryParam(GroupSearchParams.CITY);
     String area = ctx.queryParam(GroupSearchParams.AREA);
     String name = ctx.queryParam(GroupSearchParams.NAME);
@@ -31,7 +31,7 @@ public class CacheConnection {
 
     String key = "";
     if(day != null){
-      key+= GroupSearchParams.DAY_OF_WEEK+"_"+day+"_";
+      key+= GroupSearchParams.DAYS_OF_WEEK +"_"+day+"_";
     }
     if(location !=null){
       key+= GroupSearchParams.CITY+"_"+location+"_";

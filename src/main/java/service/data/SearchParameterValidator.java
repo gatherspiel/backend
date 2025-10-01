@@ -9,12 +9,20 @@ public class SearchParameterValidator {
     return data.length == 3;
   }
 
-  public static void validateDay(String day) throws SearchParameterException {
-    for (DayOfWeek validDay : DayOfWeek.values()) {
-      if (day.toLowerCase().equals(validDay.name().toLowerCase())) {
-        return;
+  public static void validateDaysParameter(String dayParam) throws SearchParameterException {
+    String[] days = dayParam.split(",");
+    for (String s : days) {
+
+      boolean isValidDay = false;
+      for (DayOfWeek day : DayOfWeek.values()) {
+        if (s.equalsIgnoreCase(day.name())) {
+          isValidDay = true;
+          break;
+        }
+      }
+      if (!isValidDay) {
+        throw new SearchParameterException("Invalid day");
       }
     }
-    throw new SearchParameterException("Invalid day");
   }
 }
