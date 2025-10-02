@@ -35,7 +35,7 @@ public class HomeResult {
       Integer id,
       String name,
       String url,
-      String groupCity,
+      String[] cities,
       TreeSet<DayOfWeek> days,
       GameTypeTag[] gameTypeTags
   ){
@@ -43,7 +43,7 @@ public class HomeResult {
     group.setId(id);
     group.setName(name);
     group.setUrl(url);
-    group.addCity(groupCity);
+    group.setCities(cities);
     group.setRecurringEventDays(days);
     group.setGameTypeTags(gameTypeTags);
     groupData.put(id, group);
