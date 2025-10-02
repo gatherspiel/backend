@@ -53,9 +53,7 @@ public class EventService {
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-
-    return eventRepository.addEvent(event, groupId);
-
+    return eventRepository.createEvent(event, groupId);
   }
 
   public Event updateEvent(Event event, int groupId) throws Exception{
