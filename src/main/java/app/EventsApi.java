@@ -1,6 +1,7 @@
 package app;
 
 import app.groups.data.Event;
+import app.result.error.group.DuplicateEventError;
 import app.users.data.SessionContext;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -79,7 +80,7 @@ public class EventsApi {
             var createdEvent = sessionContext.createEventService().createEvent(event, groupId);
             ctx.result("Created event with id:"+createdEvent.getId());
             ctx.status(HttpStatus.OK);
-          } catch(NumberFormatException e) {
+          } catch(NumberFormatException | DuplicateEventError e) {
             ctx.result(e.getMessage());
             ctx.status(HttpStatus.BAD_REQUEST);
           } catch(Exception e) {

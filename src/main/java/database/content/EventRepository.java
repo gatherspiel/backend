@@ -9,11 +9,19 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import app.result.error.StackTraceShortener;
+import app.result.error.group.DuplicateEventError;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
 
 public class EventRepository {
 
   private Connection conn;
+
+  private static final Logger logger = LogManager.getLogger(
+      EventRepository.class
+  );
 
   public EventRepository(Connection conn){
     this.conn = conn;
@@ -71,45 +79,55 @@ public class EventRepository {
     }
   }
 
-  public Event addEvent(Event event, int groupId) throws Exception{
+  public Event createEvent(Event event, int groupId) throws Exception{
 
-    LocationsRepository locationsRepository = new LocationsRepository(conn);
-    EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
+    try {
+      LocationsRepository locationsRepository = new LocationsRepository(conn);
+      EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
 
-    int location_id = locationsRepository.insertLocation(
-        event.getEventLocation()
-    );
+      int location_id = locationsRepository.insertLocation(
+          event.getEventLocation()
+      );
 
-    String query =
-        "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
-    PreparedStatement insert = conn.prepareStatement(query);
-    insert.setInt(1, location_id);
-    insert.setString(2, event.getDescription());
-    insert.setString(3, event.getName());
-    insert.setString(4, event.getUrl());
+      String query =
+          "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
+      PreparedStatement insert = conn.prepareStatement(query);
+      insert.setInt(1, location_id);
+      insert.setString(2, event.getDescription());
+      insert.setString(3, event.getName());
+      insert.setString(4, event.getUrl());
 
-    ResultSet rs = insert.executeQuery();
-    rs.next();
+      ResultSet rs = insert.executeQuery();
+      rs.next();
 
-    int eventId = rs.getInt(1);
+      int eventId = rs.getInt(1);
 
-    updateEventGroupMap(groupId, eventId, conn);
-    event.setId(eventId);
+      updateEventGroupMap(groupId, eventId, conn);
+      event.setId(eventId);
 
-    if(!event.getIsRecurring()){
-      if(event.getStartTime() != null && event.getEndTime() != null){
-        eventTimeRepository.createEventDate(
-            event.getId(),
-            event.getStartDate().atTime(event.getStartTime()),
-            event.getEndDate().atTime(event.getEndTime()));
+      if (!event.getIsRecurring()) {
+        if (event.getStartTime() != null && event.getEndTime() != null) {
+          eventTimeRepository.createEventDate(
+              event.getId(),
+              event.getStartDate().atTime(event.getStartTime()),
+              event.getEndDate().atTime(event.getEndTime()));
+        } else {
+          eventTimeRepository.setEventDay(event);
+        }
       } else {
-        eventTimeRepository.setEventDay(event);
+        eventTimeRepository.createWeeklyRecurrence(event);
       }
-    } else {
-      eventTimeRepository.createWeeklyRecurrence(event);
-    }
 
-    return event;
+      return event;
+    } catch(Exception e){
+      logger.error("Query error in createEvent");
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      e.printStackTrace();
+      if(e.getMessage().contains("duplicate key value violates unique constraint")){
+        throw new DuplicateEventError("Cannot create two events with the same name and url");
+      }
+      throw(e);
+    }
   }
 
   public void deleteEvent(int eventId, int groupId) throws Exception {
