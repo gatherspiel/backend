@@ -94,7 +94,6 @@ public class LocationServiceIntegrationTest {
       LocalDate date = LocalDate.parse(startDate);
 
       if(lastDate !=null){
-        System.out.println(lastDate);
         if(!date.isAfter(lastDate)){
           fail("Convention dates are not in chronological order");
         }

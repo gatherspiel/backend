@@ -3,6 +3,7 @@ package app;
 import app.cache.CacheConnection;
 import app.groups.GroupRequestParser;
 import app.groups.data.Group;
+import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateGroupNameError;
 import app.result.error.group.GroupNotFoundError;
 import app.result.error.group.InvalidGroupParameterError;
@@ -10,6 +11,7 @@ import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.result.group.GroupPageData;
 import app.users.data.SessionContext;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -81,7 +83,7 @@ public class GroupsApi {
 
           logger.info("Updated group:"+group.id);
           ctx.status(HttpStatus.OK);
-        } catch (UnrecognizedPropertyException | GroupNotFoundError | InvalidGroupRequestError e) {
+        } catch (MismatchedInputException | GroupNotFoundError | InvalidGroupRequestError e) {
           logger.error(e.getMessage());
           ctx.status(HttpStatus.BAD_REQUEST);
           ctx.result(e.getMessage());
@@ -91,7 +93,7 @@ public class GroupsApi {
           ctx.result(e.getMessage());
         }
         catch(Exception e){
-          e.printStackTrace();
+          e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
           ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
