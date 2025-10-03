@@ -1,4 +1,4 @@
-package service.user;
+package service.auth;
 
 
 import app.users.data.User;

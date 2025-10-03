@@ -19,8 +19,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
 import service.auth.supabase.SupabaseAuthProvider;
-import service.data.AuthRequest;
-import service.user.UserService;
 import utils.LogUtils;
 import utils.Params;
 

@@ -7,7 +7,7 @@ import app.result.listing.HomeResult;
 import database.search.GroupSearchParams;
 import database.search.SearchRepository;
 import org.apache.logging.log4j.Logger;
-import service.data.SearchParameterException;
+import app.result.error.SearchParameterException;
 import utils.LogUtils;
 
 import java.sql.Connection;

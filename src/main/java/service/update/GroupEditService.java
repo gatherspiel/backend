@@ -8,6 +8,7 @@ import database.content.EventRepository;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
 import org.apache.logging.log4j.Logger;
+import service.EmailService;
 import service.read.SearchService;
 import utils.LogUtils;
 
@@ -20,10 +21,12 @@ public class GroupEditService {
   UserPermissionsRepository userPermissionsRepository;
   Connection connection;
   User user;
+  EmailService emailService;
   public GroupEditService(Connection connection, User user) {
     logger = LogUtils.getLogger();
     groupsRepository = new GroupsRepository(connection);
     userPermissionsRepository = new UserPermissionsRepository(connection);
+    this.emailService = new EmailService(user);
     this.connection = connection;
     this.user = user;
   }
@@ -49,7 +52,9 @@ public class GroupEditService {
       logger.error(message);
       throw new Exception(message);
     }
-    return groupsRepository.insertGroup(user, groupToInsert);
+    Group group = groupsRepository.insertGroup(user, groupToInsert);
+    this.emailService.sendGroupCreatedNotification(group);
+    return group;
   }
 
   public void deleteGroup(int groupId) throws Exception {

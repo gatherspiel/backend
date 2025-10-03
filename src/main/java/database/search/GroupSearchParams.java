@@ -2,7 +2,7 @@ package database.search;
 
 import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
-import service.data.SearchParameterException;
+import app.result.error.SearchParameterException;
 import service.data.SearchParameterValidator;
 import utils.LogUtils;
 

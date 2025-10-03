@@ -9,7 +9,7 @@ import app.groups.data.EventLocation;
 import app.result.error.StackTraceShortener;
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;
-import service.data.SearchParameterException;
+import app.result.error.SearchParameterException;
 import service.data.SearchParameterValidator;
 import utils.LogUtils;
 

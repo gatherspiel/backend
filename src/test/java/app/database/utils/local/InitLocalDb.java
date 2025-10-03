@@ -2,7 +2,7 @@ package app.database.utils.local;
 
 import app.database.utils.DbUtils;
 import database.utils.LocalDevConnectionProvider;
-import service.user.UserService;
+import service.auth.UserService;
 
 import java.sql.Connection;
 

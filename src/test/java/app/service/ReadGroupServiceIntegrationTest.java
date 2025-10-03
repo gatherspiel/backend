@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import service.auth.AuthService;
-import service.permissions.GroupPermissionService;
+import service.update.GroupPermissionService;
 import service.read.ReadGroupService;
 
 import java.sql.Connection;

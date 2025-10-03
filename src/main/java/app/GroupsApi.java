@@ -12,13 +12,12 @@ import app.result.error.PermissionError;
 import app.result.group.GroupPageData;
 import app.users.data.SessionContext;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
 import org.apache.logging.log4j.Logger;
-import service.data.SearchParameterException;
+import app.result.error.SearchParameterException;
 import utils.LogUtils;
 
 import java.util.Optional;
