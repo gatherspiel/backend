@@ -1,7 +1,6 @@
 package app.database.utils;
 
 import app.admin.request.BulkUpdateRequest;
-import app.groups.data.Group;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -11,7 +10,7 @@ import java.util.Scanner;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.utils.LocalConnectionProvider;
 import service.update.BulkUpdateService;
-import service.user.UserService;
+import service.auth.UserService;
 
 public class DbUtils {
 

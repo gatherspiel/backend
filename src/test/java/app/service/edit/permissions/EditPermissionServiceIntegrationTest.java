@@ -8,7 +8,7 @@ import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import service.permissions.GroupPermissionService;
+import service.update.GroupPermissionService;
 
 import java.sql.Connection;
 

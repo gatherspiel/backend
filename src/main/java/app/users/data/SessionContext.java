@@ -4,13 +4,13 @@ import database.content.EventRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.http.Context;
 import service.auth.AuthService;
-import service.permissions.GroupPermissionService;
-import service.provider.ReadGroupDataProvider;
+import service.update.GroupPermissionService;
+import service.read.ReadGroupDataProvider;
 import service.read.ReadGroupService;
 import service.read.SearchService;
 import service.update.EventService;
 import service.update.GroupEditService;
-import service.user.UserService;
+import service.auth.UserService;
 
 import java.sql.Connection;
 

@@ -3,7 +3,6 @@ package app;
 import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
 import app.result.listing.HomeResult;
-import app.result.listing.HomepageGroup;
 import app.users.data.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.resend.Resend;
@@ -23,7 +22,7 @@ import service.read.DistanceService;
 import service.read.GameLocationsService;
 import service.read.TestService;
 import service.update.BulkUpdateService;
-import service.user.UserService;
+import service.auth.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -120,23 +119,6 @@ public class Main {
       "/searchGroups",
       ctx -> {
 
-        var emailKey = System.getenv("EMAIL_KEY");
-
-        Resend resend = new Resend(emailKey);
-
-        CreateEmailOptions params = CreateEmailOptions.builder()
-            .from("notifications <notifications@admin.dmvboardgames.com>")
-            .to("bponnaluri@gmail.com")
-            .subject("Sear has been done!")
-            .html("<strong>A search as been done</strong>")
-            .build();
-
-        try {
-          CreateEmailResponse data = resend.emails().send(params);
-          System.out.println(data.getId());
-        } catch (ResendException e) {
-          e.printStackTrace();
-        }
 
         long start = System.currentTimeMillis();
         try {
