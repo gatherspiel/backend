@@ -16,7 +16,6 @@ public class EmailService {
   private static final String NOTIFICATION_SENDER = "notifications <notifications@admin.dmvboardgames.com>";
   private static final String ADMIN_EMAIL = "gulu@createthirdplaces.com";
 
-  private static final Resend RESEND_CLIENT = new Resend(EMAIL_KEY);
 
   private static final Logger logger = LogUtils.getLogger();
 
@@ -34,8 +33,9 @@ public class EmailService {
         .html("<strong>User:"+user.getEmail() +" Group name:"+createdGroup.getName()+" Group description:"+createdGroup.getDescription()+ "</strong>")
         .build();
     try {
-      CreateEmailResponse data = RESEND_CLIENT.emails().send(params);
-    } catch (ResendException e) {
+      final Resend resendClient = new Resend(EMAIL_KEY);
+      CreateEmailResponse data = resendClient.emails().send(params);
+    } catch (RuntimeException | ResendException e) {
       e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       e.printStackTrace();
       logger.warn("Failed to send email for creating group");
