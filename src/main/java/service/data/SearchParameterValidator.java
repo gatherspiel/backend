@@ -1,5 +1,7 @@
 package service.data;
 
+import app.result.error.SearchParameterException;
+
 import java.time.DayOfWeek;
 
 public class SearchParameterValidator {

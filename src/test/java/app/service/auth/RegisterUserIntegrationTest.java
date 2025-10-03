@@ -13,7 +13,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.auth.AuthService;
-import service.user.UserService;
+import service.auth.UserService;
 
 import java.sql.Connection;
 

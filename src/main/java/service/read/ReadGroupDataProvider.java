@@ -1,9 +1,8 @@
-package service.provider;
+package service.read;
 
 import app.users.data.User;
 import database.content.GroupsRepository;
-import service.permissions.GroupPermissionService;
-import service.read.SearchService;
+import service.update.GroupPermissionService;
 
 import java.sql.Connection;
 

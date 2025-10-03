@@ -5,9 +5,8 @@ import app.users.data.PermissionName;
 import app.users.data.User;
 import app.result.group.GroupPageData;
 import database.content.GroupsRepository;
-import service.data.SearchParameterException;
-import service.permissions.GroupPermissionService;
-import service.provider.ReadGroupDataProvider;
+import app.result.error.SearchParameterException;
+import service.update.GroupPermissionService;
 
 import java.sql.Connection;
 import java.util.LinkedHashMap;

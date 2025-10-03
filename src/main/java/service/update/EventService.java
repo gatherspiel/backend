@@ -5,7 +5,6 @@ import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
-import service.permissions.GroupPermissionService;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;

@@ -1,4 +1,4 @@
-package service.permissions;
+package service.update;
 
 import app.users.data.User;
 import database.content.GroupsRepository;

@@ -1,4 +1,4 @@
-package service.data;
+package service.auth;
 
 public class AuthRequest {
   private String email;
