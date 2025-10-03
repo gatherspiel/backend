@@ -103,7 +103,7 @@ public class EventsApi {
             sessionContext.createEventService().updateEvent(event, groupId);
             ctx.result("Updated event");
             ctx.status(HttpStatus.OK);
-          } catch(NumberFormatException e) {
+          } catch(NumberFormatException | DuplicateEventError e) {
             ctx.result(e.getMessage());
             ctx.status(HttpStatus.BAD_REQUEST);
           } catch(Exception e) {

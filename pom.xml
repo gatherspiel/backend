@@ -66,6 +66,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.19.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.resend</groupId>
+            <artifactId>resend-java</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,5 +119,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
