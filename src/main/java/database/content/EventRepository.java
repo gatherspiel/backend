@@ -165,41 +165,50 @@ public class EventRepository {
 
   public Event updateEvent(Event event) throws Exception{
 
-    LocationsRepository locationsRepository = new LocationsRepository(conn);
-    EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
+    try {
+      LocationsRepository locationsRepository = new LocationsRepository(conn);
+      EventTimeRepository eventTimeRepository = new EventTimeRepository(conn);
 
-    int location_id = locationsRepository.insertLocation(
-        event.getEventLocation()
-    );
+      int location_id = locationsRepository.insertLocation(
+          event.getEventLocation()
+      );
 
-    String query =
-      """
-       UPDATE events SET
-       location_id = ?,
-       description = ?,
-       name = ?,
-       url = ?
-       WHERE id = ?
-      """;
-    PreparedStatement update = conn.prepareStatement(query);
-    update.setInt(1, location_id);
-    update.setString(2, event.getDescription());
-    update.setString(3, event.getName());
-    update.setString(4, event.getUrl());
-    update.setInt(5, event.getId());
+      String query =
+          """
+               UPDATE events SET
+               location_id = ?,
+               description = ?,
+               name = ?,
+               url = ?
+               WHERE id = ?
+              """;
+      PreparedStatement update = conn.prepareStatement(query);
+      update.setInt(1, location_id);
+      update.setString(2, event.getDescription());
+      update.setString(3, event.getName());
+      update.setString(4, event.getUrl());
+      update.setInt(5, event.getId());
 
-    update.executeUpdate();
+      update.executeUpdate();
 
-    if(event.getStartTime() != null && event.getEndTime() != null && !event.getIsRecurring()){
-      eventTimeRepository.updateEventDate(
-        event.getId(),
-        event.getStartDate().atTime(event.getStartTime()),
-        event.getEndDate().atTime(event.getEndTime()));
+      if (event.getStartTime() != null && event.getEndTime() != null && !event.getIsRecurring()) {
+        eventTimeRepository.updateEventDate(
+            event.getId(),
+            event.getStartDate().atTime(event.getStartTime()),
+            event.getEndDate().atTime(event.getEndTime()));
+      }
+      if (event.getIsRecurring()) {
+        eventTimeRepository.updateWeeklyRecurrence(event);
+      }
+      return event;
+    } catch (Exception e){
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      e.printStackTrace();
+      if(e.getMessage().contains("duplicate key value violates unique constraint")){
+        throw new DuplicateEventError("Cannot create two events with the same name and url");
+      }
+      throw(e);
     }
-    if(event.getIsRecurring()){
-      eventTimeRepository.updateWeeklyRecurrence(event);
-    }
-    return event;
   }
 
   public Optional<Event> getEvent(int id) throws Exception{

@@ -6,6 +6,10 @@ import app.result.listing.HomeResult;
 import app.result.listing.HomepageGroup;
 import app.users.data.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -115,6 +119,24 @@ public class Main {
     app.get(
       "/searchGroups",
       ctx -> {
+
+        var emailKey = System.getenv("EMAIL_KEY");
+
+        Resend resend = new Resend(emailKey);
+
+        CreateEmailOptions params = CreateEmailOptions.builder()
+            .from("notifications <notifications@admin.dmvboardgames.com>")
+            .to("bponnaluri@gmail.com")
+            .subject("Sear has been done!")
+            .html("<strong>A search as been done</strong>")
+            .build();
+
+        try {
+          CreateEmailResponse data = resend.emails().send(params);
+          System.out.println(data.getId());
+        } catch (ResendException e) {
+          e.printStackTrace();
+        }
 
         long start = System.currentTimeMillis();
         try {
