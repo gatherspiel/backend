@@ -2,6 +2,7 @@ package app;
 
 import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
+import app.feedback.Feedback;
 import app.result.listing.HomeResult;
 import app.users.data.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -16,6 +17,7 @@ import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
+import service.EmailService;
 import service.auth.AuthService;
 import service.auth.supabase.SupabaseAuthProvider;
 import service.read.DistanceService;
@@ -221,6 +223,24 @@ public class Main {
         var bulkUpdateService = new BulkUpdateService();
         bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
       }
+    );
+
+    app.post(
+        "/feedback",
+        ctx->{
+
+          try {
+
+            new EmailService(AuthService.getReadOnlyUser()).sendFeedbackNotification(ctx.bodyAsClass(Feedback.class));
+            ctx.result("Sucessfully submitted feedback");
+            ctx.status(200);
+          } catch(Exception e){
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            ctx.status(500);
+          }
+
+        }
     );
 
     app.after(ctx->{
