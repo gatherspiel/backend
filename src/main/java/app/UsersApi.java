@@ -1,5 +1,6 @@
 package app;
 
+import app.result.error.RegisterUserInvalidEmailException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
@@ -16,15 +17,16 @@ public class UsersApi {
         ctx -> {
 
           try {
-
             var response = AuthService.registerUser(ctx);
-
             logger.info("User created successfully");
             ctx.status(HttpStatus.OK);
             ctx.json(response);
           } catch(AuthService.RegisterUserInvalidDataException e){
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
+          } catch (RegisterUserInvalidEmailException e) {
+            ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Invalid email address");
           }
           catch(MismatchedInputException e){
             if(e.getMessage().contains("app.user.data.RegisterUserRequest")){
@@ -35,6 +37,7 @@ public class UsersApi {
               ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
             }
           }catch (Exception e){
+            System.out.println(e);
             e.printStackTrace();
             ctx.result(e.getMessage());
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
