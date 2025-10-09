@@ -1,5 +1,7 @@
 package service.auth;
 
+import app.result.error.RegisterUserInvalidEmailException;
+import app.result.error.StackTraceShortener;
 import app.users.data.User;
 import app.users.data.UserType;
 import app.admin.request.BulkUpdateInputRequest;
@@ -72,7 +74,13 @@ public class AuthService {
       return registerUserResponse;
     } catch (Exception e) {
       userService.rollbackChanges();
+
+      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       e.printStackTrace();
+      if(e.getMessage().contains("Unable to validate email address")){
+        System.out.println("Invalid email");
+        throw new RegisterUserInvalidEmailException(e.getMessage());
+      }
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
     }
   }

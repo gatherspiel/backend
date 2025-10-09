@@ -15,6 +15,7 @@ public class StackTraceShortener {
     packagesToIgnore.add("jakarta.servlet");
     packagesToIgnore.add("org.eclipse.jetty");
     packagesToIgnore.add("java.lang.thread");
+    packagesToIgnore.add("org.apache.hc.client5");
   }
 
   public static StackTraceElement[] generateDisplayStackTrace(StackTraceElement[] errorTrace){
@@ -23,7 +24,6 @@ public class StackTraceShortener {
     for(int i = 0; i < errorTrace.length; i++) {
 
       StackTraceElement element = errorTrace[i];
-
       boolean ignore = false;
       for (String ignoreItem : packagesToIgnore) {
         if (element.getClassName().contains(ignoreItem)) {

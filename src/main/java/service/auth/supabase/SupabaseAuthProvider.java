@@ -1,5 +1,6 @@
 package service.auth.supabase;
 
+import app.result.error.RegisterUserInvalidEmailException;
 import app.result.error.StackTraceShortener;
 import app.users.data.RegisterUserRequest;
 import app.users.data.RegisterUserResponse;
@@ -51,7 +52,6 @@ public class SupabaseAuthProvider implements AuthProvider {
       JsonNode httpResponse = httpClient.execute(httpPost, response ->{
         ObjectMapper objectMapper = new ObjectMapper();
 
-
         final HttpEntity responseEntity = response.getEntity();
 
         JsonNode result;
@@ -60,14 +60,12 @@ public class SupabaseAuthProvider implements AuthProvider {
         }
 
         if (response.getCode() >= 300) {
-
           if(result != null){
             throw new ClientProtocolException(result.toString());
           }
           throw new ClientProtocolException(new StatusLine(response).toString());
         }
         return result;
-
       });
 
       logger.info("Printing response fields from register user request");
@@ -86,13 +84,10 @@ public class SupabaseAuthProvider implements AuthProvider {
         createdAt = httpResponse.get("created_at").textValue();
       }
 
-
       return new RegisterUserResponse(email, createdAt);
 
     } catch (Exception e){
       logger.error("Failed to register user with url:{}", url);
-      logger.error(e.getMessage());
-      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       throw(e);
     }
   }
