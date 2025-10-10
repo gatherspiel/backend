@@ -1,5 +1,6 @@
 package database.permissions;
 
+import app.result.error.StackTraceShortener;
 import app.users.data.GroupAdminType;
 import app.users.data.User;
 import app.result.error.group.GroupNotFoundError;
@@ -26,27 +27,22 @@ public class UserPermissionsRepository
               WHERE group_id = ?
               AND group_admin_level = cast(? as group_admin_level)
         """;
-
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setInt(1, userToUpdate.getId());
     insert.setInt(2, groupId);
     insert.setString(3, GroupAdminType.GROUP_ADMIN.toString());
-
     insert.executeUpdate();
   }
 
   public void addGroupModerator(User currentUser, int groupId) throws Exception{
-
     String query = """
             INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
           VALUES(?, ?, cast(? as group_admin_level))
         """;
-
     PreparedStatement insert = conn.prepareStatement(query);
     insert.setInt(1, currentUser.getId());
     insert.setInt(2, groupId);
     insert.setString(3, GroupAdminType.GROUP_MODERATOR.toString());
-
     insert.executeUpdate();
   }
 
@@ -63,7 +59,6 @@ public class UserPermissionsRepository
     select.setInt(1, user.getId());
     select.setInt(2, groupId);
     select.setString(3, GroupAdminType.GROUP_ADMIN.toString());
-
     ResultSet rs = select.executeQuery();
     return rs.next();
   }
@@ -88,7 +83,6 @@ public class UserPermissionsRepository
   }
 
   public boolean hasGroupEditorRole(User user, int groupId) throws Exception {
-
     ResultSet rs = getGroupEditorRoles(groupId);
     while(true){
       int user_id = rs.getInt("user_id");
