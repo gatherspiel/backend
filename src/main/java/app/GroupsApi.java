@@ -145,6 +145,11 @@ public class GroupsApi {
         groupEditService.deleteGroup(groupId);
         ctx.status(HttpStatus.OK);
       }
+      catch(GroupNotFoundError e) {
+        e.printStackTrace();
+        ctx.result("Group not found");
+        ctx.status(HttpStatus.BAD_REQUEST);
+      }
       catch(Exception e){
         e.printStackTrace();
         ctx.result(e.getMessage());
