@@ -3,7 +3,13 @@ package app.groups.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Base64;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
@@ -15,6 +21,8 @@ public class Group {
 
   public String description;
   public String name;
+
+  public String image;
 
   public GameTypeTag[] gameTypeTags;
 
@@ -66,6 +74,31 @@ public class Group {
     return events;
   }
 
+  public void setImage(String imageData){
+
+
+    if(imageData != null){
+      this.image = imageData.split(";")[1].substring(7);
+
+      System.out.println(this.image.substring(0,999));
+      try {
+
+
+        byte[] base64Val= Base64.getDecoder().decode(this.image);
+
+        File imgFile = new File("test.jpg");
+        BufferedImage img = ImageIO.read(new ByteArrayInputStream(base64Val));
+        ImageIO.write(img, "jpg", imgFile);
+      } catch(java.io.IOException e){
+        e.printStackTrace();
+      }
+
+    }
+
+  }
+  public String getImage(){
+    return this.image;
+  }
 
   public String toString() {
     return (

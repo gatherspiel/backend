@@ -20,7 +20,13 @@ import org.apache.logging.log4j.Logger;
 import app.result.error.SearchParameterException;
 import utils.LogUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.Base64;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class GroupsApi {
 
@@ -103,6 +109,8 @@ public class GroupsApi {
         ctx -> {
 
           try {
+
+
             Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
