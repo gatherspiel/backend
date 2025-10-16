@@ -49,8 +49,8 @@ public class ImageRepository {
   public void uploadImage(String imageData,String filePath){
 
     try {
-
-      String fileType = filePath.split(".")[1];
+      
+      String fileType = filePath.split("\\.")[1];
 
       AWSCredentials credentials = new BasicAWSCredentials(
         System.getenv("IMAGE_BUCKET_ID"),
@@ -66,7 +66,9 @@ public class ImageRepository {
           .build();
 
       byte[] base64Val= Base64.getDecoder().decode(imageData);
-      File imgFile = new File("tmp/"+filePath);
+
+      var tmpPath = "image_"+UUID.randomUUID()+"."+fileType;
+      File imgFile = new File(tmpPath);
       BufferedImage img = ImageIO.read(new ByteArrayInputStream(base64Val));
       ImageIO.write(img, fileType, imgFile);
 
@@ -78,6 +80,9 @@ public class ImageRepository {
 
       amazonS3.putObject(putObjectRequest);
 
+      if(!imgFile.delete()){
+        throw new RuntimeException("Failed to delete temporary image file");
+      }
     } catch(Exception e) {
       var exception = new ImageUploadException("Error uploading image");
       exception.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
