@@ -20,7 +20,13 @@ import org.apache.logging.log4j.Logger;
 import app.result.error.SearchParameterException;
 import utils.LogUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.Base64;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class GroupsApi {
 
@@ -79,11 +85,12 @@ public class GroupsApi {
 
           group = ctx.bodyAsClass(Group.class);
           groupEditService.editGroup(group);
-
           logger.info("Updated group:"+group.id);
           ctx.status(HttpStatus.OK);
         } catch (MismatchedInputException | GroupNotFoundError | InvalidGroupRequestError e) {
           logger.error(e.getMessage());
+          e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+          e.printStackTrace();
           ctx.status(HttpStatus.BAD_REQUEST);
           ctx.result(e.getMessage());
         } catch(PermissionError e) {
@@ -92,7 +99,6 @@ public class GroupsApi {
           ctx.result(e.getMessage());
         }
         catch(Exception e){
-          e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
           ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
@@ -122,6 +128,7 @@ public class GroupsApi {
             ctx.result(e.getMessage());
           } catch (InvalidGroupParameterError  | DuplicateGroupNameError e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
           }
