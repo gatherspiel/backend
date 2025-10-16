@@ -3,13 +3,11 @@ package app.groups.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import javax.imageio.IIOException;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
@@ -23,6 +21,7 @@ public class Group {
   public String name;
 
   public String image;
+  public String imageFilePath;
 
   public GameTypeTag[] gameTypeTags;
 
@@ -75,29 +74,28 @@ public class Group {
   }
 
   public void setImage(String imageData){
-
-
     if(imageData != null){
-      this.image = imageData.split(";")[1].substring(7);
+      var imageSplit = imageData.split(";");
+      this.image = imageSplit[1].substring(7);
 
-      System.out.println(this.image.substring(0,999));
-      try {
-
-
-        byte[] base64Val= Base64.getDecoder().decode(this.image);
-
-        File imgFile = new File("test.jpg");
-        BufferedImage img = ImageIO.read(new ByteArrayInputStream(base64Val));
-        ImageIO.write(img, "jpg", imgFile);
-      } catch(java.io.IOException e){
-        e.printStackTrace();
+      var imageType = imageSplit[0].split("image/")[1];
+      if(!imageType.equals("jpeg")){
+        throw new RuntimeException("Unsupported image type:"+imageType);
       }
 
-    }
+      LocalDate current = LocalDate.now();
+      long days = current.getLong(ChronoField.EPOCH_DAY);
 
+      this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
+    }
   }
+
   public String getImage(){
     return this.image;
+  }
+
+  public String getImageFilePath(){
+    return this.imageFilePath;
   }
 
   public String toString() {

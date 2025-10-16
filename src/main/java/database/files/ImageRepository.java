@@ -2,6 +2,15 @@ package database.files;
 
 import app.result.error.ImageUploadException;
 import app.result.error.StackTraceShortener;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -16,8 +25,13 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.UUID;
 
 public class ImageRepository {
 
@@ -32,47 +46,40 @@ public class ImageRepository {
 
     BUCKET_URL = "https://gatherspiel.nyc3.digitaloceanspaces.com/"+bucketKey;
   }
-  public void uploadImage(String imageData){
+  public void uploadImage(String imageData,String filePath){
 
     try {
-      byte[] base64Val= Base64.getDecoder().decode(imageData);
 
-      ImageUploadRequest request = new ImageUploadRequest();
-      request.imageData = base64Val;
+      String fileType = filePath.split(".")[1];
 
-      ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-      String json = ow.writeValueAsString(request);
-
-      final HttpPut httpPut = new HttpPut(BUCKET_URL);
-      HttpEntity entity = new StringEntity(
-          json,
-          ContentType.IMAGE_JPEG
+      AWSCredentials credentials = new BasicAWSCredentials(
+        System.getenv("IMAGE_BUCKET_ID"),
+        System.getenv("IMAGE_BUCKET_KEY")
       );
-      httpPut.setEntity(entity);
 
-      CloseableHttpClient httpClient = HttpClients.createDefault();
-      JsonNode httpResponse = httpClient.execute(httpPut, response -> {
+      var endpoint = new AwsClientBuilder.EndpointConfiguration("https://nyc3.digitaloceanspaces.com/", "us-east-1");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        final HttpEntity responseEntity = response.getEntity();
+      AmazonS3 amazonS3 = AmazonS3ClientBuilder
+          .standard()
+          .withCredentials(new AWSStaticCredentialsProvider(credentials))
+          .withEndpointConfiguration(endpoint)
+          .build();
 
-        JsonNode result;
-        try (InputStream inputStream = responseEntity.getContent()) {
-          result = objectMapper.readTree(inputStream);
-        }
+      byte[] base64Val= Base64.getDecoder().decode(imageData);
+      File imgFile = new File("tmp/"+filePath);
+      BufferedImage img = ImageIO.read(new ByteArrayInputStream(base64Val));
+      ImageIO.write(img, fileType, imgFile);
 
-        if (response.getCode() >= 300) {
-          if(result != null){
-            throw new ClientProtocolException(result.toString());
-          }
-          throw new ClientProtocolException(new StatusLine(response).toString());
-        }
-        return result;
-      });
-      httpResponse.fieldNames().forEachRemaining(item->logger.info(item));
+      var putObjectRequest = new PutObjectRequest(
+        "gatherspiel",
+        filePath,
+        imgFile
+      );
+
+      amazonS3.putObject(putObjectRequest);
 
     } catch(Exception e) {
-      var exception = new ImageUploadException(e.getMessage());
+      var exception = new ImageUploadException("Error uploading image");
       exception.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       logger.error(e.getMessage());
       throw exception;

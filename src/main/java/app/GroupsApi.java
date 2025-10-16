@@ -85,11 +85,12 @@ public class GroupsApi {
 
           group = ctx.bodyAsClass(Group.class);
           groupEditService.editGroup(group);
-
           logger.info("Updated group:"+group.id);
           ctx.status(HttpStatus.OK);
         } catch (MismatchedInputException | GroupNotFoundError | InvalidGroupRequestError e) {
           logger.error(e.getMessage());
+          e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+          e.printStackTrace();
           ctx.status(HttpStatus.BAD_REQUEST);
           ctx.result(e.getMessage());
         } catch(PermissionError e) {
@@ -98,7 +99,6 @@ public class GroupsApi {
           ctx.result(e.getMessage());
         }
         catch(Exception e){
-          e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
           ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
@@ -109,8 +109,6 @@ public class GroupsApi {
         ctx -> {
 
           try {
-
-
             Group groupToCreate = GroupRequestParser.getGroupFromRequestBody(ctx);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
@@ -130,6 +128,7 @@ public class GroupsApi {
             ctx.result(e.getMessage());
           } catch (InvalidGroupParameterError  | DuplicateGroupNameError e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result(e.getMessage());
           }

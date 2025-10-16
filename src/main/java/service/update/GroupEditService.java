@@ -6,6 +6,7 @@ import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
 import database.content.GroupsRepository;
+import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
 import org.apache.logging.log4j.Logger;
 import service.EmailService;
@@ -52,6 +53,12 @@ public class GroupEditService {
       logger.error(message);
       throw new Exception(message);
     }
+
+    if(groupToInsert.image != null){
+      ImageRepository imageRepository = new ImageRepository();
+      imageRepository.uploadImage(groupToInsert.getImage(),groupToInsert.getImageFilePath());
+    }
+
     Group group = groupsRepository.insertGroup(user, groupToInsert);
     this.emailService.sendGroupCreatedNotification(group);
     return group;
