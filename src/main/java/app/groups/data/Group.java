@@ -3,7 +3,11 @@ package app.groups.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
@@ -15,6 +19,9 @@ public class Group {
 
   public String description;
   public String name;
+
+  public String image;
+  public String imageFilePath;
 
   public GameTypeTag[] gameTypeTags;
 
@@ -66,6 +73,30 @@ public class Group {
     return events;
   }
 
+  public void setImage(String imageData){
+    if(imageData != null){
+      var imageSplit = imageData.split(";");
+      this.image = imageSplit[1].substring(7);
+
+      var imageType = imageSplit[0].split("image/")[1];
+      if(!imageType.equals("jpeg")){
+        throw new RuntimeException("Unsupported image type:"+imageType);
+      }
+
+      LocalDate current = LocalDate.now();
+      long days = current.getLong(ChronoField.EPOCH_DAY);
+
+      this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
+    }
+  }
+
+  public String getImage(){
+    return this.image;
+  }
+
+  public String getImageFilePath(){
+    return this.imageFilePath;
+  }
 
   public String toString() {
     return (

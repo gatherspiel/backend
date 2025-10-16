@@ -61,7 +61,7 @@ public class Main {
               );
             }
           );
-
+          config.http.maxRequestSize = 10000000;
           config.jsonMapper(new JavalinJackson().updateMapper(mapper->{
             mapper.registerModule(new JavaTimeModule());
           }));
