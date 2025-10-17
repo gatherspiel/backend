@@ -180,7 +180,7 @@ public class EventRepository {
                location_id = ?,
                description = ?,
                name = ?,
-               url = ?
+               url = ?,
                image_path = ?
                WHERE id = ?
               """;

@@ -211,17 +211,20 @@ public class Event {
   public void setImage(String imageData){
     if(imageData != null){
       var imageSplit = imageData.split(";");
-      this.image = imageSplit[1].substring(7);
 
-      var imageType = imageSplit[0].split("image/")[1];
-      if(!imageType.equals("jpeg")){
-        throw new RuntimeException("Unsupported image type:"+imageType);
+      if(imageSplit.length == 1){
+        this.image = imageData;
+      } else {
+        this.image = imageSplit[1].substring(7);
+
+        var imageType = imageSplit[0].split("image/")[1];
+        if(!imageType.equals("jpeg")){
+          throw new RuntimeException("Unsupported image type:"+imageType);
+        }
+        LocalDate current = LocalDate.now();
+        long days = current.getLong(ChronoField.EPOCH_DAY);
+        this.imageFilePath = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
       }
-
-      LocalDate current = LocalDate.now();
-      long days = current.getLong(ChronoField.EPOCH_DAY);
-
-      this.imageFilePath = "groups/events"+days + "/image" + UUID.randomUUID()+".jpg";
     }
   }
 

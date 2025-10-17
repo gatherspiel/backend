@@ -84,6 +84,7 @@ public class ImageRepository {
 
       amazonS3.putObject(putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead));
 
+      logger.info("Uploaded image");
       if(!imgFile.delete()){
         throw new RuntimeException("Failed to delete temporary image file");
       }
