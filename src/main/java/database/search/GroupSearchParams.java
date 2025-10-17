@@ -114,6 +114,7 @@ public class GroupSearchParams {
           groups.id as groupId,
           groups.name,
           groups.url,
+          groups.image_path,
           groups.description,
           groups.game_type_tags,
           events.name as eventName,
