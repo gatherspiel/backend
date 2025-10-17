@@ -186,6 +186,7 @@ public class GroupSearchParams {
             groups.url,
             groups.description,
             groups.game_type_tags,
+            groups.image_path,
             events.name as eventName,
             events.description as eventDescription,
             weekly_event_time.start_time as start_time,

@@ -24,6 +24,7 @@ create table if not exists groups (
   description character varying null,
   is_hidden boolean null default false,
   game_type_tags game_type_tag[],
+  image_path varchar,
   constraint groups_pkey primary key (id),
   constraint unique_groups unique (name)
 );

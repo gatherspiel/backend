@@ -94,6 +94,10 @@ public class Group {
     return this.image;
   }
 
+  public void setImageFilePath(String imageFilePath){
+    this.imageFilePath = imageFilePath;
+  }
+
   public String getImageFilePath(){
     return this.imageFilePath;
   }

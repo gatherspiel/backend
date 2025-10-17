@@ -12,13 +12,14 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 public class GroupPageData {
 
   private int id;
   private String name;
   private String url;
   private String description;
+  private String imagePath;
+
   private HashMap<PermissionName, Boolean> permissions;
   private TreeSet<Event> oneTimeEventData;
   private TreeSet<Event> weeklyEventData;
@@ -53,15 +54,22 @@ public class GroupPageData {
   }
 
 
-  private GroupPageData(int id, String name, String url, String description, GameTypeTag[] gameTypeTags){
+  private GroupPageData(
+      int id,
+      String name,
+      String url,
+      String description,
+      GameTypeTag[] gameTypeTags,
+      String imagePath){
     this.id = id;
     this.name = name;
     this.url = url;
     this.description = description;
     this.permissions = new HashMap<>();
-    this.oneTimeEventData = new TreeSet<Event>(new OneTimeEventDataComparator());
-    this.weeklyEventData = new TreeSet<Event>(new WeeklyEventDataComparator());
+    this.oneTimeEventData = new TreeSet<>(new OneTimeEventDataComparator());
+    this.weeklyEventData = new TreeSet<>(new WeeklyEventDataComparator());
     this.gameTypeTags = gameTypeTags;
+    this.imagePath = imagePath;
   }
 
   public int getId(){
@@ -123,7 +131,8 @@ public class GroupPageData {
         group.getName(),
         group.getUrl(),
         group.getDescription(),
-        group.getGameTypeTags());
+        group.getGameTypeTags(),
+        group.getImageFilePath());
 
     if(group.getEvents() != null){
       for(Event event: group.getEvents()) {
@@ -163,5 +172,13 @@ public class GroupPageData {
 
   public GameTypeTag[] getGameTypeTags(){
     return gameTypeTags;
+  }
+
+  public String getImagePath(){
+    return imagePath;
+  }
+
+  public void setImagePath(String imagePath){
+    this.imagePath = imagePath;
   }
 }

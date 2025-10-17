@@ -10,6 +10,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,25 +32,21 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ImageRepository {
 
-  private final String BUCKET_URL;
   private static final Logger logger = LogUtils.getLogger();
 
-  public class ImageUploadRequest{
-    public byte[] imageData;
-  }
   public ImageRepository(){
-    var bucketKey = System.getenv("IMAGE_BUCKET_KEY");
-
-    BUCKET_URL = "https://gatherspiel.nyc3.digitaloceanspaces.com/"+bucketKey;
   }
+
   public void uploadImage(String imageData,String filePath){
 
     try {
-      
+
       String fileType = filePath.split("\\.")[1];
 
       AWSCredentials credentials = new BasicAWSCredentials(
@@ -77,6 +74,10 @@ public class ImageRepository {
         filePath,
         imgFile
       );
+
+      ObjectMetadata data = new ObjectMetadata();
+      data.addUserMetadata("x-amz-acl","public-read");
+      putObjectRequest.setMetadata(data);
 
       amazonS3.putObject(putObjectRequest);
 

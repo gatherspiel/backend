@@ -1,6 +1,7 @@
 package service.update;
 
 import app.groups.data.Group;
+import app.result.error.StackTraceShortener;
 import app.users.data.User;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
@@ -51,15 +52,17 @@ public class GroupEditService {
     if(!user.isLoggedInUser()){
       var message = "Cannot insert group. User is not logged in";
       logger.error(message);
-      throw new Exception(message);
+      Exception ex = new Exception(message);
+      ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(ex.getStackTrace()));
+      throw ex;
     }
+
+    Group group = groupsRepository.insertGroup(user, groupToInsert);
 
     if(groupToInsert.image != null){
       ImageRepository imageRepository = new ImageRepository();
       imageRepository.uploadImage(groupToInsert.getImage(),groupToInsert.getImageFilePath());
     }
-
-    Group group = groupsRepository.insertGroup(user, groupToInsert);
     this.emailService.sendGroupCreatedNotification(group);
     return group;
   }

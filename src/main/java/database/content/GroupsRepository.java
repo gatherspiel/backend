@@ -101,11 +101,11 @@ public class GroupsRepository {
     int groupId = -1;
     try {
       String groupInsertQuery=
-          """
-              INSERT INTO groups (name, url, description,is_hidden, game_type_tags)
-              VALUES(?,?,?,?,?)
-              returning id;
-          """;
+        """
+          INSERT INTO groups (name, url, description,is_hidden, game_type_tags,image_path)
+          VALUES(?,?,?,?,?,?)
+          returning id;
+        """;
 
       PreparedStatement groupInsert = conn.prepareStatement(groupInsertQuery);
       groupInsert.setString(1, groupToInsert.getName());
@@ -113,6 +113,7 @@ public class GroupsRepository {
       groupInsert.setString(3, groupToInsert.getDescription());
       groupInsert.setBoolean(4, !groupAdmin.isSiteAdmin());
       groupInsert.setArray(5, conn.createArrayOf("game_type_tag",groupToInsert.getGameTypeTags()));
+      groupInsert.setString(6, groupToInsert.getImageFilePath());
 
       ResultSet rs = groupInsert.executeQuery();
 
@@ -129,14 +130,12 @@ public class GroupsRepository {
       throw e;
     }
 
-
     try {
 
-
       String groupPermissionInsertQuery = """
-             INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
-             VALUES(?, ?, 'group_admin')
-          """;
+         INSERT INTO group_admin_data (user_id, group_id, group_admin_level)
+         VALUES(?, ?, 'group_admin')
+        """;
       PreparedStatement groupPermissionInsert = conn.prepareStatement(groupPermissionInsertQuery);
       groupPermissionInsert.setInt(1, groupAdmin.getId());
       groupPermissionInsert.setInt(2, groupId);
@@ -156,7 +155,7 @@ public class GroupsRepository {
   public Optional<Group> getGroupWithOneTimeEvents(int groupId) throws Exception{
     try {
       String query = """
-          SELECT 
+          SELECT
             groups.name,
             groups.url,
             groups.description,
@@ -172,7 +171,7 @@ public class GroupsRepository {
             locations.zip_code,
             locations.city as city,
             locs.city as groupCity
-            from groups 
+            from groups
           LEFT JOIN event_group_map on groups.id = event_group_map.group_id
           LEFT JOIN events on event_group_map.event_id = events.id
           LEFT JOIN event_time on event_time.event_id = events.id
