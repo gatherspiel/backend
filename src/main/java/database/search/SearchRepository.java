@@ -81,7 +81,6 @@ public class SearchRepository {
       String groupCity = rs.getString("groupCity");
       String imagePath = rs.getString("image_path");
 
-      System.out.println("Image path:"+imagePath);
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
 
         searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity, getTagsFromResultSet(rs),imagePath);

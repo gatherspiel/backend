@@ -51,7 +51,6 @@ public class GroupSearchResult {
       group.addCity(groupCity);
       group.setGameTypeTags(gameTypeTags);
       group.setImageFilePath(imagePath);
-      System.out.println("Image path:"+imagePath);
       groupData.put(id, group);
     }
   }

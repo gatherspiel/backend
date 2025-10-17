@@ -10,8 +10,10 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.ObjectCannedAclProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -62,6 +64,7 @@ public class ImageRepository {
           .withEndpointConfiguration(endpoint)
           .build();
 
+
       byte[] base64Val= Base64.getDecoder().decode(imageData);
 
       var tmpPath = "image_"+UUID.randomUUID()+"."+fileType;
@@ -79,7 +82,7 @@ public class ImageRepository {
       data.addUserMetadata("x-amz-acl","public-read");
       putObjectRequest.setMetadata(data);
 
-      amazonS3.putObject(putObjectRequest);
+      amazonS3.putObject(putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead));
 
       if(!imgFile.delete()){
         throw new RuntimeException("Failed to delete temporary image file");
