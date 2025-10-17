@@ -39,7 +39,8 @@ public class GroupSearchResult {
     String url,
     String description,
     String groupCity,
-    GameTypeTag[] gameTypeTags
+    GameTypeTag[] gameTypeTags,
+    String imagePath
   ) {
     if (!groupData.containsKey(id)) {
       Group group = new Group();
@@ -49,6 +50,7 @@ public class GroupSearchResult {
       group.setDescription(description);
       group.addCity(groupCity);
       group.setGameTypeTags(gameTypeTags);
+      group.setImageFilePath(imagePath);
       groupData.put(id, group);
     }
   }

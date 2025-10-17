@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
+import java.util.UUID;
 
-//TODO: Update Event class to have a separate values for the time and date.
 public class Event {
   private Integer id;
   private String description;
@@ -31,6 +31,9 @@ public class Event {
   private LocalTime startTime;
   private LocalTime endTime;
   private DayOfWeek dayOfWeek;
+
+  private String image;
+  private String imageFilePath;
 
   public Event() {
     permissions = new HashMap<>();
@@ -193,12 +196,6 @@ public class Event {
     return groupId;
   }
 
-
-  public String toString(){
-    return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
-        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime + "\n startDate:"+this.startDate + "\n endDate:" + this.endDate;
-  }
-
   public void setPermissions(HashMap<PermissionName, Boolean> permissions){
     this.permissions = permissions;
   }
@@ -209,5 +206,43 @@ public class Event {
 
   public void setUserCanEditPermission(Boolean canEdit){
     permissions.put(PermissionName.USER_CAN_EDIT, canEdit);
+  }
+
+  public void setImage(String imageData){
+    if(imageData != null){
+      var imageSplit = imageData.split(";");
+
+      if(imageSplit.length == 1){
+        this.image = imageData;
+      } else {
+        this.image = imageSplit[1].substring(7);
+
+        var imageType = imageSplit[0].split("image/")[1];
+        if(!imageType.equals("jpeg")){
+          throw new RuntimeException("Unsupported image type:"+imageType);
+        }
+        LocalDate current = LocalDate.now();
+        long days = current.getLong(ChronoField.EPOCH_DAY);
+        this.imageFilePath = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
+      }
+    }
+  }
+
+  public String getImage(){
+    return this.image;
+  }
+
+  public void setImageFilePath(String imageFilePath){
+    this.imageFilePath = imageFilePath;
+  }
+
+  public String getImageFilePath(){
+    return this.imageFilePath;
+  }
+
+
+  public String toString(){
+    return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
+        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime + "\n startDate:"+this.startDate + "\n endDate:" + this.endDate;
   }
 }

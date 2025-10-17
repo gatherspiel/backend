@@ -24,6 +24,7 @@ create table if not exists groups (
   description character varying null,
   is_hidden boolean null default false,
   game_type_tags game_type_tag[],
+  image_path varchar,
   constraint groups_pkey primary key (id),
   constraint unique_groups unique (name)
 );
@@ -62,6 +63,7 @@ create table if not exists events (
   name character varying not null,
   url character varying not null,
   is_convention boolean null,
+  image_path varchar,
   constraint events_pkey primary key (id),
   constraint unique_events unique (name, url),
   constraint events_location_id_fkey foreign KEY (location_id) references locations (id)
