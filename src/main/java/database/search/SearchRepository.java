@@ -79,11 +79,11 @@ public class SearchRepository {
       String url = rs.getString("url");
       String groupSummary = rs.getString("description");
       String groupCity = rs.getString("groupCity");
-
+      String imagePath = rs.getString("image_path");
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
 
-        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity, getTagsFromResultSet(rs));
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity, getTagsFromResultSet(rs),imagePath);
 
         Integer eventId = rs.getInt("eventId");
         String eventName = rs.getString("eventname");
@@ -160,8 +160,10 @@ public class SearchRepository {
       String groupSummary = rs.getString("description");
       String groupCity = rs.getString("groupCity");
 
+      String imagePath = rs.getString("image_path");
+
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
-        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity,getTagsFromResultSet(rs));
+        searchResult.addGroup(groupId, groupName, url, groupSummary, groupCity,getTagsFromResultSet(rs),imagePath);
 
         Integer eventId = rs.getInt("eventId");
         String eventName = rs.getString("eventname");

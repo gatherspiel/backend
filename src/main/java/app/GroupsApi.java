@@ -100,6 +100,7 @@ public class GroupsApi {
         }
         catch(Exception e){
           ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+          ctx.result(e.getMessage());
         }
       }
     );

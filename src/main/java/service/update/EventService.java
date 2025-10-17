@@ -5,6 +5,7 @@ import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
+import database.files.ImageRepository;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
@@ -52,14 +53,29 @@ public class EventService {
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.createEvent(event, groupId);
+    Event created = eventRepository.createEvent(event, groupId);
+
+    if(event.getImage() != null){
+      ImageRepository imageRepository = new ImageRepository();
+      imageRepository.uploadImage(event.getImage(), event.getImageFilePath());
+      created.setImage(event.getImage());
+      created.setImageFilePath(event.getImageFilePath());
+    }
+    return created;
   }
 
   public Event updateEvent(Event event, int groupId) throws Exception{
     if(!groupPermissionService.canEditGroup(groupId)){
       throw new PermissionError("User does not have permission to add event to group");
     }
-    return eventRepository.updateEvent(event);
+    Event updated = eventRepository.updateEvent(event);
+    if(event.getImage() != null){
+      ImageRepository imageRepository = new ImageRepository();
+      imageRepository.uploadImage(event.getImage(), event.getImageFilePath());
+      updated.setImage(event.getImage());
+      updated.setImageFilePath(event.getImageFilePath());
+    }
+    return updated;
   }
 
   public void deleteEvent(int eventId, int groupId) throws Exception {

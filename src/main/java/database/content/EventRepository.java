@@ -90,12 +90,13 @@ public class EventRepository {
       );
 
       String query =
-          "INSERT INTO events(location_id, description, name, url) values(?,?,?,?) returning id";
+          "INSERT INTO events(location_id, description, name, url,image_path) values(?,?,?,?,?) returning id";
       PreparedStatement insert = conn.prepareStatement(query);
       insert.setInt(1, location_id);
       insert.setString(2, event.getDescription());
       insert.setString(3, event.getName());
       insert.setString(4, event.getUrl());
+      insert.setString(5, event.getImageFilePath());
 
       ResultSet rs = insert.executeQuery();
       rs.next();
@@ -179,7 +180,8 @@ public class EventRepository {
                location_id = ?,
                description = ?,
                name = ?,
-               url = ?
+               url = ?,
+               image_path = ?
                WHERE id = ?
               """;
       PreparedStatement update = conn.prepareStatement(query);
@@ -187,7 +189,8 @@ public class EventRepository {
       update.setString(2, event.getDescription());
       update.setString(3, event.getName());
       update.setString(4, event.getUrl());
-      update.setInt(5, event.getId());
+      update.setString(5, event.getImageFilePath());
+      update.setInt(6, event.getId());
 
       update.executeUpdate();
 
@@ -218,6 +221,7 @@ public class EventRepository {
          events.id as eventId,
          events.url,
          events.name as eventName,
+         events.image_path,
          events.description as eventDescription,
          event_time.start_time as oneTimeEventStartTime,
          weekly_event_time.start_time as recurringEventStartTime,
@@ -237,7 +241,7 @@ public class EventRepository {
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
-        where events.id = ? 
+        where events.id = ?
         
         """;
     PreparedStatement select = conn.prepareStatement(query);
@@ -249,8 +253,7 @@ public class EventRepository {
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
       event.setDescription(rs.getString("eventDescription"));
-
-
+      event.setImageFilePath(rs.getString("image_path"));
 
       String groupName = rs.getString("groupName");
       int groupId  = rs.getInt("groupId");
