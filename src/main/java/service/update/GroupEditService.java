@@ -44,6 +44,12 @@ public class GroupEditService {
     if(!userPermissionsRepository.hasGroupEditorRole(user, groupToUpdate.getId()) && !user.isSiteAdmin())  {
       throw new PermissionError("User does not have permissions to edit group: " + groupToUpdate.getName());
     }
+
+    //The group has a new image
+    if(groupToUpdate.getImage() != null){
+      ImageRepository imageRepository = new ImageRepository();
+      imageRepository.uploadImage(groupToUpdate.getImage(),groupToUpdate.getImageFilePath());
+    }
     groupsRepository.updateGroup(groupToUpdate);
   }
 
