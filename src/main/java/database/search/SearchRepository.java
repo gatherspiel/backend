@@ -159,6 +159,7 @@ public class SearchRepository {
       String url = rs.getString("url");
       String groupSummary = rs.getString("description");
       String groupCity = rs.getString("groupCity");
+
       String imagePath = rs.getString("image_path");
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
