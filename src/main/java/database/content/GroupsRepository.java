@@ -5,6 +5,7 @@ import app.groups.data.EventLocation;
 import app.groups.data.Group;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateGroupNameError;
+import app.result.error.group.GroupUpdateError;
 import app.users.data.User;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -256,7 +257,8 @@ public class GroupsRepository {
               SET name = ?,
               url = ?,
               description = ?,
-              game_type_tags = ?
+              game_type_tags = ?,
+              image_path = ?
              WHERE id = ?
           """;
 
@@ -265,14 +267,16 @@ public class GroupsRepository {
       update.setString(2, groupToUpdate.getUrl());
       update.setString(3, groupToUpdate.getDescription());
       update.setArray(4, conn.createArrayOf("game_type_tag",groupToUpdate.getGameTypeTags()));
-      update.setInt(5, groupToUpdate.getId());
-
+      update.setString(5,groupToUpdate.getImageFilePath());
+      update.setInt(6, groupToUpdate.getId());
       update.executeUpdate();
 
     } catch (Exception e){
       logger.error("Failed to update group");
-      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
-      throw(e);
+      System.out.println(e.getMessage());
+      GroupUpdateError ex = new GroupUpdateError(e.getMessage());
+      ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+      throw ex;
     }
   }
 
