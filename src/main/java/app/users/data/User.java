@@ -29,6 +29,4 @@ public class User {
   public boolean isSiteAdmin(){
     return userType.equals(UserType.SITE_ADMIN);
   }
-
-
 }

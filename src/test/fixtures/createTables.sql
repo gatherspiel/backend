@@ -75,7 +75,6 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
-
 create table if not exists event_time (
   id serial not null,
   event_id integer null,
@@ -130,6 +129,8 @@ create table if not exists users (
   email varchar unique,
   user_role_level user_role_level null,
   is_active boolean,
+  alter table users ADD column image_path varchar;
+  alter table users ADD column username varchar(127);
   constraint users_pkey primary key (id)
 );
 

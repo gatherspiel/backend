@@ -1,7 +1,9 @@
 package database.user;
 
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.users.data.UserType;
+import app.users.data.UserData;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -152,6 +154,42 @@ public class UserRepository extends BaseRepository {
     statement.executeUpdate();
   }
 
+  public void updateUserData(UserData userData, String email) throws Exception{
+    String query = """
+      UPDATE users
+      set image_path = ?
+      username = ?
+      WHERE email = ?
+    """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, userData.getImageFilePath());
+    statement.setString(2, userData.getUsername());
+    statement.setString(3,email);
+
+    statement.executeUpdate();
+  }
+
+  public void getUserData(String email) throws Exception {
+    String query = """
+      SELECT 
+        image_path,
+        username
+      FROM users
+      WHERE email = ?    
+    """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+
+    ResultSet rs = statement.executeQuery();
+    if(rs.next()){
+      UserData userData = new UserData();
+      userData.setImageFilePath(rs.getString("image_path"));
+      userData.setUsername(rs.getString("username"));
+    }
+    throw new UnauthorizedError("Cannot access user data");
+  }
 
   public int countUsers() throws Exception{
     String query = """

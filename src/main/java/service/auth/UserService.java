@@ -1,7 +1,10 @@
 package service.auth;
 
 
+import app.result.error.StackTraceShortener;
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
+import app.users.data.UserData;
 import database.user.UserRepository;
 
 import java.sql.Connection;
@@ -24,9 +27,10 @@ public class UserService {
   }
 
   private DataProvider dataProvider;
-
-  public UserService(DataProvider dataProvider){
+  private User user;
+  public UserService(DataProvider dataProvider,User user){
     this.dataProvider = dataProvider;
+    this.user = user;
   }
 
   /*
@@ -48,6 +52,13 @@ public class UserService {
   public User getUser(String email) throws Exception{
     return dataProvider.getRepository().getUserFromEmail(email);
   }
+
+  public UserData getLoggedInUserData() throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("Cannot access user data without logging in");
+    }
+    return dataProvider.getRepository().getUserData(user.getEmail());
+  }
   public User getActiveUser(String email) throws Exception {
     return dataProvider.getRepository().getActiveUserFromEmail(email);
   }
@@ -67,6 +78,15 @@ public class UserService {
 
   public int countUsers() throws Exception {
     return dataProvider.getRepository().countUsers();
+  }
+
+  public void updateUser(UserData userData) throws Exception{
+    if(!user.isLoggedInUser()){
+      Exception ex = new UnauthorizedError("User must log in to edit their username");
+      ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(ex.getStackTrace()));
+      throw ex;
+    }
+    dataProvider.getRepository().updateUserData(userData, user.getEmail());
   }
 
   public void rollbackChanges() throws Exception{

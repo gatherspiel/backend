@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
 
-public class RegisterUserIntegrationTest {
+public class UserIntegrationTest {
 
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
@@ -45,7 +45,7 @@ public class RegisterUserIntegrationTest {
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
 
-      userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn));
+      userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn), AuthService.getReadOnlyUser());
 
       authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userService);
       authService = new AuthService(new NoErrorMockAuthProvider(), userService);
@@ -191,7 +191,27 @@ public class RegisterUserIntegrationTest {
     User authenticatedUser = authService.getUser(context);
     assertEquals(user.getEmail(), authenticatedUser.getEmail());
     assertEquals(user.getAdminLevel(), authenticatedUser.getAdminLevel());
+  }
 
+  @Test
+  public void testUserIsNotLoggedIn_CannotAccessUserData(){
+
+  }
+
+
+  @Test
+  public void testLoggedInUser_RetrievesCorrectData_WhenMultipleUsersExist() {
+
+  }
+
+  @Test
+  public void testUserIsNotLoggedIn_CannotUpdateUserData(){
+
+  }
+
+  @Test
+  public void testLoggedInUser_UpdatesCorrectData_WhenMultipleUsersExist() {
+    
   }
 
 }

@@ -77,13 +77,12 @@ public class GroupsApi {
       "/groups",
       ctx -> {
 
-        Group group = null;
         try {
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
           var groupEditService = sessionContext.createGroupEditService();
 
-          group = ctx.bodyAsClass(Group.class);
+          Group group = ctx.bodyAsClass(Group.class);
           groupEditService.editGroup(group);
           logger.info("Updated group:"+group.id);
           ctx.status(HttpStatus.OK);
