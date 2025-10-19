@@ -212,7 +212,7 @@ public class Main {
       ctx -> {
 
         var connectionProvider = new ConnectionProvider();
-        UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getDatabaseConnection()));
+        UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getDatabaseConnection()),AuthService.getReadOnlyUser());
         SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
 
         AuthService authService = new AuthService(supabaseAuthProvider, userService);

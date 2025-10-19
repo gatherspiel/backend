@@ -82,7 +82,7 @@ public class UserService {
 
   public void updateUser(UserData userData) throws Exception{
     if(!user.isLoggedInUser()){
-      Exception ex = new UnauthorizedError("User must log in to edit their username");
+      Exception ex = new UnauthorizedError("User must log in to edit their user data");
       ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(ex.getStackTrace()));
       throw ex;
     }

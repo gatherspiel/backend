@@ -157,7 +157,7 @@ public class UserRepository extends BaseRepository {
   public void updateUserData(UserData userData, String email) throws Exception{
     String query = """
       UPDATE users
-      set image_path = ?
+      set image_path = ?,
       username = ?
       WHERE email = ?
     """;
@@ -170,7 +170,7 @@ public class UserRepository extends BaseRepository {
     statement.executeUpdate();
   }
 
-  public void getUserData(String email) throws Exception {
+  public UserData getUserData(String email) throws Exception {
     String query = """
       SELECT 
         image_path,
@@ -187,6 +187,7 @@ public class UserRepository extends BaseRepository {
       UserData userData = new UserData();
       userData.setImageFilePath(rs.getString("image_path"));
       userData.setUsername(rs.getString("username"));
+      return userData;
     }
     throw new UnauthorizedError("Cannot access user data");
   }

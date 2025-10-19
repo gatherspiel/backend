@@ -2,6 +2,7 @@ package app.database.utils.local;
 
 import app.database.utils.DbUtils;
 import database.utils.LocalDevConnectionProvider;
+import service.auth.AuthService;
 import service.auth.UserService;
 
 import java.sql.Connection;
@@ -17,7 +18,7 @@ public class InitLocalDb {
       DbUtils.createTables(conn);
       DbUtils.initializeData(localConnectionProvider);
 
-      UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+      UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn), AuthService.getReadOnlyUser());
       userService.createAdmin("test2@freegather.org");
       userService.activateUser("test2@freegather.org");
     } catch (Exception e) {
