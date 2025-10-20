@@ -3,6 +3,7 @@ package app.groups.data;
 import app.users.data.PermissionName;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import service.data.HtmlSanitizer;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -122,7 +123,8 @@ public class Event {
   }
 
   public void setDescription(String description) {
-    this.description = description;
+
+    this.description = HtmlSanitizer.sanitizeHtml(description);
   }
 
   public String getName() {
