@@ -88,7 +88,7 @@ public class UserService {
       throw ex;
     }
     dataProvider.getRepository().updateUserData(userData, user.getEmail());
-    
+
     if(userData.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
       imageRepository.uploadImage(userData.getImage(), userData.getImageFilePath());

@@ -38,7 +38,7 @@ public class UserData {
         LocalDate current = LocalDate.now();
         long days = current.getLong(ChronoField.EPOCH_DAY);
 
-        this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageFilePath = "users/"+days + "/image" + UUID.randomUUID()+".jpg";
       }
     }
   }
