@@ -5,6 +5,7 @@ import app.result.error.StackTraceShortener;
 import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.users.data.UserData;
+import database.files.ImageRepository;
 import database.user.UserRepository;
 
 import java.sql.Connection;
@@ -54,8 +55,6 @@ public class UserService {
   }
 
   public UserData getLoggedInUserData() throws Exception{
-    System.out.println(user.getEmail());
-    System.out.println(user.getAdminLevel());
     if(!user.isLoggedInUser()){
       throw new UnauthorizedError("Cannot access user data without logging in");
     }
@@ -89,6 +88,11 @@ public class UserService {
       throw ex;
     }
     dataProvider.getRepository().updateUserData(userData, user.getEmail());
+    
+    if(userData.getImage() != null){
+      ImageRepository imageRepository = new ImageRepository();
+      imageRepository.uploadImage(userData.getImage(), userData.getImageFilePath());
+    }
   }
 
   public void rollbackChanges() throws Exception{
