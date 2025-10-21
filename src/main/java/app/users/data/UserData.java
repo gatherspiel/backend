@@ -1,5 +1,7 @@
 package app.users.data;
 
+import service.data.HtmlSanitizer;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.UUID;
@@ -11,7 +13,7 @@ public class UserData {
   private String imageFilePath;
 
   public void setUsername(String username){
-    this.username = username;
+    this.username = HtmlSanitizer.sanitizeTextOnly(username);
   }
 
   public String getUsername(){

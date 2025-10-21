@@ -132,7 +132,7 @@ public class Event {
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = HtmlSanitizer.sanitizeTextOnly(name);
   }
 
   public String getUrl(){
@@ -183,7 +183,7 @@ public class Event {
   }
 
   public void setGroupName(String groupName){
-    this.groupName = groupName;
+    this.groupName = HtmlSanitizer.sanitizeTextOnly(groupName);
   }
 
   public String getGroupName() {
