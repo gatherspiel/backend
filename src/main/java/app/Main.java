@@ -6,10 +6,6 @@ import app.feedback.Feedback;
 import app.result.listing.HomeResult;
 import app.users.data.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -71,7 +67,7 @@ public class Main {
       .start(7070);
 
     DistanceService.loadData();
-    UsersApi.userEndpoints(app);
+    UserApi.userEndpoints(app);
     GroupsApi.groupEndpoints(app);
     EventsApi.eventEndpoints(app);
 

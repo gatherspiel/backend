@@ -5,7 +5,6 @@ import app.result.error.RegisterUserInvalidEmailException;
 import app.result.error.StackTraceShortener;
 import app.result.error.UnauthorizedError;
 import app.users.data.SessionContext;
-import app.users.data.User;
 import app.users.data.UserData;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import database.utils.ConnectionProvider;
@@ -16,14 +15,14 @@ import service.auth.AuthService;
 import service.auth.UserService;
 import utils.LogUtils;
 
-public class UsersApi {
+public class UserApi {
   public static Logger logger = LogUtils.getLogger();
 
   //TODO: Allow user to register with username;
   public static void userEndpoints(Javalin app){
 
     app.post(
-      "/users/register",
+      "/user/register",
       ctx -> {
 
         try {
@@ -63,7 +62,7 @@ public class UsersApi {
     );
 
     app.get(
-      "users",
+      "user",
       ctx ->{
         try {
           SessionContext sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
@@ -86,7 +85,7 @@ public class UsersApi {
     );
 
     app.put(
-      "/users/",
+      "/user/",
       ctx ->{
 
         try {
