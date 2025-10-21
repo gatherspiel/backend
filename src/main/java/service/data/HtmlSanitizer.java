@@ -16,10 +16,16 @@ public class HtmlSanitizer {
   }
 
   public static String sanitizeHtml(String html){
+    if(html == null){
+      return "";
+    }
     return Jsoup.clean(html, textEditorSafeList);
   }
 
   public static String sanitizeTextOnly(String html) {
+    if(html == null){
+      return "";
+    }
     return basicCleaner.clean(Jsoup.parse(html)).text();
   }
 }

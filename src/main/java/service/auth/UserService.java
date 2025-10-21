@@ -54,6 +54,8 @@ public class UserService {
   }
 
   public UserData getLoggedInUserData() throws Exception{
+    System.out.println(user.getEmail());
+    System.out.println(user.getAdminLevel());
     if(!user.isLoggedInUser()){
       throw new UnauthorizedError("Cannot access user data without logging in");
     }
