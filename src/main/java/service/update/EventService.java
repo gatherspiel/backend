@@ -85,6 +85,14 @@ public class EventService {
     eventRepository.deleteEvent(eventId, groupId);
   }
 
+  public void addEventModerator(User moderatorToAdd) throws Exception{
+
+  }
+
+  public void removeEventModerator(User moderatorToRemove) throws Exception {
+
+  }
+
   public static Event createEventObject(
       String eventName,
       String location,
@@ -141,4 +149,5 @@ public class EventService {
     eventLocation.setZipCode(22202);
     return eventLocation;
   }
+
 }

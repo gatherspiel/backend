@@ -501,6 +501,40 @@ public class EventServiceIntegrationTest {
     assertTrue(exception.getMessage().contains("does not have permission"));
   }
 
+  @Test
+  public void testAdmin_makesStandardUserEventModerator_userCanEditEvent(){
+
+  }
+
+  @Test
+  public void testAdmin_makesStandardUserEventModerator_andRemovesPermission_userCannotEditEvent(){
+
+  }
+
+  @Test
+  public void testTwoUsersAre_SetAsEventModerators_BothHavePermissionToEditEvent(){
+
+  }
+
+  @Test
+  public void testRemoveModeratorPermissionFromUser_UserIsNotModerator_throwsError(){
+
+  }
+
+  @Test
+  public void testTwoUsersAre_SetAsEventModerators_BothAreReturnedForEventData(){
+
+  }
+
+  @Test
+  public void testStandardUser_CreateEventModerator(){
+
+  }
+
+  @Test
+  public void testGroupAdmin_canCreateEventModerator(){
+
+  }
 
   @AfterEach
   public void deleteAllEvents() throws Exception{

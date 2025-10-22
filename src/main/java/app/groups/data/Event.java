@@ -1,6 +1,7 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
+import app.users.data.UserData;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import service.data.HtmlSanitizer;
@@ -35,6 +36,8 @@ public class Event {
 
   private String image;
   private String imageFilePath;
+
+  private UserData[] moderators;
 
   public Event() {
     permissions = new HashMap<>();
@@ -87,7 +90,6 @@ public class Event {
     }
     return endTime.truncatedTo(ChronoUnit.MINUTES);
   }
-
 
 
   public String getLocation() {
@@ -242,6 +244,13 @@ public class Event {
     return this.imageFilePath;
   }
 
+  public void setModerators(UserData[] moderators){
+    this.moderators = moderators;
+  }
+
+  public UserData[] getModerators(){
+    return moderators;
+  }
 
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
