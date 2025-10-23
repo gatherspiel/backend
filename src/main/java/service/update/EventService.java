@@ -41,8 +41,9 @@ public class EventService {
 
       Set<UserData> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
 
-      boolean currentUserCanEdit = eventEditors.contains(
-          user.getUserData()) ||
+      boolean currentUserCanEdit =
+          user.isSiteAdmin() ||
+          eventEditors.contains(user.getUserData()) ||
           userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
       event.get().setUserCanEditPermission(currentUserCanEdit);
       event.get().setModerators(eventEditors);

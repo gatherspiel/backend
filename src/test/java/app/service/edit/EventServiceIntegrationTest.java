@@ -603,6 +603,20 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testAdminHasEventEditPermissions() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event eventObj = EventService.createOneTimeEventObjectWithData();
+    Event created = eventService.createEvent(eventObj,group.getId());
+
+    EventService adminEventService = adminContext.createEventService();
+    Optional<Event> eventFromDb = adminEventService.getEvent(created.getId());
+
+    assertTrue(eventFromDb.isPresent());
+    assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
+  }
+  @Test
   public void testRemoveModeratorPermissionFromUser_UserIsNotModerator_throwsError() throws Exception{
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
