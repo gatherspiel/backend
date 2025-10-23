@@ -78,7 +78,7 @@ public class AuthService {
       e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       e.printStackTrace();
       if(e.getMessage().contains("Unable to validate email address")){
-        System.out.println("Invalid email");
+        logger.error("Invalid email");
         throw new RegisterUserInvalidEmailException(e.getMessage());
       }
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());

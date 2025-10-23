@@ -1,6 +1,7 @@
 package service.update;
 
 import app.groups.data.Event;
+import app.result.error.group.EventNotFoundError;
 import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
@@ -40,7 +41,9 @@ public class EventService {
 
       Set<UserData> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
 
-      boolean currentUserCanEdit = eventEditors.contains(user.getUserData());
+      boolean currentUserCanEdit = eventEditors.contains(
+          user.getUserData()) ||
+          userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
       event.get().setUserCanEditPermission(currentUserCanEdit);
       event.get().setModerators(eventEditors);
     }
@@ -66,10 +69,11 @@ public class EventService {
       created.setImage(event.getImage());
       created.setImageFilePath(event.getImageFilePath());
     }
+    created.setGroupId(groupId);
     return created;
   }
 
-  public Event updateEvent(Event event, int groupId) throws Exception{
+  public Event updateEvent(Event event) throws Exception{
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to modify event");
     }

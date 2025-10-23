@@ -1,11 +1,9 @@
 package database.permissions;
 
 import app.result.error.StackTraceShortener;
-import app.result.error.group.EventNotFoundError;
 import app.users.data.EventAdminType;
 import app.users.data.GroupAdminType;
 import app.users.data.User;
-import app.result.error.group.GroupNotFoundError;
 import app.users.data.UserData;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -15,7 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class UserPermissionsRepository
 {
@@ -129,9 +126,11 @@ public class UserPermissionsRepository
     while(rs.next()){
       int user_id = rs.getInt("user_id");
       String groupAdminLevel = rs.getString("group_admin_level");
+
       if(user_id == user.getId()) {
         if(groupAdminLevel.equals(GroupAdminType.GROUP_ADMIN.toString()) ||
             groupAdminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString())){
+
           return true;
         }
       }
@@ -140,12 +139,36 @@ public class UserPermissionsRepository
   }
 
   public boolean hasEventEditorRole(User user, int eventId) throws Exception {
-    return getEventEditorRoles(eventId).size() > 0;
+
+    try {
+      String query =  """
+          SELECT
+            1
+         from events
+          FULL JOIN event_admin_data on event_admin_data.event_id = events.id
+          LEFT JOIN users on event_admin_data.user_id = users.id
+          WHERE events.id = ?
+          AND users.id = ?
+        """;
+
+      PreparedStatement select = conn.prepareStatement(query);
+      select.setInt(1, eventId);
+      select.setInt(2, user.getId());
+
+      ResultSet rs = select.executeQuery();
+
+      boolean results = rs.next();
+      return results;
+
+    } catch (Exception e){
+      logger.error(e);
+      throw e;
+    }
   }
 
   public boolean isGroupAdmin(User user, int groupId) throws Exception {
     ResultSet rs = getGroupEditorRoles(groupId);
-    while (true) {
+    while (rs.next()) {
       int user_id = rs.getInt("user_id");
       String groupAdminLevel = rs.getString("group_admin_level");
       if (user_id == user.getId()) {
@@ -153,10 +176,8 @@ public class UserPermissionsRepository
           return true;
         }
       }
-      if (!rs.next()) {
-        return false;
-      }
     }
+    return false;
   }
 
 }

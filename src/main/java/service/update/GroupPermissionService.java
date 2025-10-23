@@ -47,6 +47,7 @@ public class GroupPermissionService {
     if(user.isSiteAdmin()){
       return true;
     } else {
+
       return userPermissionsRepository.hasGroupEditorRole(user,event.getGroupId()) ||
           userPermissionsRepository.hasEventEditorRole(user, event.getId());
     }
