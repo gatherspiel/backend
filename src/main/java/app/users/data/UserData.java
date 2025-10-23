@@ -1,14 +1,10 @@
 package app.users.data;
 
-import app.result.listing.HomepageGroup;
 import service.data.HtmlSanitizer;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
-import java.util.Comparator;
 import java.util.UUID;
-
-
 
 public class UserData {
   private String username;

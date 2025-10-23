@@ -6,6 +6,7 @@ import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
 import app.users.data.PermissionName;
+import app.users.data.User;
 import app.users.data.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
@@ -616,6 +617,7 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.isPresent());
     assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
   }
+
   @Test
   public void testRemoveModeratorPermissionFromUser_UserIsNotModerator_throwsError() throws Exception{
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
@@ -651,9 +653,15 @@ public class EventServiceIntegrationTest {
     Optional<Event> eventFromDb = readOnlyUserService.getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
 
-    Set<UserData> moderators = eventFromDb.get().getModerators();
-    assertTrue(moderators.contains(standardUserContext.getUser().getUserData()));
-    assertTrue(moderators.contains(standardUserContext2.getUser().getUserData()));
+    Set<User> moderators = eventFromDb.get().getModerators();
+
+    System.out.println(moderators.size());
+    for(User user: moderators){
+      System.out.println(user.getId());
+    }
+
+    assertTrue(moderators.contains(standardUserContext2.getUser()));
+    assertTrue(moderators.contains(standardUserContext.getUser()));
   }
 
   @Test
@@ -723,34 +731,78 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb1.isPresent());
     assertTrue(eventFromDb2.isPresent());
 
-    Set<UserData> moderators1 = eventFromDb1.get().getModerators();
-    Set<UserData> moderators2 = eventFromDb2.get().getModerators();
+    Set<User> moderators1 = eventFromDb1.get().getModerators();
+    Set<User> moderators2 = eventFromDb2.get().getModerators();
 
     assertEquals(1,moderators1.size());
     assertEquals(1,moderators2.size());
 
-    assertTrue(moderators1.contains(standardUserContext.getUser().getUserData()));
-    assertTrue(moderators2.contains(standardUserContext2.getUser().getUserData()));
+    assertTrue(moderators1.contains(standardUserContext.getUser()));
+    assertTrue(moderators2.contains(standardUserContext2.getUser()));
 
 
     Exception exception = assertThrows(
-        Exception.class,
-        () -> {
-          standardUserContext.createEventService().updateEvent(eventFromDb2.get());
-        }
+      Exception.class,
+      () -> {
+        standardUserContext.createEventService().updateEvent(eventFromDb2.get());
+      }
     );
     assertEquals("User does not have permission to modify event",exception.getMessage(),exception.getMessage());
 
     Exception exception2 = assertThrows(
-        Exception.class,
-        () -> {
-          standardUserContext2.createEventService().updateEvent(eventFromDb1.get());
-          standardUserContext.createEventService().updateEvent(eventFromDb1.get());
+      Exception.class,
+      () -> {
+        standardUserContext2.createEventService().updateEvent(eventFromDb1.get());
+        standardUserContext.createEventService().updateEvent(eventFromDb1.get());
 
-        }
+      }
     );
     assertEquals("User does not have permission to modify event",exception2.getMessage(),exception2.getMessage());
+  }
 
+  @Test
+  public void testUpdateModeratorAndEventData() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event eventObj = EventService.createOneTimeEventObjectWithData();
+    Event created = eventService.createEvent(eventObj,group.getId());
+
+    String updatedName = created.getName()+"_1";
+    created.setName(updatedName);
+    created.addModerator(standardUserContext.getUser());
+
+    eventService.updateEvent(created);
+
+    Optional<Event> eventFromDb = eventService.getEvent(created.getId());
+
+    assertTrue(eventFromDb.isPresent());
+    assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(eventFromDb.get().getModerators().contains(standardUserContext.getUser()));
+    assertEquals(eventFromDb.get().getModerators().size(),1);
+  }
+
+  @Test
+  public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event eventObj = EventService.createOneTimeEventObjectWithData();
+
+    Event created = eventService.createEvent(eventObj,group.getId());
+    created.addModerator(standardUserContext.getUser());
+    eventService.updateEvent(created);
+
+    Set<User> updatedModerators = new HashSet<User>();
+    updatedModerators.add(standardUserContext2.getUser());
+    created.setModerators(updatedModerators);
+    eventService.updateEvent(created);
+
+    Optional<Event> eventFromDb = eventService.getEvent(created.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(eventFromDb.get().getModerators().contains(standardUserContext2.getUser()));
+    assertEquals(1,eventFromDb.get().getModerators().size());
   }
 
   @AfterEach

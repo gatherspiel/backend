@@ -328,6 +328,17 @@ public class EventRepository {
     insert.executeUpdate();
   }
 
+  public void clearEventModerators(Event event) throws Exception{
+
+    String query = """
+      DELETE from event_admin_data
+      WHERE  event_id = ?
+    """;
+
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, event.getId());
+    delete.executeUpdate();
+  }
 
   public void removeEventModerator(Event event, User moderatorToRemove) throws Exception{
 
@@ -337,12 +348,11 @@ public class EventRepository {
       AND event_id = ?
     """;
 
-    PreparedStatement insert = conn.prepareStatement(query);
-    insert.setInt(1, moderatorToRemove.getId());
-    insert.setInt(2, event.getId());
-    insert.executeUpdate();
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, moderatorToRemove.getId());
+    delete.setInt(2, event.getId());
+    delete.executeUpdate();
   }
-
 
   private void updateEventGroupMap(
     int groupId,

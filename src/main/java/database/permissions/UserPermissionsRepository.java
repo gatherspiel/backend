@@ -79,7 +79,7 @@ public class UserPermissionsRepository
     return select.executeQuery();
   }
 
-  public Set<UserData> getEventEditorRoles(int eventId) throws Exception {
+  public Set<User> getEventEditorRoles(int eventId) throws Exception {
 
     try {
       String query =  """
@@ -100,15 +100,19 @@ public class UserPermissionsRepository
 
       ResultSet rs = select.executeQuery();
 
-      Set<UserData> editors = new HashSet<>();
+      Set<User> editors = new HashSet<>();
       while(rs.next()){
         String eventAdminLevel = rs.getString("event_admin_level");
 
         if(eventAdminLevel != null && eventAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
+          User user = new User();
+
           UserData userData = new UserData();
           userData.setImageFilePath(rs.getString("image_path"));
           userData.setUsername(rs.getString("username"));
-          editors.add(userData);
+          user.setUserData(userData);
+          user.setId(rs.getInt("userId"));
+          editors.add(user);
         }
       }
       return editors;

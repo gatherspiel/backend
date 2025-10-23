@@ -39,11 +39,11 @@ public class EventService {
     if(event.isPresent()){
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
 
-      Set<UserData> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
+      Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
 
       boolean currentUserCanEdit =
           user.isSiteAdmin() ||
-          eventEditors.contains(user.getUserData()) ||
+          eventEditors.contains(user) ||
           userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
       event.get().setUserCanEditPermission(currentUserCanEdit);
       event.get().setModerators(eventEditors);
@@ -85,6 +85,14 @@ public class EventService {
       updated.setImage(event.getImage());
       updated.setImageFilePath(event.getImageFilePath());
     }
+
+    if(event.getModerators().size()>0){
+      eventRepository.clearEventModerators(event);
+      for(User moderator: event.getModerators()){
+        eventRepository.addEventModerator(event, moderator);
+      }
+    }
+
     return updated;
   }
 

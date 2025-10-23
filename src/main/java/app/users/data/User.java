@@ -6,6 +6,10 @@ public class User {
   private int id;
   private UserData userData = new UserData();
 
+  public User(){
+
+  }
+
   public User(String email, UserType userType, int id){
     this.email = email;
     this.userType = userType;
@@ -14,6 +18,10 @@ public class User {
 
   public boolean isLoggedInUser(){
     return email != null && !email.isBlank() && userType != UserType.READONLY;
+  }
+
+  public void setId(int id){
+    this.id = id;
   }
 
   public int getId(){
@@ -27,6 +35,7 @@ public class User {
   public String getAdminLevel(){
     return userType.name();
   }
+
 
   public boolean isSiteAdmin(){
     return userType.equals(UserType.SITE_ADMIN);

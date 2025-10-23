@@ -1,8 +1,9 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
+import app.users.data.User;
 import app.users.data.UserData;
-import app.users.data.UserDataComparator;
+import app.users.data.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import service.data.HtmlSanitizer;
@@ -40,7 +41,7 @@ public class Event {
   private String image;
   private String imageFilePath;
 
-  private TreeSet<UserData> moderators = new TreeSet<>(new UserDataComparator());
+  private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
   public Event() {
     permissions = new HashMap<>();
@@ -250,16 +251,16 @@ public class Event {
     return this.imageFilePath;
   }
 
-  public void addModerator(UserData userData){
-    this.moderators.add(userData);
+  public void addModerator(User user){
+    this.moderators.add(user);
   }
 
-  public void setModerators(Set<UserData> updatedModerators){
-    TreeSet<UserData> updated = new TreeSet<>(new UserDataComparator());
+  public void setModerators(Set<User> updatedModerators){
+    TreeSet<User> updated = new TreeSet<>(new UserComparator());
     updated.addAll(updatedModerators);
     this.moderators = updated;
   }
-  public TreeSet<UserData> getModerators(){
+  public TreeSet<User> getModerators(){
     return moderators;
   }
 
