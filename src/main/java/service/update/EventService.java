@@ -41,6 +41,8 @@ public class EventService {
 
       Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
 
+
+
       boolean currentUserCanEdit =
           user.isSiteAdmin() ||
           eventEditors.contains(user) ||

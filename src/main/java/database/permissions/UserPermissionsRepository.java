@@ -85,6 +85,7 @@ public class UserPermissionsRepository
       String query =  """
                       SELECT
                         users.id as userId,
+                        users.email,
                         events.id as eventId,
                         event_admin_level,
                         users.image_path,
@@ -111,6 +112,7 @@ public class UserPermissionsRepository
           userData.setImageFilePath(rs.getString("image_path"));
           userData.setUsername(rs.getString("username"));
           user.setUserData(userData);
+          user.setEmail(rs.getString("email"));
           user.setId(rs.getInt("userId"));
           editors.add(user);
         }

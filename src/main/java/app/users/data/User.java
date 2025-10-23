@@ -52,4 +52,15 @@ public class User {
   public void setUserData(UserData userData){
     this.userData = userData;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    User other = (User)obj;
+    return other.getId() == this.getId() || other.getEmail().equals(this.getEmail());
+  }
+
+  @Override
+  public int hashCode() {
+    return (this.id + " "+this.email).hashCode();
+  }
 }

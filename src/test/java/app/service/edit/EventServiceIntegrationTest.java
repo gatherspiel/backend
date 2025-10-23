@@ -11,6 +11,7 @@ import app.users.data.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
+import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -804,6 +805,37 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.get().getModerators().contains(standardUserContext.getUser()));
     assertEquals(eventFromDb.get().getModerators().size(),1);
   }
+
+  @Test
+  public void testUpdateModerator_OnlyEmailIsProvided_CorrectEventData() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event eventObj = EventService.createOneTimeEventObjectWithData();
+    Event created = eventService.createEvent(eventObj,group.getId());
+
+    String updatedName = created.getName()+"_1";
+    created.setName(updatedName);
+
+    String email = "test_"+UUID.randomUUID()+"@dmvboardgames.com";
+
+    User moderator = new User();
+    moderator.setEmail(email);
+    created.addModerator(moderator);
+
+    UserRepository userRepository = new UserRepository(conn);
+    userRepository.createStandardUser(email);
+
+    eventService.updateEvent(created);
+
+    Optional<Event> eventFromDb = eventService.getEvent(created.getId());
+
+    assertTrue(eventFromDb.isPresent());
+    assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(eventFromDb.get().getModerators().contains(moderator));
+    assertEquals(eventFromDb.get().getModerators().size(),1);
+  }
+
 
   @Test
   public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {

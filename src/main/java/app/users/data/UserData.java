@@ -55,6 +55,9 @@ public class UserData {
   }
 
   public String getImageFilePath(){
+    if(imageFilePath == null){
+      return "";
+    }
     return this.imageFilePath;
   }
 
