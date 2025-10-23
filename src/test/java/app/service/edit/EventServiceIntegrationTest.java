@@ -671,6 +671,26 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testAdmin_IsNotEventModerator_AndCannotBeSetAsEventModerator() throws Exception {
+
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService adminEventService = adminContext.createEventService();
+
+    Event eventCreated1 = adminEventService.createEvent(event1, group.getId());
+    assertEquals(eventCreated1.getModerators().size(),0);
+
+
+    Exception exception = assertThrows(
+        Exception.class,
+        () -> {
+          adminEventService.addEventModerator(eventCreated1, adminContext.getUser());
+        }
+    );
+    assertEquals("Site admin cannot be event moderator",exception.getMessage(),exception.getMessage());
+  }
+
+  @Test
   public void testMultipleEvents_addDifferentModeratorToEach() throws Exception {
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 

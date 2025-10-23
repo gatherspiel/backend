@@ -95,6 +95,9 @@ public class EventService {
   }
 
   public void addEventModerator(Event event, User moderatorToAdd) throws Exception{
+    if(moderatorToAdd.isSiteAdmin()){
+      throw new PermissionError("Site admin cannot be event moderator");
+    }
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event moderator");
     }
