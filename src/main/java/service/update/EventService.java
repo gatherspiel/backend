@@ -4,8 +4,10 @@ import app.groups.data.Event;
 import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
+import app.users.data.UserData;
 import database.content.EventRepository;
 import database.files.ImageRepository;
+import database.permissions.UserPermissionsRepository;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class EventService {
@@ -33,11 +36,13 @@ public class EventService {
     var event = eventRepository.getEvent(eventId);
 
     if(event.isPresent()){
-      if(groupPermissionService.canEditGroup(event.get().getGroupId())) {
-        event.get().setUserCanEditPermission(true);
-      } else {
-        event.get().setUserCanEditPermission(false);
-      }
+      UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
+
+      Set<UserData> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
+
+      boolean currentUserCanEdit = eventEditors.contains(user.getUserData());
+      event.get().setUserCanEditPermission(currentUserCanEdit);
+      event.get().setModerators(eventEditors);
     }
     return event;
   }
@@ -66,7 +71,7 @@ public class EventService {
 
   public Event updateEvent(Event event, int groupId) throws Exception{
     if(!groupPermissionService.canEditEvent(event)){
-      throw new PermissionError("User does not have permission to add event to group");
+      throw new PermissionError("User does not have permission to modify event");
     }
     Event updated = eventRepository.updateEvent(event);
     if(event.getImage() != null){

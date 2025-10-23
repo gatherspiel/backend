@@ -4,7 +4,7 @@ public class User {
   private String email;
   private UserType userType;
   private int id;
-  private UserData userData;
+  private UserData userData = new UserData();
 
   public User(String email, UserType userType, int id){
     this.email = email;

@@ -35,9 +35,11 @@ public class EmailService {
       final Resend resendClient = new Resend(EMAIL_KEY);
       CreateEmailResponse data = resendClient.emails().send(params);
     } catch (RuntimeException | ResendException e) {
-      e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
-      e.printStackTrace();
       logger.warn("Failed to send email for creating group");
+      if(("prod").equals(System.getenv("ENV"))) {
+        e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
+        e.printStackTrace();
+      }
     }
   }
 

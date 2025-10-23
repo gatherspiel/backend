@@ -236,7 +236,6 @@ public class EventRepository {
          locations.zip_code as zip_code,
          locations.state as state,
          locations.street_address as street_address
-
          from events
         LEFT JOIN event_time on event_time.event_id = events.id
         LEFT JOIN locations on events.location_id = locations.id
@@ -318,7 +317,7 @@ public class EventRepository {
 
     String query = """
       INSERT into event_admin_data (user_id, event_id, event_admin_level)
-      VALUES (?,?,?)
+      VALUES (?,?,cast(? as event_admin_level))
     """;
 
     PreparedStatement insert = conn.prepareStatement(query);
@@ -343,6 +342,7 @@ public class EventRepository {
     insert.setInt(2, event.getId());
     insert.executeUpdate();
   }
+
 
   private void updateEventGroupMap(
     int groupId,

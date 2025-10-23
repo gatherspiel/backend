@@ -6,12 +6,16 @@ import app.users.data.EventAdminType;
 import app.users.data.GroupAdminType;
 import app.users.data.User;
 import app.result.error.group.GroupNotFoundError;
+import app.users.data.UserData;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class UserPermissionsRepository
 {
@@ -51,7 +55,7 @@ public class UserPermissionsRepository
   public boolean canUpdateGroupAdmin(User user, int groupId) throws Exception {
     String query =  """
                       SELECT (group_admin_level)
-                      FROM group_admin_data 
+                      FROM group_admin_data
                       WHERE user_id = ?
                       AND group_id = ?
                       AND group_admin_level = cast(? as group_admin_level)
@@ -75,37 +79,54 @@ public class UserPermissionsRepository
     PreparedStatement select = conn.prepareStatement(query);
     select.setInt(1, groupId);
 
-    ResultSet rs = select.executeQuery();
-    if(!rs.next()){
-      var message = "Group "+groupId + " not found";
-      logger.error(message);
-      throw new GroupNotFoundError(message);
-    }
-    return rs;
+    return select.executeQuery();
   }
 
-  private ResultSet getEventEditorRoles(int eventId) throws Exception {
-    String query =  """
-                      SELECT * from events
+  public Set<UserData> getEventEditorRoles(int eventId) throws Exception {
+
+    try {
+      String query =  """
+                      SELECT
+                        users.id as userId,
+                        events.id as eventId,
+                        event_admin_level,
+                        users.image_path,
+                        username  
+                     from events
                       FULL JOIN event_admin_data on event_admin_data.event_id = events.id
+                      LEFT JOIN users on event_admin_data.user_id = users.id
                       WHERE events.id = ?
                     """;
 
-    PreparedStatement select = conn.prepareStatement(query);
-    select.setInt(1, eventId);
+      PreparedStatement select = conn.prepareStatement(query);
+      select.setInt(1, eventId);
 
-    ResultSet rs = select.executeQuery();
-    if(!rs.next()){
-      var message = "Event "+eventId + " not found";
-      logger.error(message);
-      throw new EventNotFoundError(message);
+      ResultSet rs = select.executeQuery();
+
+      Set<UserData> editors = new HashSet<>();
+      while(rs.next()){
+        String eventAdminLevel = rs.getString("event_admin_level");
+
+        if(eventAdminLevel != null && eventAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
+          UserData userData = new UserData();
+          userData.setImageFilePath(rs.getString("image_path"));
+          userData.setUsername(rs.getString("username"));
+          editors.add(userData);
+        }
+      }
+      return editors;
+    } catch(Exception e){
+      logger.error("Failed to get event editor roles");
+      Exception ex = new RuntimeException(e.getMessage());
+      ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(ex.getStackTrace()));
+      throw e;
     }
-    return rs;
+
   }
 
   public boolean hasGroupEditorRole(User user, int groupId) throws Exception {
     ResultSet rs = getGroupEditorRoles(groupId);
-    while(true){
+    while(rs.next()){
       int user_id = rs.getInt("user_id");
       String groupAdminLevel = rs.getString("group_admin_level");
       if(user_id == user.getId()) {
@@ -114,26 +135,12 @@ public class UserPermissionsRepository
           return true;
         }
       }
-      if(!rs.next()){
-        return false;
-      }
     }
+    return false;
   }
 
-  public boolean hasEventEditorRole(User user, int groupId) throws Exception {
-    ResultSet rs = getGroupEditorRoles(groupId);
-    while(true){
-      int user_id = rs.getInt("user_id");
-      String groupAdminLevel = rs.getString("event_admin_level");
-      if(user_id == user.getId()) {
-        if(groupAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
-          return true;
-        }
-      }
-      if(!rs.next()){
-        return false;
-      }
-    }
+  public boolean hasEventEditorRole(User user, int eventId) throws Exception {
+    return getEventEditorRoles(eventId).size() > 0;
   }
 
   public boolean isGroupAdmin(User user, int groupId) throws Exception {

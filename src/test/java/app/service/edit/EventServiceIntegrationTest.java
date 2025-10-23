@@ -516,7 +516,7 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
+    adminEventService.addEventModerator(event1,standardUserContext.getUser());
     EventService standardUserEventService = standardUserContext.createEventService();
 
     standardUserEventService.updateEvent(event2,group.getId());
@@ -535,8 +535,8 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
-    adminEventService.removeEventModerator(event1.getId(),standardUserContext.getUser());
+    adminEventService.addEventModerator(event1,standardUserContext.getUser());
+    adminEventService.removeEventModerator(event1,standardUserContext.getUser());
 
     EventService standardUserEventService = standardUserContext.createEventService();
 
@@ -556,8 +556,8 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
-    adminEventService.addEventModerator(event1.getId(),standardUserContext2.getUser());
+    adminEventService.addEventModerator(event1,standardUserContext.getUser());
+    adminEventService.addEventModerator(event1,standardUserContext2.getUser());
 
     EventService standardUserEventService = standardUserContext.createEventService();
     EventService standardUserEventService2 = standardUserContext2.createEventService();
@@ -583,7 +583,7 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-    adminEventService.removeEventModerator(event1.getId(),standardUserContext.getUser());
+    adminEventService.removeEventModerator(event1,standardUserContext.getUser());
 
     EventService standardUserEventService = standardUserContext.createEventService();
 
@@ -593,7 +593,8 @@ public class EventServiceIntegrationTest {
           standardUserEventService.updateEvent(event,group.getId());
         }
     );
-    assertTrue(exception.getMessage().contains("Failed to remove user as moderator that is not a moderator"));
+    System.out.println(exception.getMessage());
+    assertTrue(exception.getMessage().contains("User does not have permission to modify event"));
   }
 
   @Test
@@ -603,8 +604,8 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-    adminEventService.addEventModerator(event1.getId(), standardUserContext.getUser());
-    adminEventService.addEventModerator(event1.getId(),standardUserContext2.getUser());
+    adminEventService.addEventModerator(event1, standardUserContext.getUser());
+    adminEventService.addEventModerator(event1,standardUserContext2.getUser());
 
     EventService readOnlyUserService = readOnlyUserContext.createEventService();
 
@@ -637,7 +638,7 @@ public class EventServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Event event = eventService.createEvent(event1, group.getId());
-    eventService.addEventModerator(event.getId(), standardUserContext2.getUser());
+    eventService.addEventModerator(event, standardUserContext2.getUser());
 
     Optional<Event> eventFromDb = eventService.getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
@@ -652,8 +653,8 @@ public class EventServiceIntegrationTest {
     Event eventCreated1 = adminEventService.createEvent(event1, group.getId());
     Event eventCreated2 = adminEventService.createEvent(event2, group.getId());
 
-    adminEventService.addEventModerator(event1.getId(), standardUserContext.getUser());
-    adminEventService.addEventModerator(event2.getId(),standardUserContext2.getUser());
+    adminEventService.addEventModerator(event1, standardUserContext.getUser());
+    adminEventService.addEventModerator(event2,standardUserContext2.getUser());
 
     EventService readOnlyUserService = readOnlyUserContext.createEventService();
 

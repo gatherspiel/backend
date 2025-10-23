@@ -2,6 +2,7 @@ package app.groups.data;
 
 import app.users.data.PermissionName;
 import app.users.data.UserData;
+import app.users.data.UserDataComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import service.data.HtmlSanitizer;
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -38,7 +40,7 @@ public class Event {
   private String image;
   private String imageFilePath;
 
-  private TreeSet<UserData> moderators;
+  private TreeSet<UserData> moderators = new TreeSet<>(new UserDataComparator());
 
   public Event() {
     permissions = new HashMap<>();
@@ -198,6 +200,9 @@ public class Event {
   }
 
   public Integer getGroupId(){
+    if(groupId == null){
+      return -1;
+    }
     return groupId;
   }
 
@@ -245,10 +250,15 @@ public class Event {
     return this.imageFilePath;
   }
 
-  public void setModerators(TreeSet<UserData> moderators){
-    this.moderators = moderators;
+  public void addModerator(UserData userData){
+    this.moderators.add(userData);
   }
 
+  public void setModerators(Set<UserData> updatedModerators){
+    TreeSet<UserData> updated = new TreeSet<>(new UserDataComparator());
+    updated.addAll(updatedModerators);
+    this.moderators = updated;
+  }
   public TreeSet<UserData> getModerators(){
     return moderators;
   }
