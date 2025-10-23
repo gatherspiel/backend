@@ -834,6 +834,10 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
     assertTrue(eventFromDb.get().getModerators().contains(moderator));
     assertEquals(eventFromDb.get().getModerators().size(),1);
+
+    for(User user: eventFromDb.get().getModerators()){
+      assertTrue(user.getEmail() == null || user.getEmail().isEmpty(), user.getEmail());
+    }
   }
 
 

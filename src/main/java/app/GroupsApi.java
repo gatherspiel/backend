@@ -38,6 +38,7 @@ public class GroupsApi {
       "/groups",
       ctx -> {
 
+        //TODO: When adding group moderators, make sure group moderator emails are hidden.
         try {
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());

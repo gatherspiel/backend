@@ -40,14 +40,17 @@ public class EventService {
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
 
       Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
-
-
-
+      
       boolean currentUserCanEdit =
           user.isSiteAdmin() ||
           eventEditors.contains(user) ||
           userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
       event.get().setUserCanEditPermission(currentUserCanEdit);
+
+      for(User user: eventEditors){
+        user.setEmail("");
+      }
+
       event.get().setModerators(eventEditors);
     }
     return event;
