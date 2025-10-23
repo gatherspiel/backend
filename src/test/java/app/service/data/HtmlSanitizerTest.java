@@ -11,8 +11,6 @@ public class HtmlSanitizerTest {
     Test script blocker logic.
     Test if service classers throw error when necessary
    */
-
-
   static final String HTML_A = "<h1>Test: A title </h1><p>Content</p>";
   static final String HTML_B = "<p class=\"Class_C\">Test: \"A title \" </p>";
   static final String HTML_C = "<p id=\"Id_D\">Test: \"A title \" </p>";

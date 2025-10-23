@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
+import app.users.data.EventAdminType;
+import app.users.data.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
@@ -312,6 +314,36 @@ public class EventRepository {
     return -1;
   }
 
+  public void addEventModerator(Event event, User moderatorToAdd) throws Exception{
+
+    String query = """
+      INSERT into event_admin_data (user_id, event_id, event_admin_level)
+      VALUES (?,?,?)
+    """;
+
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, moderatorToAdd.getId());
+    insert.setInt(2, event.getId());
+    insert.setString(3, EventAdminType.EVENT_MODERATOR.toString());
+
+    insert.executeUpdate();
+  }
+
+
+  public void removeEventModerator(Event event, User moderatorToRemove) throws Exception{
+
+    String query = """
+      DELETE from event_admin_data
+      WHERE user_id = ?
+      AND event_id = ?
+    """;
+
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, moderatorToRemove.getId());
+    insert.setInt(2, event.getId());
+    insert.executeUpdate();
+  }
+
   private void updateEventGroupMap(
     int groupId,
     int eventId,
@@ -344,6 +376,7 @@ public class EventRepository {
     delete.setInt(1, groupId);
     delete.executeUpdate();
   }
+
   private void deleteEventGroupMapItem(int groupId, int eventId) throws Exception {
     String query =
         "DELETE from event_group_map WHERE group_id = ? AND event_id = ?";

@@ -4,6 +4,8 @@ public class User {
   private String email;
   private UserType userType;
   private int id;
+  private UserData userData;
+
   public User(String email, UserType userType, int id){
     this.email = email;
     this.userType = userType;
@@ -28,5 +30,13 @@ public class User {
 
   public boolean isSiteAdmin(){
     return userType.equals(UserType.SITE_ADMIN);
+  }
+
+  public UserData getUserData() {
+    return userData;
+  }
+
+  public void setUserData(UserData userData){
+    this.userData = userData;
   }
 }

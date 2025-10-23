@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.UUID;
 
 public class Event {
@@ -37,7 +38,7 @@ public class Event {
   private String image;
   private String imageFilePath;
 
-  private UserData[] moderators;
+  private TreeSet<UserData> moderators;
 
   public Event() {
     permissions = new HashMap<>();
@@ -244,11 +245,11 @@ public class Event {
     return this.imageFilePath;
   }
 
-  public void setModerators(UserData[] moderators){
+  public void setModerators(TreeSet<UserData> moderators){
     this.moderators = moderators;
   }
 
-  public UserData[] getModerators(){
+  public TreeSet<UserData> getModerators(){
     return moderators;
   }
 

@@ -1,6 +1,8 @@
 package database.permissions;
 
 import app.result.error.StackTraceShortener;
+import app.result.error.group.EventNotFoundError;
+import app.users.data.EventAdminType;
 import app.users.data.GroupAdminType;
 import app.users.data.User;
 import app.result.error.group.GroupNotFoundError;
@@ -82,6 +84,25 @@ public class UserPermissionsRepository
     return rs;
   }
 
+  private ResultSet getEventEditorRoles(int eventId) throws Exception {
+    String query =  """
+                      SELECT * from events
+                      FULL JOIN event_admin_data on event_admin_data.event_id = events.id
+                      WHERE events.id = ?
+                    """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+    select.setInt(1, eventId);
+
+    ResultSet rs = select.executeQuery();
+    if(!rs.next()){
+      var message = "Event "+eventId + " not found";
+      logger.error(message);
+      throw new EventNotFoundError(message);
+    }
+    return rs;
+  }
+
   public boolean hasGroupEditorRole(User user, int groupId) throws Exception {
     ResultSet rs = getGroupEditorRoles(groupId);
     while(true){
@@ -90,6 +111,22 @@ public class UserPermissionsRepository
       if(user_id == user.getId()) {
         if(groupAdminLevel.equals(GroupAdminType.GROUP_ADMIN.toString()) ||
             groupAdminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString())){
+          return true;
+        }
+      }
+      if(!rs.next()){
+        return false;
+      }
+    }
+  }
+
+  public boolean hasEventEditorRole(User user, int groupId) throws Exception {
+    ResultSet rs = getGroupEditorRoles(groupId);
+    while(true){
+      int user_id = rs.getInt("user_id");
+      String groupAdminLevel = rs.getString("event_admin_level");
+      if(user_id == user.getId()) {
+        if(groupAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
           return true;
         }
       }
@@ -114,4 +151,5 @@ public class UserPermissionsRepository
       }
     }
   }
+
 }

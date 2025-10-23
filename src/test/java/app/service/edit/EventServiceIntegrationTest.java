@@ -6,6 +6,8 @@ import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
 import app.users.data.PermissionName;
+import app.users.data.User;
+import app.users.data.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.update.EventService;
+import service.update.GroupEditService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,8 +62,10 @@ public class EventServiceIntegrationTest {
 
   private static SessionContext adminContext;
   private static SessionContext groupAdminContext;
-  private static SessionContext standardUserContext;
 
+  private static SessionContext readOnlyUserContext;
+  private static SessionContext standardUserContext;
+  private static SessionContext standardUserContext2;
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
@@ -91,6 +96,8 @@ public class EventServiceIntegrationTest {
       adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       groupAdminContext = CreateUserUtils.createContextWithNewStandardUser(GROUP_ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       standardUserContext = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      readOnlyUserContext = CreateUserUtils.createContextWithNewReadonlyUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
 
 
     } catch (Exception e) {
@@ -502,38 +509,168 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
-  public void testAdmin_makesStandardUserEventModerator_userCanEditEvent(){
+  public void testAdmin_makesStandardUserEventModerator_userCanEditEvent() throws Exception{
 
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    standardUserEventService.updateEvent(event2,group.getId());
+
+    Optional<Event> eventFromDb = standardUserEventService.getEvent(event.getId());
+
+    assertTrue(eventFromDb.isPresent());
+    assertEquals(eventFromDb.get().getName(),event2.getName());
   }
 
   @Test
-  public void testAdmin_makesStandardUserEventModerator_andRemovesPermission_userCannotEditEvent(){
+  public void testAdmin_makesStandardUserEventModerator_andRemovesPermission_userCannotEditEvent() throws Exception{
 
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
+    adminEventService.removeEventModerator(event1.getId(),standardUserContext.getUser());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    Exception exception = assertThrows(
+        Exception.class,
+        () -> {
+          standardUserEventService.updateEvent(event,group.getId());
+        }
+    );
+    assertTrue(exception.getMessage().contains("does not have permission"));
   }
 
   @Test
-  public void testTwoUsersAre_SetAsEventModerators_BothHavePermissionToEditEvent(){
+  public void testTwoUsersAre_SetAsEventModerators_BothHavePermissionToEditEvent() throws Exception{
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+    adminEventService.addEventModerator(event1.getId(),standardUserContext.getUser());
+    adminEventService.addEventModerator(event1.getId(),standardUserContext2.getUser());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+    EventService standardUserEventService2 = standardUserContext2.createEventService();
+
+    standardUserEventService.updateEvent(event2,group.getId());
+    Optional<Event> eventFromDb = standardUserEventService.getEvent(event.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertEquals(eventFromDb.get().getName(),event2.getName());
+
+    String updatedName = event.getName()+"_1";
+
+    event.setName(updatedName);
+    standardUserEventService2.updateEvent(event, group.getId());
+    Optional<Event> eventFromDb2 = standardUserEventService.getEvent(event.getId());
+    assertTrue(eventFromDb2.isPresent());
+    assertEquals(eventFromDb2.get().getName(),event.getName());
   }
 
   @Test
-  public void testRemoveModeratorPermissionFromUser_UserIsNotModerator_throwsError(){
+  public void testRemoveModeratorPermissionFromUser_UserIsNotModerator_throwsError() throws Exception{
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+    adminEventService.removeEventModerator(event1.getId(),standardUserContext.getUser());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    Exception exception = assertThrows(
+        Exception.class,
+        () -> {
+          standardUserEventService.updateEvent(event,group.getId());
+        }
+    );
+    assertTrue(exception.getMessage().contains("Failed to remove user as moderator that is not a moderator"));
   }
 
   @Test
-  public void testTwoUsersAre_SetAsEventModerators_BothAreReturnedForEventData(){
+  public void testTwoUsersAre_SetAsEventModerators_BothAreReturnedForEventData() throws Exception{
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
 
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+    adminEventService.addEventModerator(event1.getId(), standardUserContext.getUser());
+    adminEventService.addEventModerator(event1.getId(),standardUserContext2.getUser());
+
+    EventService readOnlyUserService = readOnlyUserContext.createEventService();
+
+    Optional<Event> eventFromDb = readOnlyUserService.getEvent(event.getId());
+    assertTrue(eventFromDb.isPresent());
+
+    Set<UserData> moderators = eventFromDb.get().getModerators();
+    assertTrue(moderators.contains(standardUserContext.getUser().getUserData()));
+    assertTrue(moderators.contains(standardUserContext2.getUser().getUserData()));
   }
 
   @Test
-  public void testStandardUser_CreateEventModerator(){
+  public void testCreateNewEvent_NoEventModerators() throws Exception{
+    EventService eventService = standardUserContext.createEventService();
 
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+
+    Event event = eventService.createEvent(event1, group.getId());
+
+    Optional<Event> eventFromDb = eventService.getEvent(event.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertEquals(eventFromDb.get().getModerators().size(),0);
   }
 
   @Test
-  public void testGroupAdmin_canCreateEventModerator(){
+  public void testStandardUser_CreateEventModerator() throws Exception{
 
+    EventService eventService = standardUserContext.createEventService();
+
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+
+    Event event = eventService.createEvent(event1, group.getId());
+    eventService.addEventModerator(event.getId(), standardUserContext2.getUser());
+
+    Optional<Event> eventFromDb = eventService.getEvent(event.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertEquals(eventFromDb.get().getModerators().size(),1);
+  }
+
+  @Test
+  public void testMultipleEvents_addDifferentModeratorToEach() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService adminEventService = adminContext.createEventService();
+    Event eventCreated1 = adminEventService.createEvent(event1, group.getId());
+    Event eventCreated2 = adminEventService.createEvent(event2, group.getId());
+
+    adminEventService.addEventModerator(event1.getId(), standardUserContext.getUser());
+    adminEventService.addEventModerator(event2.getId(),standardUserContext2.getUser());
+
+    EventService readOnlyUserService = readOnlyUserContext.createEventService();
+
+    Optional<Event> eventFromDb1 = readOnlyUserService.getEvent(eventCreated1.getId());
+    Optional<Event> eventFromDb2 = readOnlyUserService.getEvent(eventCreated2.getId());
+
+    assertTrue(eventFromDb1.isPresent());
+    assertTrue(eventFromDb2.isPresent());
+
+    Set<UserData> moderators1 = eventFromDb1.get().getModerators();
+    Set<UserData> moderators2 = eventFromDb2.get().getModerators();
+
+    assertEquals(1,moderators1.size());
+    assertEquals(1,moderators1.size());
+
+    assertTrue(moderators1.contains(standardUserContext.getUser().getUserData()));
+    assertTrue(moderators2.contains(standardUserContext2.getUser().getUserData()));
   }
 
   @AfterEach

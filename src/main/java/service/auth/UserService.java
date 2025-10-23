@@ -42,6 +42,10 @@ public class UserService {
     return dataProvider.getRepository().createAdmin(email);
   }
 
+  public User createReadOnlyUser(String email) throws Exception {
+    return dataProvider.getRepository().createReadOnlyUser(email);
+  }
+
   public User createStandardUser(String email) throws Exception{
     return dataProvider.getRepository().createStandardUser(email);
   }

@@ -65,7 +65,7 @@ public class EventService {
   }
 
   public Event updateEvent(Event event, int groupId) throws Exception{
-    if(!groupPermissionService.canEditGroup(groupId)){
+    if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event to group");
     }
     Event updated = eventRepository.updateEvent(event);
@@ -85,12 +85,20 @@ public class EventService {
     eventRepository.deleteEvent(eventId, groupId);
   }
 
-  public void addEventModerator(User moderatorToAdd) throws Exception{
+  public void addEventModerator(Event event, User moderatorToAdd) throws Exception{
+    if(!groupPermissionService.canEditEvent(event)){
+      throw new PermissionError("User does not have permission to add event moderator");
+    }
 
+    eventRepository.addEventModerator(event, moderatorToAdd);
   }
 
-  public void removeEventModerator(User moderatorToRemove) throws Exception {
+  public void removeEventModerator(Event event, User moderatorToRemove) throws Exception {
+    if(!groupPermissionService.canEditEvent(event)){
+      throw new PermissionError("User does not have permission to add event moderator");
+    }
 
+    eventRepository.removeEventModerator(event, moderatorToRemove);
   }
 
   public static Event createEventObject(

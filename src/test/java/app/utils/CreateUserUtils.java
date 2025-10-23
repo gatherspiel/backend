@@ -21,11 +21,6 @@ public class CreateUserUtils {
     return user;
   }
 
-  public static SessionContext createContextWithExistingUser(User user, ConnectionProvider provider) throws Exception{
-    var context = SessionContext.createContextWithoutUser(provider);
-    context.setUser(user);
-    return context;
-  }
 
   public static SessionContext createContextWithNewAdminUser(String username, ConnectionProvider provider) throws Exception {
 
@@ -44,7 +39,15 @@ public class CreateUserUtils {
     User user = userService.createStandardUser(username);
     sessionContext.setUser(user);
 
+    return sessionContext;
+  }
 
+  public static SessionContext createContextWithNewReadonlyUser(String username, ConnectionProvider provider) throws Exception {
+
+    var sessionContext = SessionContext.createContextWithoutUser(provider);
+    var userService = sessionContext.createUserService();
+    User admin = userService.createAdmin(username);
+    sessionContext.setUser(admin);
 
     return sessionContext;
   }
