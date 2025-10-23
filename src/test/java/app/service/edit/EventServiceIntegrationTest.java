@@ -550,6 +550,30 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testAdmin_makesStandardUserEventModerator_noUserIdSpecified_userCanEditEvent() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+
+    EventService adminEventService = adminContext.createEventService();
+    Event event = adminEventService.createEvent(event1, group.getId());
+
+
+    User moderator = new User();
+    moderator.setEmail(standardUserContext.getUser().getEmail());
+    adminEventService.addEventModerator(event1,moderator);
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    event.setName(event2.getName());
+    event.setGroupId(group.getId());
+    standardUserEventService.updateEvent(event);
+
+    Optional<Event> eventFromDb = standardUserEventService.getEvent(event.getId());
+
+    assertTrue(eventFromDb.isPresent());
+    assertEquals(eventFromDb.get().getName(),event2.getName());
+  }
+
+  @Test
   public void testAdmin_makesStandardUserEventModerator_andRemovesPermission_userCannotEditEvent() throws Exception{
 
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
@@ -655,7 +679,6 @@ public class EventServiceIntegrationTest {
 
     Set<User> moderators = eventFromDb.get().getModerators();
 
-    System.out.println(moderators.size());
     for(User user: moderators){
       System.out.println(user.getId());
     }

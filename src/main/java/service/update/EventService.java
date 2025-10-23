@@ -75,6 +75,7 @@ public class EventService {
   }
 
   public Event updateEvent(Event event) throws Exception{
+
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to modify event");
     }

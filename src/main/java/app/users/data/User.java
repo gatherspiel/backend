@@ -7,7 +7,7 @@ public class User {
   private UserData userData = new UserData();
 
   public User(){
-
+    userType = UserType.USER;
   }
 
   public User(String email, UserType userType, int id){
@@ -26,6 +26,10 @@ public class User {
 
   public int getId(){
     return id;
+  }
+
+  public void setEmail(String email){
+    this.email = email;
   }
 
   public String getEmail(){

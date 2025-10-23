@@ -13,6 +13,7 @@ import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
 import app.users.data.EventAdminType;
 import app.users.data.User;
+import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
@@ -315,6 +316,11 @@ public class EventRepository {
 
   public void addEventModerator(Event event, User moderatorToAdd) throws Exception{
 
+    if(moderatorToAdd.getId() == 0){
+      UserRepository userRepository = new UserRepository(conn);
+      User userFromDb = userRepository.getActiveUserFromEmail(moderatorToAdd.getEmail());
+      moderatorToAdd.setId(userFromDb.getId());
+    }
     String query = """
       INSERT into event_admin_data (user_id, event_id, event_admin_level)
       VALUES (?,?,cast(? as event_admin_level))
