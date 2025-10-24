@@ -1,7 +1,9 @@
 package database.user;
 
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.users.data.UserType;
+import app.users.data.UserData;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -46,7 +48,7 @@ public class UserRepository extends BaseRepository {
 
     ResultSet rs = insert.executeQuery();
     if(!rs.next()) {
-      var message = "Failed to create admin user";
+      var message = "Failed to create standard user";
       logger.error(message);
       throw new Exception(message);
     }
@@ -54,6 +56,26 @@ public class UserRepository extends BaseRepository {
     int userId = rs.getInt(1);
     logger.info("Created user with id:"+userId);
     return new User(email, UserType.USER, userId);
+  }
+
+  public User createReadOnlyUser(String email) throws Exception{
+    String query =
+        "INSERT INTO users(email, user_role_level, is_active) VALUES(?,cast(? as user_role_level), true) returning id";
+
+    PreparedStatement insert = connection.prepareStatement(query);
+    insert.setString(1, email);
+    insert.setString(2, "read_only");
+
+    ResultSet rs = insert.executeQuery();
+    if(!rs.next()) {
+      var message = "Failed to create readonly user";
+      logger.error(message);
+      throw new Exception(message);
+    }
+
+    int userId = rs.getInt(1);
+    logger.info("Created user with id:"+userId);
+    return new User(email, UserType.READONLY, userId);
   }
 
   public User createTester(String email) throws Exception{
@@ -152,6 +174,43 @@ public class UserRepository extends BaseRepository {
     statement.executeUpdate();
   }
 
+  public void updateUserData(UserData userData, String email) throws Exception{
+    String query = """
+      UPDATE users
+      set image_path = ?,
+      username = ?
+      WHERE email = ?
+    """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, userData.getImageFilePath());
+    statement.setString(2, userData.getUsername());
+    statement.setString(3,email);
+
+    statement.executeUpdate();
+  }
+
+  public UserData getUserData(String email) throws Exception {
+    String query = """
+      SELECT 
+        image_path,
+        username
+      FROM users
+      WHERE email = ?    
+    """;
+
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setString(1, email);
+
+    ResultSet rs = statement.executeQuery();
+    if(rs.next()){
+      UserData userData = new UserData();
+      userData.setImageFilePath(rs.getString("image_path"));
+      userData.setUsername(rs.getString("username"));
+      return userData;
+    }
+    throw new UnauthorizedError("Cannot access user data");
+  }
 
   public int countUsers() throws Exception{
     String query = """

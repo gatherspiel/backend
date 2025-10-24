@@ -11,7 +11,6 @@ import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
 import org.apache.logging.log4j.Logger;
 import service.EmailService;
-import service.read.SearchService;
 import utils.LogUtils;
 
 import java.sql.Connection;

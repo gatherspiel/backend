@@ -1,11 +1,14 @@
 package service.update;
 
 import app.groups.data.Event;
+import app.result.error.group.EventNotFoundError;
 import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
+import app.users.data.UserData;
 import database.content.EventRepository;
 import database.files.ImageRepository;
+import database.permissions.UserPermissionsRepository;
 
 import java.sql.Connection;
 import java.time.DayOfWeek;
@@ -13,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class EventService {
@@ -33,11 +37,21 @@ public class EventService {
     var event = eventRepository.getEvent(eventId);
 
     if(event.isPresent()){
-      if(groupPermissionService.canEditGroup(event.get().getGroupId())) {
-        event.get().setUserCanEditPermission(true);
-      } else {
-        event.get().setUserCanEditPermission(false);
+      UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
+
+      Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
+      
+      boolean currentUserCanEdit =
+          user.isSiteAdmin() ||
+          eventEditors.contains(user) ||
+          userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
+      event.get().setUserCanEditPermission(currentUserCanEdit);
+
+      for(User user: eventEditors){
+        user.setEmail("");
       }
+
+      event.get().setModerators(eventEditors);
     }
     return event;
   }
@@ -61,12 +75,14 @@ public class EventService {
       created.setImage(event.getImage());
       created.setImageFilePath(event.getImageFilePath());
     }
+    created.setGroupId(groupId);
     return created;
   }
 
-  public Event updateEvent(Event event, int groupId) throws Exception{
-    if(!groupPermissionService.canEditGroup(groupId)){
-      throw new PermissionError("User does not have permission to add event to group");
+  public Event updateEvent(Event event) throws Exception{
+
+    if(!groupPermissionService.canEditEvent(event)){
+      throw new PermissionError("User does not have permission to modify event");
     }
     Event updated = eventRepository.updateEvent(event);
     if(event.getImage() != null){
@@ -75,6 +91,14 @@ public class EventService {
       updated.setImage(event.getImage());
       updated.setImageFilePath(event.getImageFilePath());
     }
+
+    if(event.getModerators().size()>0){
+      eventRepository.clearEventModerators(event);
+      for(User moderator: event.getModerators()){
+        eventRepository.addEventModerator(event, moderator);
+      }
+    }
+
     return updated;
   }
 
@@ -83,6 +107,25 @@ public class EventService {
       throw new PermissionError("User does not have permission to add event to group");
     }
     eventRepository.deleteEvent(eventId, groupId);
+  }
+
+  public void addEventModerator(Event event, User moderatorToAdd) throws Exception{
+    if(moderatorToAdd.isSiteAdmin()){
+      throw new PermissionError("Site admin cannot be event moderator");
+    }
+    if(!groupPermissionService.canEditEvent(event)){
+      throw new PermissionError("User does not have permission to add event moderator");
+    }
+
+    eventRepository.addEventModerator(event, moderatorToAdd);
+  }
+
+  public void removeEventModerator(Event event, User moderatorToRemove) throws Exception {
+    if(!groupPermissionService.canEditEvent(event)){
+      throw new PermissionError("User does not have permission to add event moderator");
+    }
+
+    eventRepository.removeEventModerator(event, moderatorToRemove);
   }
 
   public static Event createEventObject(
@@ -141,4 +184,5 @@ public class EventService {
     eventLocation.setZipCode(22202);
     return eventLocation;
   }
+
 }

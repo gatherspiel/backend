@@ -30,6 +30,7 @@ public class CreateGroupUtils {
     Group group = new Group();
     group.setName("group-"+UUID.randomUUID());
     group.setUrl("localhost:1234/"+group.getName());
+    group.setDescription("");
     return group;
   }
 }

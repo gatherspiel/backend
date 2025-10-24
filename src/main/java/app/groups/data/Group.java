@@ -2,6 +2,7 @@ package app.groups.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import service.data.HtmlSanitizer;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -49,7 +50,7 @@ public class Group {
   }
 
   public void setDescription(String description) {
-    this.description = description;
+    this.description = HtmlSanitizer.sanitizeHtml(description);
   }
 
   public String getDescription(){
@@ -61,7 +62,7 @@ public class Group {
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = HtmlSanitizer.sanitizeTextOnly(name);
   }
 
   public void setEvents(ArrayList<Event> events) {
@@ -149,6 +150,7 @@ public class Group {
 
   public void addCity(String city) {
 
+    city = HtmlSanitizer.sanitizeTextOnly(city);
     if(city == null){
       return;
     }

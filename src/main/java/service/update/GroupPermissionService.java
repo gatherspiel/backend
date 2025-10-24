@@ -1,5 +1,6 @@
 package service.update;
 
+import app.groups.data.Event;
 import app.users.data.User;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
@@ -34,10 +35,21 @@ public class GroupPermissionService {
     userPermissionsRepository.addGroupModerator(userToUpdate, groupId);
   }
 
-  public boolean canEditGroup( int groupId) throws Exception {
+  public boolean canEditGroup(int groupId) throws Exception {
     if(user.isSiteAdmin()){
       return groupsRepository.getGroupWithOneTimeEvents(groupId).isPresent();
     }
     return userPermissionsRepository.hasGroupEditorRole(user, groupId);
+  }
+
+  public boolean canEditEvent(Event event) throws Exception {
+
+    if(user.isSiteAdmin()){
+      return true;
+    } else {
+
+      return userPermissionsRepository.hasGroupEditorRole(user,event.getGroupId()) ||
+          userPermissionsRepository.hasEventEditorRole(user, event.getId());
+    }
   }
 }
