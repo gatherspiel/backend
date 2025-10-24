@@ -61,11 +61,10 @@ public class GroupEditServiceIntegrationTest {
   private static LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
   private static void assertGroupsAreEqual(Group group1, Group group2){
-    assertEquals(group1.id, group2.id);
-    assertEquals(group1.url, group2.url);
-    assertEquals(group1.name, group2.name);
-    assertEquals(group1.description, group2.description);
-
+    assertEquals(group1.getId(), group2.getId());
+    assertEquals(group1.getUrl(), group2.getUrl());
+    assertEquals(group1.getName(), group2.getName());
+    assertEquals(group1.getDescription(), group2.getDescription());
   }
 
   @BeforeAll

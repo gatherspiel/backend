@@ -95,7 +95,7 @@ public class UserService {
 
     if(userData.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
-      imageRepository.uploadImage(userData.getImage(), userData.getImageFilePath());
+      imageRepository.uploadImage(userData.getImage(), userData.getImageBucketKey());
     }
   }
 

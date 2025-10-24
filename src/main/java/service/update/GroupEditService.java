@@ -47,7 +47,7 @@ public class GroupEditService {
     //The group has a new image
     if(groupToUpdate.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
-      imageRepository.uploadImage(groupToUpdate.getImage(),groupToUpdate.getImageFilePath());
+      imageRepository.uploadImage(groupToUpdate.getImage(),groupToUpdate.getImageBucketKey());
     }
     groupsRepository.updateGroup(groupToUpdate);
   }
@@ -64,9 +64,9 @@ public class GroupEditService {
 
     Group group = groupsRepository.insertGroup(user, groupToInsert);
 
-    if(groupToInsert.image != null){
+    if(groupToInsert.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
-      imageRepository.uploadImage(groupToInsert.getImage(),groupToInsert.getImageFilePath());
+      imageRepository.uploadImage(groupToInsert.getImage(),groupToInsert.getImageBucketKey());
     }
     this.emailService.sendGroupCreatedNotification(group);
     return group;

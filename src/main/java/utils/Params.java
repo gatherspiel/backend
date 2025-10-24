@@ -3,10 +3,11 @@ package utils;
 import java.util.Optional;
 
 /**
- * This class contains utility functions for retrieving environment variable information
+ * This class contains utility functions for retrieving configuration variables variable information
  */
 public class Params {
 
+  public static final String IMAGE_BUCKET_URL = "https://gatherspiel.nyc3.cdn.digitaloceanspaces.com/";
   public static Optional<String> getDatabasePassword(){
     var password = System.getenv("DB_PASSWORD");
     if(password == null || password.isBlank()){
@@ -33,4 +34,5 @@ public class Params {
   public static String getSupabasePasswordCheckUrl(){
     return "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/token?grant_type=password";
   }
+
 }

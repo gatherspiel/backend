@@ -34,16 +34,16 @@ public class GroupsRepository {
     LocationsRepository locationsRepository = new LocationsRepository(conn);
     Set<String> urlsInDb = getGroupsInDatabase(groups);
     for (Group group : groups) {
-      if (!urlsInDb.contains(group.url)) {
-        urlsInDb.add(group.url);
+      if (!urlsInDb.contains(group.getUrl())) {
+        urlsInDb.add(group.getUrl());
 
         String query =
           "INSERT INTO groups (name, url, description) VALUES(?,?,?) returning id";
 
         PreparedStatement insert = conn.prepareStatement(query);
-        insert.setString(1, group.name);
-        insert.setString(2, group.url);
-        insert.setString(3, group.description);
+        insert.setString(1, group.getName());
+        insert.setString(2, group.getUrl());
+        insert.setString(3, group.getDescription());
 
         ResultSet rs = insert.executeQuery();
         if (rs.next()) {
@@ -89,7 +89,7 @@ public class GroupsRepository {
   public int getGroupId(Group group) throws Exception {
     String query = "SELECT * from groups where url = ?";
     PreparedStatement select = conn.prepareStatement(query);
-    select.setString(1, group.url);
+    select.setString(1, group.getUrl());
 
     ResultSet rs = select.executeQuery();
     if (!rs.next()) {
