@@ -1,5 +1,7 @@
 package app.groups.data;
 
+import service.data.HtmlSanitizer;
+
 public class EventLocation {
   private String city;
   private EventLocationState state;
@@ -7,7 +9,7 @@ public class EventLocation {
   private Integer zipCode;
 
   public void setCity(String city){
-    this.city = city;
+    this.city = HtmlSanitizer.sanitizeTextOnly(city);
   }
 
   public String getCity(){
@@ -27,7 +29,7 @@ public class EventLocation {
   }
 
   public void setStreetAddress(String streetAddress){
-    this.streetAddress = streetAddress;
+    this.streetAddress = HtmlSanitizer.sanitizeTextOnly(streetAddress);
   }
 
   public String getStreetAddress(){

@@ -78,7 +78,7 @@ public class AuthService {
       e.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       e.printStackTrace();
       if(e.getMessage().contains("Unable to validate email address")){
-        System.out.println("Invalid email");
+        logger.error("Invalid email");
         throw new RegisterUserInvalidEmailException(e.getMessage());
       }
       throw new RegisterUserException("Failed to create user due to error:"+e.getMessage());
@@ -179,7 +179,7 @@ public class AuthService {
       return getReadOnlyUser();
     }
 
-    UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn));
+    UserService userService = new UserService(UserService.DataProvider.createDataProvider(conn),AuthService.getReadOnlyUser());
     SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
 
     AuthService authService = new AuthService(supabaseAuthProvider, userService);
@@ -189,7 +189,7 @@ public class AuthService {
   public static RegisterUserResponse registerUser(Context ctx) throws Exception{
     var connectionProvider = new ConnectionProvider();
 
-    UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getConnectionWithManualCommit()));
+    UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getConnectionWithManualCommit()),AuthService.getReadOnlyUser());
     SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
 
     AuthService authService = new AuthService(supabaseAuthProvider, userService);

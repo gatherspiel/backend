@@ -1,8 +1,12 @@
 package app.groups.data;
 
 import app.users.data.PermissionName;
+import app.users.data.User;
+import app.users.data.UserData;
+import app.users.data.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import service.data.HtmlSanitizer;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -10,6 +14,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 public class Event {
@@ -34,6 +40,8 @@ public class Event {
 
   private String image;
   private String imageFilePath;
+
+  private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
   public Event() {
     permissions = new HashMap<>();
@@ -88,7 +96,6 @@ public class Event {
   }
 
 
-
   public String getLocation() {
     return eventLocation.toString();
   }
@@ -122,7 +129,8 @@ public class Event {
   }
 
   public void setDescription(String description) {
-    this.description = description;
+
+    this.description = HtmlSanitizer.sanitizeHtml(description);
   }
 
   public String getName() {
@@ -130,7 +138,7 @@ public class Event {
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.name = HtmlSanitizer.sanitizeTextOnly(name);
   }
 
   public String getUrl(){
@@ -181,7 +189,7 @@ public class Event {
   }
 
   public void setGroupName(String groupName){
-    this.groupName = groupName;
+    this.groupName = HtmlSanitizer.sanitizeTextOnly(groupName);
   }
 
   public String getGroupName() {
@@ -193,6 +201,9 @@ public class Event {
   }
 
   public Integer getGroupId(){
+    if(groupId == null){
+      return -1;
+    }
     return groupId;
   }
 
@@ -240,6 +251,18 @@ public class Event {
     return this.imageFilePath;
   }
 
+  public void addModerator(User user){
+    this.moderators.add(user);
+  }
+
+  public void setModerators(Set<User> updatedModerators){
+    TreeSet<User> updated = new TreeSet<>(new UserComparator());
+    updated.addAll(updatedModerators);
+    this.moderators = updated;
+  }
+  public TreeSet<User> getModerators(){
+    return moderators;
+  }
 
   public String toString(){
     return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +

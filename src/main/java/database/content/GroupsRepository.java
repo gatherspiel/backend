@@ -5,6 +5,7 @@ import app.groups.data.EventLocation;
 import app.groups.data.Group;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateGroupNameError;
+import app.result.error.group.GroupNotFoundError;
 import app.result.error.group.GroupUpdateError;
 import app.users.data.User;
 import org.apache.logging.log4j.Logger;
@@ -251,6 +252,8 @@ public class GroupsRepository {
   }
 
   public void updateGroup(Group groupToUpdate) throws Exception{
+
+    int updatedRows;
     try {
       String updateQuery =    """
              UPDATE groups
@@ -269,14 +272,19 @@ public class GroupsRepository {
       update.setArray(4, conn.createArrayOf("game_type_tag",groupToUpdate.getGameTypeTags()));
       update.setString(5,groupToUpdate.getImageFilePath());
       update.setInt(6, groupToUpdate.getId());
-      update.executeUpdate();
+
+      updatedRows = update.executeUpdate();
+
 
     } catch (Exception e){
       logger.error("Failed to update group");
-      System.out.println(e.getMessage());
       GroupUpdateError ex = new GroupUpdateError(e.getMessage());
       ex.setStackTrace(StackTraceShortener.generateDisplayStackTrace(e.getStackTrace()));
       throw ex;
+    }
+
+    if(updatedRows == 0){
+      throw new GroupNotFoundError("Invalid group parameters for update");
     }
   }
 

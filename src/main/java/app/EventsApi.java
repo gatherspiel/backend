@@ -100,7 +100,7 @@ public class EventsApi {
             var event = ctx.bodyAsClass(Event.class);
 
             var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
-            sessionContext.createEventService().updateEvent(event, groupId);
+            sessionContext.createEventService().updateEvent(event);
             ctx.result("Updated event");
             ctx.status(HttpStatus.OK);
           } catch(NumberFormatException | DuplicateEventError e) {

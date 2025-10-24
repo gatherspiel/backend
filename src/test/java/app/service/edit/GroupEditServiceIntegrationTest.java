@@ -195,7 +195,7 @@ public class GroupEditServiceIntegrationTest {
           adminContext.createGroupEditService().editGroup(updated);
         }
     );
-    assertTrue(exception.getMessage().contains("not found"));
+    assertTrue(exception.getMessage().contains("Invalid group parameters for update"),exception.getMessage());
 
   }
 

@@ -1,6 +1,7 @@
 package app.service.auth;
 
 import app.users.data.User;
+import app.users.data.UserData;
 import app.users.data.UserType;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
 
-public class RegisterUserIntegrationTest {
+public class UserIntegrationTest {
 
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
@@ -45,7 +46,7 @@ public class RegisterUserIntegrationTest {
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
 
-      userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn));
+      userService = new UserService(UserService.DataProvider.createDataProvider(transactionConn), AuthService.getReadOnlyUser());
 
       authServiceWithError = new AuthService(new MockAuthProviderInvalidToken(), userService);
       authService = new AuthService(new NoErrorMockAuthProvider(), userService);
@@ -191,6 +192,69 @@ public class RegisterUserIntegrationTest {
     User authenticatedUser = authService.getUser(context);
     assertEquals(user.getEmail(), authenticatedUser.getEmail());
     assertEquals(user.getAdminLevel(), authenticatedUser.getAdminLevel());
+  }
+
+  @Test
+  public void testUserIsNotLoggedIn_CannotAccessUserData(){
+    User user = CreateUserUtils.createUserObject(UserType.READONLY);
+    Exception exception = assertThrows(
+        Exception.class,
+        ()->{
+          userService.getLoggedInUserData();
+        }
+    );
+    assertTrue(exception.getMessage().contains("Cannot access user data without logging in"), exception.getMessage());
+
+  }
+
+  @Test
+  public void testUserIsNotLoggedIn_CannotUpdateUserData(){
+    User user = CreateUserUtils.createUserObject(UserType.READONLY);
+    Exception exception = assertThrows(
+        Exception.class,
+        ()->{
+          userService.updateUser(new UserData());
+        }
+    );
+    assertTrue(exception.getMessage().contains("User must log in to edit their user data"), exception.getMessage());
+  }
+
+  @Test
+  public void testLoggedInUser_UpdatesAnd_RetrievesCorrectData_WhenMultipleUsersExist() throws Exception{
+
+    var standardUserContext = CreateUserUtils.createContextWithNewStandardUser("standard_user",testConnectionProvider);
+    var updateUserService = standardUserContext.createUserService();
+
+    User user = CreateUserUtils.createUserObject(UserType.USER);
+    RegisterUserRequest request =  RegisterUserRequest.createRequest(user.getEmail(), "1234");
+
+    authService.registerUser(request, UserType.USER);
+    updateUserService.activateUser(user.getEmail());
+
+    User user2 = CreateUserUtils.createUserObject(UserType.USER);
+    RegisterUserRequest request2 =  RegisterUserRequest.createRequest(user2.getEmail(), "1234");
+
+    authService.registerUser(request2, UserType.USER);
+    updateUserService.activateUser(user2.getEmail());
+
+    String username = "testUser";
+    String imagePath = "/images/test.jpg";
+    UserData data = new UserData();
+    data.setUsername(username);
+    data.setImageFilePath(imagePath);
+
+    updateUserService.updateUser(data);
+
+    UserData userFromDb = updateUserService.getLoggedInUserData();
+
+    assertEquals(imagePath, userFromDb.getImageFilePath(), userFromDb.getImageFilePath());
+    assertEquals(username, userFromDb.getUsername());
+  }
+
+
+
+  @Test
+  public void testLoggedInUser_UpdatesCorrectData_WhenMultipleUsersExist() {
 
   }
 

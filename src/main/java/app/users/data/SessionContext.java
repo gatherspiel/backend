@@ -34,7 +34,7 @@ public class SessionContext {
 
   public UserService createUserService(){
     var dataProvider = UserService.DataProvider.createDataProvider(conn);
-    return new UserService(dataProvider);
+    return new UserService(dataProvider, user);
   }
 
   public ReadGroupService createReadGroupService() {

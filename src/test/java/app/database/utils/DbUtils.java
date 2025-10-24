@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.utils.LocalConnectionProvider;
+import service.auth.AuthService;
 import service.update.BulkUpdateService;
 import service.auth.UserService;
 
@@ -54,7 +55,7 @@ public class DbUtils {
       bulkUpdateService.deleteUsers(testConnectionProvider);
       bulkUpdateService.bulkUpdate(data, testConnectionProvider);
 
-      UserService createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()));
+      UserService createUserService = new UserService(UserService.DataProvider.createDataProvider(testConnectionProvider.getDatabaseConnection()), AuthService.getReadOnlyUser());
       createUserService.createAdmin(TEST_USER_EMAIL);
     } catch (Exception e) {
       System.out.println("Error initializing data:" + e.getMessage());
