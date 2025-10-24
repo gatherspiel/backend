@@ -85,7 +85,7 @@ public class GroupsApi {
 
           Group group = ctx.bodyAsClass(Group.class);
           groupEditService.editGroup(group);
-          logger.info("Updated group:"+group.id);
+          logger.info("Updated group:"+group.getId());
           ctx.status(HttpStatus.OK);
         } catch (MismatchedInputException | GroupNotFoundError | InvalidGroupRequestError e) {
           logger.error(e.getMessage());
@@ -116,7 +116,7 @@ public class GroupsApi {
             var groupEditService = sessionContext.createGroupEditService();
             Group createdGroup = groupEditService.insertGroup(groupToCreate);
 
-            logger.info("Created group group with id:"+createdGroup.id);
+            logger.info("Created group group with id:"+createdGroup.getId());
             ctx.json(createdGroup);
             ctx.status(HttpStatus.OK);
           } catch (GroupNotFoundError | InvalidGroupRequestError e) {
