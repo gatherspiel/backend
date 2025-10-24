@@ -43,7 +43,7 @@ public class EventRepository {
         if(event.getIsRecurring()){
           continue;
         }
-        int eventId = getEventId(event.getName(), group.url);
+        int eventId = getEventId(event.getName(), group.getUrl());
         if (eventId == -1) {
           if (!SearchParameterValidator.isValidAddress(event.getLocation())) {
             String query =
@@ -51,7 +51,7 @@ public class EventRepository {
             PreparedStatement insert = conn.prepareStatement(query);
             insert.setString(1, event.getDescription());
             insert.setString(2, event.getName());
-            insert.setString(3, group.url);
+            insert.setString(3, group.getUrl());
 
             ResultSet rs = insert.executeQuery();
             rs.next();
@@ -67,7 +67,7 @@ public class EventRepository {
             insert.setInt(1, location_id);
             insert.setString(2, event.getDescription());
             insert.setString(3, event.getName());
-            insert.setString(4, group.url);
+            insert.setString(4, group.getUrl());
 
             ResultSet rs = insert.executeQuery();
             rs.next();

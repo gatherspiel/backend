@@ -277,7 +277,7 @@ public class ReadGroupServiceIntegrationTest {
     ReadGroupService groupService1 = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.name);
+    params.put(GroupSearchParams.NAME, group.getName());
     GroupPageData result = groupService1.getGroupPageData(
         params
     );
@@ -306,7 +306,7 @@ public class ReadGroupServiceIntegrationTest {
     adminEditService.setGroupToVisible(group.getId());
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.name);
+    params.put(GroupSearchParams.NAME, group.getName());
     GroupPageData result = readGroupService.getGroupPageData(
         params
     );
@@ -325,7 +325,7 @@ public class ReadGroupServiceIntegrationTest {
     adminEditService.setGroupToVisible(group.getId());
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.name);
+    params.put(GroupSearchParams.NAME, group.getName());
     GroupPageData result = readOnlyContext.createReadGroupService().getGroupPageData(
         params
     );

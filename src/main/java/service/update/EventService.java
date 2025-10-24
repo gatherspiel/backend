@@ -40,7 +40,7 @@ public class EventService {
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
 
       Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
-      
+
       boolean currentUserCanEdit =
           user.isSiteAdmin() ||
           eventEditors.contains(user) ||
@@ -71,7 +71,7 @@ public class EventService {
 
     if(event.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
-      imageRepository.uploadImage(event.getImage(), event.getImageFilePath());
+      imageRepository.uploadImage(event.getImage(), event.getImageBucketKey());
       created.setImage(event.getImage());
       created.setImageFilePath(event.getImageFilePath());
     }
@@ -87,7 +87,7 @@ public class EventService {
     Event updated = eventRepository.updateEvent(event);
     if(event.getImage() != null){
       ImageRepository imageRepository = new ImageRepository();
-      imageRepository.uploadImage(event.getImage(), event.getImageFilePath());
+      imageRepository.uploadImage(event.getImage(), event.getImageBucketKey());
       updated.setImage(event.getImage());
       updated.setImageFilePath(event.getImageFilePath());
     }

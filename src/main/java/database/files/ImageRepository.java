@@ -32,10 +32,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class ImageRepository {
@@ -45,11 +42,11 @@ public class ImageRepository {
   public ImageRepository(){
   }
 
-  public void uploadImage(String imageData,String filePath){
+  public void uploadImage(String imageData,String fileKey){
 
     try {
 
-      String fileType = filePath.split("\\.")[1];
+      String fileType = fileKey.split("\\.")[1];
 
       AWSCredentials credentials = new BasicAWSCredentials(
         System.getenv("IMAGE_BUCKET_ID"),
@@ -74,7 +71,7 @@ public class ImageRepository {
 
       var putObjectRequest = new PutObjectRequest(
         "gatherspiel",
-        filePath,
+        fileKey,
         imgFile
       );
 

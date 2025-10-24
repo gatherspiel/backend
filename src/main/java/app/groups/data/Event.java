@@ -5,6 +5,7 @@ import app.users.data.User;
 import app.users.data.UserData;
 import app.users.data.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import service.data.HtmlSanitizer;
 
@@ -17,6 +18,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
+import static utils.Params.IMAGE_BUCKET_URL;
 
 public class Event {
   private Integer id;
@@ -40,6 +43,7 @@ public class Event {
 
   private String image;
   private String imageFilePath;
+  private String imageBucketKey;
 
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
@@ -234,7 +238,8 @@ public class Event {
         }
         LocalDate current = LocalDate.now();
         long days = current.getLong(ChronoField.EPOCH_DAY);
-        this.imageFilePath = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageBucketKey = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageFilePath = IMAGE_BUCKET_URL + this.imageBucketKey;
       }
     }
   }
@@ -249,6 +254,11 @@ public class Event {
 
   public String getImageFilePath(){
     return this.imageFilePath;
+  }
+
+  @JsonIgnore
+  public String getImageBucketKey(){
+    return this.imageBucketKey;
   }
 
   public void addModerator(User user){
