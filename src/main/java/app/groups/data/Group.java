@@ -113,7 +113,7 @@ public class Group {
 
   @JsonIgnore
   public String getImageBucketKey(){
-    return IMAGE_BUCKET_URL + this.getImageFilePath();
+    return this.imageBucketKey;
   }
 
 
