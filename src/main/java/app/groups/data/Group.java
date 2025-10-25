@@ -1,32 +1,26 @@
 package app.groups.data;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import service.data.HtmlSanitizer;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static utils.Params.IMAGE_BUCKET_URL;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
 
-  private ArrayList<Event> events;
-  private int id;
-  private String url;
-  private String[] cities;
+  public ArrayList<Event> events;
+  public int id;
+  public String url;
+  public String[] cities;
 
-  private String description;
-  private String name;
+  public String description;
+  public String name;
 
-  private String image;
-  private String imageFilePath;
-  private String imageBucketKey;
+  public String image;
+  public String imageFilePath;
 
   public GameTypeTag[] gameTypeTags;
 
@@ -55,7 +49,7 @@ public class Group {
   }
 
   public void setDescription(String description) {
-    this.description = HtmlSanitizer.sanitizeHtml(description);
+    this.description = description;
   }
 
   public String getDescription(){
@@ -67,7 +61,7 @@ public class Group {
   }
 
   public void setName(String name) {
-    this.name = HtmlSanitizer.sanitizeTextOnly(name);
+    this.name = name;
   }
 
   public void setEvents(ArrayList<Event> events) {
@@ -96,8 +90,7 @@ public class Group {
         LocalDate current = LocalDate.now();
         long days = current.getLong(ChronoField.EPOCH_DAY);
 
-        this.imageBucketKey = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
-        this.imageFilePath = IMAGE_BUCKET_URL + this.imageBucketKey;
+        this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
       }
     }
 
@@ -110,12 +103,6 @@ public class Group {
   public void setImageFilePath(String imageFilePath){
     this.imageFilePath = imageFilePath;
   }
-
-  @JsonIgnore
-  public String getImageBucketKey(){
-    return this.imageBucketKey;
-  }
-
 
   public String getImageFilePath(){
     return this.imageFilePath;
@@ -162,7 +149,6 @@ public class Group {
 
   public void addCity(String city) {
 
-    city = HtmlSanitizer.sanitizeTextOnly(city);
     if(city == null){
       return;
     }
