@@ -160,7 +160,8 @@ public class Group {
 
 
   public void addCity(String city) {
-
+    
+    city = HtmlSanitizer.sanitizeTextOnly(city);
     if(city == null){
       return;
     }
