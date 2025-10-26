@@ -10,7 +10,6 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static utils.Params.IMAGE_BUCKET_URL;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
@@ -160,7 +159,7 @@ public class Group {
 
 
   public void addCity(String city) {
-    
+
     city = HtmlSanitizer.sanitizeTextOnly(city);
     if(city == null){
       return;
