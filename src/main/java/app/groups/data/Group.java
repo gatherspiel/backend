@@ -1,6 +1,5 @@
 package app.groups.data;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -28,7 +27,7 @@ public class Group {
   private String imageFilePath;
   private String imageBucketKey;
 
-  public GameTypeTag[] gameTypeTags;
+  private GameTypeTag[] gameTypeTags;
 
   public Integer getId() {
     return id;
@@ -96,8 +95,9 @@ public class Group {
         LocalDate current = LocalDate.now();
         long days = current.getLong(ChronoField.EPOCH_DAY);
 
-        this.imageBucketKey = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
-        this.imageFilePath = IMAGE_BUCKET_URL + this.imageBucketKey;
+
+        this.imageBucketKey = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
       }
     }
 
@@ -111,14 +111,13 @@ public class Group {
     this.imageFilePath = imageFilePath;
   }
 
-  @JsonIgnore
-  public String getImageBucketKey(){
-    return IMAGE_BUCKET_URL + this.getImageFilePath();
-  }
-
-
   public String getImageFilePath(){
     return this.imageFilePath;
+  }
+
+  @JsonIgnore
+  public String getImageBucketKey(){
+    return this.imageBucketKey;
   }
 
   public String toString() {
@@ -161,7 +160,7 @@ public class Group {
 
 
   public void addCity(String city) {
-
+    
     city = HtmlSanitizer.sanitizeTextOnly(city);
     if(city == null){
       return;
