@@ -63,10 +63,13 @@ public class UserData {
 
   @JsonIgnore
   public String getImageBucketKey(){
-    return IMAGE_BUCKET_URL+this.imageBucketKey;
+    return this.imageBucketKey;
   }
 
   public String getImageFilePath(){
+    if(imageFilePath == null){
+      return "";
+    }
     return this.imageFilePath;
   }
 
