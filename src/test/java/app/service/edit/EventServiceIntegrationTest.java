@@ -840,7 +840,6 @@ public class EventServiceIntegrationTest {
     }
   }
 
-
   @Test
   public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);

@@ -1,11 +1,10 @@
 package service.update;
 
 import app.groups.data.Event;
-import app.result.error.group.EventNotFoundError;
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
-import app.users.data.UserData;
 import database.content.EventRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
@@ -98,7 +97,6 @@ public class EventService {
         eventRepository.addEventModerator(event, moderator);
       }
     }
-
     return updated;
   }
 
@@ -116,7 +114,6 @@ public class EventService {
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event moderator");
     }
-
     eventRepository.addEventModerator(event, moderatorToAdd);
   }
 
@@ -124,8 +121,19 @@ public class EventService {
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event moderator");
     }
-
     eventRepository.removeEventModerator(event, moderatorToRemove);
+  }
+
+  public void rsvpTpEvent(int eventId){
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must be logged in to rsvp to event");
+    }
+  }
+
+  public void removeEventRsvp(int eventId){
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must be logged in to rsvp to event");
+    }
   }
 
   public static Event createEventObject(

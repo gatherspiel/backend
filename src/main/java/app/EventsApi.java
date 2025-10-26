@@ -1,7 +1,9 @@
 package app;
 
 import app.groups.data.Event;
+import app.result.error.UnauthorizedError;
 import app.result.error.group.DuplicateEventError;
+import app.result.error.group.EventNotFoundError;
 import app.users.data.SessionContext;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -70,48 +72,108 @@ public class EventsApi {
     );
 
     app.post(
-        "groups/{groupId}/events/",
-        ctx -> {
+      "groups/{groupId}/events/",
+      ctx -> {
 
-          try {
-            var groupId = Integer.parseInt(ctx.pathParam("groupId"));
-            var event = ctx.bodyAsClass(Event.class);
-            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
-            var createdEvent = sessionContext.createEventService().createEvent(event, groupId);
-            ctx.result("Created event with id:"+createdEvent.getId());
-            ctx.status(HttpStatus.OK);
-          } catch(NumberFormatException | DuplicateEventError e) {
-            ctx.result(e.getMessage());
-            ctx.status(HttpStatus.BAD_REQUEST);
-          } catch(Exception e) {
-            e.printStackTrace();
-            ctx.result(e.getMessage());
-            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
-          }
+        try {
+          var groupId = Integer.parseInt(ctx.pathParam("groupId"));
+          var event = ctx.bodyAsClass(Event.class);
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          var createdEvent = sessionContext.createEventService().createEvent(event, groupId);
+          ctx.result("Created event with id:"+createdEvent.getId());
+          ctx.status(HttpStatus.OK);
+        } catch(NumberFormatException | DuplicateEventError e) {
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.BAD_REQUEST);
+        } catch(Exception e) {
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+      }
     );
 
     app.put(
-        "groups/{groupId}/events/",
-        ctx -> {
+      "groups/{groupId}/events/",
+      ctx -> {
 
-          try {
-            var groupId = Integer.parseInt(ctx.pathParam("groupId"));
-            var event = ctx.bodyAsClass(Event.class);
+        try {
+          var groupId = Integer.parseInt(ctx.pathParam("groupId"));
+          var event = ctx.bodyAsClass(Event.class);
 
-            var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
-            sessionContext.createEventService().updateEvent(event);
-            ctx.result("Updated event");
-            ctx.status(HttpStatus.OK);
-          } catch(NumberFormatException | DuplicateEventError e) {
-            ctx.result(e.getMessage());
-            ctx.status(HttpStatus.BAD_REQUEST);
-          } catch(Exception e) {
-            e.printStackTrace();
-            ctx.result(e.getMessage());
-            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
-          }
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          sessionContext.createEventService().updateEvent(event);
+          ctx.result("Updated event");
+          ctx.status(HttpStatus.OK);
+        } catch(NumberFormatException | DuplicateEventError e) {
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.BAD_REQUEST);
+        } catch(Exception e) {
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+      }
+    );
+
+    app.post(
+      "groups/events/{eventId}/rsvp",
+      ctx -> {
+
+        try {
+          var eventId = Integer.parseInt(ctx.pathParam("eventId"));
+
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          sessionContext.createEventService().rsvpTpEvent(eventId);
+          ctx.result("Rsvp successful");
+          ctx.status(HttpStatus.OK);
+        }
+        catch(EventNotFoundError e){
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.BAD_REQUEST);
+        }
+        catch(UnauthorizedError e){
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.UNAUTHORIZED);
+        }
+        catch(Exception e) {
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
+    );
+
+    app.put(
+      "groups/events/{eventId}/rsvp",
+      ctx -> {
+
+        try {
+          var eventId = Integer.parseInt(ctx.pathParam("eventId"));
+
+          var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          sessionContext.createEventService().removeEventRsvp(eventId);
+          ctx.result("Rsvp successful");
+          ctx.status(HttpStatus.OK);
+        }
+        catch(EventNotFoundError e){
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.BAD_REQUEST);
+        }
+        catch(UnauthorizedError e){
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.UNAUTHORIZED);
+        }
+        catch(Exception e) {
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
     );
   }
 }
