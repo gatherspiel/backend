@@ -156,6 +156,10 @@ public class EventService {
     return event;
   }
 
+  public static Event createRecurringEventObject() throws Exception {
+    return EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.NOON.plusHours(5));
+  }
+
   public static Event createRecurringEventObjectWithData(LocalTime start, LocalTime end) throws Exception {
     Event event = new Event();
     event.setName("Event_"+ UUID.randomUUID());
@@ -166,7 +170,6 @@ public class EventService {
     event.setIsRecurring(true);
     event.setStartTime(start);
     event.setEndTime(end);
-
     return event;
   }
 

@@ -45,6 +45,8 @@ public class Event {
   private String imageFilePath;
   private String imageBucketKey;
 
+  private Integer rsvpCount;
+
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
   public Event() {
@@ -270,8 +272,17 @@ public class Event {
     updated.addAll(updatedModerators);
     this.moderators = updated;
   }
+
   public TreeSet<User> getModerators(){
     return moderators;
+  }
+
+  public void setRsvpCount(int rsvpCount){
+    this.rsvpCount = rsvpCount;
+  }
+
+  public int getRsvpCount(){
+    return rsvpCount;
   }
 
   public String toString(){

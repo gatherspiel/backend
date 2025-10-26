@@ -7,7 +7,6 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
 import app.users.data.PermissionName;
 import app.users.data.User;
-import app.users.data.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
@@ -56,8 +55,6 @@ public class EventServiceIntegrationTest {
   private static final LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
   private static final LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
-
-
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
 
@@ -67,6 +64,7 @@ public class EventServiceIntegrationTest {
   private static SessionContext readOnlyUserContext;
   private static SessionContext standardUserContext;
   private static SessionContext standardUserContext2;
+
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
@@ -99,18 +97,15 @@ public class EventServiceIntegrationTest {
       standardUserContext = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       readOnlyUserContext = CreateUserUtils.createContextWithNewReadonlyUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
-
-
     } catch (Exception e) {
       e.printStackTrace();
-      fail("Error initializing database:" + e.getMessage());
+      fail("Error initializing data:" + e.getMessage());
     }
   }
 
   @Test
   public void testCreateOneEvent() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
-
 
     Event eventToCreate = EventService.createOneTimeEventObjectWithData();
     eventToCreate.setName(EVENT_NAME_1);
