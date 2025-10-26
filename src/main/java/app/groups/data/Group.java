@@ -10,6 +10,8 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static utils.Params.IMAGE_BUCKET_URL;
+
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
@@ -95,8 +97,8 @@ public class Group {
         long days = current.getLong(ChronoField.EPOCH_DAY);
 
 
-        this.imageBucketKey = "groups/events/"+days + "/image" + UUID.randomUUID()+".jpg";
-        this.imageFilePath = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageBucketKey = "groups/"+days + "/image" + UUID.randomUUID()+".jpg";
+        this.imageFilePath = IMAGE_BUCKET_URL + this.imageBucketKey;
       }
     }
 
