@@ -68,7 +68,7 @@ public class EventService {
     }
     Event created = eventRepository.createEvent(event, groupId);
 
-    if(event.getImage() != null){
+    if(event.getImage() != null && !event.getImage().isEmpty()){
       ImageRepository imageRepository = new ImageRepository();
       imageRepository.uploadImage(event.getImage(), event.getImageBucketKey());
       created.setImage(event.getImage());
