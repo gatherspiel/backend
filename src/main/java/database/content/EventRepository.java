@@ -7,10 +7,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
+import app.result.error.group.InvalidEventParameterError;
 import app.users.data.EventAdminType;
 import app.users.data.User;
 import database.user.UserRepository;
@@ -219,8 +221,6 @@ public class EventRepository {
 
   public Optional<Event> getEvent(int id) throws Exception{
 
-    System.out.println("Retrieving event");
-
     String query = """        
         SELECT
          events.id as eventId,
@@ -291,11 +291,13 @@ public class EventRepository {
           SELECT COUNT(user_id) as rsvp_count,event_id
           FROM event_rsvp
           WHERE event_id = ?
+          AND rsvp_time > ?
               GROUP BY event_id
           """;
 
       PreparedStatement rsvpQuery = conn.prepareStatement(rsvpQueryStr);
       rsvpQuery.setInt(1,id);
+      rsvpQuery.setTimestamp(2, Timestamp.valueOf(event.getPrevious()));
       ResultSet rs2 = rsvpQuery.executeQuery();
       if(rs2.next()){
         event.setRsvpCount(rs2.getInt("rsvp_count"));
@@ -373,30 +375,47 @@ public class EventRepository {
   }
 
   public void rsvpToEvent(int eventId, User user) throws Exception{
-    String query = "INSERT INTO event_rsvp(event_id,user_id) values(?, ?)";
-    PreparedStatement insert = conn.prepareStatement(query);
-    insert.setInt(1, eventId);
-    insert.setInt(2, user.getId());
 
-    System.out.println("RSVP to event with event_id:"+eventId+" "+ "userId:"+user.getId());
-
-    int update = insert.executeUpdate();
-    if(update == 0){
-      throw new Exception("User already has an rsvp for this event");
+    try {
+      String query = """
+        INSERT INTO event_rsvp(event_id,user_id,rsvp_time) values(?, ?, ?)
+        ON CONFLICT(event_id,user_id) DO UPDATE set rsvp_time = current_timestamp
+        """;
+      PreparedStatement insert = conn.prepareStatement(query);
+      insert.setInt(1, eventId);
+      insert.setInt(2, user.getId());
+      insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.executeUpdate();
+    } catch(Exception e){
+      if(e.getMessage().contains("duplicate key value")){
+        throw new InvalidEventParameterError("User already has RSVP for event");
+      }
+      if(e.getMessage().contains("insert or update on table \"event_rsvp\" violates foreign key constraint \"event_rsvp_event_id_fkey\"")){
+        throw new InvalidEventParameterError("Event does not exist");
+      }
+      e.printStackTrace();
+      throw e;
     }
   }
 
   public void removeEventRsvp(int eventId, User user) throws Exception{
-    String query = "DELETE from  event_rsvp WHERE event_id = ? and user_id = ?";
-    PreparedStatement delete = conn.prepareStatement(query);
-    delete.setInt(1, eventId);
-    delete.setInt(2, user.getId());
+
+    try {
+      String query = "DELETE from  event_rsvp WHERE event_id = ? and user_id = ?";
+      PreparedStatement delete = conn.prepareStatement(query);
+      delete.setInt(1, eventId);
+      delete.setInt(2, user.getId());
 
 
-    int update = delete.executeUpdate();
-    if(update == 0){
-      throw new Exception("User does not have an rsvp for this event");
+      int update = delete.executeUpdate();
+      if(update == 0){
+        throw new InvalidEventParameterError("User does not have rsvp for event");
+      }
+    } catch(Exception e){
+      logger.error(e.getMessage());
+      throw e;
     }
+
   }
 
   private void updateEventGroupMap(

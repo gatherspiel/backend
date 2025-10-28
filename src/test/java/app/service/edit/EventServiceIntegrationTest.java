@@ -197,7 +197,7 @@ public class EventServiceIntegrationTest {
     assertEquals(oneTimeEvent.getUrl(), eventFromDbA.getUrl());
     assertEquals(recurringEvent.getUrl(), recurringEventFromDb.getUrl());
 
-    assertEquals(oneTimeEvent.getStartTime().truncatedTo(ChronoUnit.MINUTES), eventFromDbA.getStartTime());
+    assertEquals(oneTimeEvent.getStartTime().truncatedTo(ChronoUnit.SECONDS), eventFromDbA.getStartTime());
     assertEquals(recurringEvent.getStartTime(), recurringEventFromDb.getStartTime());
 
     assertEquals(oneTimeEvent.getStartDate(), eventFromDbA.getStartDate());
@@ -486,7 +486,7 @@ public class EventServiceIntegrationTest {
 
     Event event = oneTimeEventService.createEvent(event1, group.getId());
     oneTimeEventService.deleteEvent(event.getId(), group.getId());
-    Optional<Event> groupEvent = oneTimeEventService.getEvent(event1.getId());
+    Optional<Event> groupEvent = oneTimeEventService.getEvent(event.getId());
     assertTrue(groupEvent.isEmpty());
   }
 
@@ -674,10 +674,6 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.isPresent());
 
     Set<User> moderators = eventFromDb.get().getModerators();
-
-    for(User user: moderators){
-      System.out.println(user.getId());
-    }
 
     assertTrue(moderators.contains(standardUserContext2.getUser()));
     assertTrue(moderators.contains(standardUserContext.getUser()));

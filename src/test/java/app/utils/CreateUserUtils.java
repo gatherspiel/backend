@@ -45,9 +45,9 @@ public class CreateUserUtils {
   public static SessionContext createContextWithNewReadonlyUser(String username, ConnectionProvider provider) throws Exception {
 
     var sessionContext = SessionContext.createContextWithoutUser(provider);
-    var userService = sessionContext.createUserService();
-    User admin = userService.createAdmin(username);
-    sessionContext.setUser(admin);
+    User user = createUserObject(UserType.READONLY);
+    user.setEmail(username);
+    sessionContext.setUser(user);
 
     return sessionContext;
   }

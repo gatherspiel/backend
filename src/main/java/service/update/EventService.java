@@ -52,7 +52,6 @@ public class EventService {
 
       event.get().setModerators(eventEditors);
     }
-    System.out.println(event.get().getRsvpCount());
     return event;
   }
 
@@ -127,14 +126,15 @@ public class EventService {
 
   public void rsvpTpEvent(int eventId) throws Exception{
     if(!user.isLoggedInUser()){
-      throw new UnauthorizedError("User must be logged in to rsvp to event");
+      throw new UnauthorizedError("User must log in to rsvp to event");
     }
     eventRepository.rsvpToEvent(eventId,user);
   }
 
   public void removeEventRsvp(int eventId) throws Exception{
+
     if(!user.isLoggedInUser()){
-      throw new UnauthorizedError("User must be logged in to rsvp to event");
+      throw new UnauthorizedError("User must log in to remove event rsvp");
     }
     eventRepository.removeEventRsvp(eventId,user);
   }

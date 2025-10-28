@@ -16,6 +16,8 @@ import service.update.EventService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -203,28 +205,20 @@ public class EventRsvpIntegrationTest {
     standardUserEventService.rsvpTpEvent(created.getId());
     standardUserEventService2.rsvpTpEvent(created2.getId());
 
-    System.out.println("Event ids "+created.getId()+":"+created2.getId());
-
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 1);
   }
 
   @Test
-  public void testRsvpToEventTwice_loggedInUser_badRequestErrorOnSecondAttempt() throws Exception{
+  public void testRsvpToEventTwice_loggedInUser_oneRsvpSaved() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
     standardUserEventService.rsvpTpEvent(created.getId());
-
-    Exception exception = assertThrows(
-        InvalidEventParameterError.class,
-        () -> {
-          standardUserEventService2.rsvpTpEvent(created.getId());
-        }
-    );
-    assertEquals("User already has event rsvp",exception.getMessage());
+    standardUserEventService.rsvpTpEvent(created.getId());
+    verifyRsvpCount(created.getId(),1);
   }
 
   @Test
@@ -254,15 +248,14 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
 
     Exception exception = assertThrows(
       UnauthorizedError.class,
       () -> {
-        standardUserEventService.rsvpTpEvent(created.getId());
+        readOnlyEventService.rsvpTpEvent(created.getId());
       }
     );
-    assertEquals("User must log in to RSVP to an event",exception.getMessage());
+    assertEquals("User must log in to rsvp to event",exception.getMessage());
   }
 
   @Test
@@ -293,12 +286,12 @@ public class EventRsvpIntegrationTest {
     standardUserEventService.rsvpTpEvent(created.getId());
 
     Exception exception = assertThrows(
-        InvalidEventParameterError.class,
+        UnauthorizedError.class,
         () -> {
           readOnlyEventService.removeEventRsvp(created.getId()+1);
         }
     );
-    assertEquals("User must log in to renove rsvp to an event",exception.getMessage());
+    assertEquals("User must log in to remove event rsvp",exception.getMessage());
   }
 
   @Test
@@ -308,23 +301,66 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService.rsvpTpEvent(created.getId());
-
     Exception exception = assertThrows(
       InvalidEventParameterError.class,
       () -> {
-        standardUserEventService.removeEventRsvp(created.getId());
+        standardUserEventService.removeEventRsvp(created.getId()+11);
 
       }
     );
-    assertEquals("Event does not exist",exception.getMessage());
+    assertEquals("User does not have rsvp for event",exception.getMessage());
   }
 
   @Test
-  public void testRsvpTime(){
-    assertEquals(1,2);
+  public void testRsvpBeforeAndAfterLastEvent_OnlyOneRsvpReturned() throws Exception{
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+    EventService standardUserEventService2 = standardUserContext2.createEventService();
+
+    standardUserEventService.rsvpTpEvent(created.getId());
+    Thread.sleep(1000);
+
+    LocalDateTime now = LocalDateTime.now();
+    created.setDay(now.getDayOfWeek().toString());
+    created.setStartTime(now.toLocalTime());
+    created.setEndTime(now.toLocalTime().plusHours(2));
+    adminEventService.updateEvent(created);
+
+    Thread.sleep(1000);
+    standardUserEventService2.rsvpTpEvent(created.getId());
+
+    verifyRsvpCount(created.getId(),1);
   }
+
+  @Test
+  public void testRsvpBeforeLastEvent_updateRsvpAfterEventOneRsvp() throws Exception{
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    standardUserEventService.rsvpTpEvent(created.getId());
+
+    Thread.sleep(1000);
+
+    LocalDateTime now = LocalDateTime.now();
+    created.setDay(now.getDayOfWeek().toString());
+    created.setStartTime(now.toLocalTime());
+    created.setEndTime(now.toLocalTime().plusHours(2));
+    adminEventService.updateEvent(created);
+
+    Thread.sleep(1000);
+    standardUserEventService.rsvpTpEvent(created.getId());
+
+    verifyRsvpCount(created.getId(),1);
+  }
+
 
   @AfterEach
   public void deleteRsvpData() throws Exception {

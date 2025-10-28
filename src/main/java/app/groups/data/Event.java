@@ -11,9 +11,12 @@ import service.data.HtmlSanitizer;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -83,11 +86,12 @@ public class Event {
     this.startTime = startTime;
   }
 
+
   public LocalTime getStartTime(){
     if(startTime == null){
       return LocalTime.MIN;
     }
-    return startTime.truncatedTo(ChronoUnit.MINUTES);
+    return startTime.truncatedTo(ChronoUnit.SECONDS);
   }
 
   public void setEndTime(LocalTime endTime){
@@ -101,6 +105,23 @@ public class Event {
     return endTime.truncatedTo(ChronoUnit.MINUTES);
   }
 
+  @JsonIgnore
+  public LocalDateTime getPrevious(){
+    LocalDateTime previousEvent = LocalDateTime.now();
+
+    if(dayOfWeek == null || startTime == null){
+      return LocalDateTime.now().minusYears(1);
+    }
+
+    if(previousEvent.getDayOfWeek() != dayOfWeek){
+      previousEvent = previousEvent.with(TemporalAdjusters.previous(dayOfWeek));
+    }
+    previousEvent = previousEvent.withHour(startTime.getHour());
+    previousEvent = previousEvent.withMinute(startTime.getMinute());
+    previousEvent = previousEvent.withSecond(startTime.getSecond());
+
+    return previousEvent;
+  }
 
   public String getLocation() {
     return eventLocation.toString();
