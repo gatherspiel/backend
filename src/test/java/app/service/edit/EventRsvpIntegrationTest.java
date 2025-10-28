@@ -9,11 +9,13 @@ import app.result.error.group.InvalidEventParameterError;
 import app.users.data.SessionContext;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.update.EventService;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -98,6 +100,9 @@ public class EventRsvpIntegrationTest {
     standardUserEventService.rsvpTpEvent(created.getId());
     standardUserEventService.rsvpTpEvent(created2.getId());
 
+    created = standardUserEventService.getEvent(created.getId()).get();
+    created2 = standardUserEventService.getEvent(created2.getId()).get();
+
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 1);
   }
@@ -164,9 +169,10 @@ public class EventRsvpIntegrationTest {
     standardUserEventService2.rsvpTpEvent(created.getId());
 
     standardUserEventService.removeEventRsvp(created.getId());
-    standardUserEventService.removeEventRsvp(created.getId());
+    standardUserEventService2.removeEventRsvp(created.getId());
 
     verifyRsvpCount(created.getId(), 0);
+
   }
 
   @Test
@@ -177,8 +183,8 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
 
     standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService2.rsvpTpEvent(created.getId());
 
-    standardUserEventService.removeEventRsvp(created.getId());
     standardUserEventService.removeEventRsvp(created.getId());
 
     verifyRsvpCount(created.getId(), 1);
@@ -196,6 +202,8 @@ public class EventRsvpIntegrationTest {
 
     standardUserEventService.rsvpTpEvent(created.getId());
     standardUserEventService2.rsvpTpEvent(created2.getId());
+
+    System.out.println("Event ids "+created.getId()+":"+created2.getId());
 
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 1);
@@ -313,10 +321,45 @@ public class EventRsvpIntegrationTest {
     assertEquals("Event does not exist",exception.getMessage());
   }
 
+  @Test
+  public void testRsvpTime(){
+    assertEquals(1,2);
+  }
+
+  @AfterEach
+  public void deleteRsvpData() throws Exception {
+
+    String deleteEventQuery =
+        "TRUNCATE TABLE events CASCADE";
+    String deleteEventGroupMapQuery =
+        "TRUNCATE TABLE events CASCADE";
+    String deleteGroupQuery =
+        "TRUNCATE TABLE groups CASCADE";
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+    String deleteRsvpQuery =
+        "TRUNCATE TABLE event_rsvp CASCADE";
+
+    PreparedStatement query1 = conn.prepareStatement(deleteEventQuery);
+    PreparedStatement query2 = conn.prepareStatement(deleteEventGroupMapQuery);
+    PreparedStatement query3 = conn.prepareStatement(deleteGroupQuery);
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
+
+    query1.execute();
+    query2.execute();
+    query3.execute();
+    query4.execute();
+    query5.execute();
+    query6.execute();
+  }
   private static void verifyRsvpCount(int eventId, int expectedCount) throws Exception{
     Optional<Event> eventFromDb = readOnlyEventService.getEvent(eventId);
     assertTrue(eventFromDb.isPresent());
-    assertEquals(eventFromDb.get().getRsvpCount(), expectedCount);
+    assertEquals(expectedCount,eventFromDb.get().getRsvpCount());
   }
 
 }

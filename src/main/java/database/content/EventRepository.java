@@ -218,9 +218,19 @@ public class EventRepository {
   }
 
   public Optional<Event> getEvent(int id) throws Exception{
+
+    System.out.println("Retrieving event");
+
     String query = """
+        WITH rsvp_count AS (
+          SELECT COUNT(user_id) as rsvp_count,event_id
+          FROM event_rsvp
+          WHERE event_id = ?
+          GROUP BY event_id
+        )
         
         SELECT
+         rsvp_count,
          events.id as eventId,
          events.url,
          events.name as eventName,
@@ -243,14 +253,14 @@ public class EventRepository {
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
-        where events.id = ?
-        
+        JOIN rsvp_count on
+        events.id = rsvp_count.event_id
         """;
     PreparedStatement select = conn.prepareStatement(query);
     select.setInt(1, id);
-
     ResultSet rs = select.executeQuery();
     if (rs.next()) {
+      System.out.println("result for event with id:"+id);
       Event event = new Event();
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
@@ -261,7 +271,6 @@ public class EventRepository {
       int groupId  = rs.getInt("groupId");
       event.setGroupName(groupName);
       event.setGroupId(groupId);
-
 
       Timestamp oneTimeEventStartTime = rs.getTimestamp("oneTimeEventStartTime");
       Timestamp oneTimeEventEndTime = rs.getTimestamp("oneTimeEventEndTime");
@@ -287,6 +296,9 @@ public class EventRepository {
         event.setIsRecurring(true);
       }
 
+      System.out.println("RSVP count:"+rs.getInt("rsvp_count"));
+
+      event.setRsvpCount(rs.getInt("rsvp_count"));
       event.setId(rs.getInt("eventId"));
 
       EventLocation eventLocation = new EventLocation();
@@ -358,6 +370,101 @@ public class EventRepository {
     delete.setInt(1, moderatorToRemove.getId());
     delete.setInt(2, event.getId());
     delete.executeUpdate();
+  }
+
+  public void rsvpToEvent(int eventId, User user) throws Exception{
+    String query = "INSERT INTO event_rsvp(event_id,user_id) values(?, ?)";
+    PreparedStatement insert = conn.prepareStatement(query);
+    insert.setInt(1, eventId);
+    insert.setInt(2, user.getId());
+
+    System.out.println("RSVP to event with event_id:"+eventId+" "+ "userId:"+user.getId());
+
+    int update = insert.executeUpdate();
+    if(update == 0){
+      throw new Exception("User already has an rsvp for this event");
+    }
+
+    String verify = "SELECT * from event_rsvp WHERE event_id = ? and user_id = ?";
+    PreparedStatement verifyStatement = conn.prepareStatement(verify);
+    verifyStatement.setInt(1, eventId);
+    verifyStatement.setInt(2, user.getId());
+    ResultSet rs = verifyStatement.executeQuery();
+    if(!rs.next()){
+      System.out.println("Error");
+    }
+    else {
+      System.out.println("Verify successfull");
+      System.out.println(rs.getInt("event_id"));
+    }
+
+    String verify2 = """
+            WITH rsvp_count AS (
+          SELECT COUNT(user_id) as rsvp_count,event_id
+          FROM event_rsvp
+          WHERE event_id = ?
+          GROUP BY event_id
+        )
+        
+        SELECT
+         rsvp_count,
+         events.id as eventId,
+         events.url,
+         events.name as eventName,
+         events.image_path,
+         events.description as eventDescription,
+         event_time.start_time as oneTimeEventStartTime,
+         weekly_event_time.start_time as recurringEventStartTime,
+         event_time.end_time as oneTimeEventEndTime,
+         weekly_event_time.end_time as recurringEventEndTime,
+         COALESCE(event_time.day_of_week,weekly_event_time.day_of_week) as event_day,
+         groups.id as groupId,
+         groups.name as groupName,
+         locations.city as city,
+         locations.zip_code as zip_code,
+         locations.state as state,
+         locations.street_address as street_address
+         from events
+        LEFT JOIN event_time on event_time.event_id = events.id
+        LEFT JOIN locations on events.location_id = locations.id
+        LEFT JOIN event_group_map on events.id = event_group_map.event_id
+        LEFT JOIN groups on event_group_map.group_id = groups.id
+        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
+        JOIN rsvp_count on
+        events.id = rsvp_count.event_id
+        """;
+
+    PreparedStatement verifyStatement2 = conn.prepareStatement(verify2);
+    verifyStatement2.setInt(1, eventId);
+
+    ResultSet rs2 = verifyStatement2.executeQuery();
+    if(!rs2.next()){
+      System.out.println("Error");
+    }
+    else {
+      while(true){
+        System.out.println("****Results****");
+        System.out.println(rs2.getString("rsvp_count"));
+        System.out.println("Event_id:"+rs2.getString("eventId"));
+
+        if(!rs2.next()){
+          return;
+        }
+      }
+    }
+  }
+
+  public void removeEventRsvp(int eventId, User user) throws Exception{
+    String query = "DELETE from  event_rsvp WHERE event_id = ? and user_id = ?";
+    PreparedStatement delete = conn.prepareStatement(query);
+    delete.setInt(1, eventId);
+    delete.setInt(2, user.getId());
+
+
+    int update = delete.executeUpdate();
+    if(update == 0){
+      throw new Exception("User does not have an rsvp for this event");
+    }
   }
 
   private void updateEventGroupMap(

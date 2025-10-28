@@ -45,7 +45,7 @@ public class Event {
   private String imageFilePath;
   private String imageBucketKey;
 
-  private Integer rsvpCount;
+  private Integer rsvpCount = 0;
 
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
