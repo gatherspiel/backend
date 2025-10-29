@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import service.auth.AuthService;
+import service.update.EventService;
 import service.update.GroupPermissionService;
 import service.read.ReadGroupService;
 
@@ -35,6 +36,7 @@ public class ReadGroupServiceIntegrationTest {
   private static Connection conn;
   private static SessionContext sessionContext;
   private static SessionContext adminContext;
+  private static SessionContext adminContext2;
 
   private static MockedStatic<AuthService> authMock;
 
@@ -50,11 +52,14 @@ public class ReadGroupServiceIntegrationTest {
       authMock = mockStatic(AuthService.class);
       authMock.when(()->AuthService.getReadOnlyUser()).thenReturn(new User("reader@dmvboardgames.com", UserType.READONLY, 123));
 
-      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
-      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
-
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
       DbUtils.initializeData(testConnectionProvider);
+
+      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      adminContext2 = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing data:" + e.getMessage());
@@ -330,5 +335,42 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
+  }
+
+  @Test
+  public void testRsvpToEventRsvpStatusIsYes_OnlyForThatEvent() throws Exception {
+
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+    EventService eventService = adminContext.createEventService();
+
+    for (Event data : result.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        eventService.rsvpTpEvent(data.getId());
+      }
+    }
+
+    GroupPageData adminResult =  adminContext.createReadGroupService().getGroupPageData(params);
+    GroupPageData adminResult2 =  adminContext2.createReadGroupService().getGroupPageData(params);
+
+    for (Event data : adminResult.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        assertTrue(data.getUserHasRsvp());
+      } else {
+        assertFalse(data.getUserHasRsvp());
+      }
+    }
+
+    for(Event data: adminResult2.getWeeklyEventData()){
+      assertFalse(data.getUserHasRsvp());
+    }
+
   }
 }

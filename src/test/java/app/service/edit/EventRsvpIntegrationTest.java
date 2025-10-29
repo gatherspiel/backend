@@ -361,7 +361,6 @@ public class EventRsvpIntegrationTest {
     verifyRsvpCount(created.getId(),1);
   }
 
-
   @AfterEach
   public void deleteRsvpData() throws Exception {
 

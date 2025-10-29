@@ -1,14 +1,18 @@
 package service.read;
 
+import app.groups.data.Event;
 import app.groups.data.Group;
 import app.users.data.PermissionName;
 import app.users.data.User;
 import app.result.group.GroupPageData;
+import database.content.EventRepository;
 import database.content.GroupsRepository;
 import app.result.error.SearchParameterException;
 import service.update.GroupPermissionService;
 
 import java.sql.Connection;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -42,6 +46,14 @@ public class ReadGroupService{
     }
     GroupPageData groupPageData = GroupPageData.createFromSearchResult(group.get());
 
+    HashMap<Integer, AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData =
+        new EventRepository(connection).getEventRsvpsForGroup(groupPageData.getId(), user);
+
+    for(Event event: groupPageData.getWeeklyEventData()){
+      AbstractMap.SimpleEntry eventRsvpData = rsvpData.get(event.getId());
+      event.setUserHasRsvp((Boolean)eventRsvpData.getValue());
+      event.setRsvpCount((Integer)eventRsvpData.getKey());
+    }
     boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
     groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);
     return groupPageData;

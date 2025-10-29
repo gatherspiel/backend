@@ -205,6 +205,7 @@ public class GroupSearchParams {
             LEFT JOIN locations on events.location_id = locations.id
             LEFT JOIN location_group_map on groups.id = location_group_map.group_id
             LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+           
         """;
   }
 

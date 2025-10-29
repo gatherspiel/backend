@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Optional;
 
 import app.result.error.StackTraceShortener;
@@ -416,6 +418,37 @@ public class EventRepository {
       throw e;
     }
 
+  }
+
+  public HashMap<Integer, AbstractMap.SimpleEntry<Integer,Boolean>> getEventRsvpsForGroup(int groupId, User user) throws Exception{
+    String query = """
+      SELECT * from event_rsvps
+      LEFT JOIN event_group_map on event_rsvps.event_id = event_group_map.event_id
+      WHERE group_id = ?
+        """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+
+    select.setInt(1, groupId);
+    ResultSet rs = select.executeQuery();
+
+    HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();
+    while(rs.next()){
+      int eventId = rs.getInt("event_id");
+      int userId = rs.getInt("user_id");
+
+      AbstractMap.SimpleEntry<Integer,Boolean> eventData;
+
+      if(!rsvpData.containsKey(eventId)){
+        eventData = new AbstractMap.SimpleEntry<>(0,false);
+      } else {
+        eventData = rsvpData.get(eventId);
+      }
+      eventData = new AbstractMap.SimpleEntry<>(eventData.getKey()+1, eventData.getValue() || userId == user.getId());
+      rsvpData.put(eventId, eventData);
+    }
+
+    return rsvpData;
   }
 
   private void updateEventGroupMap(

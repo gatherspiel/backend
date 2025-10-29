@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
@@ -49,6 +48,7 @@ public class Event {
   private String imageBucketKey;
 
   private Integer rsvpCount = 0;
+  private boolean userHasRsvp = false;
 
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
@@ -304,6 +304,14 @@ public class Event {
 
   public int getRsvpCount(){
     return rsvpCount;
+  }
+
+  public void setUserHasRsvp(boolean userHasRsvp){
+    this.userHasRsvp = userHasRsvp;
+  }
+
+  public boolean getUserHasRsvp(){
+    return userHasRsvp;
   }
 
   public String toString(){
