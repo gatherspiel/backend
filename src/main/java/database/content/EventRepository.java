@@ -422,30 +422,34 @@ public class EventRepository {
 
   public HashMap<Integer, AbstractMap.SimpleEntry<Integer,Boolean>> getEventRsvpsForGroup(int groupId, User user) throws Exception{
     String query = """
-      SELECT * from event_rsvps
-      LEFT JOIN event_group_map on event_rsvps.event_id = event_group_map.event_id
-      WHERE group_id = ?
-        """;
+         SELECT
+            event_group_map.event_id,
+            COUNT(rsvp_a.user_id),
+            rsvp_b.user_id
+          from event_group_map
+              LEFT JOIN event_rsvp as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+        
+        WHERE group_id =?
+        
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id
+        ORDER BY event_group_map.event_id
+      """;
 
     PreparedStatement select = conn.prepareStatement(query);
 
-    select.setInt(1, groupId);
+    select.setInt(1, user.getId());
+    select.setInt(2, groupId);
     ResultSet rs = select.executeQuery();
 
     HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();
     while(rs.next()){
-      int eventId = rs.getInt("event_id");
-      int userId = rs.getInt("user_id");
 
-      AbstractMap.SimpleEntry<Integer,Boolean> eventData;
-
-      if(!rsvpData.containsKey(eventId)){
-        eventData = new AbstractMap.SimpleEntry<>(0,false);
-      } else {
-        eventData = rsvpData.get(eventId);
-      }
-      eventData = new AbstractMap.SimpleEntry<>(eventData.getKey()+1, eventData.getValue() || userId == user.getId());
-      rsvpData.put(eventId, eventData);
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = new AbstractMap.SimpleEntry<>(
+        rs.getInt("count"),
+        rs.getInt("user_id") > 0
+      );
+      rsvpData.put(rs.getInt("event_id"), eventRsvpData);
     }
 
     return rsvpData;
