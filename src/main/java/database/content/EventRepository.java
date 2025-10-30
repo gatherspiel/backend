@@ -422,24 +422,43 @@ public class EventRepository {
 
   public HashMap<Integer, AbstractMap.SimpleEntry<Integer,Boolean>> getEventRsvpsForGroup(int groupId, User user) throws Exception{
     String query = """
-         SELECT
+        SELECT
+          subquery.event_id,
+          COUNT(a),
+          b as user_id
+          from
+        
+          (
+          SELECT
             event_group_map.event_id,
-            COUNT(rsvp_a.user_id),
-            rsvp_b.user_id
-          from event_group_map
+            event_group_map.group_id,
+            rsvp_a.user_id as a,
+            rsvp_b.user_id as b
+            from event_group_map
               LEFT JOIN event_rsvp as rsvp_a on rsvp_a.event_id = event_group_map.event_id
-              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
-        
-        WHERE group_id =?
-        
-        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id
-        ORDER BY event_group_map.event_id
+              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?    
+            WHERE group_id = ?
+          UNION
+          SELECT
+            event_group_map.event_id,
+            event_group_map.group_id,
+            rsvp_a.user_id as a,
+            rsvp_b.user_id as b
+              from event_group_map
+                LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+                LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id AND rsvp_b.user_id = ?
+          WHERE group_id = ?
+        ) as subquery   
+        GROUP BY subquery.event_id,subquery.group_id,subquery.b
+        ORDER BY subquery.event_id
       """;
 
     PreparedStatement select = conn.prepareStatement(query);
 
     select.setInt(1, user.getId());
     select.setInt(2, groupId);
+    select.setInt(3, user.getId());
+    select.setInt(4, groupId);
     ResultSet rs = select.executeQuery();
 
     HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();

@@ -34,9 +34,11 @@ public class ReadGroupServiceIntegrationTest {
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
-  private static SessionContext sessionContext;
+
   private static SessionContext adminContext;
   private static SessionContext adminContext2;
+  private static SessionContext sessionContext;
+  private static SessionContext standardUserContext;
 
   private static MockedStatic<AuthService> authMock;
 
@@ -55,10 +57,10 @@ public class ReadGroupServiceIntegrationTest {
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
       DbUtils.initializeData(testConnectionProvider);
 
-      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
       adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       adminContext2 = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
-
+      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser("user_"+UUID.randomUUID(),testConnectionProvider);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -338,8 +340,49 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void testRsvpToEventRsvpStatusIsYes_OnlyForThatEvent() throws Exception {
+  public void testEventCreatedWithHost_noOtherRsvps_rsvpCountIsOne_AndOnlyHostHasRsvp() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
 
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+
+    EventService adminEventService = adminContext.createEventService();
+
+    for (Event data : result.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        adminEventService.addEventModerator(data, standardUserContext.getUser());
+      }
+    }
+
+    GroupPageData readerResult = sessionContext.createReadGroupService().getGroupPageData(params);
+    Event foundEvent = null;
+    for (Event data : readerResult.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        foundEvent = data;
+      }
+    }
+    assertFalse(foundEvent.getUserHasRsvp());
+    assertEquals(foundEvent.getRsvpCount(), 1);
+
+    GroupPageData moderatorResult = standardUserContext.createReadGroupService().getGroupPageData(params);
+    Event standardUserFoundEvent = null;
+    for (Event data : moderatorResult.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        standardUserFoundEvent = data;
+      }
+    }
+    assertTrue(standardUserFoundEvent.getUserHasRsvp());
+    assertEquals(foundEvent.getRsvpCount(), 1);
+
+  }
+
+
+  @Test
+  public void testRsvpToEventRsvp_StatusIsYes_OnlyForThatEvent() throws Exception {
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
