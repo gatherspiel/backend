@@ -146,8 +146,8 @@ public class EventServiceIntegrationTest {
     assertEquals(URL_1, eventFromDbA.getUrl());
     assertEquals(URL_2, eventFromDbB.getUrl());
 
-    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbA.getStartTime());
-    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbB.getStartTime());
+    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.SECONDS).toLocalTime(), eventFromDbA.getStartTime());
+    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.SECONDS).toLocalTime(), eventFromDbB.getStartTime());
 
     assertEquals(group.getId(), eventFromDbA.getGroupId());
     assertEquals(group.getId(), eventFromDbB.getGroupId());

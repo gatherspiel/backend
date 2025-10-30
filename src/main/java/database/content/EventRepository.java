@@ -423,7 +423,6 @@ public class EventRepository {
 
   public GroupEventRsvpData getEventRsvpsForGroup(int groupId, User user) throws Exception{
 
-    System.out.println("Querying with group id:"+groupId);
     String query = """
          SELECT
             event_group_map.event_id,
@@ -453,8 +452,6 @@ public class EventRepository {
             rs.getInt("user_id") > 0
         );
       rsvpData.put(rs.getInt("event_id"), eventRsvpData);
-      System.out.println(rs.getInt("event_id"));
-      System.out.println("Standard RSVP count:"+rs.getInt("count"));
     }
 
 
@@ -475,13 +472,9 @@ public class EventRepository {
 
     while(moderatorRs.next()){
 
-      System.out.println("Moderator data");
       AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = rsvpData.get(moderatorRs.getInt("event_id"));
 
-      System.out.println(moderatorRs.getInt("user_id"));
-      System.out.println(user.getId());
       if(moderatorRs.getInt("user_id") == user.getId()){
-          System.out.println("Test");
          groupEventRsvpData.setUserCanRsvp(false,moderatorRs.getInt("event_id"));
       }
 

@@ -436,7 +436,6 @@ public class ReadGroupServiceIntegrationTest {
     for (Event data : result.getWeeklyEventData()) {
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
         eventService.rsvpTpEvent(data.getId());
-        System.out.println("RSVP");
       }
     }
 

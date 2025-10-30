@@ -13,7 +13,6 @@ public class GroupEventRsvpData {
   }
 
   public void setUserCanRsvp(boolean userCanRsvp,int eventId){
-    System.out.println("Updating rsvp for event:"+eventId);
     this.userCanRsvp.put(eventId, userCanRsvp);
   }
 
