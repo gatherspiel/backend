@@ -6,10 +6,12 @@ import app.result.group.GroupPageData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.users.data.UserData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
+import database.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import service.update.GroupPermissionService;
 import service.read.ReadGroupService;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
@@ -340,7 +343,23 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void testEventCreatedWithHost_noOtherRsvps_rsvpCountIsOne_AndOnlyHostHasRsvp() throws Exception{
+  public void testEventCreatedWithHost_rsvpCountIsOne_AndOnlyHostHasRsvp_andHostCannotUpdateRsvp() throws Exception{
+
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+    String deleteRsvpQuery =
+        "TRUNCATE TABLE event_rsvp CASCADE";
+
+
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
+    query4.execute();
+    query5.execute();
+    query6.execute();
+
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
@@ -358,6 +377,8 @@ public class ReadGroupServiceIntegrationTest {
       }
     }
 
+
+
     GroupPageData readerResult = sessionContext.createReadGroupService().getGroupPageData(params);
     Event foundEvent = null;
     for (Event data : readerResult.getWeeklyEventData()) {
@@ -371,18 +392,36 @@ public class ReadGroupServiceIntegrationTest {
     GroupPageData moderatorResult = standardUserContext.createReadGroupService().getGroupPageData(params);
     Event standardUserFoundEvent = null;
     for (Event data : moderatorResult.getWeeklyEventData()) {
+
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
         standardUserFoundEvent = data;
       }
     }
     assertTrue(standardUserFoundEvent.getUserHasRsvp());
-    assertEquals(foundEvent.getRsvpCount(), 1);
+    assertEquals(standardUserFoundEvent.getRsvpCount(), 1);
+    assertFalse(standardUserFoundEvent.getUserCanUpdateRsvp());
 
   }
 
 
   @Test
   public void testRsvpToEventRsvp_StatusIsYes_OnlyForThatEvent() throws Exception {
+
+
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+    String deleteRsvpQuery =
+        "TRUNCATE TABLE event_rsvp CASCADE";
+
+
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
+    query4.execute();
+    query5.execute();
+    query6.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -397,6 +436,7 @@ public class ReadGroupServiceIntegrationTest {
     for (Event data : result.getWeeklyEventData()) {
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
         eventService.rsvpTpEvent(data.getId());
+        System.out.println("RSVP");
       }
     }
 

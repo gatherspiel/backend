@@ -21,6 +21,7 @@ import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
+import service.update.GroupEventRsvpData;
 
 public class EventRepository {
 
@@ -420,58 +421,87 @@ public class EventRepository {
 
   }
 
-  public HashMap<Integer, AbstractMap.SimpleEntry<Integer,Boolean>> getEventRsvpsForGroup(int groupId, User user) throws Exception{
+  public GroupEventRsvpData getEventRsvpsForGroup(int groupId, User user) throws Exception{
+
+    System.out.println("Querying with group id:"+groupId);
     String query = """
-        SELECT
-          subquery.event_id,
-          COUNT(a),
-          b as user_id
-          from
-        
-          (
-          SELECT
+         SELECT
             event_group_map.event_id,
-            event_group_map.group_id,
-            rsvp_a.user_id as a,
-            rsvp_b.user_id as b
-            from event_group_map
+            COUNT(rsvp_a.user_id),
+            rsvp_b.user_id
+          from event_group_map
               LEFT JOIN event_rsvp as rsvp_a on rsvp_a.event_id = event_group_map.event_id
-              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?    
-            WHERE group_id = ?
-          UNION
-          SELECT
-            event_group_map.event_id,
-            event_group_map.group_id,
-            rsvp_a.user_id as a,
-            rsvp_b.user_id as b
-              from event_group_map
-                LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
-                LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id AND rsvp_b.user_id = ?
-          WHERE group_id = ?
-        ) as subquery   
-        GROUP BY subquery.event_id,subquery.group_id,subquery.b
-        ORDER BY subquery.event_id
+              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+        
+        WHERE group_id =?
+        
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id
+        ORDER BY event_group_map.event_id
       """;
 
     PreparedStatement select = conn.prepareStatement(query);
 
     select.setInt(1, user.getId());
     select.setInt(2, groupId);
-    select.setInt(3, user.getId());
-    select.setInt(4, groupId);
     ResultSet rs = select.executeQuery();
 
     HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();
+    GroupEventRsvpData groupEventRsvpData = new GroupEventRsvpData();
     while(rs.next()){
-
-      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = new AbstractMap.SimpleEntry<>(
-        rs.getInt("count"),
-        rs.getInt("user_id") > 0
-      );
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData  = new AbstractMap.SimpleEntry<>(
+            rs.getInt("count"),
+            rs.getInt("user_id") > 0
+        );
       rsvpData.put(rs.getInt("event_id"), eventRsvpData);
+      System.out.println(rs.getInt("event_id"));
+      System.out.println("Standard RSVP count:"+rs.getInt("count"));
     }
 
-    return rsvpData;
+
+    String moderatorQuery = """
+         SELECT
+            event_group_map.event_id,
+            user_id
+          from event_group_map
+            JOIN event_admin_data on event_admin_data.event_id = event_group_map.event_id
+        WHERE group_id =?
+
+      """;
+
+    PreparedStatement moderatorSelect = conn.prepareStatement(moderatorQuery);
+
+    moderatorSelect.setInt(1, groupId);
+    ResultSet moderatorRs = moderatorSelect.executeQuery();
+
+    while(moderatorRs.next()){
+
+      System.out.println("Moderator data");
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = rsvpData.get(moderatorRs.getInt("event_id"));
+
+      System.out.println(moderatorRs.getInt("user_id"));
+      System.out.println(user.getId());
+      if(moderatorRs.getInt("user_id") == user.getId()){
+          System.out.println("Test");
+         groupEventRsvpData.setUserCanRsvp(false,moderatorRs.getInt("event_id"));
+      }
+
+      if(eventRsvpData == null && moderatorRs.getInt("event_id") > 0){
+        eventRsvpData = new AbstractMap.SimpleEntry<>(
+            moderatorRs.getInt(1),
+            moderatorRs.getInt("user_id") == user.getId()
+        );
+        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
+      } else {
+        eventRsvpData = new AbstractMap.SimpleEntry<>(
+            eventRsvpData.getKey() + 1,
+            eventRsvpData.getValue() || moderatorRs.getInt("user_id") == user.getId());
+        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
+      }
+
+    }
+
+    groupEventRsvpData.setRsvpData(rsvpData);
+    return groupEventRsvpData;
   }
 
   private void updateEventGroupMap(

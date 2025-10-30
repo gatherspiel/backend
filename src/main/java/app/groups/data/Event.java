@@ -50,6 +50,8 @@ public class Event {
   private Integer rsvpCount = 0;
   private boolean userHasRsvp = false;
 
+  private boolean userCanUpdateRsvp = true;
+
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
   public Event() {
@@ -312,6 +314,14 @@ public class Event {
 
   public boolean getUserHasRsvp(){
     return userHasRsvp;
+  }
+
+  public void setUserCanUpdateRsvp(boolean userCanUpdateRsvp){
+    this.userCanUpdateRsvp = userCanUpdateRsvp;
+  }
+
+  public boolean getUserCanUpdateRsvp(){
+    return this.userCanUpdateRsvp;
   }
 
   public String toString(){

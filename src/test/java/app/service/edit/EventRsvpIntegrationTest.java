@@ -391,6 +391,7 @@ public class EventRsvpIntegrationTest {
     query5.execute();
     query6.execute();
   }
+
   private static void verifyRsvpCount(int eventId, int expectedCount) throws Exception{
     Optional<Event> eventFromDb = readOnlyEventService.getEvent(eventId);
     assertTrue(eventFromDb.isPresent());
