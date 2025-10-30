@@ -146,7 +146,7 @@ public class EventsApi {
       }
     );
 
-    app.put(
+    app.delete(
       "groups/events/{eventId}/rsvp",
       ctx -> {
 
