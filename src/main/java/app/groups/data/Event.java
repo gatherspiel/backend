@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import static utils.Params.IMAGE_BUCKET_URL;
+import static utils.Params.getWebsiteUrl;
 
 public class Event {
   private Integer id;
@@ -171,6 +172,9 @@ public class Event {
   }
 
   public String getUrl(){
+    if(url == null || url.isEmpty()){
+      return getWebsiteUrl() + "groups/event.html?id="+getId()+"&groupId="+getGroupId();
+    }
     return url;
   }
 

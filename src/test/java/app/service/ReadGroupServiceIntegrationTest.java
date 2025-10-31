@@ -341,7 +341,6 @@ public class ReadGroupServiceIntegrationTest {
     );
     assertFalse(result.userCanEdit());
   }
-
   @Test
   public void testEventCreatedWithHost_rsvpCountIsOne_AndOnlyHostHasRsvp_andHostCannotUpdateRsvp() throws Exception{
 
@@ -358,6 +357,7 @@ public class ReadGroupServiceIntegrationTest {
     PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
     query4.execute();
     query5.execute();
+
     query6.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
