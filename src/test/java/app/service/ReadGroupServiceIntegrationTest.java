@@ -324,22 +324,24 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void testGetGroupData_doesNotShowEditPermissions_whenUserIsNotLoggedIn() throws Exception{
-
-    var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test_7",testConnectionProvider);
-    Group group = CreateGroupUtils.createGroup(sessionContext.getUser(), conn);
+  public void testGetGroupData_doesNotShowEditPermissions_rsvpsDisabled_whenUserIsNotLoggedIn() throws Exception{
 
     var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
-    var adminEditService = adminContext.createGroupEditService();
-    adminEditService.setGroupToVisible(group.getId());
-
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
-    GroupPageData result = readOnlyContext.createReadGroupService().getGroupPageData(
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+
+   GroupPageData result = readOnlyContext.createReadGroupService().getGroupPageData(
         params
     );
     assertFalse(result.userCanEdit());
+    assertEquals(4,result.getWeeklyEventData().size());
+
+    for(Event event: result.getWeeklyEventData()) {
+      assertFalse(event.getUserCanUpdateRsvp());
+    }
+
   }
   @Test
   public void testEventCreatedWithHost_rsvpCountIsOne_AndOnlyHostHasRsvp_andHostCannotUpdateRsvp() throws Exception{
@@ -357,7 +359,6 @@ public class ReadGroupServiceIntegrationTest {
     PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
     query4.execute();
     query5.execute();
-
     query6.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -368,7 +369,6 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
 
-
     EventService adminEventService = adminContext.createEventService();
 
     for (Event data : result.getWeeklyEventData()) {
@@ -376,7 +376,6 @@ public class ReadGroupServiceIntegrationTest {
         adminEventService.addEventModerator(data, standardUserContext.getUser());
       }
     }
-
 
 
     GroupPageData readerResult = sessionContext.createReadGroupService().getGroupPageData(params);
@@ -400,9 +399,7 @@ public class ReadGroupServiceIntegrationTest {
     assertTrue(standardUserFoundEvent.getUserHasRsvp());
     assertEquals(standardUserFoundEvent.getRsvpCount(), 1);
     assertFalse(standardUserFoundEvent.getUserCanUpdateRsvp());
-
   }
-
 
   @Test
   public void testRsvpToEventRsvp_StatusIsYes_OnlyForThatEvent() throws Exception {

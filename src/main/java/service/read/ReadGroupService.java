@@ -55,10 +55,11 @@ public class ReadGroupService{
       if(eventRsvpData != null){
         event.setUserHasRsvp((Boolean)eventRsvpData.getValue());
         event.setRsvpCount((Integer)eventRsvpData.getKey());
-
         event.setUserCanUpdateRsvp(rsvpData.canRsvpToEvent(event.getId()));
       }
-
+      if(!user.isLoggedInUser()){
+        event.setUserCanUpdateRsvp(false);
+      }
     }
     boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
     groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);
