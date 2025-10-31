@@ -11,15 +11,18 @@ import service.data.HtmlSanitizer;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
 import static utils.Params.IMAGE_BUCKET_URL;
+import static utils.Params.getWebsiteUrl;
 
 public class Event {
   private Integer id;
@@ -44,6 +47,11 @@ public class Event {
   private String image;
   private String imageFilePath;
   private String imageBucketKey;
+
+  private Integer rsvpCount = 0;
+  private boolean userHasRsvp = false;
+
+  private boolean userCanUpdateRsvp = true;
 
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
@@ -81,11 +89,12 @@ public class Event {
     this.startTime = startTime;
   }
 
+
   public LocalTime getStartTime(){
     if(startTime == null){
       return LocalTime.MIN;
     }
-    return startTime.truncatedTo(ChronoUnit.MINUTES);
+    return startTime.truncatedTo(ChronoUnit.SECONDS);
   }
 
   public void setEndTime(LocalTime endTime){
@@ -99,6 +108,23 @@ public class Event {
     return endTime.truncatedTo(ChronoUnit.MINUTES);
   }
 
+  @JsonIgnore
+  public LocalDateTime getPrevious(){
+    LocalDateTime previousEvent = LocalDateTime.now();
+
+    if(dayOfWeek == null || startTime == null){
+      return LocalDateTime.now().minusYears(1);
+    }
+
+    if(previousEvent.getDayOfWeek() != dayOfWeek){
+      previousEvent = previousEvent.with(TemporalAdjusters.previous(dayOfWeek));
+    }
+    previousEvent = previousEvent.withHour(startTime.getHour());
+    previousEvent = previousEvent.withMinute(startTime.getMinute());
+    previousEvent = previousEvent.withSecond(startTime.getSecond());
+
+    return previousEvent;
+  }
 
   public String getLocation() {
     return eventLocation.toString();
@@ -146,6 +172,9 @@ public class Event {
   }
 
   public String getUrl(){
+    if(url == null || url.isEmpty()){
+      return getWebsiteUrl() + "groups/event.html?id="+getId()+"&groupId="+getGroupId();
+    }
     return url;
   }
 
@@ -270,8 +299,33 @@ public class Event {
     updated.addAll(updatedModerators);
     this.moderators = updated;
   }
+
   public TreeSet<User> getModerators(){
     return moderators;
+  }
+
+  public void setRsvpCount(int rsvpCount){
+    this.rsvpCount = rsvpCount;
+  }
+
+  public int getRsvpCount(){
+    return rsvpCount;
+  }
+
+  public void setUserHasRsvp(boolean userHasRsvp){
+    this.userHasRsvp = userHasRsvp;
+  }
+
+  public boolean getUserHasRsvp(){
+    return userHasRsvp;
+  }
+
+  public void setUserCanUpdateRsvp(boolean userCanUpdateRsvp){
+    this.userCanUpdateRsvp = userCanUpdateRsvp;
+  }
+
+  public boolean getUserCanUpdateRsvp(){
+    return this.userCanUpdateRsvp;
   }
 
   public String toString(){

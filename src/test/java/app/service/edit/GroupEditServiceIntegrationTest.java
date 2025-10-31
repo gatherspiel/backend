@@ -87,7 +87,7 @@ public class GroupEditServiceIntegrationTest {
 
     } catch(Exception e){
       e.printStackTrace();
-      fail("Error initializing database:" + e.getMessage());
+      fail("Error initializing data:" + e.getMessage());
     }
   }
 

@@ -7,16 +7,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Optional;
 
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
+import app.result.error.group.InvalidEventParameterError;
 import app.users.data.EventAdminType;
 import app.users.data.User;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
+import service.update.GroupEventRsvpData;
 
 public class EventRepository {
 
@@ -218,8 +223,8 @@ public class EventRepository {
   }
 
   public Optional<Event> getEvent(int id) throws Exception{
-    String query = """
-        
+
+    String query = """        
         SELECT
          events.id as eventId,
          events.url,
@@ -243,15 +248,14 @@ public class EventRepository {
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
-        where events.id = ?
-        
+        WHERE events.id = ?
         """;
     PreparedStatement select = conn.prepareStatement(query);
     select.setInt(1, id);
-
     ResultSet rs = select.executeQuery();
     if (rs.next()) {
       Event event = new Event();
+      event.setId(id);
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
       event.setDescription(rs.getString("eventDescription"));
@@ -261,7 +265,6 @@ public class EventRepository {
       int groupId  = rs.getInt("groupId");
       event.setGroupName(groupName);
       event.setGroupId(groupId);
-
 
       Timestamp oneTimeEventStartTime = rs.getTimestamp("oneTimeEventStartTime");
       Timestamp oneTimeEventEndTime = rs.getTimestamp("oneTimeEventEndTime");
@@ -287,7 +290,21 @@ public class EventRepository {
         event.setIsRecurring(true);
       }
 
-      event.setId(rs.getInt("eventId"));
+      String rsvpQueryStr = """
+          SELECT COUNT(user_id) as rsvp_count,event_id
+          FROM event_rsvp
+          WHERE event_id = ?
+          AND rsvp_time > ?
+              GROUP BY event_id
+          """;
+
+      PreparedStatement rsvpQuery = conn.prepareStatement(rsvpQueryStr);
+      rsvpQuery.setInt(1,id);
+      rsvpQuery.setTimestamp(2, Timestamp.valueOf(event.getPrevious()));
+      ResultSet rs2 = rsvpQuery.executeQuery();
+      if(rs2.next()){
+        event.setRsvpCount(rs2.getInt("rsvp_count"));
+      }
 
       EventLocation eventLocation = new EventLocation();
       eventLocation.setCity(rs.getString("city"));
@@ -358,6 +375,126 @@ public class EventRepository {
     delete.setInt(1, moderatorToRemove.getId());
     delete.setInt(2, event.getId());
     delete.executeUpdate();
+  }
+
+  public void rsvpToEvent(int eventId, User user) throws Exception{
+
+    try {
+      String query = """
+        INSERT INTO event_rsvp(event_id,user_id,rsvp_time) values(?, ?, ?)
+        ON CONFLICT(event_id,user_id) DO UPDATE set rsvp_time = current_timestamp
+        """;
+      PreparedStatement insert = conn.prepareStatement(query);
+      insert.setInt(1, eventId);
+      insert.setInt(2, user.getId());
+      insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.executeUpdate();
+    } catch(Exception e){
+      if(e.getMessage().contains("duplicate key value")){
+        throw new InvalidEventParameterError("User already has RSVP for event");
+      }
+      if(e.getMessage().contains("insert or update on table \"event_rsvp\" violates foreign key constraint \"event_rsvp_event_id_fkey\"")){
+        throw new InvalidEventParameterError("Event does not exist");
+      }
+      e.printStackTrace();
+      throw e;
+    }
+  }
+
+  public void removeEventRsvp(int eventId, User user) throws Exception{
+
+    try {
+      String query = "DELETE from  event_rsvp WHERE event_id = ? and user_id = ?";
+      PreparedStatement delete = conn.prepareStatement(query);
+      delete.setInt(1, eventId);
+      delete.setInt(2, user.getId());
+
+
+      int update = delete.executeUpdate();
+      if(update == 0){
+        throw new InvalidEventParameterError("User does not have rsvp for event");
+      }
+    } catch(Exception e){
+      logger.error(e.getMessage());
+      throw e;
+    }
+
+  }
+
+  public GroupEventRsvpData getEventRsvpsForGroup(int groupId, User user) throws Exception{
+
+    String query = """
+         SELECT
+            event_group_map.event_id,
+            COUNT(rsvp_a.user_id),
+            rsvp_b.user_id
+          from event_group_map
+              LEFT JOIN event_rsvp as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+        
+        WHERE group_id =?
+        
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id
+        ORDER BY event_group_map.event_id
+      """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+
+    select.setInt(1, user.getId());
+    select.setInt(2, groupId);
+    ResultSet rs = select.executeQuery();
+
+    HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();
+    GroupEventRsvpData groupEventRsvpData = new GroupEventRsvpData();
+    while(rs.next()){
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData  = new AbstractMap.SimpleEntry<>(
+            rs.getInt("count"),
+            rs.getInt("user_id") > 0
+        );
+      rsvpData.put(rs.getInt("event_id"), eventRsvpData);
+    }
+
+
+    String moderatorQuery = """
+         SELECT
+            event_group_map.event_id,
+            user_id
+          from event_group_map
+            JOIN event_admin_data on event_admin_data.event_id = event_group_map.event_id
+        WHERE group_id =?
+
+      """;
+
+    PreparedStatement moderatorSelect = conn.prepareStatement(moderatorQuery);
+
+    moderatorSelect.setInt(1, groupId);
+    ResultSet moderatorRs = moderatorSelect.executeQuery();
+
+    while(moderatorRs.next()){
+
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = rsvpData.get(moderatorRs.getInt("event_id"));
+
+      if(moderatorRs.getInt("user_id") == user.getId()){
+         groupEventRsvpData.setUserCanRsvp(false,moderatorRs.getInt("event_id"));
+      }
+
+      if(eventRsvpData == null && moderatorRs.getInt("event_id") > 0){
+        eventRsvpData = new AbstractMap.SimpleEntry<>(
+            moderatorRs.getInt(1),
+            moderatorRs.getInt("user_id") == user.getId()
+        );
+        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
+      } else {
+        eventRsvpData = new AbstractMap.SimpleEntry<>(
+            eventRsvpData.getKey() + 1,
+            eventRsvpData.getValue() || moderatorRs.getInt("user_id") == user.getId());
+        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
+      }
+
+    }
+
+    groupEventRsvpData.setRsvpData(rsvpData);
+    return groupEventRsvpData;
   }
 
   private void updateEventGroupMap(

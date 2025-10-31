@@ -35,4 +35,7 @@ public class Params {
     return "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/token?grant_type=password";
   }
 
+  public static String getWebsiteUrl(){
+    return  "https://dmvobardgames.com/";
+  }
 }

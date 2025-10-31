@@ -6,19 +6,23 @@ import app.result.group.GroupPageData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
+import app.users.data.UserData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
+import database.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import service.auth.AuthService;
+import service.update.EventService;
 import service.update.GroupPermissionService;
 import service.read.ReadGroupService;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
@@ -33,8 +37,11 @@ public class ReadGroupServiceIntegrationTest {
 
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
-  private static SessionContext sessionContext;
+
   private static SessionContext adminContext;
+  private static SessionContext adminContext2;
+  private static SessionContext sessionContext;
+  private static SessionContext standardUserContext;
 
   private static MockedStatic<AuthService> authMock;
 
@@ -50,14 +57,17 @@ public class ReadGroupServiceIntegrationTest {
       authMock = mockStatic(AuthService.class);
       authMock.when(()->AuthService.getReadOnlyUser()).thenReturn(new User("reader@dmvboardgames.com", UserType.READONLY, 123));
 
-      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
-      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
-
       DbUtils.createTables(testConnectionProvider.getDatabaseConnection());
       DbUtils.initializeData(testConnectionProvider);
+
+      adminContext = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      adminContext2 = CreateUserUtils.createContextWithNewAdminUser(ADMIN_USERNAME+ UUID.randomUUID(), testConnectionProvider);
+      sessionContext = SessionContext.createContextWithoutUser(testConnectionProvider);
+      standardUserContext = CreateUserUtils.createContextWithNewStandardUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
     } catch (Exception e) {
       e.printStackTrace();
-      fail("Error initializing database:" + e.getMessage());
+      fail("Error initializing data:" + e.getMessage());
     }
   }
 
@@ -330,5 +340,119 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
+  }
+  @Test
+  public void testEventCreatedWithHost_rsvpCountIsOne_AndOnlyHostHasRsvp_andHostCannotUpdateRsvp() throws Exception{
+
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+    String deleteRsvpQuery =
+        "TRUNCATE TABLE event_rsvp CASCADE";
+
+
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
+    query4.execute();
+    query5.execute();
+
+    query6.execute();
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+
+    EventService adminEventService = adminContext.createEventService();
+
+    for (Event data : result.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        adminEventService.addEventModerator(data, standardUserContext.getUser());
+      }
+    }
+
+
+
+    GroupPageData readerResult = sessionContext.createReadGroupService().getGroupPageData(params);
+    Event foundEvent = null;
+    for (Event data : readerResult.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        foundEvent = data;
+      }
+    }
+    assertFalse(foundEvent.getUserHasRsvp());
+    assertEquals(foundEvent.getRsvpCount(), 1);
+
+    GroupPageData moderatorResult = standardUserContext.createReadGroupService().getGroupPageData(params);
+    Event standardUserFoundEvent = null;
+    for (Event data : moderatorResult.getWeeklyEventData()) {
+
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        standardUserFoundEvent = data;
+      }
+    }
+    assertTrue(standardUserFoundEvent.getUserHasRsvp());
+    assertEquals(standardUserFoundEvent.getRsvpCount(), 1);
+    assertFalse(standardUserFoundEvent.getUserCanUpdateRsvp());
+
+  }
+
+
+  @Test
+  public void testRsvpToEventRsvp_StatusIsYes_OnlyForThatEvent() throws Exception {
+
+
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+    String deleteRsvpQuery =
+        "TRUNCATE TABLE event_rsvp CASCADE";
+
+
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
+    query4.execute();
+    query5.execute();
+    query6.execute();
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+    EventService eventService = adminContext.createEventService();
+
+    for (Event data : result.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        eventService.rsvpTpEvent(data.getId());
+      }
+    }
+
+    GroupPageData adminResult =  adminContext.createReadGroupService().getGroupPageData(params);
+    GroupPageData adminResult2 =  adminContext2.createReadGroupService().getGroupPageData(params);
+
+    for (Event data : adminResult.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        assertTrue(data.getUserHasRsvp());
+      } else {
+        assertFalse(data.getUserHasRsvp());
+      }
+    }
+
+    for(Event data: adminResult2.getWeeklyEventData()){
+      assertFalse(data.getUserHasRsvp());
+    }
+
   }
 }

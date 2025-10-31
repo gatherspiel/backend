@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import service.data.HtmlSanitizer;
+import utils.Params;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -41,6 +42,8 @@ public class Group {
   public String getUrl() {
     return url;
   }
+
+
 
   public void setUrl(String url) {
     this.url = url;
