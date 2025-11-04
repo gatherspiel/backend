@@ -119,7 +119,7 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-   CREATE TYPE event_admin_level as ENUM('event_moderator');
+   CREATE TYPE event_admin_level as ENUM('event_moderator','event_rsvp');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -138,6 +138,7 @@ create table if not exists event_admin_data (
   user_id integer not null,
   event_id integer not null,
   event_admin_level event_admin_level null,
+  rsvp_time timestamp without time zone null,
   constraint event_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
   constraint event_admin_data_pkey primary key (user_id, event_id)
 );
@@ -160,11 +161,3 @@ CREATE TABLE IF NOT EXISTS weekly_event_time (
     constraint weekly_event_time_event_id_fkey foreign KEY (event_id) references events (id)
 );
 
-create table event_rsvp (
-  user_id integer null,
-  event_id integer null,
-  rsvp_time timestamp with time zone null,
-  constraint event_rsvp_pkey primary KEY (user_id, event_id),
-  constraint event_rsvp_event_id_fkey foreign KEY (event_id) references events (id),
-  constraint event_rsvp_user_id_fkey foreign KEY (user_id) references users (id)
-);
