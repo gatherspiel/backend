@@ -155,6 +155,7 @@ public class UserPermissionsRepository
           LEFT JOIN users on event_admin_data.user_id = users.id
           WHERE events.id = ?
           AND users.id = ?
+          AND event_admin_data.event_admin_level = 'event_moderator'
         """;
 
       PreparedStatement select = conn.prepareStatement(query);

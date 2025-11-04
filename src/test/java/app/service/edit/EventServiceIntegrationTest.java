@@ -832,6 +832,12 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testStandardUserWithRsvpToEvent_cannotModifyEvent() throws Exception {
+    //TODO: Add testing logic.
+    assertTrue(false);
+  }
+
+  @Test
   public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
     EventService eventService = groupAdminContext.createEventService();
