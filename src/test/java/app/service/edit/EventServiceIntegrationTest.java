@@ -7,6 +7,7 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
 import app.users.data.PermissionName;
 import app.users.data.User;
+import app.users.data.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
@@ -680,31 +681,55 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
-  public void testCreateNewEvent_NoEventModerators() throws Exception{
+  public void testCreateNewEvent_NoEventModerators_Before_andAfterRsvp() throws Exception{
     EventService eventService = standardUserContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-
     Event event = eventService.createEvent(event1, group.getId());
 
     Optional<Event> eventFromDb = eventService.getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
-    assertEquals(eventFromDb.get().getModerators().size(),0);
+    assertEquals(0, eventFromDb.get().getModerators().size());
+
+    EventService eventService2 = standardUserContext2.createEventService();
+    eventService2.rsvpTpEvent(eventFromDb.get().getId());
+
+    Optional<Event> eventFromDb2 = eventService2.getEvent(event.getId());
+    assertTrue(eventFromDb2.isPresent());
+    assertEquals(0,eventFromDb2.get().getModerators().size());
+
   }
 
   @Test
-  public void testStandardUser_CreateEventModerator() throws Exception{
+  public void testStandardUser_CreateEventModerator_WithImageAndUsername() throws Exception{
 
     EventService eventService = standardUserContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-
     Event event = eventService.createEvent(event1, group.getId());
-    eventService.addEventModerator(event, standardUserContext2.getUser());
 
-    Optional<Event> eventFromDb = eventService.getEvent(event.getId());
+    String username = "user_"+UUID.randomUUID();
+    String imagePath = "image_"+UUID.randomUUID();
+    String email = "email_" +UUID.randomUUID() +"@dmvboardgames.com";
+
+    UserData moderator = new UserData();
+    moderator.setUsername(username);
+    moderator.setImageFilePath(imagePath);
+
+    UserRepository userRepository = new UserRepository(conn);
+    userRepository.createStandardUser(email);
+    userRepository.updateUserData(moderator, email);
+
+    User moderatorFromDb = userRepository.getUserFromEmail(email);
+    eventService.addEventModerator(event,moderatorFromDb);
+
+    Optional<Event> eventFromDb = readOnlyUserContext.createEventService().getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
-    assertEquals(eventFromDb.get().getModerators().size(),1);
+    assertEquals(1,eventFromDb.get().getModerators().size());
+
+    User eventModeratorFromDb2 = eventFromDb.get().getModerators().first();
+    assertEquals(username, eventModeratorFromDb2.getUserData().getUsername());
+    assertEquals(imagePath, eventModeratorFromDb2.getUserData().getImageFilePath());
   }
 
   @Test

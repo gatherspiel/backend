@@ -6,6 +6,7 @@ import app.groups.data.Event;
 import app.groups.data.Group;
 import app.result.error.UnauthorizedError;
 import app.result.error.group.InvalidEventParameterError;
+import app.users.data.PermissionName;
 import app.users.data.SessionContext;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
@@ -237,6 +238,10 @@ public class EventRsvpIntegrationTest {
 
     Event created = adminEventService.createEvent(event, group.getId());
     standardUserEventService.rsvpTpEvent(created.getId());
+
+    Optional<Event> eventFromDb = standardUserEventService.getEvent(created.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertFalse(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
 
     created.setDescription(event.getDescription()+" Update");
 

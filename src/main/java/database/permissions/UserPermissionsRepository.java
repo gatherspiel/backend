@@ -2,10 +2,7 @@ package database.permissions;
 
 import app.groups.data.Event;
 import app.result.error.StackTraceShortener;
-import app.users.data.EventAdminType;
-import app.users.data.GroupAdminType;
-import app.users.data.User;
-import app.users.data.UserData;
+import app.users.data.*;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -118,6 +115,8 @@ public class UserPermissionsRepository
           userData.setImageFilePath(rs.getString("image_path"));
           userData.setUsername(rs.getString("username"));
           user.setUserData(userData);
+          user.setUserType(UserType.EVENT_ADMIN);
+          System.out.println("Hi");
         }
         user.setId(rs.getInt("userId"));
         user.setEmail(rs.getString("email"));

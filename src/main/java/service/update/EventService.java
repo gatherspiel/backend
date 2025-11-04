@@ -41,29 +41,31 @@ public class EventService {
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
 
       Set<User> eventRsvps = userPermissionsRepository.getEventRoles(event.get());
+      Set<User> eventModerators = eventRsvps.stream()
+          .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
+          .collect(Collectors.toSet());
 
       System.out.println("Number of event rsvps:"+eventRsvps.size());
       boolean currentUserCanEdit =
         user.isSiteAdmin() ||
-        eventRsvps.contains(user) ||
+        eventModerators.contains(user) ||
         userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
+
+      System.out.println("User can edit event:"+currentUserCanEdit);
       event.get().setUserCanEditPermission(currentUserCanEdit);
 
       for(User user: eventRsvps){
         user.setEmail("");
       }
 
-      Set<User> eventModerators = eventRsvps.stream()
-        .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.toString()))
-        .collect(Collectors.toSet());
-
       System.out.println(eventRsvps.contains(user));
       for(User eventRsvp: eventRsvps){
         System.out.println(user.getId()+":"+eventRsvp.getId());
+        System.out.println(eventRsvp.getAdminLevel());
       }
 
       event.get().setUserHasRsvp(eventRsvps.contains(user));
-      event.get().setModerators(eventRsvps);
+      event.get().setModerators(eventModerators);
       event.get().setUserCanUpdateRsvp(!eventModerators.contains(user));
       event.get().setRsvpCount(eventRsvps.size());
     }
