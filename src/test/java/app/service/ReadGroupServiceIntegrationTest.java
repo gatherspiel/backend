@@ -24,6 +24,7 @@ import service.read.ReadGroupService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -400,12 +401,10 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testRsvpToEventRsvp_StatusIsYes_OnlyForThatEvent() throws Exception {
 
-
     String deleteEventAdminQuery =
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-
 
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
@@ -442,6 +441,54 @@ public class ReadGroupServiceIntegrationTest {
     for(Event data: adminResult2.getWeeklyEventData()){
       assertFalse(data.getUserHasRsvp());
     }
+  }
+
+
+  @Test
+  public void testGroupData_DoesNotIncludePastEventRsvp() throws Exception{
+    String deleteEventAdminQuery =
+        "TRUNCATE TABLE event_admin_data CASCADE";
+    String deleteGroupAdminQuery =
+        "TRUNCATE TABLE group_admin_data CASCADE";
+
+
+    PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
+    PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
+    query4.execute();
+    query5.execute();
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+
+    GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
+        params
+    );
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    Event eventToUpdate = null;
+    for (Event data : result.getWeeklyEventData()) {
+      if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
+        eventToUpdate = data;
+      }
+    }
+
+    EventService adminEventService = adminContext.createEventService();
+
+    LocalDateTime now = LocalDateTime.now();
+    eventToUpdate.setDay(now.getDayOfWeek().toString());
+    eventToUpdate.setStartTime(now.toLocalTime().plusSeconds(2));
+    eventToUpdate.setEndTime(now.toLocalTime().plusHours(2));
+    adminEventService.updateEvent(eventToUpdate);
+
+    standardUserEventService.rsvpTpEvent(eventToUpdate.getId());
+
+    Thread.sleep(3000);
+
+    Optional<Event> eventFromDb = standardUserEventService.getEvent(eventToUpdate.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertFalse(eventFromDb.get().getUserHasRsvp());
 
   }
 }

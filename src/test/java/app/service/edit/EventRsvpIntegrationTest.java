@@ -161,7 +161,7 @@ public class EventRsvpIntegrationTest {
   }
 
   @Test
-  public void testTwoUsersRsvpToEvent_bothRemoveRsvp() throws Exception{
+  public void testTwoUsersRsvpToEvent_bothRemoveRsvp_eventShowsCorrectRsvpStatusesForUsers() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
@@ -170,12 +170,32 @@ public class EventRsvpIntegrationTest {
     standardUserEventService.rsvpTpEvent(created.getId());
     standardUserEventService2.rsvpTpEvent(created.getId());
 
+    Optional<Event> userEventData = standardUserEventService.getEvent(created.getId());
+    Optional<Event> userEventData2 = standardUserEventService2.getEvent(created.getId());
+
+    assertTrue(userEventData.isPresent());
+    assertTrue(userEventData2.isPresent());
+    assertTrue(userEventData.get().getUserHasRsvp());
+    assertTrue(userEventData2.get().getUserHasRsvp());
+    assertEquals(2, userEventData.get().getRsvpCount());
+    assertEquals(2, userEventData.get().getRsvpCount());
+
+
     standardUserEventService.removeEventRsvp(created.getId());
     standardUserEventService2.removeEventRsvp(created.getId());
 
-    verifyRsvpCount(created.getId(), 0);
+    userEventData = standardUserEventService.getEvent(created.getId());
+    userEventData2 = standardUserEventService2.getEvent(created.getId());
+
+    assertTrue(userEventData.isPresent());
+    assertTrue(userEventData2.isPresent());
+    assertFalse(userEventData.get().getUserHasRsvp());
+    assertFalse(userEventData2.get().getUserHasRsvp());
+    assertEquals(0, userEventData.get().getRsvpCount());
+    assertEquals(0, userEventData.get().getRsvpCount());
 
   }
+
 
   @Test
   public void testTwoUsersRsvpToEvent_oneRemovesRsvp() throws Exception{

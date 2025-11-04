@@ -15,9 +15,7 @@ import java.util.Optional;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
 import app.result.error.group.InvalidEventParameterError;
-import app.users.data.EventAdminType;
-import app.users.data.User;
-import app.users.data.UserType;
+import app.users.data.*;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -223,7 +221,7 @@ public class EventRepository {
     }
   }
 
-  public Optional<Event> getEvent(int id) throws Exception{
+  public Optional<Event> getEvent(int id, User user) throws Exception{
 
     String query = """        
         SELECT
@@ -291,21 +289,6 @@ public class EventRepository {
         event.setIsRecurring(true);
       }
 
-      String rsvpQueryStr = """
-          SELECT COUNT(user_id) as rsvp_count,event_id
-          FROM event_admin_data
-          WHERE event_id = ?
-          AND rsvp_time > ?
-              GROUP BY event_id
-          """;
-
-      PreparedStatement rsvpQuery = conn.prepareStatement(rsvpQueryStr);
-      rsvpQuery.setInt(1,id);
-      rsvpQuery.setTimestamp(2, Timestamp.valueOf(event.getPrevious()));
-      ResultSet rs2 = rsvpQuery.executeQuery();
-      if(rs2.next()){
-        event.setRsvpCount(rs2.getInt("rsvp_count"));
-      }
 
       EventLocation eventLocation = new EventLocation();
       eventLocation.setCity(rs.getString("city"));

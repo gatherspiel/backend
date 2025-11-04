@@ -1,5 +1,6 @@
 package database.permissions;
 
+import app.groups.data.Event;
 import app.result.error.StackTraceShortener;
 import app.users.data.EventAdminType;
 import app.users.data.GroupAdminType;
@@ -11,6 +12,7 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,13 +81,13 @@ public class UserPermissionsRepository
     return select.executeQuery();
   }
 
-  public Set<User> getEventEditorRoles(int eventId) throws Exception {
+  public Set<User> getEventRoles(Event event) throws Exception {
 
     try {
       String query =  """
                       SELECT
                         users.id as userId,
-                        users.email,
+                        users.email as email,
                         events.id as eventId,
                         event_admin_level,
                         users.image_path,
@@ -94,28 +96,32 @@ public class UserPermissionsRepository
                       FULL JOIN event_admin_data on event_admin_data.event_id = events.id
                       LEFT JOIN users on event_admin_data.user_id = users.id
                       WHERE events.id = ?
+                      AND users.id IS NOT NULL
+                      AND (rsvp_time IS NULL OR rsvp_time > ?)
                     """;
 
       PreparedStatement select = conn.prepareStatement(query);
-      select.setInt(1, eventId);
+      select.setInt(1, event.getId());
+      select.setTimestamp(2, Timestamp.valueOf(event.getPrevious()));
 
       ResultSet rs = select.executeQuery();
 
       Set<User> editors = new HashSet<>();
       while(rs.next()){
+
         String eventAdminLevel = rs.getString("event_admin_level");
+        User user = new User();
 
+        System.out.println(rs.getInt("userId"));
         if(eventAdminLevel != null && eventAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
-          User user = new User();
-
           UserData userData = new UserData();
           userData.setImageFilePath(rs.getString("image_path"));
           userData.setUsername(rs.getString("username"));
           user.setUserData(userData);
-          user.setEmail(rs.getString("email"));
-          user.setId(rs.getInt("userId"));
-          editors.add(user);
         }
+        user.setId(rs.getInt("userId"));
+        user.setEmail(rs.getString("email"));
+        editors.add(user);
       }
       return editors;
     } catch(Exception e){
@@ -136,7 +142,6 @@ public class UserPermissionsRepository
       if(user_id == user.getId()) {
         if(groupAdminLevel.equals(GroupAdminType.GROUP_ADMIN.toString()) ||
             groupAdminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString())){
-
           return true;
         }
       }
