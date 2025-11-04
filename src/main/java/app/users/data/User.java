@@ -63,13 +63,11 @@ public class User {
   @Override
   public boolean equals(Object obj) {
     User other = (User)obj;
-    System.out.println("Testing equals");
     return other.getId() == this.getId() || other.getEmail().equals(this.getEmail());
   }
 
   @Override
   public int hashCode() {
-    System.out.println("Testing hash code");
     return (this.id + " "+this.email).hashCode();
   }
 }

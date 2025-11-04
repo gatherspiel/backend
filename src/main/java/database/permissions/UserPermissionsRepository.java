@@ -109,14 +109,12 @@ public class UserPermissionsRepository
         String eventAdminLevel = rs.getString("event_admin_level");
         User user = new User();
 
-        System.out.println(rs.getInt("userId"));
         if(eventAdminLevel != null && eventAdminLevel.equals(EventAdminType.EVENT_MODERATOR.toString())){
           UserData userData = new UserData();
           userData.setImageFilePath(rs.getString("image_path"));
           userData.setUsername(rs.getString("username"));
           user.setUserData(userData);
           user.setUserType(UserType.EVENT_ADMIN);
-          System.out.println("Hi");
         }
         user.setId(rs.getInt("userId"));
         user.setEmail(rs.getString("email"));
