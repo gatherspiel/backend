@@ -350,16 +350,12 @@ public class ReadGroupServiceIntegrationTest {
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-    String deleteRsvpQuery =
-        "TRUNCATE TABLE event_rsvp CASCADE";
 
 
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
-    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
     query4.execute();
     query5.execute();
-    query6.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");
@@ -389,16 +385,16 @@ public class ReadGroupServiceIntegrationTest {
     assertEquals(foundEvent.getRsvpCount(), 1);
 
     GroupPageData moderatorResult = standardUserContext.createReadGroupService().getGroupPageData(params);
-    Event standardUserFoundEvent = null;
+    Event standardUserEventHost = null;
     for (Event data : moderatorResult.getWeeklyEventData()) {
 
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
-        standardUserFoundEvent = data;
+        standardUserEventHost = data;
       }
     }
-    assertTrue(standardUserFoundEvent.getUserHasRsvp());
-    assertEquals(standardUserFoundEvent.getRsvpCount(), 1);
-    assertFalse(standardUserFoundEvent.getUserCanUpdateRsvp());
+    assertTrue(standardUserEventHost.getUserHasRsvp());
+    assertEquals(standardUserEventHost.getRsvpCount(), 1);
+    assertFalse(standardUserEventHost.getUserCanUpdateRsvp());
   }
 
   @Test
@@ -409,16 +405,12 @@ public class ReadGroupServiceIntegrationTest {
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-    String deleteRsvpQuery =
-        "TRUNCATE TABLE event_rsvp CASCADE";
 
 
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
-    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
     query4.execute();
     query5.execute();
-    query6.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(GroupSearchParams.AREA, "dmv");

@@ -17,6 +17,7 @@ import app.result.error.group.DuplicateEventError;
 import app.result.error.group.InvalidEventParameterError;
 import app.users.data.EventAdminType;
 import app.users.data.User;
+import app.users.data.UserType;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -292,7 +293,7 @@ public class EventRepository {
 
       String rsvpQueryStr = """
           SELECT COUNT(user_id) as rsvp_count,event_id
-          FROM event_rsvp
+          FROM event_admin_data
           WHERE event_id = ?
           AND rsvp_time > ?
               GROUP BY event_id
@@ -381,19 +382,20 @@ public class EventRepository {
 
     try {
       String query = """
-        INSERT INTO event_rsvp(event_id,user_id,rsvp_time) values(?, ?, ?)
+        INSERT INTO event_admin_data(event_id,user_id,rsvp_time,event_admin_level) values(?, ?, ?,cast(? as event_admin_level))
         ON CONFLICT(event_id,user_id) DO UPDATE set rsvp_time = current_timestamp
         """;
       PreparedStatement insert = conn.prepareStatement(query);
       insert.setInt(1, eventId);
       insert.setInt(2, user.getId());
       insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.setString(4, EventAdminType.EVENT_RSVP.toString());
       insert.executeUpdate();
     } catch(Exception e){
       if(e.getMessage().contains("duplicate key value")){
         throw new InvalidEventParameterError("User already has RSVP for event");
       }
-      if(e.getMessage().contains("insert or update on table \"event_rsvp\" violates foreign key constraint \"event_rsvp_event_id_fkey\"")){
+      if(e.getMessage().contains("insert or update on table \"event_admin_data\" violates foreign key constraint \"event_admin_data_event_id_fkey\"")){
         throw new InvalidEventParameterError("Event does not exist");
       }
       e.printStackTrace();
@@ -404,7 +406,7 @@ public class EventRepository {
   public void removeEventRsvp(int eventId, User user) throws Exception{
 
     try {
-      String query = "DELETE from  event_rsvp WHERE event_id = ? and user_id = ?";
+      String query = "DELETE from event_admin_data WHERE event_id = ? and user_id = ?";
       PreparedStatement delete = conn.prepareStatement(query);
       delete.setInt(1, eventId);
       delete.setInt(2, user.getId());
@@ -427,14 +429,15 @@ public class EventRepository {
          SELECT
             event_group_map.event_id,
             COUNT(rsvp_a.user_id),
-            rsvp_b.user_id
+            rsvp_b.user_id,
+            rsvp_b.event_admin_level as event_admin_level
           from event_group_map
-              LEFT JOIN event_rsvp as rsvp_a on rsvp_a.event_id = event_group_map.event_id
-              LEFT JOIN event_rsvp as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+              LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+              LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
         
         WHERE group_id =?
         
-        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id,rsvp_b.event_admin_level
         ORDER BY event_group_map.event_id
       """;
 
@@ -452,45 +455,12 @@ public class EventRepository {
             rs.getInt("user_id") > 0
         );
       rsvpData.put(rs.getInt("event_id"), eventRsvpData);
-    }
 
-
-    String moderatorQuery = """
-         SELECT
-            event_group_map.event_id,
-            user_id
-          from event_group_map
-            JOIN event_admin_data on event_admin_data.event_id = event_group_map.event_id
-        WHERE group_id =?
-
-      """;
-
-    PreparedStatement moderatorSelect = conn.prepareStatement(moderatorQuery);
-
-    moderatorSelect.setInt(1, groupId);
-    ResultSet moderatorRs = moderatorSelect.executeQuery();
-
-    while(moderatorRs.next()){
-
-      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData = rsvpData.get(moderatorRs.getInt("event_id"));
-
-      if(moderatorRs.getInt("user_id") == user.getId()){
-         groupEventRsvpData.setUserCanRsvp(false,moderatorRs.getInt("event_id"));
+      String eventAdminType = rs.getString("event_admin_level");
+      if(eventAdminType != null &&
+         EventAdminType.fromDatabaseString(eventAdminType).equals(EventAdminType.EVENT_MODERATOR)){
+        groupEventRsvpData.setUserCanRsvp(false,rs.getInt("event_id"));
       }
-
-      if(eventRsvpData == null && moderatorRs.getInt("event_id") > 0){
-        eventRsvpData = new AbstractMap.SimpleEntry<>(
-            moderatorRs.getInt(1),
-            moderatorRs.getInt("user_id") == user.getId()
-        );
-        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
-      } else {
-        eventRsvpData = new AbstractMap.SimpleEntry<>(
-            eventRsvpData.getKey() + 1,
-            eventRsvpData.getValue() || moderatorRs.getInt("user_id") == user.getId());
-        rsvpData.put(moderatorRs.getInt("event_id"), eventRsvpData);
-      }
-
     }
 
     groupEventRsvpData.setRsvpData(rsvpData);

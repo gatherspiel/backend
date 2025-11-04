@@ -140,7 +140,8 @@ create table if not exists event_admin_data (
   event_admin_level event_admin_level null,
   rsvp_time timestamp without time zone null,
   constraint event_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
-  constraint event_admin_data_pkey primary key (user_id, event_id)
+  constraint event_admin_data_pkey primary key (user_id, event_id),
+  constraint event_admin_data_event_id_fkey foreign KEY (event_id) references events (id)
 );
 
 create table if not exists group_admin_data (

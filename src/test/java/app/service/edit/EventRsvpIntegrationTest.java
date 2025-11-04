@@ -210,6 +210,28 @@ public class EventRsvpIntegrationTest {
   }
 
   @Test
+  public void testStandardUserWithRsvpToEvent_cannotModifyEvent() throws Exception {
+
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    Event event = EventService.createRecurringEventObject();
+
+    Event created = adminEventService.createEvent(event, group.getId());
+    standardUserEventService.rsvpTpEvent(created.getId());
+
+    created.setDescription(event.getDescription()+" Update");
+
+    Exception exception = assertThrows(
+        Exception.class,
+        () -> {
+          standardUserEventService.updateEvent(event);;
+
+        }
+    );
+    assertEquals(exception.getMessage(), "User does not have permission to modify event");
+  }
+
+
+  @Test
   public void testRsvpToEventTwice_loggedInUser_oneRsvpSaved() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
@@ -374,22 +396,19 @@ public class EventRsvpIntegrationTest {
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-    String deleteRsvpQuery =
-        "TRUNCATE TABLE event_rsvp CASCADE";
+
 
     PreparedStatement query1 = conn.prepareStatement(deleteEventQuery);
     PreparedStatement query2 = conn.prepareStatement(deleteEventGroupMapQuery);
     PreparedStatement query3 = conn.prepareStatement(deleteGroupQuery);
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
-    PreparedStatement query6 = conn.prepareStatement(deleteRsvpQuery);
 
     query1.execute();
     query2.execute();
     query3.execute();
     query4.execute();
     query5.execute();
-    query6.execute();
   }
 
   private static void verifyRsvpCount(int eventId, int expectedCount) throws Exception{
