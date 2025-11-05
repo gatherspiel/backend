@@ -2,6 +2,7 @@ package database.user;
 
 import app.result.error.UnauthorizedError;
 import app.users.data.User;
+import app.users.data.UserMemberData;
 import app.users.data.UserType;
 import app.users.data.UserData;
 import database.BaseRepository;
@@ -203,5 +204,17 @@ public class UserRepository extends BaseRepository {
     rs.next();
 
     return rs.getInt(1);
+  }
+
+  public UserMemberData getUserMemberData(){
+    return new UserMemberData();
+  }
+
+  public void joinGroup(int groupId) throws Exception{
+
+  }
+
+  public void leaveGroup(int groupId) throws Exception{
+
   }
 }

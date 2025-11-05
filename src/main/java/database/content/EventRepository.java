@@ -227,7 +227,7 @@ public class EventRepository {
     }
   }
 
-  public Optional<Event> getEvent(int id, User user) throws Exception{
+  public Optional<Event> getEvent(int id) throws Exception{
 
     String query = """        
         SELECT

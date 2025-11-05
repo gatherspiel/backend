@@ -1,7 +1,7 @@
 package service.update;
 
 import app.users.data.User;
-import app.users.data.UserGroupMemberData;
+import app.users.data.UserMemberData;
 import database.user.UserRepository;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ public class UserMemberService {
     this.userRepository = userRepository;
   }
 
-  public UserGroupMemberData getUserGroupMemberData(){
+  public UserMemberData getUserMemberData(){
     /*
     TODO
     -Get groups a user is a part of.
@@ -28,11 +28,12 @@ public class UserMemberService {
     return null;
   }
 
-  public void joinGroup(){
-
+  public void joinGroup(int groupId){
+    //TODO: Implement
   }
 
-  public void leaveGroup(){
+  public void leaveGroup(int groupId){
+    //TODO: Implement
 
   }
 

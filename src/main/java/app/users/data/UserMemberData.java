@@ -5,13 +5,12 @@ import app.groups.data.Group;
 
 import java.util.TreeSet;
 
-public class UserGroupMemberData {
+public class UserMemberData {
 
   TreeSet<Group> joinedGroups = new TreeSet<>();
   TreeSet<Group> moderatingGroups = new TreeSet<>();
   TreeSet<Event> attendingEvents = new TreeSet<>();
-  TreeSet<Event> hostingEvents = new TreeSet<>();
-
+  TreeSet<Event> moderatingEvents = new TreeSet<>();
 
   public void setJoinedGroups(TreeSet<Group> joinedGroups){
     this.joinedGroups = joinedGroups;
@@ -37,11 +36,11 @@ public class UserGroupMemberData {
     return attendingEvents;
   }
 
-  public void setHostingEvents(TreeSet<Event> hostingEvents){
-    this.hostingEvents = hostingEvents;
+  public void setModeratingEvents(TreeSet<Event> moderatingEvents){
+    this.moderatingEvents = moderatingEvents;
   }
 
-  public TreeSet<Event> getHostingEvents(){
-    return hostingEvents;
+  public TreeSet<Event> getModeratingEvents(){
+    return moderatingEvents;
   }
 }

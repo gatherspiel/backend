@@ -35,7 +35,7 @@ public class EventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    var event = eventRepository.getEvent(eventId,user);
+    var event = eventRepository.getEvent(eventId);
 
     if(event.isPresent()){
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
