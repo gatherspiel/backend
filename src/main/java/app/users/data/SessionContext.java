@@ -1,6 +1,7 @@
 package app.users.data;
 
 import database.content.EventRepository;
+import database.user.UserRepository;
 import database.utils.ConnectionProvider;
 import io.javalin.http.Context;
 import service.auth.AuthService;
@@ -11,6 +12,7 @@ import service.read.SearchService;
 import service.update.EventService;
 import service.update.GroupEditService;
 import service.auth.UserService;
+import service.update.UserMemberService;
 
 import java.sql.Connection;
 
@@ -40,6 +42,10 @@ public class SessionContext {
   public ReadGroupService createReadGroupService() {
     var readGroupDataProvider = ReadGroupDataProvider.create(conn, user);
     return new ReadGroupService(readGroupDataProvider, conn);
+  }
+
+  public UserMemberService createUserMemberService(){
+    return new UserMemberService(conn, user, new UserRepository(conn));
   }
 
   public GroupEditService createGroupEditService() {

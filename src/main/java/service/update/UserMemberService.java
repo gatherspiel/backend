@@ -6,13 +6,13 @@ import database.user.UserRepository;
 
 import java.sql.Connection;
 
-public class UserGroupMemberService {
+public class UserMemberService {
 
   Connection connection;
   User user;
   UserRepository userRepository;
 
-  public UserGroupMemberService(Connection connection, User user, UserRepository userRepository){
+  public UserMemberService(Connection connection, User user, UserRepository userRepository){
     this.connection = connection;
     this.user = user;
     this.userRepository = userRepository;
