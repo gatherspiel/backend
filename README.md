@@ -5,14 +5,14 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 ## Prerequisites
 - Clone the [backend repo](https://github.com/gatherspiel/backend)
 - Clone the [database repo](https://github.com/gatherspiel/database)
-- Install the following dependencies
+- Install the following dependencies:
   - OpenJDK version 17.
   - [Maven 3.8.7](https://maven.apache.org/install.html) or a later version.
   - [Docker 27.5.1](https://docs.docker.com/engine/install/) or a later version. 
 
 ## Create a database
 
-- Navigate to the database repo and run the command `npx supabase start'
+- Navigate to the database repo and run the command `npx supabase start'.
 
 ## Setup the backend
 - Run src/test/java/app/database/utils/local/InitLocalDb.java. This will add test data to the the database.
@@ -22,13 +22,13 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 - Run `mvn clean package -DskipTests`
 
 ## Setting up auth for the UI.
-- In the UI .env file and set the following values
+- In the UI .env file and set the following values.
     VITE_LOCAL_AUTH_KEY: `service_role_key` value that appears when starting the database.
   
 ## Create an admin account for local development
 
 - In the UI, register a user with the email test@gatherspiel.com and the password 123456.
-- Access the database at http://localhost:54323. Navigate to the user table in the public schema. For the user with the email test@gatherspiel,com,
+- Access the database at http://localhost:54323. Navigate to the user table in the public schema. For the user with the email test@gatherspiel,com,=.
   set the user_role_level to site_admin and set the "IS_ACTIVE" flag to true.
 
 # Contribution guidelines

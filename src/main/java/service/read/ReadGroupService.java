@@ -57,6 +57,7 @@ public class ReadGroupService{
         event.setRsvpCount((Integer)eventRsvpData.getKey());
         event.setUserCanUpdateRsvp(rsvpData.canRsvpToEvent(event.getId()));
       }
+      event.setModerators(rsvpData.getModerators());
       if(!user.isLoggedInUser()){
         event.setUserCanUpdateRsvp(false);
       }
