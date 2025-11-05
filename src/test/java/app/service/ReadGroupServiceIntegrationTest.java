@@ -345,7 +345,7 @@ public class ReadGroupServiceIntegrationTest {
 
   }
   @Test
-  public void testEventCreatedWithHost_rsvpCountIsOne_AndOnlyHostHasRsvp_andHostCannotUpdateRsvp() throws Exception{
+  public void testEventCreatedWithHost_rsvpCountIsOne_eventHasCorrectDataAndPermissions() throws Exception{
 
     String deleteEventAdminQuery =
         "TRUNCATE TABLE event_admin_data CASCADE";
@@ -367,13 +367,11 @@ public class ReadGroupServiceIntegrationTest {
     );
 
     EventService adminEventService = adminContext.createEventService();
-
     for (Event data : result.getWeeklyEventData()) {
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
         adminEventService.addEventModerator(data, standardUserContext.getUser());
       }
     }
-
 
     GroupPageData readerResult = sessionContext.createReadGroupService().getGroupPageData(params);
     Event foundEvent = null;
@@ -384,6 +382,7 @@ public class ReadGroupServiceIntegrationTest {
     }
     assertFalse(foundEvent.getUserHasRsvp());
     assertEquals(foundEvent.getRsvpCount(), 1);
+    assertEquals(1,foundEvent.getModerators().size());
 
     GroupPageData moderatorResult = standardUserContext.createReadGroupService().getGroupPageData(params);
     Event standardUserEventHost = null;
@@ -395,6 +394,7 @@ public class ReadGroupServiceIntegrationTest {
     }
     assertTrue(standardUserEventHost.getUserHasRsvp());
     assertEquals(standardUserEventHost.getRsvpCount(), 1);
+    assertEquals(1,standardUserEventHost.getModerators().size());
     assertFalse(standardUserEventHost.getUserCanUpdateRsvp());
   }
 
@@ -491,4 +491,6 @@ public class ReadGroupServiceIntegrationTest {
     assertFalse(eventFromDb.get().getUserHasRsvp());
 
   }
+
+
 }

@@ -121,10 +121,6 @@ public class GroupPageData {
     return this.weeklyEventData;
   }
 
-  public void addWeeklyEventData(Event eventData) {
-    weeklyEventData.add(eventData);
-  }
-
   public static GroupPageData createFromSearchResult(Group group) {
     GroupPageData data = new GroupPageData(
         group.getId(),

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PermissionName {
 
-  USER_CAN_EDIT("userCanEdit");
+  USER_CAN_EDIT("userCanEdit"),
+  USER_CAN_RSVP("userCanRsvp");
 
   private String name;
 

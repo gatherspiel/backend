@@ -269,6 +269,22 @@ public class EventRsvpIntegrationTest {
   }
 
   @Test
+  public void testEventModeratorCannotUpdateEventRsvp() throws Exception {
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+    adminEventService.addEventModerator(created, standardUserContext.getUser());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    Optional<Event> standardUserEventFromDb = standardUserEventService.getEvent(created.getId());
+    assertTrue(standardUserEventFromDb.isPresent());
+    assertFalse(standardUserEventFromDb.get().getUserCanUpdateRsvp());
+  }
+
+
+  @Test
   public void testRemoveRsvpToEventTwice_badRequestErrorOnSecondAttempt() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
@@ -287,14 +303,24 @@ public class EventRsvpIntegrationTest {
     assertEquals("User does not have rsvp for event",exception.getMessage());
   }
 
+  @Test
+  public void testUserIsNotLoggedIn_eventDataShowsUpdateRsvpPermissionDisabled() throws Exception {
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    Optional<Event> readOnlyEvent = readOnlyEventService.getEvent(created.getId());
+
+    assertTrue(readOnlyEvent.isPresent());
+    assertFalse(readOnlyEvent.get().getUserCanUpdateRsvp());
+  }
   @Test
   public void testRsvpToValidEvent_userIsNotLoggedIn_authorizationError() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
-
 
     Exception exception = assertThrows(
       UnauthorizedError.class,

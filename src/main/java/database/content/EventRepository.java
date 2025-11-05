@@ -394,7 +394,6 @@ public class EventRepository {
       delete.setInt(1, eventId);
       delete.setInt(2, user.getId());
 
-
       int update = delete.executeUpdate();
       if(update == 0){
         throw new InvalidEventParameterError("User does not have rsvp for event");
@@ -409,18 +408,20 @@ public class EventRepository {
   public GroupEventRsvpData getEventRsvpsForGroup(int groupId, User user) throws Exception{
 
     String query = """
-         SELECT
-            event_group_map.event_id,
-            COUNT(rsvp_a.user_id),
-            rsvp_b.user_id,
-            rsvp_b.event_admin_level as event_admin_level
-          from event_group_map
-              LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
-              LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+      SELECT
+        event_group_map.event_id,
+        COUNT(rsvp_a.user_id),
+        rsvp_b.user_id,
+        rsvp_a.event_admin_level as event_admin_level,
+        users.username as username,
+        users.image_path as image_path
+      from event_group_map
+        LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+        LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+        LEFT JOIN users on rsvp_b.user_id = users.id
         
-        WHERE group_id =?
-        
-        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id,rsvp_b.event_admin_level
+      WHERE group_id =?
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id,rsvp_a.event_admin_level,users.image_path,users.username
         ORDER BY event_group_map.event_id
       """;
 
@@ -434,14 +435,25 @@ public class EventRepository {
     GroupEventRsvpData groupEventRsvpData = new GroupEventRsvpData();
     while(rs.next()){
       AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData  = new AbstractMap.SimpleEntry<>(
-            rs.getInt("count"),
-            rs.getInt("user_id") > 0
+          rs.getInt("count"),
+          rs.getInt("user_id") > 0
         );
       rsvpData.put(rs.getInt("event_id"), eventRsvpData);
 
       String eventAdminType = rs.getString("event_admin_level");
+
       if(eventAdminType != null &&
          EventAdminType.fromDatabaseString(eventAdminType).equals(EventAdminType.EVENT_MODERATOR)){
+
+        User moderator = new User();
+        moderator.setId(rs.getInt("user_id"));
+
+        UserData data = new UserData();
+        data.setImageFilePath(rs.getString("image_path"));
+        data.setUsername(rs.getString("username"));
+        moderator.setUserData(data);
+        groupEventRsvpData.addModerator(moderator);
+
         groupEventRsvpData.setUserCanRsvp(false,rs.getInt("event_id"));
       }
     }
@@ -492,6 +504,4 @@ public class EventRepository {
 
     delete.executeUpdate();
   }
-
-
 }

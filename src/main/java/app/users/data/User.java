@@ -63,7 +63,7 @@ public class User {
   @Override
   public boolean equals(Object obj) {
     User other = (User)obj;
-    return other.getId() == this.getId() || other.getEmail().equals(this.getEmail());
+    return other.getId() == this.getId()  && other.getEmail().equals(this.getEmail());
   }
 
   @Override

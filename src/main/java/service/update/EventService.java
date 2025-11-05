@@ -52,15 +52,14 @@ public class EventService {
 
       event.get().setUserCanEditPermission(currentUserCanEdit);
 
-      for(User user: eventRsvps){
-        user.setEmail("");
-      }
-
-
       event.get().setUserHasRsvp(eventRsvps.contains(user));
       event.get().setModerators(eventModerators);
-      event.get().setUserCanUpdateRsvp(!eventModerators.contains(user));
+      event.get().setUserCanUpdateRsvp(user.isLoggedInUser() && !eventModerators.contains(user));
       event.get().setRsvpCount(eventRsvps.size());
+
+      for(User eventRsvpUser: eventRsvps){
+        eventRsvpUser.setEmail("");
+      }
     }
     return event;
   }
