@@ -150,7 +150,7 @@ public class EventRepository {
     PreparedStatement memberStatement = conn.prepareStatement(deleteEventMemberQuery);
     memberStatement.setInt(1,eventId);
     memberStatement.executeUpdate();
-    
+
     String deleteEventQuery =
         "DELETE FROM events where id = ?";
     PreparedStatement statement = conn.prepareStatement(deleteEventQuery);

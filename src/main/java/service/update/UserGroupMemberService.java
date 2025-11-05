@@ -1,4 +1,4 @@
-package service.read;
+package service.update;
 
 import app.users.data.User;
 import app.users.data.UserGroupMemberData;

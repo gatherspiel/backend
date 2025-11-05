@@ -1,4 +1,4 @@
-package app.service;
+package app.service.read;
 
 import app.users.data.SessionContext;
 import app.groups.data.*;
@@ -6,12 +6,10 @@ import app.result.group.GroupPageData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.users.data.UserData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
-import database.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

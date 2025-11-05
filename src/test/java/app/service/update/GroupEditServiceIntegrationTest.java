@@ -1,4 +1,4 @@
-package app.service.edit;
+package app.service.update;
 
 import app.users.data.SessionContext;
 import app.groups.data.*;

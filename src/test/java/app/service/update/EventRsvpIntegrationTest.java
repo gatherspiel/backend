@@ -1,4 +1,4 @@
-package app.service.edit;
+package app.service.update;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
@@ -17,7 +17,6 @@ import service.update.EventService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
