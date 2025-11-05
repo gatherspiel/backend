@@ -121,7 +121,7 @@ public class AuthService {
    * @return Returns read only user
    */
   public static User getReadOnlyUser(){
-    User user = new User("reader@dmvboardgames.com", UserType.READONLY, 123);
+    User user = new User("reader@dmvboardgames.com", UserType.READONLY, -1);
     return user;
   }
 

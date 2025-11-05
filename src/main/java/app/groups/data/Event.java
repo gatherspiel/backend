@@ -51,8 +51,6 @@ public class Event {
   private Integer rsvpCount = 0;
   private boolean userHasRsvp = false;
 
-  private boolean userCanUpdateRsvp = true;
-
   private TreeSet<User> moderators = new TreeSet<>(new UserComparator());
 
   public Event() {
@@ -321,11 +319,12 @@ public class Event {
   }
 
   public void setUserCanUpdateRsvp(boolean userCanUpdateRsvp){
-    this.userCanUpdateRsvp = userCanUpdateRsvp;
+    permissions.put(PermissionName.USER_CAN_RSVP, userCanUpdateRsvp);
   }
 
+  @JsonIgnore
   public boolean getUserCanUpdateRsvp(){
-    return this.userCanUpdateRsvp;
+    return permissions.containsKey(PermissionName.USER_CAN_RSVP) && permissions.get(PermissionName.USER_CAN_RSVP);
   }
 
   public String toString(){

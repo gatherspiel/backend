@@ -58,25 +58,6 @@ public class UserRepository extends BaseRepository {
     return new User(email, UserType.USER, userId);
   }
 
-  public User createReadOnlyUser(String email) throws Exception{
-    String query =
-        "INSERT INTO users(email, user_role_level, is_active) VALUES(?,cast(? as user_role_level), true) returning id";
-
-    PreparedStatement insert = connection.prepareStatement(query);
-    insert.setString(1, email);
-    insert.setString(2, "read_only");
-
-    ResultSet rs = insert.executeQuery();
-    if(!rs.next()) {
-      var message = "Failed to create readonly user";
-      logger.error(message);
-      throw new Exception(message);
-    }
-
-    int userId = rs.getInt(1);
-    logger.info("Created user with id:"+userId);
-    return new User(email, UserType.READONLY, userId);
-  }
 
   public User createTester(String email) throws Exception{
     String query =
@@ -97,7 +78,6 @@ public class UserRepository extends BaseRepository {
     logger.info("Created user with id:"+userId);
     return new User(email, UserType.TESTER, userId);
   }
-
 
   public User getUserFromEmail(String email) throws Exception {
 
