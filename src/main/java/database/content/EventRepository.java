@@ -145,9 +145,15 @@ public class EventRepository {
 
     deleteEventGroupMapItem(groupId, eventId);
 
-    String query =
+    String deleteEventMemberQuery =
+        "DELETE from event_admin_data where event_id = ?";
+    PreparedStatement memberStatement = conn.prepareStatement(deleteEventMemberQuery);
+    memberStatement.setInt(1,eventId);
+    memberStatement.executeUpdate();
+    
+    String deleteEventQuery =
         "DELETE FROM events where id = ?";
-    PreparedStatement statement = conn.prepareStatement(query);
+    PreparedStatement statement = conn.prepareStatement(deleteEventQuery);
     statement.setInt(1, eventId);
     statement.executeUpdate();
   }

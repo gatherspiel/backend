@@ -15,6 +15,7 @@ import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.read.ReadGroupService;
 import service.update.EventService;
 
 import java.sql.Connection;
@@ -877,6 +878,34 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
     assertTrue(eventFromDb.get().getModerators().contains(standardUserContext2.getUser()));
     assertEquals(1,eventFromDb.get().getModerators().size());
+  }
+
+
+  @Test
+  public void testDeleteEventWith_RsvpAndModerator() throws Exception{
+
+    EventService adminEventService = adminContext.createEventService();
+    EventService standardUserEventService = standardUserContext2.createEventService();
+
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    adminEventService.addEventModerator(created,standardUserContext.getUser());
+    standardUserEventService.rsvpTpEvent(created.getId());
+
+    adminEventService.deleteEvent(created.getId(), group.getId());
+
+    Optional<Event> deletedEvent = adminEventService.getEvent(created.getId());
+    assertFalse(deletedEvent.isPresent());
+
+    ReadGroupService readGroupService = adminContext.createReadGroupService();
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME, group.getName());
+    GroupPageData groupPageData = readGroupService.getGroupPageData(params);
+
+    assertEquals(0,groupPageData.getWeeklyEventData().size());
   }
 
   @AfterEach
