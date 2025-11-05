@@ -1,11 +1,11 @@
 package service.update;
 
 import app.groups.data.Event;
-import app.result.error.group.EventNotFoundError;
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.groups.data.EventLocation;
 import app.result.error.PermissionError;
-import app.users.data.UserData;
+import app.users.data.UserType;
 import database.content.EventRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
@@ -18,6 +18,7 @@ import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class EventService {
 
@@ -34,24 +35,32 @@ public class EventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    var event = eventRepository.getEvent(eventId);
+    var event = eventRepository.getEvent(eventId,user);
 
     if(event.isPresent()){
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
 
-      Set<User> eventEditors = userPermissionsRepository.getEventEditorRoles(eventId);
+      Set<User> eventRsvps = userPermissionsRepository.getEventRoles(event.get());
+      Set<User> eventModerators = eventRsvps.stream()
+          .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
+          .collect(Collectors.toSet());
 
       boolean currentUserCanEdit =
-          user.isSiteAdmin() ||
-          eventEditors.contains(user) ||
-          userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
+        user.isSiteAdmin() ||
+        eventModerators.contains(user) ||
+        userPermissionsRepository.hasGroupEditorRole(user, event.get().getGroupId());
+
       event.get().setUserCanEditPermission(currentUserCanEdit);
 
-      for(User user: eventEditors){
+      for(User user: eventRsvps){
         user.setEmail("");
       }
 
-      event.get().setModerators(eventEditors);
+
+      event.get().setUserHasRsvp(eventRsvps.contains(user));
+      event.get().setModerators(eventModerators);
+      event.get().setUserCanUpdateRsvp(!eventModerators.contains(user));
+      event.get().setRsvpCount(eventRsvps.size());
     }
     return event;
   }
@@ -69,7 +78,7 @@ public class EventService {
     }
     Event created = eventRepository.createEvent(event, groupId);
 
-    if(event.getImage() != null){
+    if(event.getImage() != null && !event.getImage().isEmpty()){
       ImageRepository imageRepository = new ImageRepository();
       imageRepository.uploadImage(event.getImage(), event.getImageBucketKey());
       created.setImage(event.getImage());
@@ -98,7 +107,6 @@ public class EventService {
         eventRepository.addEventModerator(event, moderator);
       }
     }
-
     return updated;
   }
 
@@ -116,7 +124,6 @@ public class EventService {
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event moderator");
     }
-
     eventRepository.addEventModerator(event, moderatorToAdd);
   }
 
@@ -124,8 +131,22 @@ public class EventService {
     if(!groupPermissionService.canEditEvent(event)){
       throw new PermissionError("User does not have permission to add event moderator");
     }
-
     eventRepository.removeEventModerator(event, moderatorToRemove);
+  }
+
+  public void rsvpTpEvent(int eventId) throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must log in to rsvp to event");
+    }
+    eventRepository.rsvpToEvent(eventId,user);
+  }
+
+  public void removeEventRsvp(int eventId) throws Exception{
+
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must log in to remove event rsvp");
+    }
+    eventRepository.removeEventRsvp(eventId,user);
   }
 
   public static Event createEventObject(
@@ -148,6 +169,10 @@ public class EventService {
     return event;
   }
 
+  public static Event createRecurringEventObject() throws Exception {
+    return EventService.createRecurringEventObjectWithData(LocalTime.NOON, LocalTime.NOON.plusHours(5));
+  }
+
   public static Event createRecurringEventObjectWithData(LocalTime start, LocalTime end) throws Exception {
     Event event = new Event();
     event.setName("Event_"+ UUID.randomUUID());
@@ -158,7 +183,6 @@ public class EventService {
     event.setIsRecurring(true);
     event.setStartTime(start);
     event.setEndTime(end);
-
     return event;
   }
 

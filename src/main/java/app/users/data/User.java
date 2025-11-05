@@ -44,6 +44,14 @@ public class User {
     return userType.equals(UserType.SITE_ADMIN);
   }
 
+  public void setUserType(UserType userType){
+    this.userType = userType;
+  }
+
+  public UserType getUserType(){
+    return userType;
+  }
+
   public UserData getUserData() {
     return userData;
   }
