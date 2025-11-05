@@ -7,16 +7,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Optional;
 
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
-import app.users.data.EventAdminType;
-import app.users.data.User;
+import app.result.error.group.InvalidEventParameterError;
+import app.users.data.*;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.data.SearchParameterValidator;
+import service.update.GroupEventRsvpData;
 
 public class EventRepository {
 
@@ -217,9 +221,9 @@ public class EventRepository {
     }
   }
 
-  public Optional<Event> getEvent(int id) throws Exception{
-    String query = """
-        
+  public Optional<Event> getEvent(int id, User user) throws Exception{
+
+    String query = """        
         SELECT
          events.id as eventId,
          events.url,
@@ -243,15 +247,14 @@ public class EventRepository {
         LEFT JOIN event_group_map on events.id = event_group_map.event_id
         LEFT JOIN groups on event_group_map.group_id = groups.id
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
-        where events.id = ?
-        
+        WHERE events.id = ?
         """;
     PreparedStatement select = conn.prepareStatement(query);
     select.setInt(1, id);
-
     ResultSet rs = select.executeQuery();
     if (rs.next()) {
       Event event = new Event();
+      event.setId(id);
       event.setUrl(rs.getString("url"));
       event.setName(rs.getString("eventName"));
       event.setDescription(rs.getString("eventDescription"));
@@ -261,7 +264,6 @@ public class EventRepository {
       int groupId  = rs.getInt("groupId");
       event.setGroupName(groupName);
       event.setGroupId(groupId);
-
 
       Timestamp oneTimeEventStartTime = rs.getTimestamp("oneTimeEventStartTime");
       Timestamp oneTimeEventEndTime = rs.getTimestamp("oneTimeEventEndTime");
@@ -287,7 +289,6 @@ public class EventRepository {
         event.setIsRecurring(true);
       }
 
-      event.setId(rs.getInt("eventId"));
 
       EventLocation eventLocation = new EventLocation();
       eventLocation.setCity(rs.getString("city"));
@@ -358,6 +359,95 @@ public class EventRepository {
     delete.setInt(1, moderatorToRemove.getId());
     delete.setInt(2, event.getId());
     delete.executeUpdate();
+  }
+
+  public void rsvpToEvent(int eventId, User user) throws Exception{
+
+    try {
+      String query = """
+        INSERT INTO event_admin_data(event_id,user_id,rsvp_time,event_admin_level) values(?, ?, ?,cast(? as event_admin_level))
+        ON CONFLICT(event_id,user_id) DO UPDATE set rsvp_time = current_timestamp
+        """;
+      PreparedStatement insert = conn.prepareStatement(query);
+      insert.setInt(1, eventId);
+      insert.setInt(2, user.getId());
+      insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.setString(4, EventAdminType.EVENT_RSVP.toString());
+      insert.executeUpdate();
+    } catch(Exception e){
+      if(e.getMessage().contains("duplicate key value")){
+        throw new InvalidEventParameterError("User already has RSVP for event");
+      }
+      if(e.getMessage().contains("insert or update on table \"event_admin_data\" violates foreign key constraint \"event_admin_data_event_id_fkey\"")){
+        throw new InvalidEventParameterError("Event does not exist");
+      }
+      e.printStackTrace();
+      throw e;
+    }
+  }
+
+  public void removeEventRsvp(int eventId, User user) throws Exception{
+
+    try {
+      String query = "DELETE from event_admin_data WHERE event_id = ? and user_id = ?";
+      PreparedStatement delete = conn.prepareStatement(query);
+      delete.setInt(1, eventId);
+      delete.setInt(2, user.getId());
+
+
+      int update = delete.executeUpdate();
+      if(update == 0){
+        throw new InvalidEventParameterError("User does not have rsvp for event");
+      }
+    } catch(Exception e){
+      logger.error(e.getMessage());
+      throw e;
+    }
+
+  }
+
+  public GroupEventRsvpData getEventRsvpsForGroup(int groupId, User user) throws Exception{
+
+    String query = """
+         SELECT
+            event_group_map.event_id,
+            COUNT(rsvp_a.user_id),
+            rsvp_b.user_id,
+            rsvp_b.event_admin_level as event_admin_level
+          from event_group_map
+              LEFT JOIN event_admin_data as rsvp_a on rsvp_a.event_id = event_group_map.event_id
+              LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
+        
+        WHERE group_id =?
+        
+        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id,rsvp_b.event_admin_level
+        ORDER BY event_group_map.event_id
+      """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+
+    select.setInt(1, user.getId());
+    select.setInt(2, groupId);
+    ResultSet rs = select.executeQuery();
+
+    HashMap<Integer,AbstractMap.SimpleEntry<Integer,Boolean>> rsvpData = new HashMap<>();
+    GroupEventRsvpData groupEventRsvpData = new GroupEventRsvpData();
+    while(rs.next()){
+      AbstractMap.SimpleEntry<Integer,Boolean> eventRsvpData  = new AbstractMap.SimpleEntry<>(
+            rs.getInt("count"),
+            rs.getInt("user_id") > 0
+        );
+      rsvpData.put(rs.getInt("event_id"), eventRsvpData);
+
+      String eventAdminType = rs.getString("event_admin_level");
+      if(eventAdminType != null &&
+         EventAdminType.fromDatabaseString(eventAdminType).equals(EventAdminType.EVENT_MODERATOR)){
+        groupEventRsvpData.setUserCanRsvp(false,rs.getInt("event_id"));
+      }
+    }
+
+    groupEventRsvpData.setRsvpData(rsvpData);
+    return groupEventRsvpData;
   }
 
   private void updateEventGroupMap(

@@ -56,8 +56,6 @@ public class EventServiceIntegrationTest {
   private static final LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
   private static final LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
-
-
   private static IntegrationTestConnectionProvider testConnectionProvider;
   private static Connection conn;
 
@@ -67,6 +65,7 @@ public class EventServiceIntegrationTest {
   private static SessionContext readOnlyUserContext;
   private static SessionContext standardUserContext;
   private static SessionContext standardUserContext2;
+
   @BeforeAll
   static void setup() {
     testConnectionProvider = new IntegrationTestConnectionProvider();
@@ -99,18 +98,15 @@ public class EventServiceIntegrationTest {
       standardUserContext = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       standardUserContext2 = CreateUserUtils.createContextWithNewStandardUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
       readOnlyUserContext = CreateUserUtils.createContextWithNewReadonlyUser(STANDARD_USER_USERNAME+ UUID.randomUUID(), testConnectionProvider);
-
-
     } catch (Exception e) {
       e.printStackTrace();
-      fail("Error initializing database:" + e.getMessage());
+      fail("Error initializing data:" + e.getMessage());
     }
   }
 
   @Test
   public void testCreateOneEvent() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
-
 
     Event eventToCreate = EventService.createOneTimeEventObjectWithData();
     eventToCreate.setName(EVENT_NAME_1);
@@ -151,8 +147,8 @@ public class EventServiceIntegrationTest {
     assertEquals(URL_1, eventFromDbA.getUrl());
     assertEquals(URL_2, eventFromDbB.getUrl());
 
-    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbA.getStartTime());
-    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.MINUTES).toLocalTime(), eventFromDbB.getStartTime());
+    assertEquals(START_TIME_1.truncatedTo(ChronoUnit.SECONDS).toLocalTime(), eventFromDbA.getStartTime());
+    assertEquals(START_TIME_2.truncatedTo(ChronoUnit.SECONDS).toLocalTime(), eventFromDbB.getStartTime());
 
     assertEquals(group.getId(), eventFromDbA.getGroupId());
     assertEquals(group.getId(), eventFromDbB.getGroupId());
@@ -202,7 +198,7 @@ public class EventServiceIntegrationTest {
     assertEquals(oneTimeEvent.getUrl(), eventFromDbA.getUrl());
     assertEquals(recurringEvent.getUrl(), recurringEventFromDb.getUrl());
 
-    assertEquals(oneTimeEvent.getStartTime().truncatedTo(ChronoUnit.MINUTES), eventFromDbA.getStartTime());
+    assertEquals(oneTimeEvent.getStartTime().truncatedTo(ChronoUnit.SECONDS), eventFromDbA.getStartTime());
     assertEquals(recurringEvent.getStartTime(), recurringEventFromDb.getStartTime());
 
     assertEquals(oneTimeEvent.getStartDate(), eventFromDbA.getStartDate());
@@ -491,7 +487,7 @@ public class EventServiceIntegrationTest {
 
     Event event = oneTimeEventService.createEvent(event1, group.getId());
     oneTimeEventService.deleteEvent(event.getId(), group.getId());
-    Optional<Event> groupEvent = oneTimeEventService.getEvent(event1.getId());
+    Optional<Event> groupEvent = oneTimeEventService.getEvent(event.getId());
     assertTrue(groupEvent.isEmpty());
   }
 
@@ -680,40 +676,60 @@ public class EventServiceIntegrationTest {
 
     Set<User> moderators = eventFromDb.get().getModerators();
 
-    for(User user: moderators){
-      System.out.println(user.getId());
-    }
-
     assertTrue(moderators.contains(standardUserContext2.getUser()));
     assertTrue(moderators.contains(standardUserContext.getUser()));
   }
 
   @Test
-  public void testCreateNewEvent_NoEventModerators() throws Exception{
+  public void testCreateNewEvent_NoEventModerators_Before_andAfterRsvp() throws Exception{
     EventService eventService = standardUserContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-
     Event event = eventService.createEvent(event1, group.getId());
 
     Optional<Event> eventFromDb = eventService.getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
-    assertEquals(eventFromDb.get().getModerators().size(),0);
+    assertEquals(0, eventFromDb.get().getModerators().size());
+
+    EventService eventService2 = standardUserContext2.createEventService();
+    eventService2.rsvpTpEvent(eventFromDb.get().getId());
+
+    Optional<Event> eventFromDb2 = eventService2.getEvent(event.getId());
+    assertTrue(eventFromDb2.isPresent());
+    assertEquals(0,eventFromDb2.get().getModerators().size());
+
   }
 
   @Test
-  public void testStandardUser_CreateEventModerator() throws Exception{
+  public void testStandardUser_CreateEventModerator_WithImageAndUsername() throws Exception{
 
     EventService eventService = standardUserContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-
     Event event = eventService.createEvent(event1, group.getId());
-    eventService.addEventModerator(event, standardUserContext2.getUser());
 
-    Optional<Event> eventFromDb = eventService.getEvent(event.getId());
+    String username = "user_"+UUID.randomUUID();
+    String imagePath = "image_"+UUID.randomUUID();
+    String email = "email_" +UUID.randomUUID() +"@dmvboardgames.com";
+
+    UserData moderator = new UserData();
+    moderator.setUsername(username);
+    moderator.setImageFilePath(imagePath);
+
+    UserRepository userRepository = new UserRepository(conn);
+    userRepository.createStandardUser(email);
+    userRepository.updateUserData(moderator, email);
+
+    User moderatorFromDb = userRepository.getUserFromEmail(email);
+    eventService.addEventModerator(event,moderatorFromDb);
+
+    Optional<Event> eventFromDb = readOnlyUserContext.createEventService().getEvent(event.getId());
     assertTrue(eventFromDb.isPresent());
-    assertEquals(eventFromDb.get().getModerators().size(),1);
+    assertEquals(1,eventFromDb.get().getModerators().size());
+
+    User eventModeratorFromDb2 = eventFromDb.get().getModerators().first();
+    assertEquals(username, eventModeratorFromDb2.getUserData().getUsername());
+    assertEquals(imagePath, eventModeratorFromDb2.getUserData().getImageFilePath());
   }
 
   @Test
@@ -839,7 +855,6 @@ public class EventServiceIntegrationTest {
       assertTrue(user.getEmail() == null || user.getEmail().isEmpty(), user.getEmail());
     }
   }
-
 
   @Test
   public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {
