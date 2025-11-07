@@ -1,4 +1,4 @@
-package app.service;
+package app.service.read;
 
 import app.users.data.SessionContext;
 import app.groups.data.*;
@@ -6,12 +6,10 @@ import app.result.group.GroupPageData;
 import app.users.data.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.users.data.UserData;
 import app.users.data.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
-import database.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -423,7 +421,7 @@ public class ReadGroupServiceIntegrationTest {
 
     for (Event data : result.getWeeklyEventData()) {
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
-        eventService.rsvpTpEvent(data.getId());
+        eventService.rsvpToEvent(data.getId());
       }
     }
 
@@ -437,12 +435,10 @@ public class ReadGroupServiceIntegrationTest {
         assertFalse(data.getUserHasRsvp());
       }
     }
-
     for(Event data: adminResult2.getWeeklyEventData()){
       assertFalse(data.getUserHasRsvp());
     }
   }
-
 
   @Test
   public void testGroupData_DoesNotIncludePastEventRsvp() throws Exception{
@@ -450,7 +446,6 @@ public class ReadGroupServiceIntegrationTest {
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-
 
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
@@ -462,7 +457,7 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
-        params
+      params
     );
 
     EventService standardUserEventService = standardUserContext.createEventService();
@@ -482,7 +477,7 @@ public class ReadGroupServiceIntegrationTest {
     eventToUpdate.setEndTime(now.toLocalTime().plusHours(2));
     adminEventService.updateEvent(eventToUpdate);
 
-    standardUserEventService.rsvpTpEvent(eventToUpdate.getId());
+    standardUserEventService.rsvpToEvent(eventToUpdate.getId());
 
     Thread.sleep(3000);
 

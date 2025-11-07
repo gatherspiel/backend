@@ -1,9 +1,10 @@
 package database.user;
 
+import app.groups.data.Event;
+import app.groups.data.Group;
 import app.result.error.UnauthorizedError;
-import app.users.data.User;
-import app.users.data.UserType;
-import app.users.data.UserData;
+import app.result.error.group.InvalidEventParameterError;
+import app.users.data.*;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -11,6 +12,13 @@ import utils.LogUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+
 public class UserRepository extends BaseRepository {
 
   Logger logger;
@@ -203,5 +211,156 @@ public class UserRepository extends BaseRepository {
     rs.next();
 
     return rs.getInt(1);
+  }
+
+  public UserMemberData getUserMemberData(int userId) throws Exception{
+
+    try {
+
+      UserMemberData userMemberData = new UserMemberData();
+      String userGroupQuery = """
+        SELECT
+          group_id,
+          group_admin_level,
+          name
+        FROM group_admin_data
+        LEFT JOIN groups on groups.id = group_admin_data.group_id
+        WHERE user_id = ?
+      """;
+
+      PreparedStatement userGroupStatement = connection.prepareStatement(userGroupQuery);
+      userGroupStatement.setInt(1, userId);
+
+      ResultSet rs = userGroupStatement.executeQuery();
+      while (rs.next()) {
+        Group group = new Group();
+        group.setId(rs.getInt("group_id"));
+        group.setName(rs.getString("name"));
+
+        if(rs.getString("group_admin_level").equals(GroupAdminType.GROUP_MEMBER.toString())){
+          userMemberData.addGroupAsMember(group);
+        } else {
+          userMemberData.addGroupAsModerator(group);
+        }
+      }
+
+      String userEventQuery = """
+        SELECT
+          weekly_event_time.day_of_week,
+          event_admin_level,
+          event_admin_data.event_id,
+          rsvp_time,
+          start_time,
+          name
+        FROM event_admin_data
+        LEFT JOIN events on events.id = event_admin_data.event_id
+        LEFT JOIN weekly_event_time on events.id = weekly_event_time.event_id
+        WHERE user_id = ?
+      """;
+
+      PreparedStatement userEventStatement = connection.prepareStatement(userEventQuery);
+      userEventStatement.setInt(1, userId);
+
+      ResultSet rs2 = userEventStatement.executeQuery();
+      while (rs2.next()) {
+
+        Event event = new Event();
+        event.setId(rs2.getInt("event_id"));
+        event.setName(rs2.getString("name"));
+
+        String eventDay = rs2.getString("day_of_week");
+        if(eventDay == null){
+          logger.error("Event RSVPS are not fully supported for one time events");
+        }
+
+
+        LocalDate nextEventDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.valueOf(eventDay.toUpperCase())));
+        LocalDateTime pastEventDate =
+            LocalDateTime.now()
+              .with(TemporalAdjusters.previous(DayOfWeek.valueOf(eventDay.toUpperCase())));
+
+        event.setStartDate(nextEventDate);
+        event.setDay(eventDay);
+
+        LocalTime eventTime =
+            rs2.getTimestamp("start_time")
+                .toLocalDateTime().toLocalTime();
+        event.setStartTime(eventTime);
+
+        if(rs2.getString("event_admin_level").equals(EventAdminType.EVENT_RSVP.toString())){
+          LocalDateTime rsvpTime = rs2.getTimestamp("rsvp_time").toLocalDateTime();
+          if(rsvpTime.isAfter(pastEventDate)) {
+            userMemberData.addEventAsMember(event);
+          }
+        } else {
+          userMemberData.addEventAsModerator(event);
+        }
+      }
+
+      return userMemberData;
+    } catch (Exception e){
+      logger.error(e.getMessage());
+      throw e;
+    }
+  }
+
+  public void joinGroup(int groupId,User user) throws Exception{
+    try {
+      String joinGroupQuery = """
+        INSERT INTO group_admin_data(group_admin_level, group_id, user_id) VALUES(cast(? as group_admin_level), ?, ?)
+      """;
+
+      PreparedStatement statement = connection.prepareStatement(joinGroupQuery);
+      statement.setString(1, GroupAdminType.GROUP_MEMBER.toString());
+      statement.setInt(2, groupId);
+      statement.setInt(3, user.getId());
+      statement.executeUpdate();
+    } catch(Exception e){
+      if(e.getMessage().contains("Key (user_id, group_id)")){
+        throw new InvalidEventParameterError("User is already a member of the group");
+      }
+      if(e.getMessage().contains("Key (group_id)")){
+        throw new InvalidEventParameterError("Invalid group");
+      }
+      logger.error(e);
+      throw e;
+    }
+  }
+
+  public void leaveGroup(int groupId, User user) throws Exception{
+    try {
+      String leaveGroupQuery = """
+      DELETE from group_admin_data
+      WHERE group_id = ? and user_id = ?
+      """;
+
+      PreparedStatement statement = connection.prepareStatement(leaveGroupQuery);
+      statement.setInt(1, groupId);
+      statement.setInt(2, user.getId());
+      int update = statement.executeUpdate();
+
+      if(update == 0){
+        throw new InvalidEventParameterError("User is not a member of the group");
+      }
+    } catch(Exception e){
+      logger.error(e);
+      throw e;
+    }
+  }
+
+  public void deleteMemberDataForGroup(int groupId) throws Exception{
+    try {
+      String deleteQuery = """
+      DELETE from group_admin_data
+      WHERE group_id = ?
+      """;
+
+      PreparedStatement statement = connection.prepareStatement(deleteQuery);
+      statement.setInt(1, groupId);
+      int update = statement.executeUpdate();
+    } catch(Exception e){
+      logger.error(e);
+      throw e;
+    }
   }
 }

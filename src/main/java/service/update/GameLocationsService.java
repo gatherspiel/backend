@@ -1,9 +1,8 @@
-package service.read;
+package service.update;
 
 import app.location.Convention;
 import app.location.GameRestaurant;
 import app.location.GameStore;
-import app.result.listing.GameLocationData;
 import database.content.ConventionsRepository;
 import database.content.GameRestaurantRepository;
 import database.content.GameStoreRepository;

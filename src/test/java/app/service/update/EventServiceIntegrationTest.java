@@ -1,4 +1,4 @@
-package app.service.edit;
+package app.service.update;
 
 import app.users.data.SessionContext;
 import app.groups.data.*;
@@ -15,6 +15,7 @@ import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.read.ReadGroupService;
 import service.update.EventService;
 
 import java.sql.Connection;
@@ -692,7 +693,7 @@ public class EventServiceIntegrationTest {
     assertEquals(0, eventFromDb.get().getModerators().size());
 
     EventService eventService2 = standardUserContext2.createEventService();
-    eventService2.rsvpTpEvent(eventFromDb.get().getId());
+    eventService2.rsvpToEvent(eventFromDb.get().getId());
 
     Optional<Event> eventFromDb2 = eventService2.getEvent(event.getId());
     assertTrue(eventFromDb2.isPresent());
@@ -877,6 +878,34 @@ public class EventServiceIntegrationTest {
     assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
     assertTrue(eventFromDb.get().getModerators().contains(standardUserContext2.getUser()));
     assertEquals(1,eventFromDb.get().getModerators().size());
+  }
+
+
+  @Test
+  public void testDeleteEventWith_RsvpAndModerator() throws Exception{
+
+    EventService adminEventService = adminContext.createEventService();
+    EventService standardUserEventService = standardUserContext2.createEventService();
+
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    adminEventService.addEventModerator(created,standardUserContext.getUser());
+    standardUserEventService.rsvpToEvent(created.getId());
+
+    adminEventService.deleteEvent(created.getId(), group.getId());
+
+    Optional<Event> deletedEvent = adminEventService.getEvent(created.getId());
+    assertFalse(deletedEvent.isPresent());
+
+    ReadGroupService readGroupService = adminContext.createReadGroupService();
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(GroupSearchParams.NAME, group.getName());
+    GroupPageData groupPageData = readGroupService.getGroupPageData(params);
+
+    assertEquals(0,groupPageData.getWeeklyEventData().size());
   }
 
   @AfterEach

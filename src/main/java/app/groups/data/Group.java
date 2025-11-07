@@ -1,5 +1,6 @@
 package app.groups.data;
 
+import app.users.data.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -206,5 +207,16 @@ public class Group {
       return new GameTypeTag[0];
     }
     return gameTypeTags;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    Group other = (Group)obj;
+    return other.getId().equals(this.getId())  && other.getName().equals(this.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return (this.id + " "+this.getName()).hashCode();
   }
 }

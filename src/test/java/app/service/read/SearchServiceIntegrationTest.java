@@ -1,4 +1,4 @@
-package app.service;
+package app.service.read;
 
 import static org.junit.jupiter.api.Assertions.*;
 

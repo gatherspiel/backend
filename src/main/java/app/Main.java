@@ -17,7 +17,7 @@ import service.EmailService;
 import service.auth.AuthService;
 import service.auth.supabase.SupabaseAuthProvider;
 import service.read.DistanceService;
-import service.read.GameLocationsService;
+import service.update.GameLocationsService;
 import service.read.TestService;
 import service.update.BulkUpdateService;
 import service.auth.UserService;

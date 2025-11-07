@@ -9,6 +9,7 @@ import database.content.EventRepository;
 import database.content.GroupsRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
+import database.user.UserRepository;
 import org.apache.logging.log4j.Logger;
 import service.EmailService;
 import utils.LogUtils;
@@ -79,6 +80,9 @@ public class GroupEditService {
 
     EventRepository eventRepository = new EventRepository(connection);
     eventRepository.deleteAllEventsInGroup(groupId);
+
+    UserRepository userRepository = new UserRepository(connection);
+    userRepository.deleteMemberDataForGroup(groupId);
     groupsRepository.deleteGroup(groupId);
   }
 
