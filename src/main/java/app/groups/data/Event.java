@@ -2,7 +2,6 @@ package app.groups.data;
 
 import app.users.data.PermissionName;
 import app.users.data.User;
-import app.users.data.UserData;
 import app.users.data.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,7 +31,7 @@ public class Event {
   private LocalDate startDate;
   private LocalDate endDate;
 
-  private EventLocation eventLocation;
+  private EventLocation eventLocation = new EventLocation();
 
   private String groupName;
   private Integer groupId;
@@ -329,6 +328,17 @@ public class Event {
   @JsonIgnore
   public boolean getUserCanUpdateRsvp(){
     return permissions.containsKey(PermissionName.USER_CAN_RSVP) && permissions.get(PermissionName.USER_CAN_RSVP);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    Event other = (Event)obj;
+    return other.getId().equals(this.getId())  && other.getName().equals(this.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return (this.id + " "+this.getName()).hashCode();
   }
 
   public String toString(){

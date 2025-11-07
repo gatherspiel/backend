@@ -3,6 +3,7 @@ package database.user;
 import app.groups.data.Event;
 import app.groups.data.Group;
 import app.result.error.UnauthorizedError;
+import app.result.error.group.InvalidEventParameterError;
 import app.users.data.*;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +14,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 public class UserRepository extends BaseRepository {
@@ -243,14 +246,15 @@ public class UserRepository extends BaseRepository {
 
       String userEventQuery = """
         SELECT
-          event_time.day_of_week,
+          weekly_event_time.day_of_week,
           event_admin_level,
           event_admin_data.event_id,
+          rsvp_time,
           start_time,
           name
         FROM event_admin_data
         LEFT JOIN events on events.id = event_admin_data.event_id
-        LEFT JOIN event_time on events.id = event_time.event_id
+        LEFT JOIN weekly_event_time on events.id = weekly_event_time.event_id
         WHERE user_id = ?
       """;
 
@@ -259,6 +263,7 @@ public class UserRepository extends BaseRepository {
 
       ResultSet rs2 = userEventStatement.executeQuery();
       while (rs2.next()) {
+
         Event event = new Event();
         event.setId(rs2.getInt("event_id"));
         event.setName(rs2.getString("name"));
@@ -268,14 +273,25 @@ public class UserRepository extends BaseRepository {
           logger.error("Event RSVPS are not fully supported for one time events");
         }
 
-        LocalDate nextDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.valueOf(eventDay)));
-        event.setStartDate(nextDate);
 
-        LocalTime eventTime = rs2.getTimestamp("start_time").toLocalDateTime().toLocalTime();
+        LocalDate nextEventDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.valueOf(eventDay.toUpperCase())));
+        LocalDateTime pastEventDate =
+            LocalDateTime.now()
+              .with(TemporalAdjusters.previous(DayOfWeek.valueOf(eventDay.toUpperCase())));
+
+        event.setStartDate(nextEventDate);
+        event.setDay(eventDay);
+
+        LocalTime eventTime =
+            rs2.getTimestamp("start_time")
+                .toLocalDateTime().toLocalTime();
         event.setStartTime(eventTime);
 
         if(rs2.getString("event_admin_level").equals(EventAdminType.EVENT_RSVP.toString())){
-          userMemberData.addEventAsMember(event);
+          LocalDateTime rsvpTime = rs2.getTimestamp("rsvp_time").toLocalDateTime();
+          if(rsvpTime.isAfter(pastEventDate)) {
+            userMemberData.addEventAsMember(event);
+          }
         } else {
           userMemberData.addEventAsModerator(event);
         }
@@ -291,7 +307,7 @@ public class UserRepository extends BaseRepository {
   public void joinGroup(int groupId,User user) throws Exception{
     try {
       String joinGroupQuery = """
-      INSERT INTO group_admin_data(group_admin_level, group_id, user_id) VALUES(cast(? as group_admin_level), ?, ?)
+        INSERT INTO group_admin_data(group_admin_level, group_id, user_id) VALUES(cast(? as group_admin_level), ?, ?)
       """;
 
       PreparedStatement statement = connection.prepareStatement(joinGroupQuery);
@@ -300,6 +316,12 @@ public class UserRepository extends BaseRepository {
       statement.setInt(3, user.getId());
       statement.executeUpdate();
     } catch(Exception e){
+      if(e.getMessage().contains("Key (user_id, group_id)")){
+        throw new InvalidEventParameterError("User is already a member of the group");
+      }
+      if(e.getMessage().contains("Key (group_id)")){
+        throw new InvalidEventParameterError("Invalid group");
+      }
       logger.error(e);
       throw e;
     }
@@ -307,15 +329,35 @@ public class UserRepository extends BaseRepository {
 
   public void leaveGroup(int groupId, User user) throws Exception{
     try {
-      String joinGroupQuery = """
+      String leaveGroupQuery = """
       DELETE from group_admin_data
       WHERE group_id = ? and user_id = ?
       """;
 
-      PreparedStatement statement = connection.prepareStatement(joinGroupQuery);
+      PreparedStatement statement = connection.prepareStatement(leaveGroupQuery);
       statement.setInt(1, groupId);
       statement.setInt(2, user.getId());
-      statement.executeUpdate();
+      int update = statement.executeUpdate();
+
+      if(update == 0){
+        throw new InvalidEventParameterError("User is not a member of the group");
+      }
+    } catch(Exception e){
+      logger.error(e);
+      throw e;
+    }
+  }
+
+  public void deleteMemberDataForGroup(int groupId) throws Exception{
+    try {
+      String deleteQuery = """
+      DELETE from group_admin_data
+      WHERE group_id = ?
+      """;
+
+      PreparedStatement statement = connection.prepareStatement(deleteQuery);
+      statement.setInt(1, groupId);
+      int update = statement.executeUpdate();
     } catch(Exception e){
       logger.error(e);
       throw e;

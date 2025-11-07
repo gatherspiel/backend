@@ -693,7 +693,7 @@ public class EventServiceIntegrationTest {
     assertEquals(0, eventFromDb.get().getModerators().size());
 
     EventService eventService2 = standardUserContext2.createEventService();
-    eventService2.rsvpTpEvent(eventFromDb.get().getId());
+    eventService2.rsvpToEvent(eventFromDb.get().getId());
 
     Optional<Event> eventFromDb2 = eventService2.getEvent(event.getId());
     assertTrue(eventFromDb2.isPresent());
@@ -892,7 +892,7 @@ public class EventServiceIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
 
     adminEventService.addEventModerator(created,standardUserContext.getUser());
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     adminEventService.deleteEvent(created.getId(), group.getId());
 

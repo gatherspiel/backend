@@ -3,11 +3,17 @@ package app.users.data;
 import app.groups.data.Event;
 import app.groups.data.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Comparator;
 import java.util.TreeSet;
 
 public class UserMemberData {
+
+  private static final Logger logger = LogManager.getLogger(
+      UserMemberData.class
+  );
 
   class GroupComparator implements Comparator<Group> {
     public int compare(Group group1, Group group2){
@@ -70,11 +76,23 @@ public class UserMemberData {
 
   @JsonIgnore
   public void addEventAsMember(Event event){
+    int size1 = attendingEvents.size();
     attendingEvents.add(event);
+    int size2 = attendingEvents.size();
+
+    if(size1 == size2){
+      logger.warn("User has RSVP to multiple events starting at the same time. Only one of them will be displayed");
+    }
   }
 
   @JsonIgnore
   public void addEventAsModerator(Event event){
+    int size1 = moderatingEvents.size();
     moderatingEvents.add(event);
+    int size2 = moderatingEvents.size();
+
+    if(size1 == size2){
+      logger.warn("User is moderator to multiple events starting at the same time. Only one of them will be displayed");
+    }
   }
 }

@@ -21,7 +21,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.Collections;
@@ -139,14 +141,14 @@ public class UserMemberServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
-    LocalTime startTime = LocalTime.now();
+    LocalTime startTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
     DayOfWeek startDay = DayOfWeek.from(LocalDate.now());
     event.setStartTime(startTime);
     event.setDay(startDay.toString());
     Event created = adminEventService.createEvent(event,group.getId());
 
     EventService standardUserEventService = standardUserContext2.createEventService();
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     UserMemberData userGroupMemberData = standardUserContext2.createUserMemberService().getUserMemberData();
     assertIterableEquals(Collections.singletonList(created), userGroupMemberData.getAttendingEvents());
@@ -169,7 +171,8 @@ public class UserMemberServiceIntegrationTest {
     Event created = adminEventService.createEvent(event,group.getId());
 
     EventService standardUserEventService = standardUserContext2.createEventService();
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEventWithTime(created.getId(), LocalDateTime.now().minusDays(20));
+
 
     LocalTime startTime = LocalTime.now();
     DayOfWeek startDay = DayOfWeek.from(LocalDate.now());
@@ -193,16 +196,16 @@ public class UserMemberServiceIntegrationTest {
     adminEventService.addEventModerator(created, standardUserContext2.getUser());
 
     EventService standardUserEventService = standardUserContext2.createEventService();
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
-    LocalTime startTime = LocalTime.now();
+    LocalTime startTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
     DayOfWeek startDay = DayOfWeek.from(LocalDate.now());
     created.setStartTime(startTime);
     created.setDay(startDay.toString());
     adminEventService.updateEvent(created);
 
     UserMemberData userGroupMemberData = standardUserContext2.createUserMemberService().getUserMemberData();
-    assertIterableEquals(Collections.singletonList(created), userGroupMemberData.getAttendingEvents());
+    assertIterableEquals(EMPTY_EVENT_SET, userGroupMemberData.getAttendingEvents());
 
     Event eventFromDb = userGroupMemberData.getModeratingEvents().first();
     assertEquals(startTime, eventFromDb.getStartTime());
@@ -296,62 +299,74 @@ public class UserMemberServiceIntegrationTest {
     groupCreatorEventService.addEventModerator(event1, standardUserContext2.getUser());
 
     EventService standardUserEventService2 = standardUserContext2.createEventService();
-    standardUserEventService2.rsvpTpEvent(event2.getId());
+    standardUserEventService2.rsvpToEvent(event2.getId());
 
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
 
     UserMemberData memberData = userMemberService.getUserMemberData();
     assertIterableEquals(Collections.singletonList(event1), memberData.getModeratingEvents());
-    assertIterableEquals(Collections.singletonList(event2), memberData.getModeratingGroups());
-
+    assertIterableEquals(Collections.singletonList(event2), memberData.getAttendingEvents());
   }
 
   @Test
   public void testUserJoinsMultipleGroups_groupsAreInAlphabeticalOrder() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-    Group group2 = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+    Group group1 = CreateGroupUtils.createGroupWithName(standardUserContext.getUser(),"A"+UUID.randomUUID(), conn);
+    Group group2 = CreateGroupUtils.createGroupWithName(standardUserContext.getUser(), "C"+UUID.randomUUID(), conn);
+    Group group3 = CreateGroupUtils.createGroupWithName(standardUserContext.getUser(), "B"+UUID.randomUUID(), conn);
 
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
-    userMemberService.joinGroup(group.getId());
+    userMemberService.joinGroup(group1.getId());
     userMemberService.joinGroup(group2.getId());
+    userMemberService.joinGroup(group3.getId());
 
     UserMemberData userMemberData = userMemberService.getUserMemberData();
-    assertIterableEquals(Arrays.asList(group,group2),userMemberData.getJoinedGroups());
+    assertIterableEquals(Arrays.asList(group1,group3,group2),userMemberData.getJoinedGroups());
   }
 
   @Test
   public void testUserIsModeratorForMultipleGroups_groupsAreInAlphabeticalOrder() throws Exception{
-    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
-    Group group2 = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+    Group group1 = CreateGroupUtils.createGroupWithName(
+        standardUserContext.getUser(),"Bgroup"+UUID.randomUUID(), conn);
+    Group group2 = CreateGroupUtils.createGroupWithName(
+        standardUserContext.getUser(),"Agroup"+UUID.randomUUID(), conn);
+    Group group3 = CreateGroupUtils.createGroupWithName(
+        standardUserContext.getUser(),"Cgroup"+UUID.randomUUID(), conn);
 
     GroupPermissionService groupPermissionService = standardUserContext.createGroupPermissionService();
-    groupPermissionService.addGroupModerator(standardUserContext2.getUser(),group.getId());
+    groupPermissionService.addGroupModerator(standardUserContext2.getUser(),group1.getId());
     groupPermissionService.addGroupModerator(standardUserContext2.getUser(),group2.getId());
+    groupPermissionService.addGroupModerator(standardUserContext2.getUser(),group3.getId());
 
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
-
     UserMemberData userMemberData = userMemberService.getUserMemberData();
-    assertIterableEquals(Arrays.asList(group,group2),userMemberData.getModeratingGroups());
+    assertIterableEquals(Arrays.asList(group2,group1,group3),userMemberData.getModeratingGroups());
   }
 
   @Test
   public void testUserIsModeratorForMultipleEvents_moderatorInformationIsInAlphabeticalOrder() throws Exception{
     Event event1 = EventService.createRecurringEventObject();
     Event event2 = EventService.createRecurringEventObject();
+    Event event3 = EventService.createRecurringEventObject();
+    event2.setStartTime(LocalTime.NOON.minusHours(1));
+    event1.setStartTime(LocalTime.NOON);
+    event3.setStartTime(LocalTime.NOON.plusHours(1));
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     EventService groupCreatorEventService = standardUserContext.createEventService();
-    groupCreatorEventService.createEvent(event1, group.getId());
-    groupCreatorEventService.createEvent(event2, group.getId());
+
+    Event eventFromDb1 = groupCreatorEventService.createEvent(event1, group.getId());
+    Event eventFromDb2 = groupCreatorEventService.createEvent(event2, group.getId());
+    Event eventFromDb3 = groupCreatorEventService.createEvent(event3, group.getId());
 
     groupCreatorEventService.addEventModerator(event1, standardUserContext2.getUser());
     groupCreatorEventService.addEventModerator(event2, standardUserContext2.getUser());
+    groupCreatorEventService.addEventModerator(event3, standardUserContext2.getUser());
 
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
 
     UserMemberData userMemberData = userMemberService.getUserMemberData();
-    assertIterableEquals(Arrays.asList(event1,event2),userMemberData.getModeratingEvents());
+    assertIterableEquals(Arrays.asList(eventFromDb2,eventFromDb1, eventFromDb3),userMemberData.getModeratingEvents());
   }
 
   @Test
@@ -367,19 +382,19 @@ public class UserMemberServiceIntegrationTest {
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     EventService groupCreatorEventService = standardUserContext.createEventService();
-    groupCreatorEventService.createEvent(event1, group.getId());
-    groupCreatorEventService.createEvent(event2, group.getId());
-    groupCreatorEventService.createEvent(event3, group.getId());
+    Event eventFromDb1 = groupCreatorEventService.createEvent(event1, group.getId());
+    Event eventFromDb2 = groupCreatorEventService.createEvent(event2, group.getId());
+    Event eventFromDb3 = groupCreatorEventService.createEvent(event3, group.getId());
 
     EventService eventService2 = standardUserContext2.createEventService();
-    eventService2.rsvpTpEvent(event1.getId());
-    eventService2.rsvpTpEvent(event2.getId());
-    eventService2.rsvpTpEvent(event3.getId());
+    eventService2.rsvpToEvent(event1.getId());
+    eventService2.rsvpToEvent(event2.getId());
+    eventService2.rsvpToEvent(event3.getId());
 
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
 
     UserMemberData userMemberData = userMemberService.getUserMemberData();
-    assertIterableEquals(Arrays.asList(event2,event1,event3),userMemberData.getModeratingEvents());
+    assertIterableEquals(Arrays.asList(eventFromDb2,eventFromDb1,eventFromDb3),userMemberData.getAttendingEvents());
   }
 
   @Test
@@ -407,7 +422,7 @@ public class UserMemberServiceIntegrationTest {
       }
     );
 
-    assertEquals("Invalid group",exception.getMessage());
+    assertEquals("User is not a member of the group",exception.getMessage());
   }
 
   @Test

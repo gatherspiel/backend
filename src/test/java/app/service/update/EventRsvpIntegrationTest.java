@@ -78,11 +78,12 @@ public class EventRsvpIntegrationTest {
   public void testRsvpToValidEvent_andRemoveRsvp_loggedInUser() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     Event event = EventService.createRecurringEventObject();
+    event.setDay(LocalDateTime.now().minusDays(1).getDayOfWeek().toString());
 
     Event created = adminEventService.createEvent(event, group.getId());
     verifyRsvpCount(created.getId(), 0);
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
     verifyRsvpCount(created.getId(), 1);
 
     standardUserEventService.removeEventRsvp(created.getId());
@@ -99,8 +100,8 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
     Event created2 = adminEventService.createEvent(event2, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService.rsvpTpEvent(created2.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created2.getId());
 
     created = standardUserEventService.getEvent(created.getId()).get();
     created2 = standardUserEventService.getEvent(created2.getId()).get();
@@ -119,8 +120,8 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
     Event created2 = adminEventService.createEvent(event2, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService.rsvpTpEvent(created2.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created2.getId());
     standardUserEventService.removeEventRsvp(created2.getId());
 
     verifyRsvpCount(created.getId(), 1);
@@ -137,7 +138,7 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
     Event created2 = adminEventService.createEvent(event2, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 0);
@@ -154,7 +155,7 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
     Event created2 = adminEventService.createEvent(event2, group2.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 0);
@@ -167,8 +168,8 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService2.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService2.rsvpToEvent(created.getId());
 
     Optional<Event> userEventData = standardUserEventService.getEvent(created.getId());
     Optional<Event> userEventData2 = standardUserEventService2.getEvent(created.getId());
@@ -179,7 +180,6 @@ public class EventRsvpIntegrationTest {
     assertTrue(userEventData2.get().getUserHasRsvp());
     assertEquals(2, userEventData.get().getRsvpCount());
     assertEquals(2, userEventData.get().getRsvpCount());
-
 
     standardUserEventService.removeEventRsvp(created.getId());
     standardUserEventService2.removeEventRsvp(created.getId());
@@ -193,9 +193,7 @@ public class EventRsvpIntegrationTest {
     assertFalse(userEventData2.get().getUserHasRsvp());
     assertEquals(0, userEventData.get().getRsvpCount());
     assertEquals(0, userEventData.get().getRsvpCount());
-
   }
-
 
   @Test
   public void testTwoUsersRsvpToEvent_oneRemovesRsvp() throws Exception{
@@ -204,8 +202,8 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService2.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService2.rsvpToEvent(created.getId());
 
     standardUserEventService.removeEventRsvp(created.getId());
 
@@ -222,8 +220,8 @@ public class EventRsvpIntegrationTest {
     Event created = adminEventService.createEvent(event, group.getId());
     Event created2 = adminEventService.createEvent(event2, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService2.rsvpTpEvent(created2.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService2.rsvpToEvent(created2.getId());
 
     verifyRsvpCount(created.getId(), 1);
     verifyRsvpCount(created2.getId(), 1);
@@ -236,7 +234,7 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
 
     Event created = adminEventService.createEvent(event, group.getId());
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     Optional<Event> eventFromDb = standardUserEventService.getEvent(created.getId());
     assertTrue(eventFromDb.isPresent());
@@ -262,8 +260,8 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
     verifyRsvpCount(created.getId(),1);
   }
 
@@ -290,7 +288,7 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
     standardUserEventService.removeEventRsvp(created.getId());
 
     Exception exception = assertThrows(
@@ -324,7 +322,7 @@ public class EventRsvpIntegrationTest {
     Exception exception = assertThrows(
       UnauthorizedError.class,
       () -> {
-        readOnlyEventService.rsvpTpEvent(created.getId());
+        readOnlyEventService.rsvpToEvent(created.getId());
       }
     );
     assertEquals("User must log in to rsvp to event",exception.getMessage());
@@ -337,12 +335,12 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     Exception exception = assertThrows(
         InvalidEventParameterError.class,
         () -> {
-          standardUserEventService.rsvpTpEvent(created.getId()+1);
+          standardUserEventService.rsvpToEvent(created.getId()+1);
         }
     );
     assertEquals("Event does not exist",exception.getMessage());
@@ -355,7 +353,7 @@ public class EventRsvpIntegrationTest {
     Event event = EventService.createRecurringEventObject();
     Event created = adminEventService.createEvent(event, group.getId());
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     Exception exception = assertThrows(
         UnauthorizedError.class,
@@ -393,7 +391,7 @@ public class EventRsvpIntegrationTest {
     EventService standardUserEventService = standardUserContext.createEventService();
     EventService standardUserEventService2 = standardUserContext2.createEventService();
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
     Thread.sleep(1000);
 
     LocalDateTime now = LocalDateTime.now();
@@ -403,7 +401,7 @@ public class EventRsvpIntegrationTest {
     adminEventService.updateEvent(created);
 
     Thread.sleep(1000);
-    standardUserEventService2.rsvpTpEvent(created.getId());
+    standardUserEventService2.rsvpToEvent(created.getId());
 
     verifyRsvpCount(created.getId(),1);
   }
@@ -417,7 +415,7 @@ public class EventRsvpIntegrationTest {
 
     EventService standardUserEventService = standardUserContext.createEventService();
 
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     Thread.sleep(1000);
 
@@ -428,7 +426,7 @@ public class EventRsvpIntegrationTest {
     adminEventService.updateEvent(created);
 
     Thread.sleep(1000);
-    standardUserEventService.rsvpTpEvent(created.getId());
+    standardUserEventService.rsvpToEvent(created.getId());
 
     verifyRsvpCount(created.getId(),1);
   }

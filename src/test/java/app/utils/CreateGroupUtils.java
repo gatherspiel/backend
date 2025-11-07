@@ -12,6 +12,19 @@ public class CreateGroupUtils {
 
   private static int groupCount = 0;
 
+  public static Group createGroupWithName(User user, String name, Connection conn) throws Exception {
+    CreateGroupUtils.groupCount++;
+
+    Group group = new Group();
+    GroupEditService groupEditService = new GroupEditService(conn, user);
+
+    group.setId(groupCount);
+    group.setName(name);
+    group.setUrl("localhost:1234/"+group.getName());
+
+    return groupEditService.insertGroup(group);
+  }
+
   public static Group createGroup(User user, Connection conn) throws Exception{
 
     CreateGroupUtils.groupCount++;

@@ -45,6 +45,9 @@ public class EventService {
           .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
           .collect(Collectors.toSet());
 
+      System.out.println(eventRsvps.size());
+      System.out.println(eventModerators.size());
+
       boolean currentUserCanEdit =
         user.isSiteAdmin() ||
         eventModerators.contains(user) ||
@@ -133,7 +136,15 @@ public class EventService {
     eventRepository.removeEventModerator(event, moderatorToRemove);
   }
 
-  public void rsvpTpEvent(int eventId) throws Exception{
+  //RSVP to a recurring event with a certain RSVP time. This allows an RSVP for a specific instance of a recurring event
+  public void rsvpToEventWithTime(int eventId, LocalDateTime rsvpTime) throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must log in to rsvp to event");
+    }
+    eventRepository.rsvpToEvent(eventId,user, rsvpTime);
+  }
+
+  public void rsvpToEvent(int eventId) throws Exception{
     if(!user.isLoggedInUser()){
       throw new UnauthorizedError("User must log in to rsvp to event");
     }
@@ -178,7 +189,7 @@ public class EventService {
     event.setLocation("Event_"+ UUID.randomUUID()+",Somewhere,VA 22222");
     event.setDescription("Event_"+ UUID.randomUUID());
     event.setUrl("localhost:/1234/"+UUID.randomUUID());
-    event.setDay(DayOfWeek.FRIDAY.toString());
+    event.setDay(LocalDateTime.now().minusDays(1).getDayOfWeek().toString());
     event.setIsRecurring(true);
     event.setStartTime(start);
     event.setEndTime(end);

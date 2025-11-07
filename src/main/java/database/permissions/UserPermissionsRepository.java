@@ -81,21 +81,22 @@ public class UserPermissionsRepository
   public Set<User> getEventRoles(Event event) throws Exception {
 
     try {
-      String query =  """
-                      SELECT
-                        users.id as userId,
-                        users.email as email,
-                        events.id as eventId,
-                        event_admin_level,
-                        users.image_path,
-                        username  
-                     from events
-                      FULL JOIN event_admin_data on event_admin_data.event_id = events.id
-                      LEFT JOIN users on event_admin_data.user_id = users.id
-                      WHERE events.id = ?
-                      AND users.id IS NOT NULL
-                      AND (rsvp_time IS NULL OR rsvp_time > ?)
-                    """;
+      String query =
+        """
+          SELECT
+            users.id as userId,
+            users.email as email,
+            events.id as eventId,
+            event_admin_level,
+            users.image_path,
+            username
+         from events
+          FULL JOIN event_admin_data on event_admin_data.event_id = events.id
+          LEFT JOIN users on event_admin_data.user_id = users.id
+          WHERE events.id = ?
+          AND users.id IS NOT NULL
+          AND (rsvp_time IS NULL OR rsvp_time > ?)
+        """;
 
       PreparedStatement select = conn.prepareStatement(query);
       select.setInt(1, event.getId());
@@ -106,6 +107,7 @@ public class UserPermissionsRepository
       Set<User> editors = new HashSet<>();
       while(rs.next()){
 
+        System.out.println("Found information");
         String eventAdminLevel = rs.getString("event_admin_level");
         User user = new User();
 

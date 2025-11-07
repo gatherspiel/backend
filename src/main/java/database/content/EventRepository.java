@@ -367,7 +367,7 @@ public class EventRepository {
     delete.executeUpdate();
   }
 
-  public void rsvpToEvent(int eventId, User user) throws Exception{
+  public void rsvpToEvent(int eventId, User user, LocalDateTime rsvpTime) throws Exception{
 
     try {
       String query = """
@@ -377,9 +377,10 @@ public class EventRepository {
       PreparedStatement insert = conn.prepareStatement(query);
       insert.setInt(1, eventId);
       insert.setInt(2, user.getId());
-      insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.setTimestamp(3, Timestamp.valueOf(rsvpTime));
       insert.setString(4, EventAdminType.EVENT_RSVP.toString());
-      insert.executeUpdate();
+      int update = insert.executeUpdate();
+      System.out.println("Updating:"+update);
     } catch(Exception e){
       if(e.getMessage().contains("duplicate key value")){
         throw new InvalidEventParameterError("User already has RSVP for event");
@@ -390,6 +391,10 @@ public class EventRepository {
       e.printStackTrace();
       throw e;
     }
+  }
+
+  public void rsvpToEvent(int eventId, User user) throws Exception{
+    rsvpToEvent(eventId, user, LocalDateTime.now());
   }
 
   public void removeEventRsvp(int eventId, User user) throws Exception{

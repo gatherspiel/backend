@@ -421,7 +421,7 @@ public class ReadGroupServiceIntegrationTest {
 
     for (Event data : result.getWeeklyEventData()) {
       if (data.getName().equals("High Interaction Board Games at Western Market Food Hall in DC")) {
-        eventService.rsvpTpEvent(data.getId());
+        eventService.rsvpToEvent(data.getId());
       }
     }
 
@@ -477,7 +477,7 @@ public class ReadGroupServiceIntegrationTest {
     eventToUpdate.setEndTime(now.toLocalTime().plusHours(2));
     adminEventService.updateEvent(eventToUpdate);
 
-    standardUserEventService.rsvpTpEvent(eventToUpdate.getId());
+    standardUserEventService.rsvpToEvent(eventToUpdate.getId());
 
     Thread.sleep(3000);
 

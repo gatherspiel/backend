@@ -124,7 +124,7 @@ public class EventsApi {
           var eventId = Integer.parseInt(ctx.pathParam("eventId"));
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
-          sessionContext.createEventService().rsvpTpEvent(eventId);
+          sessionContext.createEventService().rsvpToEvent(eventId);
           ctx.result("Rsvp successful");
           ctx.status(HttpStatus.OK);
         }
