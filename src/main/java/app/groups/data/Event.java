@@ -196,6 +196,10 @@ public class Event {
     return endDate;
   }
 
+  @JsonIgnore
+  public LocalDateTime getStartDateTime(){
+    return LocalDateTime.of(startDate, startTime);
+  }
   /*
  The start and end time are represented as strings as a workaround for a serialization limitation with the
  LocalDateTime object

@@ -1,5 +1,6 @@
 package service.update;
 
+import app.result.error.UnauthorizedError;
 import app.users.data.User;
 import app.users.data.UserMemberData;
 import database.user.UserRepository;
@@ -18,23 +19,24 @@ public class UserMemberService {
     this.userRepository = userRepository;
   }
 
-  public UserMemberData getUserMemberData(){
-    /*
-    TODO
-    -Get groups a user is a part of.
-    -Get events a user is a part of.
-    -Separate groups and events that a user is member of and one which a user is an organizer of.
-     */
-    return null;
+  public UserMemberData getUserMemberData() throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("Unauthorized");
+    }
+    return userRepository.getUserMemberData(user.getId());
   }
 
-  public void joinGroup(int groupId){
-    //TODO: Implement
+  public void joinGroup(int groupId) throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("Unauthorized");
+    }
+    userRepository.joinGroup(groupId, user);
   }
 
-  public void leaveGroup(int groupId){
-    //TODO: Implement
-
+  public void leaveGroup(int groupId) throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("Unauthorized");
+    }
+    userRepository.leaveGroup(groupId, user);
   }
-
 }

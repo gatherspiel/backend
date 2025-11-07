@@ -435,12 +435,10 @@ public class ReadGroupServiceIntegrationTest {
         assertFalse(data.getUserHasRsvp());
       }
     }
-
     for(Event data: adminResult2.getWeeklyEventData()){
       assertFalse(data.getUserHasRsvp());
     }
   }
-
 
   @Test
   public void testGroupData_DoesNotIncludePastEventRsvp() throws Exception{
@@ -448,7 +446,6 @@ public class ReadGroupServiceIntegrationTest {
         "TRUNCATE TABLE event_admin_data CASCADE";
     String deleteGroupAdminQuery =
         "TRUNCATE TABLE group_admin_data CASCADE";
-
 
     PreparedStatement query4 = conn.prepareStatement(deleteEventAdminQuery);
     PreparedStatement query5 = conn.prepareStatement(deleteGroupAdminQuery);
@@ -460,7 +457,7 @@ public class ReadGroupServiceIntegrationTest {
     params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
-        params
+      params
     );
 
     EventService standardUserEventService = standardUserContext.createEventService();
