@@ -134,7 +134,7 @@ public class UserApi {
     );
 
     app.post(
-      "/user/memberData/{groupId}",
+      "/user/memberData/group/{groupId}",
       ctx ->{
         try {
           var groupId = Integer.parseInt(ctx.pathParam("groupId"));
@@ -159,7 +159,7 @@ public class UserApi {
     );
 
     app.delete(
-      "/user/memberData/{groupId}",
+      "/user/memberData/group/{groupId}",
       ctx ->{
         try {
           var groupId = Integer.parseInt(ctx.pathParam("groupId"));

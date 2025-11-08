@@ -5,14 +5,17 @@ import app.database.utils.IntegrationTestConnectionProvider;
 
 import app.groups.Event;
 import app.groups.Group;
+import app.result.group.GroupPageData;
 import app.users.SessionContext;
 import app.users.UserMemberData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
+import database.search.GroupSearchParams;
 import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.read.ReadGroupService;
 import service.update.EventService;
 import service.update.GroupPermissionService;
 import service.update.UserMemberService;
@@ -25,10 +28,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -398,7 +398,30 @@ public class UserMemberServiceIntegrationTest {
   }
 
   @Test
-  public void testUserAttemptsToJoinGroupThatDoesNotExistError() throws Exception {
+  public void testUserJoinsGroup_groupPageShowsCorrectMemberStatus_forUserModerator_andReader() throws Exception{
+
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    LinkedHashMap<String, String> readGroupParams = new LinkedHashMap<>();
+    readGroupParams.put(GroupSearchParams.NAME, group.getName());
+
+    UserMemberService memberService = standardUserContext2.createUserMemberService();
+    memberService.joinGroup(group.getId());
+
+    ReadGroupService standardUserGroupService = standardUserContext2.createReadGroupService();
+    GroupPageData standardUserGroupData = standardUserGroupService.getGroupPageData(readGroupParams);
+    assertTrue(standardUserGroupData.userIsMember());
+
+    ReadGroupService groupModeratorGroupService = adminContext.createReadGroupService();
+    GroupPageData groupModeratorGroupData = groupModeratorGroupService.getGroupPageData(readGroupParams);
+    assertTrue(groupModeratorGroupData.userIsMember());
+
+    ReadGroupService readOnlyGroupService = readOnlyUserContext.createReadGroupService();
+    GroupPageData readOnlyGroupData = readOnlyGroupService.getGroupPageData(readGroupParams);
+    assertFalse(readOnlyGroupData.userIsMember());
+  }
+
+  @Test
+  public void testUserAttemptsToJoinGroupThatDoesNotExistError() {
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
 
     Exception exception = assertThrows(
@@ -412,7 +435,7 @@ public class UserMemberServiceIntegrationTest {
   }
 
   @Test
-  public void testUserAttemptsToLeaveGroupThatDoesNotExistError() throws Exception {
+  public void testUserAttemptsToLeaveGroupThatDoesNotExistError()  {
     UserMemberService userMemberService = standardUserContext2.createUserMemberService();
 
     Exception exception = assertThrows(

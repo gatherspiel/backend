@@ -13,6 +13,7 @@ import service.update.GroupPermissionService;
 
 import java.sql.Connection;
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
@@ -61,8 +62,9 @@ public class ReadGroupService{
         event.setUserCanUpdateRsvp(false);
       }
     }
-    boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
-    groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);
+
+    HashMap<PermissionName,Boolean> permissions = groupPermissionService.getPermissionsForGroup(groupPageData.getId());
+    groupPageData.setPermissions(permissions);
     return groupPageData;
   }
 }

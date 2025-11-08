@@ -159,6 +159,13 @@ public class GroupPageData {
     return permissions.getOrDefault(PermissionName.USER_CAN_EDIT, false);
   }
 
+  public boolean userIsMember(){
+    if(permissions == null) {
+      return false;
+    }
+    return permissions.getOrDefault(PermissionName.USER_IS_MEMBER, false);
+  }
+
   public void setGameTypeTags(GameTypeTag[] gameTypeTags){
     this.gameTypeTags = gameTypeTags;
   }
