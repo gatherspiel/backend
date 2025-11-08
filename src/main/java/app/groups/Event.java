@@ -1,8 +1,8 @@
-package app.groups.data;
+package app.groups;
 
-import app.users.data.PermissionName;
-import app.users.data.User;
-import app.users.data.UserComparator;
+import app.users.PermissionName;
+import app.users.User;
+import app.users.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,7 +40,7 @@ public class Event {
 
   private boolean isRecurring = false;
   private LocalTime startTime;
-  private LocalTime endTime;
+  private LocalTime endTime = LocalTime.MAX;
   private DayOfWeek dayOfWeek;
 
   private String image;
@@ -342,7 +342,10 @@ public class Event {
   }
 
   public String toString(){
+
+    String endTimeStr = this.endTime != null ? this.endTime.toString() : "";
+
     return "Event data \n id:"+this.id +"\nday:"+this.dayOfWeek+"\n location:"+ this.eventLocation.toString() +"\n description:"+this.description +
-        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + this.endTime + "\n startDate:"+this.startDate + "\n endDate:" + this.endDate;
+        " \nname:"+this.name+"\n url:"+this.url + "\n startTime:"+this.startTime + "\n endTime:" + endTimeStr + "\n startDate:"+this.startDate + "\n endDate:" + this.endDate;
   }
 }

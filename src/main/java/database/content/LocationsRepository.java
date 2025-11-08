@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import app.groups.data.EventLocation;
+import app.groups.EventLocation;
 import app.result.error.StackTraceShortener;
 import database.search.SameLocationData;
 import org.apache.logging.log4j.Logger;

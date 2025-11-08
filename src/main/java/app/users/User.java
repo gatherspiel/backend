@@ -1,4 +1,4 @@
-package app.users.data;
+package app.users;
 
 public class User {
   private String email;

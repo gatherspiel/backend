@@ -1,8 +1,8 @@
 package database.content;
 
-import app.groups.data.Event;
-import app.groups.data.EventLocation;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.EventLocation;
+import app.groups.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +15,9 @@ import java.util.Optional;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
 import app.result.error.group.InvalidEventParameterError;
-import app.users.data.*;
+import app.users.EventAdminType;
+import app.users.User;
+import app.users.UserData;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -380,7 +382,6 @@ public class EventRepository {
       insert.setTimestamp(3, Timestamp.valueOf(rsvpTime));
       insert.setString(4, EventAdminType.EVENT_RSVP.toString());
       int update = insert.executeUpdate();
-      System.out.println("Updating:"+update);
     } catch(Exception e){
       if(e.getMessage().contains("duplicate key value")){
         throw new InvalidEventParameterError("User already has RSVP for event");

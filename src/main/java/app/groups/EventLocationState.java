@@ -1,4 +1,4 @@
-package app.groups.data;
+package app.groups;
 
 import java.util.Map;
 

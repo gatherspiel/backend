@@ -1,4 +1,4 @@
-package app.users.data;
+package app.users;
 
 import java.util.Comparator;
 

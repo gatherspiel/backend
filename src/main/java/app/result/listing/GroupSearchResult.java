@@ -1,8 +1,8 @@
 package app.result.listing;
 
-import app.groups.data.Event;
-import app.groups.data.GameTypeTag;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.GameTypeTag;
+import app.groups.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;

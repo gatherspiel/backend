@@ -1,6 +1,6 @@
 package database.content;
 
-import app.groups.data.Event;
+import app.groups.Event;
 
 import java.sql.*;
 import java.time.LocalDateTime;

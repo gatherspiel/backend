@@ -2,7 +2,7 @@ package app;
 
 import app.cache.CacheConnection;
 import app.groups.GroupRequestParser;
-import app.groups.data.Group;
+import app.groups.Group;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateGroupNameError;
 import app.result.error.group.GroupNotFoundError;
@@ -10,7 +10,7 @@ import app.result.error.group.InvalidGroupParameterError;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import app.result.group.GroupPageData;
-import app.users.data.SessionContext;
+import app.users.SessionContext;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -20,13 +20,7 @@ import org.apache.logging.log4j.Logger;
 import app.result.error.SearchParameterException;
 import utils.LogUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.util.Base64;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class GroupsApi {
 

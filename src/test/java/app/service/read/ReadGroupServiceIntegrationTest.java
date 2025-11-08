@@ -1,12 +1,13 @@
 package app.service.read;
 
-import app.users.data.SessionContext;
-import app.groups.data.*;
+import app.groups.Event;
+import app.groups.Group;
+import app.users.SessionContext;
 import app.result.group.GroupPageData;
-import app.users.data.User;
+import app.users.User;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.users.data.UserType;
+import app.users.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;
@@ -486,6 +487,4 @@ public class ReadGroupServiceIntegrationTest {
     assertFalse(eventFromDb.get().getUserHasRsvp());
 
   }
-
-
 }

@@ -1,17 +1,16 @@
 package service.update;
 
-import app.groups.data.Event;
+import app.groups.Event;
 import app.result.error.UnauthorizedError;
-import app.users.data.User;
-import app.groups.data.EventLocation;
+import app.users.User;
+import app.groups.EventLocation;
 import app.result.error.PermissionError;
-import app.users.data.UserType;
+import app.users.UserType;
 import database.content.EventRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
 
 import java.sql.Connection;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -45,8 +44,6 @@ public class EventService {
           .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
           .collect(Collectors.toSet());
 
-      System.out.println(eventRsvps.size());
-      System.out.println(eventModerators.size());
 
       boolean currentUserCanEdit =
         user.isSiteAdmin() ||

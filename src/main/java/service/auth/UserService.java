@@ -3,8 +3,8 @@ package service.auth;
 
 import app.result.error.StackTraceShortener;
 import app.result.error.UnauthorizedError;
-import app.users.data.User;
-import app.users.data.UserData;
+import app.users.User;
+import app.users.UserData;
 import database.files.ImageRepository;
 import database.user.UserRepository;
 

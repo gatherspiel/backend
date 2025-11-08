@@ -1,9 +1,8 @@
 package app.cache;
 
-import app.groups.data.GameTypeTag;
+import app.groups.GameTypeTag;
 
 import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class CompressedGroup {

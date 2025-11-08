@@ -1,10 +1,10 @@
 package app;
 
-import app.groups.data.Event;
+import app.groups.Event;
 import app.result.error.UnauthorizedError;
 import app.result.error.group.DuplicateEventError;
 import app.result.error.group.EventNotFoundError;
-import app.users.data.SessionContext;
+import app.users.SessionContext;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
@@ -100,6 +100,7 @@ public class EventsApi {
         try {
           var groupId = Integer.parseInt(ctx.pathParam("groupId"));
           var event = ctx.bodyAsClass(Event.class);
+          event.setGroupId(groupId);
 
           var sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
           sessionContext.createEventService().updateEvent(event);

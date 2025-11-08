@@ -1,7 +1,7 @@
 package app.service.update;
 
-import app.users.data.SessionContext;
-import app.groups.data.Group;
+import app.users.SessionContext;
+import app.groups.Group;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.utils.CreateGroupUtils;

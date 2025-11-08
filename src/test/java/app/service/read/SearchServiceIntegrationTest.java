@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
-import app.groups.data.Event;
-import app.groups.data.EventLocation;
-import app.groups.data.GameTypeTag;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.EventLocation;
+import app.groups.GameTypeTag;
+import app.groups.Group;
 import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
 import app.utils.CreateGroupUtils;

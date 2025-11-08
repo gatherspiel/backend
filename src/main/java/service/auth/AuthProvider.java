@@ -2,8 +2,8 @@ package service.auth;
 
 
 
-import app.users.data.RegisterUserRequest;
-import app.users.data.RegisterUserResponse;
+import app.users.RegisterUserRequest;
+import app.users.RegisterUserResponse;
 
 import java.util.Optional;
 

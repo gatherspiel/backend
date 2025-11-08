@@ -1,8 +1,8 @@
 package service.update;
 
-import app.groups.data.Group;
+import app.groups.Group;
 import app.result.error.StackTraceShortener;
-import app.users.data.User;
+import app.users.User;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.EventRepository;

@@ -1,11 +1,13 @@
 package service.update;
 
-import app.groups.data.Event;
-import app.users.data.User;
+import app.groups.Event;
+import app.users.PermissionName;
+import app.users.User;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
 
 import java.sql.Connection;
+import java.util.HashMap;
 
 
 public class GroupPermissionService {
@@ -33,6 +35,10 @@ public class GroupPermissionService {
       throw new Exception("User " + user.getId() + " does not have permission to edit group " + groupId);
     }
     userPermissionsRepository.addGroupModerator(userToUpdate, groupId);
+  }
+
+  public HashMap<PermissionName, Boolean> getPermissionsForGroup(int groupId) throws Exception {
+    return userPermissionsRepository.getPermissionsForGroup(groupId, user);
   }
 
   public boolean canEditGroup(int groupId) throws Exception {
