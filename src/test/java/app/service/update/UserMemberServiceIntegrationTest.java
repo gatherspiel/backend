@@ -135,7 +135,7 @@ public class UserMemberServiceIntegrationTest {
   }
 
   @Test
-  public void testStandardUserRsvpToEvent_nextEventTimeIsDisplayed() throws Exception{
+  public void testStandardUserRsvpToEvent_eventWithNextOcurrenceIsDisplayed() throws Exception{
     EventService adminEventService = adminContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
@@ -154,6 +154,8 @@ public class UserMemberServiceIntegrationTest {
     assertIterableEquals(Collections.singletonList(created), userGroupMemberData.getAttendingEvents());
 
     Event eventFromDb = userGroupMemberData.getAttendingEvents().first();
+    assertEquals(event.getId(), eventFromDb.getId());
+    assertEquals(group.getId(), eventFromDb.getGroupId());
     assertEquals(startTime, eventFromDb.getStartTime());
     assertEquals(startDay, eventFromDb.getDay());
 

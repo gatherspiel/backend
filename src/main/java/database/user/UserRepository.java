@@ -245,15 +245,17 @@ public class UserRepository extends BaseRepository {
 
       String userEventQuery = """
         SELECT
-          weekly_event_time.day_of_week,
           event_admin_level,
           event_admin_data.event_id,
+          event_group_map.group_id,
+          name,
           rsvp_time,
           start_time,
-          name
+          weekly_event_time.day_of_week
         FROM event_admin_data
         LEFT JOIN events on events.id = event_admin_data.event_id
         LEFT JOIN weekly_event_time on events.id = weekly_event_time.event_id
+        LEFT JOIN event_group_map on events.id = event_group_map.event_id
         WHERE user_id = ?
       """;
 
@@ -280,6 +282,7 @@ public class UserRepository extends BaseRepository {
 
         event.setStartDate(nextEventDate);
         event.setDay(eventDay);
+        event.setGroupId(rs2.getInt("group_id"));
 
         LocalTime eventTime =
             rs2.getTimestamp("start_time")
