@@ -140,7 +140,6 @@ public class UserPermissionsRepository
       Set<User> editors = new HashSet<>();
       while(rs.next()){
 
-        System.out.println("Found information");
         String eventAdminLevel = rs.getString("event_admin_level");
         User user = new User();
 

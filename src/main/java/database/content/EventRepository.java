@@ -382,7 +382,6 @@ public class EventRepository {
       insert.setTimestamp(3, Timestamp.valueOf(rsvpTime));
       insert.setString(4, EventAdminType.EVENT_RSVP.toString());
       int update = insert.executeUpdate();
-      System.out.println("Updating:"+update);
     } catch(Exception e){
       if(e.getMessage().contains("duplicate key value")){
         throw new InvalidEventParameterError("User already has RSVP for event");

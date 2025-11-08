@@ -44,8 +44,6 @@ public class EventService {
           .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
           .collect(Collectors.toSet());
 
-      System.out.println(eventRsvps.size());
-      System.out.println(eventModerators.size());
 
       boolean currentUserCanEdit =
         user.isSiteAdmin() ||

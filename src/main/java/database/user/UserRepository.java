@@ -295,7 +295,6 @@ public class UserRepository extends BaseRepository {
           userMemberData.addEventAsModerator(event);
         }
       }
-
       return userMemberData;
     } catch (Exception e){
       logger.error(e.getMessage());
