@@ -1,7 +1,7 @@
 package service.update;
 
-import app.groups.data.Event;
-import app.users.data.User;
+import app.groups.Event;
+import app.users.User;
 import database.content.GroupsRepository;
 import database.permissions.UserPermissionsRepository;
 

@@ -1,8 +1,8 @@
 package service.update;
 
 import app.result.error.UnauthorizedError;
-import app.users.data.User;
-import app.users.data.UserMemberData;
+import app.users.User;
+import app.users.UserMemberData;
 import database.user.UserRepository;
 
 import java.sql.Connection;

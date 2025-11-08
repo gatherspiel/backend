@@ -1,10 +1,10 @@
 package database.user;
 
-import app.groups.data.Event;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.Group;
 import app.result.error.UnauthorizedError;
 import app.result.error.group.InvalidEventParameterError;
-import app.users.data.*;
+import app.users.*;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
@@ -16,7 +16,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 public class UserRepository extends BaseRepository {

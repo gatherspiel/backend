@@ -2,27 +2,16 @@ package service.auth;
 
 import app.result.error.RegisterUserInvalidEmailException;
 import app.result.error.StackTraceShortener;
-import app.users.data.User;
-import app.users.data.UserType;
-import app.admin.request.BulkUpdateInputRequest;
+import app.users.User;
+import app.users.UserType;
 import app.result.error.DuplicateUsernameException;
-import app.users.data.RegisterUserRequest;
-import app.users.data.RegisterUserResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import app.users.RegisterUserRequest;
+import app.users.RegisterUserResponse;
 import database.utils.ConnectionProvider;
 import io.javalin.http.Context;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.logging.log4j.Logger;
 import service.auth.supabase.SupabaseAuthProvider;
 import utils.LogUtils;
-import utils.Params;
 
 import java.sql.Connection;
 import java.util.Optional;
@@ -125,52 +114,6 @@ public class AuthService {
     return user;
   }
 
-
-  /**
-   * Validate bulk update request used for internet testing
-   * @param request
-   * @return
-   * @throws Exception
-   */
-  public boolean validateBulkUpdateInputRequest(BulkUpdateInputRequest request) throws Exception {
-    final HttpPost httpPost = new HttpPost(Params.getSupabasePasswordCheckUrl());
-    httpPost.setHeader("Content-type", "application/json");
-    httpPost.setHeader("apikey", Params.getSupabaseApiKey());
-    final HttpClient httpClient = HttpClients.createDefault();
-
-    AuthRequest authRequest = new AuthRequest();
-
-    authRequest.setPassword(request.getPassword());
-    authRequest.setEmail(request.getEmail());
-
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    String json = ow.writeValueAsString(authRequest);
-
-    HttpEntity stringEntity = new StringEntity(
-      json,
-      ContentType.APPLICATION_JSON
-    );
-    httpPost.setEntity(stringEntity);
-
-    try {
-      HttpResponse rawResponse = httpClient.execute(httpPost);
-
-      final int statusCode = rawResponse.getCode();
-
-      if (statusCode != 200) {
-        logger.debug(rawResponse);
-
-        throw new Exception(
-          "Authorization failed with status code:" + statusCode
-        );
-      }
-    } catch (Exception e) {
-      logger.error("Authorization failed with error", e);
-      throw (e);
-    }
-    logger.info("Authorized: " + request.getEmail());
-    return true;
-  }
 
   public static User getUser(Connection conn, Context ctx) throws Exception{
 

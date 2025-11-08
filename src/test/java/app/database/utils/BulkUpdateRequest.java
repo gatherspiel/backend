@@ -1,7 +1,7 @@
-package app.admin.request;
+package app.database.utils;
 
 import app.location.*;
-import app.groups.data.Group;
+import app.groups.Group;
 
 public class BulkUpdateRequest {
   private Group[] groups;

@@ -1,15 +1,12 @@
 package app.result.group;
 
-import app.groups.data.Event;
-import app.groups.data.GameTypeTag;
-import app.groups.data.Group;
-import app.users.data.PermissionName;
-import service.update.EventService;
+import app.groups.Event;
+import app.groups.GameTypeTag;
+import app.groups.Group;
+import app.users.PermissionName;
 
-import java.time.*;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class GroupPageData {

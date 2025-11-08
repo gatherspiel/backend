@@ -1,4 +1,4 @@
-package app.users.data;
+package app.users;
 
 public enum EventAdminType {
   EVENT_MODERATOR("event_moderator"),

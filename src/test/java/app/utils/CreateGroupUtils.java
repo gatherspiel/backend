@@ -1,8 +1,7 @@
 package app.utils;
 
-import app.groups.data.Group;
-import app.users.data.User;
-import database.utils.ConnectionProvider;
+import app.groups.Group;
+import app.users.User;
 import service.update.GroupEditService;
 
 import java.sql.Connection;

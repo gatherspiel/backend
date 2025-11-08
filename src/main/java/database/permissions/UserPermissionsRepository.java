@@ -1,8 +1,8 @@
 package database.permissions;
 
-import app.groups.data.Event;
+import app.groups.Event;
 import app.result.error.StackTraceShortener;
-import app.users.data.*;
+import app.users.*;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

@@ -1,8 +1,8 @@
-package app.groups.data;
+package app.groups;
 
-import app.users.data.PermissionName;
-import app.users.data.User;
-import app.users.data.UserComparator;
+import app.users.PermissionName;
+import app.users.User;
+import app.users.UserComparator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

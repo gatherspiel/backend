@@ -1,6 +1,6 @@
 package service.read;
 
-import app.users.data.User;
+import app.users.User;
 import database.content.GroupsRepository;
 import service.update.GroupPermissionService;
 

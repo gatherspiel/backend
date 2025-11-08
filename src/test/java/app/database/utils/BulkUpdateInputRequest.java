@@ -1,4 +1,4 @@
-package app.admin.request;
+package app.database.utils;
 
 public class BulkUpdateInputRequest {
   private BulkUpdateRequest data;

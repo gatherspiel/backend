@@ -1,6 +1,6 @@
 package service.read;
 
-import app.groups.data.Group;
+import app.groups.Group;
 import app.result.listing.HomepageGroup;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;

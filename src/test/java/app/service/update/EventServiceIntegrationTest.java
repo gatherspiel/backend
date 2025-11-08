@@ -1,13 +1,15 @@
 package app.service.update;
 
-import app.users.data.SessionContext;
-import app.groups.data.*;
+import app.groups.Event;
+import app.groups.EventLocation;
+import app.groups.Group;
+import app.users.SessionContext;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
-import app.users.data.PermissionName;
-import app.users.data.User;
-import app.users.data.UserData;
+import app.users.PermissionName;
+import app.users.User;
+import app.users.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.GroupSearchParams;

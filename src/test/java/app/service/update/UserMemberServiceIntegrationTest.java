@@ -3,10 +3,10 @@ package app.service.update;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 
-import app.groups.data.Event;
-import app.groups.data.Group;
-import app.users.data.SessionContext;
-import app.users.data.UserMemberData;
+import app.groups.Event;
+import app.groups.Group;
+import app.users.SessionContext;
+import app.users.UserMemberData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.user.UserRepository;

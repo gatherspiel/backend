@@ -1,7 +1,7 @@
-package app.users.data;
+package app.users;
 
-import app.groups.data.Event;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.Group;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

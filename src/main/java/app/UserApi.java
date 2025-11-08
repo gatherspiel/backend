@@ -4,8 +4,9 @@ import app.result.error.DuplicateUsernameException;
 import app.result.error.RegisterUserInvalidEmailException;
 import app.result.error.StackTraceShortener;
 import app.result.error.UnauthorizedError;
-import app.users.data.SessionContext;
-import app.users.data.UserData;
+import app.users.SessionContext;
+import app.users.UserData;
+import app.users.UserMemberData;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
@@ -13,12 +14,12 @@ import io.javalin.http.HttpStatus;
 import org.apache.logging.log4j.Logger;
 import service.auth.AuthService;
 import service.auth.UserService;
+import service.update.UserMemberService;
 import utils.LogUtils;
 
 public class UserApi {
   public static Logger logger = LogUtils.getLogger();
 
-  //TODO: Allow user to register with username;
   public static void userEndpoints(Javalin app){
 
     app.post(
@@ -96,6 +97,78 @@ public class UserApi {
           userService.updateUser(userData);
 
           ctx.result("Updated user data");
+          ctx.status(200);
+        } catch(UnauthorizedError e){
+          logger.error(e.getMessage());
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.UNAUTHORIZED);
+        } catch(Exception e){
+          logger.error(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+          ctx.result(e.getMessage());
+        }
+      }
+    );
+
+    app.get(
+      "/user/memberData/",
+      ctx ->{
+        try {
+          SessionContext sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          UserMemberService userMemberService = sessionContext.createUserMemberService();
+          UserMemberData memberData = userMemberService.getUserMemberData();
+          ctx.json(memberData);
+          ctx.status(200);
+        } catch(UnauthorizedError e){
+          logger.error(e.getMessage());
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.UNAUTHORIZED);
+        } catch(Exception e){
+          logger.error(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+          ctx.result(e.getMessage());
+        }
+      }
+    );
+
+    app.post(
+      "/user/memberData/{groupId}",
+      ctx ->{
+        try {
+          var groupId = Integer.parseInt(ctx.pathParam("groupId"));
+
+          SessionContext sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          UserMemberService userMemberService = sessionContext.createUserMemberService();
+
+          userMemberService.joinGroup(groupId);
+          ctx.result("Successfully joined group");
+          ctx.status(200);
+        } catch(UnauthorizedError e){
+          logger.error(e.getMessage());
+          e.printStackTrace();
+          ctx.result(e.getMessage());
+          ctx.status(HttpStatus.UNAUTHORIZED);
+        } catch(Exception e){
+          logger.error(e.getMessage());
+          ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+          ctx.result(e.getMessage());
+        }
+      }
+    );
+
+    app.delete(
+      "/user/memberData/{groupId}",
+      ctx ->{
+        try {
+          var groupId = Integer.parseInt(ctx.pathParam("groupId"));
+
+          SessionContext sessionContext = SessionContext.createContextWithUser(ctx, new ConnectionProvider());
+          UserMemberService userMemberService = sessionContext.createUserMemberService();
+
+          userMemberService.leaveGroup(groupId);
+          ctx.result("Successfully left group");
           ctx.status(200);
         } catch(UnauthorizedError e){
           logger.error(e.getMessage());

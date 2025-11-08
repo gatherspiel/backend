@@ -1,4 +1,4 @@
-package app.users.data;
+package app.users;
 
 public enum UserType {
   SITE_ADMIN("site_admin"),
