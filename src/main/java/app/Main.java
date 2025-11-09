@@ -1,10 +1,9 @@
 package app;
 
-import app.admin.request.BulkUpdateInputRequest;
 import app.cache.CacheConnection;
 import app.feedback.Feedback;
 import app.result.listing.HomeResult;
-import app.users.data.SessionContext;
+import app.users.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import database.search.GroupSearchParams;
 import database.utils.ConnectionProvider;
@@ -15,12 +14,9 @@ import io.javalin.json.JavalinJackson;
 import org.apache.logging.log4j.Logger;
 import service.EmailService;
 import service.auth.AuthService;
-import service.auth.supabase.SupabaseAuthProvider;
 import service.read.DistanceService;
-import service.read.GameLocationsService;
+import service.update.GameLocationsService;
 import service.read.TestService;
-import service.update.BulkUpdateService;
-import service.auth.UserService;
 import utils.LogUtils;
 
 import java.time.LocalDate;
@@ -42,7 +38,7 @@ public class Main {
 
   public static final Set<String> blockedUserStrings = new HashSet<>(Arrays.asList(agents));
   public static ConcurrentHashMap<String, Map.Entry<Integer,Long>> ipAddressRequests = new ConcurrentHashMap<>();
-  public static final int RATE_LIMIT = 5;
+  public static final int RATE_LIMIT = 6;
   public static Logger logger = LogUtils.getLogger();
   public static void main(String[] args) {
     var app = Javalin
@@ -83,24 +79,25 @@ public class Main {
 
       final var ip = ctx.ip();
       if(!ipAddressRequests.containsKey(ip)){
-        ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(1,System.currentTimeMillis()));
+        ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<Integer,Long>(1,System.currentTimeMillis()));
       } else {
 
         var data = ipAddressRequests.get(ip);
         Long currentTime = System.currentTimeMillis();
         //Reset rate limit counter
         if(currentTime - data.getValue() > 1000){
-          ipAddressRequests.put(ip,new AbstractMap.SimpleEntry<>(1, currentTime));
+          ipAddressRequests.put(ip,new AbstractMap.SimpleEntry<Integer,Long>(1, currentTime));
         }
         else if(data.getKey() > RATE_LIMIT){
           final String rateLimitError = "Exceeded rate limit";
-          logger.info(System.currentTimeMillis()-data.getValue());
+          logger.info("Time:"+(System.currentTimeMillis()-data.getValue()));
           logger.error(rateLimitError + "user agent:{}", userAgent);
           ctx.status(401);
           throw new Exception(rateLimitError);
         }
         else {
-          ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<>(data.getKey()+1,data.getValue()));
+          logger.info("Requests:"+(data.getKey()+1));
+          ipAddressRequests.put(ip, new AbstractMap.SimpleEntry<Integer,Long>(data.getKey()+1,data.getValue()));
         }
       }
     });
@@ -202,41 +199,22 @@ public class Main {
         ctx.status(HttpStatus.OK);
       });
 
-    //TODO: Consider deleting this endpoint.
     app.post(
-      "/admin/saveData",
-      ctx -> {
+      "/feedback",
+      ctx->{
 
-        var connectionProvider = new ConnectionProvider();
-        UserService userService = new UserService(UserService.DataProvider.createDataProvider(connectionProvider.getDatabaseConnection()),AuthService.getReadOnlyUser());
-        SupabaseAuthProvider supabaseAuthProvider = new SupabaseAuthProvider();
+        try {
 
-        AuthService authService = new AuthService(supabaseAuthProvider, userService);
-        var data = ctx.bodyAsClass(BulkUpdateInputRequest.class);
-        authService.validateBulkUpdateInputRequest(data);
-        ctx.result("Saved data");
-
-        var bulkUpdateService = new BulkUpdateService();
-        bulkUpdateService.bulkUpdate(data.getData(), connectionProvider);
-      }
-    );
-
-    app.post(
-        "/feedback",
-        ctx->{
-
-          try {
-
-            new EmailService(AuthService.getReadOnlyUser()).sendFeedbackNotification(ctx.bodyAsClass(Feedback.class));
-            ctx.result("Sucessfully submitted feedback");
-            ctx.status(200);
-          } catch(Exception e){
-            e.printStackTrace();
-            logger.error(e.getMessage());
-            ctx.status(500);
-          }
-
+          new EmailService(AuthService.getReadOnlyUser()).sendFeedbackNotification(ctx.bodyAsClass(Feedback.class));
+          ctx.result("Sucessfully submitted feedback");
+          ctx.status(200);
+        } catch(Exception e){
+          e.printStackTrace();
+          logger.error(e.getMessage());
+          ctx.status(500);
         }
+
+      }
     );
 
     app.after(ctx->{

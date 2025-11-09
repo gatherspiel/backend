@@ -1,6 +1,6 @@
 package app.result.listing;
 
-import app.groups.data.GameTypeTag;
+import app.groups.GameTypeTag;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -1,8 +1,8 @@
 package database.permissions;
 
-import app.groups.data.Event;
+import app.groups.Event;
 import app.result.error.StackTraceShortener;
-import app.users.data.*;
+import app.users.*;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,24 +79,57 @@ public class UserPermissionsRepository
     return select.executeQuery();
   }
 
+  public HashMap<PermissionName, Boolean> getPermissionsForGroup(int groupId, User user) throws Exception{
+    HashMap<PermissionName, Boolean> permissions = new HashMap<>();
+    if(user.isSiteAdmin()){
+      permissions.put(PermissionName.USER_CAN_EDIT, true);
+    }
+
+    String query =  """
+      SELECT group_admin_level from groups
+      FULL JOIN group_admin_data on group_admin_data.group_id = groups.id
+      WHERE groups.id = ?
+      AND user_id = ?
+    """;
+
+    PreparedStatement select = conn.prepareStatement(query);
+    select.setInt(1, groupId);
+    select.setInt(2, user.getId());
+
+    ResultSet rs = select.executeQuery();
+    while(rs.next()){
+      String adminLevel = rs.getString("group_admin_level");
+      if(adminLevel.equals(GroupAdminType.GROUP_ADMIN.toString())||
+          adminLevel.equals(GroupAdminType.GROUP_MODERATOR.toString())){
+        permissions.put(PermissionName.USER_CAN_EDIT, true);
+        permissions.put(PermissionName.USER_IS_MEMBER, true);
+      }
+      if(adminLevel.equals(GroupAdminType.GROUP_MEMBER.toString())){
+        permissions.put(PermissionName.USER_IS_MEMBER, true);
+      }
+    }
+    return permissions;
+  }
+
   public Set<User> getEventRoles(Event event) throws Exception {
 
     try {
-      String query =  """
-                      SELECT
-                        users.id as userId,
-                        users.email as email,
-                        events.id as eventId,
-                        event_admin_level,
-                        users.image_path,
-                        username  
-                     from events
-                      FULL JOIN event_admin_data on event_admin_data.event_id = events.id
-                      LEFT JOIN users on event_admin_data.user_id = users.id
-                      WHERE events.id = ?
-                      AND users.id IS NOT NULL
-                      AND (rsvp_time IS NULL OR rsvp_time > ?)
-                    """;
+      String query =
+        """
+          SELECT
+            users.id as userId,
+            users.email as email,
+            events.id as eventId,
+            event_admin_level,
+            users.image_path,
+            username
+         from events
+          FULL JOIN event_admin_data on event_admin_data.event_id = events.id
+          LEFT JOIN users on event_admin_data.user_id = users.id
+          WHERE events.id = ?
+          AND users.id IS NOT NULL
+          AND (rsvp_time IS NULL OR rsvp_time > ?)
+        """;
 
       PreparedStatement select = conn.prepareStatement(query);
       select.setInt(1, event.getId());

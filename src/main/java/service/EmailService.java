@@ -1,7 +1,7 @@
 package service;
 
 import app.feedback.Feedback;
-import app.groups.data.Group;
+import app.groups.Group;
 import app.result.error.StackTraceShortener;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
@@ -9,7 +9,7 @@ import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
-import app.users.data.User;
+import app.users.User;
 
 public class EmailService {
 

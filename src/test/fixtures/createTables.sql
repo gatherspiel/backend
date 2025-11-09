@@ -113,7 +113,7 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-   CREATE TYPE group_admin_level as ENUM('group_admin','group_moderator');
+   CREATE TYPE group_admin_level as ENUM('group_admin','group_member','group_moderator');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -140,8 +140,8 @@ create table if not exists event_admin_data (
   event_admin_level event_admin_level null,
   rsvp_time timestamp without time zone null,
   constraint event_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
-  constraint event_admin_data_pkey primary key (user_id, event_id),
-  constraint event_admin_data_event_id_fkey foreign KEY (event_id) references events (id)
+  constraint event_admin_data_event_id_fkey foreign KEY (event_id) references events (id),
+  constraint event_admin_data_pkey primary key (user_id, event_id)
 );
 
 create table if not exists group_admin_data (
@@ -149,6 +149,7 @@ create table if not exists group_admin_data (
   group_id integer not null,
   group_admin_level group_admin_level null,
   constraint group_admin_data_user_id_fkey foreign KEY (user_id) references users (id),
+  constraint group_admin_data_group_id_fkey foreign KEY (group_id) references groups (id),
   constraint group_admin_data_pkey primary key (user_id, group_id)
 );
 

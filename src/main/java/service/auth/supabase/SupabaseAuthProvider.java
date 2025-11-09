@@ -1,9 +1,7 @@
 package service.auth.supabase;
 
-import app.result.error.RegisterUserInvalidEmailException;
-import app.result.error.StackTraceShortener;
-import app.users.data.RegisterUserRequest;
-import app.users.data.RegisterUserResponse;
+import app.users.RegisterUserRequest;
+import app.users.RegisterUserResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

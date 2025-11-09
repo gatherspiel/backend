@@ -1,6 +1,6 @@
 package database.content;
 
-import app.groups.data.Event;
+import app.groups.Event;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -39,7 +39,6 @@ public class EventTimeRepository {
   }
 
   public void createWeeklyRecurrence(Event event) throws Exception {
-
     String query =
         "INSERT into weekly_event_time (event_id, day_of_week, start_time,end_time) VALUES(?, cast(? AS dayofweek), ?, ?)";
 
@@ -53,8 +52,6 @@ public class EventTimeRepository {
   }
 
   public void updateWeeklyRecurrence(Event event) throws Exception {
-
-
     String query =
       """
         UPDATE weekly_event_time

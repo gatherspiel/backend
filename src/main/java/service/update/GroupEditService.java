@@ -1,14 +1,15 @@
 package service.update;
 
-import app.groups.data.Group;
+import app.groups.Group;
 import app.result.error.StackTraceShortener;
-import app.users.data.User;
+import app.users.User;
 import app.result.error.group.InvalidGroupRequestError;
 import app.result.error.PermissionError;
 import database.content.EventRepository;
 import database.content.GroupsRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
+import database.user.UserRepository;
 import org.apache.logging.log4j.Logger;
 import service.EmailService;
 import utils.LogUtils;
@@ -79,6 +80,9 @@ public class GroupEditService {
 
     EventRepository eventRepository = new EventRepository(connection);
     eventRepository.deleteAllEventsInGroup(groupId);
+
+    UserRepository userRepository = new UserRepository(connection);
+    userRepository.deleteMemberDataForGroup(groupId);
     groupsRepository.deleteGroup(groupId);
   }
 

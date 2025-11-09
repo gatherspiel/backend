@@ -1,8 +1,8 @@
 package app.utils;
 
-import app.users.data.SessionContext;
-import app.users.data.User;
-import app.users.data.UserType;
+import app.users.SessionContext;
+import app.users.User;
+import app.users.UserType;
 import database.utils.ConnectionProvider;
 
 import static org.mockito.ArgumentMatchers.any;

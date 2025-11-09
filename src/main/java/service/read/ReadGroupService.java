@@ -1,9 +1,9 @@
 package service.read;
 
-import app.groups.data.Event;
-import app.groups.data.Group;
-import app.users.data.PermissionName;
-import app.users.data.User;
+import app.groups.Event;
+import app.groups.Group;
+import app.users.PermissionName;
+import app.users.User;
 import app.result.group.GroupPageData;
 import database.content.EventRepository;
 import database.content.GroupsRepository;
@@ -62,8 +62,9 @@ public class ReadGroupService{
         event.setUserCanUpdateRsvp(false);
       }
     }
-    boolean canEdit = groupPermissionService.canEditGroup(groupPageData.getId());
-    groupPageData.enablePermission(PermissionName.USER_CAN_EDIT, canEdit);
+
+    HashMap<PermissionName,Boolean> permissions = groupPermissionService.getPermissionsForGroup(groupPageData.getId());
+    groupPageData.setPermissions(permissions);
     return groupPageData;
   }
 }

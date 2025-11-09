@@ -1,10 +1,7 @@
 package app.groups;
 
-import app.groups.data.Group;
-import app.result.error.ImageUploadException;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.InvalidGroupParameterError;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 

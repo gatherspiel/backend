@@ -1,13 +1,13 @@
 package database.content;
 
-import app.groups.data.Event;
-import app.groups.data.EventLocation;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.EventLocation;
+import app.groups.Group;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateGroupNameError;
 import app.result.error.group.GroupNotFoundError;
 import app.result.error.group.GroupUpdateError;
-import app.users.data.User;
+import app.users.User;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 

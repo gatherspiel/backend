@@ -1,12 +1,12 @@
 package app.service.auth;
 
-import app.users.data.User;
-import app.users.data.UserData;
-import app.users.data.UserType;
+import app.users.User;
+import app.users.UserData;
+import app.users.UserType;
 import app.database.utils.DbUtils;
 import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.error.DuplicateUsernameException;
-import app.users.data.RegisterUserRequest;
+import app.users.RegisterUserRequest;
 import app.utils.CreateUserUtils;
 import io.javalin.http.Context;
 

@@ -1,6 +1,6 @@
 package service.update;
 
-import app.users.data.User;
+import app.users.User;
 
 import java.util.AbstractMap;
 import java.util.HashMap;

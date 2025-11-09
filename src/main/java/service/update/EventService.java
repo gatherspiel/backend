@@ -1,17 +1,16 @@
 package service.update;
 
-import app.groups.data.Event;
+import app.groups.Event;
 import app.result.error.UnauthorizedError;
-import app.users.data.User;
-import app.groups.data.EventLocation;
+import app.users.User;
+import app.groups.EventLocation;
 import app.result.error.PermissionError;
-import app.users.data.UserType;
+import app.users.UserType;
 import database.content.EventRepository;
 import database.files.ImageRepository;
 import database.permissions.UserPermissionsRepository;
 
 import java.sql.Connection;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,7 +34,7 @@ public class EventService {
   }
 
   public Optional<Event> getEvent(int eventId) throws Exception{
-    var event = eventRepository.getEvent(eventId,user);
+    var event = eventRepository.getEvent(eventId);
 
     if(event.isPresent()){
       UserPermissionsRepository userPermissionsRepository = new UserPermissionsRepository(connection);
@@ -44,6 +43,7 @@ public class EventService {
       Set<User> eventModerators = eventRsvps.stream()
           .filter(user->user.getAdminLevel().equals(UserType.EVENT_ADMIN.name()))
           .collect(Collectors.toSet());
+
 
       boolean currentUserCanEdit =
         user.isSiteAdmin() ||
@@ -133,7 +133,15 @@ public class EventService {
     eventRepository.removeEventModerator(event, moderatorToRemove);
   }
 
-  public void rsvpTpEvent(int eventId) throws Exception{
+  //RSVP to a recurring event with a certain RSVP time. This allows an RSVP for a specific instance of a recurring event
+  public void rsvpToEventWithTime(int eventId, LocalDateTime rsvpTime) throws Exception{
+    if(!user.isLoggedInUser()){
+      throw new UnauthorizedError("User must log in to rsvp to event");
+    }
+    eventRepository.rsvpToEvent(eventId,user, rsvpTime);
+  }
+
+  public void rsvpToEvent(int eventId) throws Exception{
     if(!user.isLoggedInUser()){
       throw new UnauthorizedError("User must log in to rsvp to event");
     }
@@ -178,7 +186,7 @@ public class EventService {
     event.setLocation("Event_"+ UUID.randomUUID()+",Somewhere,VA 22222");
     event.setDescription("Event_"+ UUID.randomUUID());
     event.setUrl("localhost:/1234/"+UUID.randomUUID());
-    event.setDay(DayOfWeek.FRIDAY.toString());
+    event.setDay(LocalDateTime.now().minusDays(1).getDayOfWeek().toString());
     event.setIsRecurring(true);
     event.setStartTime(start);
     event.setEndTime(end);

@@ -1,10 +1,8 @@
 package database.search;
 
-import app.groups.data.GameTypeTag;
+import app.groups.GameTypeTag;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
-import org.apache.logging.log4j.Logger;
-import utils.LogUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

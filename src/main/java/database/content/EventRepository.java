@@ -1,8 +1,8 @@
 package database.content;
 
-import app.groups.data.Event;
-import app.groups.data.EventLocation;
-import app.groups.data.Group;
+import app.groups.Event;
+import app.groups.EventLocation;
+import app.groups.Group;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +15,9 @@ import java.util.Optional;
 import app.result.error.StackTraceShortener;
 import app.result.error.group.DuplicateEventError;
 import app.result.error.group.InvalidEventParameterError;
-import app.users.data.*;
+import app.users.EventAdminType;
+import app.users.User;
+import app.users.UserData;
 import database.user.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -145,9 +147,15 @@ public class EventRepository {
 
     deleteEventGroupMapItem(groupId, eventId);
 
-    String query =
+    String deleteEventMemberQuery =
+        "DELETE from event_admin_data where event_id = ?";
+    PreparedStatement memberStatement = conn.prepareStatement(deleteEventMemberQuery);
+    memberStatement.setInt(1,eventId);
+    memberStatement.executeUpdate();
+
+    String deleteEventQuery =
         "DELETE FROM events where id = ?";
-    PreparedStatement statement = conn.prepareStatement(query);
+    PreparedStatement statement = conn.prepareStatement(deleteEventQuery);
     statement.setInt(1, eventId);
     statement.executeUpdate();
   }
@@ -221,7 +229,7 @@ public class EventRepository {
     }
   }
 
-  public Optional<Event> getEvent(int id, User user) throws Exception{
+  public Optional<Event> getEvent(int id) throws Exception{
 
     String query = """        
         SELECT
@@ -361,7 +369,7 @@ public class EventRepository {
     delete.executeUpdate();
   }
 
-  public void rsvpToEvent(int eventId, User user) throws Exception{
+  public void rsvpToEvent(int eventId, User user, LocalDateTime rsvpTime) throws Exception{
 
     try {
       String query = """
@@ -371,9 +379,9 @@ public class EventRepository {
       PreparedStatement insert = conn.prepareStatement(query);
       insert.setInt(1, eventId);
       insert.setInt(2, user.getId());
-      insert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+      insert.setTimestamp(3, Timestamp.valueOf(rsvpTime));
       insert.setString(4, EventAdminType.EVENT_RSVP.toString());
-      insert.executeUpdate();
+      int update = insert.executeUpdate();
     } catch(Exception e){
       if(e.getMessage().contains("duplicate key value")){
         throw new InvalidEventParameterError("User already has RSVP for event");
@@ -384,6 +392,10 @@ public class EventRepository {
       e.printStackTrace();
       throw e;
     }
+  }
+
+  public void rsvpToEvent(int eventId, User user) throws Exception{
+    rsvpToEvent(eventId, user, LocalDateTime.now());
   }
 
   public void removeEventRsvp(int eventId, User user) throws Exception{
