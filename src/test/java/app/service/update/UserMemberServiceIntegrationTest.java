@@ -135,7 +135,14 @@ public class UserMemberServiceIntegrationTest {
   }
 
   @Test
-  public void testStandardUserRsvpToEvent_eventWithNextOcurrenceIsDisplayed() throws Exception{
+  public void testStandardUserRsvpToEvent_eventWithNextOccurrenceIsDisplayed_EventIsOnCurrentDay() throws Exception{
+
+    //The test may not produce an accurate result if it is run immediately before midnight
+    if(LocalTime.now().equals(LocalTime.MIDNIGHT.minusMinutes(1))){
+      System.out.println("Waiting until after midnight to run test");
+      Thread.sleep(60000);
+    }
+
     EventService adminEventService = adminContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
@@ -159,8 +166,40 @@ public class UserMemberServiceIntegrationTest {
     assertEquals(startTime, eventFromDb.getStartTime());
     assertEquals(startDay, eventFromDb.getDay());
 
+    LocalDate expectedDate = LocalDate.now();
+    LocalDate startDate = eventFromDb.getStartDate();
+    assertEquals(expectedDate, startDate);
+  }
+
+  @Test
+  public void testStandardUserRsvpToEvent_eventWithNextOccurrenceIsDisplayed_EventIsNotOnCurrentDay() throws Exception{
+
+    EventService adminEventService = adminContext.createEventService();
+
+    Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
+
+    Event event = EventService.createRecurringEventObject();
+    LocalTime startTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+    DayOfWeek startDay = DayOfWeek.from(LocalDate.now().minusDays(2));
+    event.setStartTime(startTime);
+    event.setDay(startDay.toString());
+    Event created = adminEventService.createEvent(event,group.getId());
+
+    EventService standardUserEventService = standardUserContext2.createEventService();
+    standardUserEventService.rsvpToEvent(created.getId());
+
+    UserMemberData userGroupMemberData = standardUserContext2.createUserMemberService().getUserMemberData();
+    assertIterableEquals(Collections.singletonList(created), userGroupMemberData.getAttendingEvents());
+
+    Event eventFromDb = userGroupMemberData.getAttendingEvents().first();
+    assertEquals(event.getId(), eventFromDb.getId());
+    assertEquals(group.getId(), eventFromDb.getGroupId());
+    assertEquals(startTime, eventFromDb.getStartTime());
+    assertEquals(startDay, eventFromDb.getDay());
+
     LocalDate expectedDate = LocalDate.now().with(TemporalAdjusters.next(startDay));
-    assertEquals(expectedDate, eventFromDb.getStartDate());
+    LocalDate startDate = eventFromDb.getStartDate();
+    assertEquals(expectedDate, startDate);
   }
 
   @Test
@@ -213,7 +252,7 @@ public class UserMemberServiceIntegrationTest {
     assertEquals(startTime, eventFromDb.getStartTime());
     assertEquals(startDay, eventFromDb.getDay());
 
-    LocalDate expectedDate = LocalDate.now().with(TemporalAdjusters.next(startDay));
+    LocalDate expectedDate = LocalDate.now();
     assertEquals(expectedDate, eventFromDb.getStartDate());
   }
 
