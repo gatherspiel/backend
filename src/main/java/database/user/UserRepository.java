@@ -274,19 +274,23 @@ public class UserRepository extends BaseRepository {
           logger.error("Event RSVPS are not fully supported for one time events");
         }
 
+        LocalDate nextEventDate = LocalDate.now();
+        DayOfWeek eventDayValue = DayOfWeek.valueOf(eventDay.toUpperCase());
+        if(!eventDayValue.equals(nextEventDate.getDayOfWeek())){
+          nextEventDate = nextEventDate.with(TemporalAdjusters.next(eventDayValue));
+        }
 
-        LocalDate nextEventDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.valueOf(eventDay.toUpperCase())));
         LocalDateTime pastEventDate =
-            LocalDateTime.now()
-              .with(TemporalAdjusters.previous(DayOfWeek.valueOf(eventDay.toUpperCase())));
+          LocalDateTime.now()
+            .with(TemporalAdjusters.previous(DayOfWeek.valueOf(eventDay.toUpperCase())));
 
         event.setStartDate(nextEventDate);
         event.setDay(eventDay);
         event.setGroupId(rs2.getInt("group_id"));
 
         LocalTime eventTime =
-            rs2.getTimestamp("start_time")
-                .toLocalDateTime().toLocalTime();
+          rs2.getTimestamp("start_time")
+              .toLocalDateTime().toLocalTime();
         event.setStartTime(eventTime);
 
         if(rs2.getString("event_admin_level").equals(EventAdminType.EVENT_RSVP.toString())){
