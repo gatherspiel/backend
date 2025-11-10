@@ -9,7 +9,7 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.result.group.GroupPageData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.read.ReadGroupService;
@@ -327,7 +327,7 @@ public class GroupEditServiceIntegrationTest {
 
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group2.getName());
+    params.put(SearchParams.NAME, group2.getName());
 
     GroupPageData groupData = adminContext.createReadGroupService().getGroupPageData(
         params
@@ -357,7 +357,7 @@ public class GroupEditServiceIntegrationTest {
     groupEditService.editGroup(group);
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
+    params.put(SearchParams.NAME, group.getName());
     GroupPageData groupData  = readGroupService.getGroupPageData(params);
 
     assertEquals(group.getId(), groupData.getId());

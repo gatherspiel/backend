@@ -5,7 +5,7 @@ import app.feedback.Feedback;
 import app.result.listing.HomeResult;
 import app.users.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
@@ -119,7 +119,7 @@ public class Main {
         try {
 
           var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
-          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+          var searchParams = SearchParams.generateParameterMapFromQueryString(
             ctx
           );
 

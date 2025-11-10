@@ -10,7 +10,7 @@ import app.users.SessionContext;
 import app.users.UserMemberData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -443,7 +443,7 @@ public class UserMemberServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     LinkedHashMap<String, String> readGroupParams = new LinkedHashMap<>();
-    readGroupParams.put(GroupSearchParams.NAME, group.getName());
+    readGroupParams.put(SearchParams.NAME, group.getName());
 
     UserMemberService memberService = standardUserContext2.createUserMemberService();
     memberService.joinGroup(group.getId());

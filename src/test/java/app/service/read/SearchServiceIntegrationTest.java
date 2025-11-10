@@ -12,7 +12,7 @@ import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import java.sql.Connection;
 import java.time.LocalTime;
 import java.util.*;
@@ -74,7 +74,7 @@ public class SearchServiceIntegrationTest {
   )
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAYS_OF_WEEK, day);
+    params.put(SearchParams.DAYS_OF_WEEK, day);
 
     HomeResult result = searchService.getGroupsForHomepage(
       params
@@ -87,7 +87,7 @@ public class SearchServiceIntegrationTest {
   public void testGroupsAreReturned_WithTwoDaysAsSearchParam() throws Exception{
 
     LinkedHashMap<String,String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAYS_OF_WEEK, "Sunday,Monday");
+    params.put(SearchParams.DAYS_OF_WEEK, "Sunday,Monday");
 
     HomeResult result = searchService.getGroupsForHomepage(
         params
@@ -100,7 +100,7 @@ public class SearchServiceIntegrationTest {
   public void testGroupsAreReturned_WithAllDaysAsSearchParam() throws Exception{
 
     LinkedHashMap<String,String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAYS_OF_WEEK, "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
+    params.put(SearchParams.DAYS_OF_WEEK, "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
 
     HomeResult result = searchService.getGroupsForHomepage(
         params
@@ -117,7 +117,7 @@ public class SearchServiceIntegrationTest {
   )
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
+    params.put(SearchParams.CITY, location);
 
     HomeResult result = searchService.getGroupsForHomepage(
       params
@@ -144,8 +144,8 @@ public class SearchServiceIntegrationTest {
   )
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DAYS_OF_WEEK, day);
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DAYS_OF_WEEK, day);
 
     HomeResult searchResult = searchService.getGroupsForHomepage(
       params
@@ -165,7 +165,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testDuplicateAndNull_LocationResultsAreNotShown(String city) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, city);
+    params.put(SearchParams.CITY, city);
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -188,7 +188,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testInvalidDayReturnsValidationError() {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.DAYS_OF_WEEK, "test");
+    params.put(SearchParams.DAYS_OF_WEEK, "test");
 
     Exception exception = assertThrows(
       RuntimeException.class,
@@ -205,7 +205,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testInvalidLocationReturnsEmptyResult() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, "test");
+    params.put(SearchParams.CITY, "test");
 
     HomeResult searchResult = searchService.getGroupsForHomepage(
       params
@@ -219,7 +219,7 @@ public class SearchServiceIntegrationTest {
     throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put("Test parameter", "test");
-    params.put(GroupSearchParams.CITY, "College Park");
+    params.put(SearchParams.CITY, "College Park");
 
     HomeResult result = searchService.getGroupsForHomepage(
       params);
@@ -352,7 +352,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testSearchResultResponse_DMV_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "DMV");
+    params.put(SearchParams.AREA, "DMV");
     HomeResult result = searchService.getGroupsForHomepage(params);
     assertEquals(39, result.countGroups());
   }
@@ -361,7 +361,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testSearchResultResponse_dmv_location_parameter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
+    params.put(SearchParams.AREA, "dmv");
     HomeResult result = searchService.getGroupsForHomepage(params);
     assertEquals(39, result.countGroups());
   }
@@ -370,7 +370,7 @@ public class SearchServiceIntegrationTest {
   @Order(1)
   public void testSearchResultResponse_unknownLocation_noResults() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "test");
+    params.put(SearchParams.AREA, "test");
     HomeResult result = searchService.getGroupsForHomepage(params);
     assertEquals(0, result.countGroups());
   }
@@ -383,8 +383,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "0");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "0");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -401,7 +401,7 @@ public class SearchServiceIntegrationTest {
       Exception.class,
       ()->{
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
-        params.put(GroupSearchParams.DISTANCE, "0");
+        params.put(SearchParams.DISTANCE, "0");
         searchService.getGroupsForHomepage(params);
       }
     );
@@ -416,8 +416,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "2");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "2");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -434,8 +434,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "4");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "4");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -452,8 +452,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "10");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "10");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -470,8 +470,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "10");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "10");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -488,8 +488,8 @@ public class SearchServiceIntegrationTest {
       int expectedGroups) throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, location);
-    params.put(GroupSearchParams.DISTANCE, "999");
+    params.put(SearchParams.CITY, location);
+    params.put(SearchParams.DISTANCE, "999");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -503,7 +503,7 @@ public class SearchServiceIntegrationTest {
   public void testSearchWithOnlyCityAsParameter_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, "Arlington");
+    params.put(SearchParams.CITY, "Arlington");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -523,8 +523,8 @@ public class SearchServiceIntegrationTest {
   public void testSearchDistanceZeroInArlington_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, "Arlington");
-    params.put(GroupSearchParams.DISTANCE, "0");
+    params.put(SearchParams.CITY, "Arlington");
+    params.put(SearchParams.DISTANCE, "0");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );
@@ -543,8 +543,8 @@ public class SearchServiceIntegrationTest {
   public void testSearchDistanceZeroInDC_returnsResultForGroupInMultipleCities() throws Exception
   {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.CITY, "DC");
-    params.put(GroupSearchParams.DISTANCE, "0");
+    params.put(SearchParams.CITY, "DC");
+    params.put(SearchParams.DISTANCE, "0");
     HomeResult result = searchService.getGroupsForHomepage(
         params
     );

@@ -1,14 +1,19 @@
 package database.search;
 
+import app.groups.EventLocation;
 import app.groups.GameTypeTag;
+import app.result.listing.EventSearchResult;
+import app.result.listing.EventSearchResultItem;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
+import utils.DateUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,10 +27,10 @@ public class SearchRepository {
   }
 
   public HomeResult getGroupsForHomepage(
-    GroupSearchParams searchParams
+    SearchParams searchParams
   )
     throws Exception {
-    PreparedStatement statement = searchParams.generateSearchQuery(conn, true);
+    PreparedStatement statement = searchParams.generateGroupSearchQuery(conn, true);
     ResultSet rs = statement.executeQuery();
 
     Set<String> locationsWithTag = getLocationsWithTag(searchParams);
@@ -34,7 +39,6 @@ public class SearchRepository {
     while (rs.next()) {
 
       Integer groupId = rs.getInt("groupId");
-
       String groupName = rs.getString("name");
       String url = rs.getString("url");
 
@@ -61,11 +65,56 @@ public class SearchRepository {
     return searchResult;
   }
 
+  public ArrayList<EventSearchResultItem> getEventSearchResult(SearchParams searchParams) throws Exception {
+
+    PreparedStatement statement = searchParams.generateEventSearchQuery(conn);
+    ResultSet rs = statement.executeQuery();
+
+    ArrayList<EventSearchResultItem> eventResults = new ArrayList<>();
+    while(rs.next()){
+      String groupName = rs.getString("groupName");
+      String eventName = rs.getString("eventName");
+
+      LocalTime startTime = rs.getTimestamp("start_time").toLocalDateTime().toLocalTime();
+      String dayOfWeek = rs.getString("day_of_week");
+
+      String state = rs.getString("state");
+      String streetAddress = rs.getString("street_address");
+      int zipCode = rs.getInt("zip_code");
+      String city = rs.getString("city");
+
+      EventLocation eventLocation = new EventLocation();
+      eventLocation.setState(state);
+      eventLocation.setStreetAddress(streetAddress);
+      eventLocation.setZipCode(zipCode);
+      eventLocation.setCity(city);
+
+      EventSearchResultItem resultItem = new EventSearchResultItem();
+      resultItem.setEventLocation(eventLocation);
+
+      if(dayOfWeek != null){
+        resultItem.setDayOfWeek(DayOfWeek.valueOf(dayOfWeek));
+        resultItem.setNextEventDate(
+          DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek), startTime));
+      }
+      resultItem.setNextEventTime(startTime);
+
+      resultItem.setEventName(eventName);
+      resultItem.setGroupName(groupName);
+      resultItem.setGameTypeTags(getTagsFromResultSet(rs));
+
+      eventResults.add(resultItem);
+    }
+
+    return eventResults;
+  }
+
+
   public GroupSearchResult getGroupsWithDetails(
-      GroupSearchParams searchParams
+      SearchParams searchParams
   ) throws Exception {
 
-    PreparedStatement statement = searchParams.generateSearchQuery(conn, false);
+    PreparedStatement statement = searchParams.generateGroupSearchQuery(conn, false);
     ResultSet rs = statement.executeQuery();
 
     Set<String> locationsWithTag = getLocationsWithTag(searchParams);
@@ -145,7 +194,7 @@ public class SearchRepository {
     return searchResult;
   }
 
-  private void addOneTimeEvents(GroupSearchParams searchParams, GroupSearchResult searchResult, Set<String> locationsWithTag) throws Exception {
+  private void addOneTimeEvents(SearchParams searchParams, GroupSearchResult searchResult, Set<String> locationsWithTag) throws Exception {
 
     PreparedStatement statement = searchParams.generateQueryForOneTimeEvents(conn);
     ResultSet rs = statement.executeQuery();
@@ -229,7 +278,7 @@ public class SearchRepository {
   }
 
   private Set<String> getLocationsWithTag(
-      GroupSearchParams searchParams) throws Exception
+      SearchParams searchParams) throws Exception
   {
 
     if(!searchParams.hasLocationGroupParam()){
