@@ -661,4 +661,101 @@ public class SearchServiceIntegrationTest {
     GameTypeTag[] expected = new GameTypeTag[]{GameTypeTag.EUROGAMES, GameTypeTag.SOCIAL_GAMES};
     assertArrayEquals(expected, inserted.getGameTypeTags());
   }
+
+  @Test
+  @Order(4)
+  public void testCorrectNumberOfEventsVisibleInSearchResults_noLocationOrDayFilter(){
+    assertTrue(1==2);
+  }
+
+  @Test
+  @Order(4)
+  public void testCorrectDataForEventsVisibleInSearchResults_noLocationOrDayFilter() {
+    assertTrue(1==2);
+
+  }
+
+  @Test
+  @Order(4)
+  public void testCorrectDatarEventsVisibleInSearchResults_onlyDayFilter(){
+    assertTrue(1==2);
+
+  }
+
+  @Test
+  @Order(4)
+  public void testCorrectDateForEventsVisibleInSearchResults_onlyLocationFilter(){
+    assertTrue(1==2);
+
+  }
+
+  @Test
+  @Order(4)
+  public void testCorrectDateForEventsVisibleInSearchResults_locationAndDayFilter(){
+    assertTrue(1==2);
+
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @Order(4)
+  public void testEventsSortedByDistance_withLocationFilterAndNoDistance(){
+    assertTrue(1==2);
+
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @Order(4)
+  public void testEventsSortedByDistance_withLocationFilterAndShortDistance(){
+    assertTrue(1==2);
+
+    //Distance of 5 miles.
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @Order(4)
+  public void testEventsSortedByDistance_withLocationFilterAndMediumDistance(){
+    assertTrue(1==2);
+
+    //Distance of 10 miles.
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @Order(4)
+  public void testEventsSortedByDistance_withLocationFilterAndLongDistance(){
+    assertTrue(1==2);
+
+    //Distance of 20 miles;
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @Order(4)
+  public void testEventsSortedByDistance_withLocationFilterAndDayFilter_AndLongDistance(){
+    assertTrue(1==2);
+
+    //Distance of 20 miles
+  }
+
+  @Test
+  public void testSearchEvents_invalidDistanceFilter_throwsBadRequestError(){
+    assertTrue(1==2);
+
+  }
+
+  @Test
+  public void testSearchEvents_invalidDayFilter_throwsBadRequestError(){
+    assertTrue(1==2);
+
+  }
+
+  @Test
+  public void testSearchEvents_invalidLocationFilter_throwsbadRequestError(){
+    assertTrue(1==2);
+
+  }
+
  }

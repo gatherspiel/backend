@@ -1,6 +1,7 @@
 package service.read;
 
 import app.groups.Group;
+import app.result.listing.EventSearchResult;
 import app.result.listing.HomepageGroup;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
@@ -23,6 +24,9 @@ public class SearchService {
     this.logger = LogUtils.getLogger();
   }
 
+  public EventSearchResult getEventsFroHomePage(LinkedHashMap<String,String> searchParams){
+    return new EventSearchResult();
+  }
   public HomeResult getGroupsForHomepage(
     LinkedHashMap<String, String> searchParams
   ) throws Exception
