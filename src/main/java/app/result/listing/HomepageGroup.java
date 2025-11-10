@@ -2,6 +2,7 @@ package app.result.listing;
 
 
 import app.groups.GameTypeTag;
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -43,6 +44,17 @@ public class HomepageGroup {
       return new String[0];
     }
     return cities;
+  }
+
+  @JsonGetter("recurringEventDays")
+  public String[] getDays(){
+    int i = 0;
+    String[] dayResult = new String[recurringEventDays.size()];
+    for(DayOfWeek dayOfWeek: recurringEventDays){
+      dayResult[i] = dayOfWeek.name().substring(0,1)+dayOfWeek.name().substring(1).toLowerCase();
+      i++;
+    }
+    return dayResult;
   }
 
   public void setRecurringEventDays(TreeSet<DayOfWeek> recurringEventDays){
@@ -104,6 +116,14 @@ public class HomepageGroup {
     Arrays.sort(cities);
   }
 
+  @JsonGetter("gameTypeTags")
+  public String[] getTagsResponse(){
+    String[] tags = new String[gameTypeTags.length];
+    for(int i=0; i< gameTypeTags.length; i++){
+      tags[i] = gameTypeTags[i].toString();
+    }
+    return tags;
+  }
   public void setGameTypeTags(GameTypeTag[] gameTypeTags){
     this.gameTypeTags = gameTypeTags;
   }

@@ -35,7 +35,7 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 
 Go to the following page to view general development guidelines for the project [here](https://github.com/gatherspiel/.github/blob/main/profile/README.md)
 
-Also, follow the guidelines below:
+Also, follow the guidelines below:f
 
 - Logic should be covered by unit or integration tests in the backend src/test folder.
 - If you are updating the structure of an existing endpoint, or adding a new endpoint, consider adding an API test. The API tests are for verifying that the API is returning responses with the correct structure and response code. API tests should be added to the [api-testing repo](https://github.com/Create-Third-Places/api-testing)
