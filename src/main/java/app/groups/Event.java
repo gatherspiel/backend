@@ -12,13 +12,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 import static utils.Params.IMAGE_BUCKET_URL;
 import static utils.Params.getWebsiteUrl;
@@ -78,14 +77,23 @@ public class Event {
     this.dayOfWeek = DayOfWeek.valueOf(day.toUpperCase());
   }
 
+  @JsonGetter("day")
+  public String getSerializedDayOfWeek(){
+    if(dayOfWeek == null){
+      return "";
+    }
+    return dayOfWeek.getDisplayName(TextStyle.FULL,
+      Locale.getDefault());
+  }
+
   public DayOfWeek getDay(){
     return dayOfWeek;
   }
 
+
   public void setStartTime(LocalTime startTime){
     this.startTime = startTime;
   }
-
 
   public LocalTime getStartTime(){
     if(startTime == null){
@@ -183,12 +191,28 @@ public class Event {
     this.startDate = startDate;
   }
 
+  @JsonGetter("startDate")
+  public String getSerializedStartDate(){
+    if(startDate == null){
+      return "";
+    }
+    return startDate.toString();
+  }
+
   public LocalDate getStartDate(){
     return startDate;
   }
 
   public void setEndDate(LocalDate endDate){
     this.endDate = endDate;
+  }
+
+  @JsonGetter("endDate")
+  public String getSerializedEndDate(){
+    if(startDate == null){
+      return "";
+    }
+    return startDate.toString();
   }
 
   public LocalDate getEndDate(){
@@ -205,12 +229,13 @@ public class Event {
   */
   @JsonGetter("startTime")
   public String getSerializedStartTime(){
-    return startTime.toString();
+
+    return startTime.format(DateTimeFormatter.ofPattern("hh:mm a"));
   }
 
   @JsonGetter("endTime")
   public String getSerializedEndTime(){
-    return endTime.toString();
+    return endTime.format(DateTimeFormatter.ofPattern("hh:mm a"));
   }
 
   @JsonProperty(required = false)
