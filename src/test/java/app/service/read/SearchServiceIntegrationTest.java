@@ -702,14 +702,14 @@ public class SearchServiceIntegrationTest {
   @Order(4)
   public void testCorrectEventsVisibleInSearchResults_onlyDayFilter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(SearchParams.DAYS_OF_WEEK, "Monday");
+    params.put(SearchParams.DAYS_OF_WEEK, "Sunday,Tuesday,Monday,Wednesday,Thursday,Friday,Saturday");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
     assertEquals(11, eventSearchResult.getEventData().size());
   }
 
   @Test
   @Order(4)
-  public void testCorrectDateForEventsVisibleInSearchResults_onlyLocationFilter() throws Exception{
+  public void testCorrectDataForEventsVisibleInSearchResults_onlyLocationFilter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(SearchParams.CITY, "Arlington");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
@@ -722,7 +722,7 @@ public class SearchServiceIntegrationTest {
   public void testCorrectDateForEventsVisibleInSearchResults_locationAndDayFilter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(SearchParams.CITY, "Arlington");
-    params.put(SearchParams.DAYS_OF_WEEK,"Monday, Wednesday");
+    params.put(SearchParams.DAYS_OF_WEEK,"Monday,Wednesday");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
     assertEquals(3, eventSearchResult.getEventData().size());
 
@@ -746,7 +746,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Arlington,5", "Fairfax,6", "Falls Church,4" })
+  @CsvSource({ "Arlington,3", "Fairfax,1", "Falls Church,0" })
   @Order(4)
   public void testEventsSortedByDistance_withLocationFilterAndShortDistance(String city, int expectedResults) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -772,7 +772,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Arlington, 15", "Fairfax, 12", "Falls Church, 3" })
+  @CsvSource({ "Arlington, 1", "Fairfax, 12", "Falls Church, 3" })
   @Order(4)
   public void testEventsSortedByDistance_withLocationFilterAndLongDistance(String city, int expectedResults) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();

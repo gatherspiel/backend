@@ -1,6 +1,5 @@
 package app.result.listing;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +7,12 @@ public class EventSearchResult {
 
   private List<EventSearchResultItem> eventData = new ArrayList<>();;
 
-  public List<EventSearchResultItem> getEventData(){
-    return eventData;
+  public EventSearchResult(List<EventSearchResultItem> data){
+    eventData = data;
   }
 
-  public void setEventData(List<EventSearchResultItem> eventData){
-    this.eventData = eventData;
+  public List<EventSearchResultItem> getEventData(){
+    return eventData;
   }
 
 }

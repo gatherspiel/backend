@@ -23,12 +23,15 @@ public class SearchService {
   public EventSearchResult getEventsFromHomePage(LinkedHashMap<String,String> searchParams) throws Exception{
 
     String searchCity = searchParams.get(SearchParams.CITY);
-    String distance = searchParams.get(SearchParams.DISTANCE);
 
     SearchParams params = new SearchParams(searchParams);
     ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResult(params);
 
-    return filterAndSortEventSearchResultsByDistance(results, searchCity, Integer.parseInt(distance));
+    String distance = searchParams.get(SearchParams.DISTANCE);
+    if(distance != null){
+      return filterAndSortEventSearchResultsByDistance(results, searchCity, Integer.parseInt(distance));
+    }
+    return new EventSearchResult(results);
   }
   public HomeResult getGroupsForHomepage(
     LinkedHashMap<String, String> searchParams
@@ -73,7 +76,6 @@ public class SearchService {
 
   private EventSearchResult filterAndSortEventSearchResultsByDistance(ArrayList<EventSearchResultItem> data, String searchCity, Integer maxDistance){
 
-    EventSearchResult eventSearchResult = new EventSearchResult();
     TreeMap<Double, EventSearchResultItem> sorted = new TreeMap<>();
 
     for(EventSearchResultItem item: data){
@@ -92,8 +94,8 @@ public class SearchService {
     }
 
     List<EventSearchResultItem> resultItemList = sorted.values().stream().toList();
-    eventSearchResult.setEventData(resultItemList);
-    return eventSearchResult;
+
+    return new EventSearchResult(resultItemList);
   }
 
   private HomeResult filterGroupSearchResultsByDistance(HomeResult groups, String searchCity, Integer maxDistance){

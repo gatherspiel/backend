@@ -75,7 +75,13 @@ public class SearchRepository {
       String groupName = rs.getString("groupName");
       String eventName = rs.getString("eventName");
 
-      LocalTime startTime = rs.getTimestamp("start_time").toLocalDateTime().toLocalTime();
+      Timestamp startTimestamp = rs.getTimestamp("start_time");
+      LocalTime startTime;
+      if(startTimestamp != null){
+        startTime = startTimestamp.toLocalDateTime().toLocalTime();
+      } else {
+        startTime = LocalTime.now();
+      }
       String dayOfWeek = rs.getString("day_of_week");
 
       String state = rs.getString("state");
