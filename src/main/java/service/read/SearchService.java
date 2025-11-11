@@ -20,7 +20,7 @@ public class SearchService {
     this.logger = LogUtils.getLogger();
   }
 
-  public EventSearchResult getEventsFroHomePage(LinkedHashMap<String,String> searchParams) throws Exception{
+  public EventSearchResult getEventsFromHomePage(LinkedHashMap<String,String> searchParams) throws Exception{
 
     String searchCity = searchParams.get(SearchParams.CITY);
     String distance = searchParams.get(SearchParams.DISTANCE);

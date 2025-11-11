@@ -137,19 +137,20 @@ public class UserMemberServiceIntegrationTest {
   @Test
   public void testStandardUserRsvpToEvent_eventWithNextOccurrenceIsDisplayed_EventIsOnCurrentDay() throws Exception{
 
-    //The test may not produce an accurate result if it is run immediately before midnight
-    if(LocalTime.now().equals(LocalTime.MIDNIGHT.minusMinutes(1))){
-      System.out.println("Waiting until after midnight to run test");
-      Thread.sleep(60000);
-    }
 
     EventService adminEventService = adminContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
-    LocalTime startTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
     DayOfWeek startDay = DayOfWeek.from(LocalDate.now());
+
+    LocalTime startTime;
+    if(LocalTime.now().getHour() == 23){
+      startTime = LocalTime.now().plusHours(2).truncatedTo(ChronoUnit.MINUTES);
+    }else {
+      startTime = LocalTime.now().plusHours(1).truncatedTo(ChronoUnit.MINUTES);
+    }
     event.setStartTime(startTime);
     event.setDay(startDay.toString());
     Event created = adminEventService.createEvent(event,group.getId());
@@ -252,7 +253,7 @@ public class UserMemberServiceIntegrationTest {
     assertEquals(startTime, eventFromDb.getStartTime());
     assertEquals(startDay, eventFromDb.getDay());
 
-    LocalDate expectedDate = LocalDate.now();
+    LocalDate expectedDate = LocalDate.now().plusDays(7);
     assertEquals(expectedDate, eventFromDb.getStartDate());
   }
 

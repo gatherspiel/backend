@@ -361,7 +361,7 @@ public class GroupEditServiceIntegrationTest {
     GroupPageData groupData  = readGroupService.getGroupPageData(params);
 
     assertEquals(group.getId(), groupData.getId());
-    assertArrayEquals(new GameTypeTag[]{GameTypeTag.SOCIAL_GAMES, GameTypeTag.HIDDEN_IDENTITY_GAMES},groupData.getGameTypeTags());
+    assertArrayEquals(new String[]{"Social games","Hidden identity games"},groupData.getGameTypeTags());
 
 
     group.setGameTypeTags(new GameTypeTag[0]);
