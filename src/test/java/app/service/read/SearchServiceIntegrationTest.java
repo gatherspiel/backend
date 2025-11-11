@@ -226,7 +226,7 @@ public class SearchServiceIntegrationTest {
 
     HomeResult result = searchService.getGroupsForHomepage(
       params);
-    assertEquals(1, result.countGroups());
+    assertEquals(2, result.countGroups());
   }
 
   @Test
@@ -412,7 +412,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Fairfax, 3", "Falls Church, 7" })
+  @CsvSource({ "Fairfax, 3", "Falls Church, 6" })
   @Order(1)
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Virginia(
       String location,
@@ -430,7 +430,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Silver Spring, 7"})
+  @CsvSource({ "Silver Spring, 8"})
   @Order(1)
   public void testSearchDistanceNearby_returnsCorrectNumberOfResults_Maryland(
       String location,
@@ -448,7 +448,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Greenbelt, 9"})
+  @CsvSource({ "Greenbelt, 10"})
   @Order(1)
   public void testSearchDistanceMediumDistance_returnsCorrectNumberOfResults_Maryland(
       String location,
@@ -681,9 +681,11 @@ public class SearchServiceIntegrationTest {
 
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
 
+    HashSet<String> nameData = new HashSet<>();
     for(EventSearchResultItem eventItem: eventSearchResult.getEventData()){
       EventLocation location = eventItem.getEventLocation();
-      assertFalse(location.getCity().isEmpty());
+      System.out.println("Event name:"+eventItem.getEventName());
+      assertFalse(location.getCity().isEmpty(),eventItem.getEventName());
       assertFalse(location.getState().isEmpty());
       assertFalse(location.getStreetAddress().isEmpty());
       assertNotEquals(0, location.getZipCode());
@@ -693,8 +695,11 @@ public class SearchServiceIntegrationTest {
 
       assertFalse(eventItem.getGroupName().isEmpty());
       assertFalse(eventItem.getEventName().isEmpty());
+
+      nameData.add(eventItem.getGroupName()+"_"+eventItem.getEventName());
     }
 
+    assertEquals(eventSearchResult.getEventData().size(), nameData.size());
 
   }
 
@@ -702,9 +707,9 @@ public class SearchServiceIntegrationTest {
   @Order(4)
   public void testCorrectEventsVisibleInSearchResults_onlyDayFilter() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(SearchParams.DAYS_OF_WEEK, "Sunday,Tuesday,Monday,Wednesday,Thursday,Friday,Saturday");
+    params.put(SearchParams.DAYS_OF_WEEK, "Sunday,Tuesday,Monday,Wednesday");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
-    assertEquals(11, eventSearchResult.getEventData().size());
+    assertEquals(19, eventSearchResult.getEventData().size());
   }
 
   @Test
@@ -713,7 +718,7 @@ public class SearchServiceIntegrationTest {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(SearchParams.CITY, "Arlington");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
-    assertEquals(4, eventSearchResult.getEventData().size());
+    assertEquals(3, eventSearchResult.getEventData().size());
 
   }
 
@@ -724,13 +729,13 @@ public class SearchServiceIntegrationTest {
     params.put(SearchParams.CITY, "Arlington");
     params.put(SearchParams.DAYS_OF_WEEK,"Monday,Wednesday");
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);
-    assertEquals(3, eventSearchResult.getEventData().size());
+    assertEquals(2, eventSearchResult.getEventData().size());
 
 
   }
 
   @ParameterizedTest
-  @CsvSource({ "Arlington", "Fairfax", "Falls Church" })
+  @CsvSource({ "Arlington", "College Park", "Silver Spring" })
   @Order(4)
   public void testEventsSortedByDistance_withLocationFilterAndNoDistance(
     String city
@@ -772,7 +777,7 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Arlington, 1", "Fairfax, 12", "Falls Church, 3" })
+  @CsvSource({ "Arlington, 4", "Fairfax, 5", "Falls Church, 9" })
   @Order(4)
   public void testEventsSortedByDistance_withLocationFilterAndLongDistance(String city, int expectedResults) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -785,12 +790,12 @@ public class SearchServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "Arlington, 5", "Fairfax,2", "Falls Church,3" })
+  @CsvSource({ "Arlington, 3", "Fairfax,2", "Falls Church,3" })
   @Order(4)
   public void testEventsSortedByDistance_withLocationFilterAndDayFilter_AndLongDistance(String city, int expected) throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(SearchParams.CITY, city);
-    params.put(SearchParams.DAYS_OF_WEEK, "Monday,Tuesday");
+    params.put(SearchParams.DAYS_OF_WEEK, "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday");
     params.put(SearchParams.DISTANCE, "20");
 
     EventSearchResult eventSearchResult = searchService.getEventsFromHomePage(params);

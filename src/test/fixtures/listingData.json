@@ -176,7 +176,7 @@
           {
             "day": "Monday",
             "id": 1,
-            "location": "3141 Duke Street, Alexandria, VA 22314",
+            "location": "3141 Duke Street,Alexandria, VA 22314",
             "description": "We will be playing board games at Glory Days Grill in Alexandria . We don’t play typical games like scrabble or monopoly. We play Euro games like ticket to ride, Lords of Waterdeep, Wingspan, Cascadia and more.",
             "name": "Game Night at Glory Days",
             "startTime": "14:00",
@@ -202,7 +202,7 @@
           {
             "day": "Saturday",
             "id": 1,
-            "location": "See group on Meetup for location",
+            "location": "A location,Alexandria, VA 22314",
             "description": "As always, there’ll be board games, dice games, card games, tile games, and just about every other kind of game that can be played on a tabletop. You’re encouraged to bring some of your favorites and teach them to new players, but feel free to come without any and play the games others bring. If you see one you’d like to try, there’ll be someone eager to teach you.",
             "name": "Grand Gaming Melee(Monthly)",
             "startTime": "13:00",
@@ -220,7 +220,7 @@
           {
             "day": "Sunday",
             "id": 1,
-            "location": "2000 Pennsylvania Avenue NW #3500, Washington, DC 20006",
+            "location": "2000 Pennsylvania Avenue NW #3500,Washington, DC 20006",
             "description": "We play a variety of high interaction games with a focus on cooperative games, hidden identity games, and high interaction(German-style) Euros.",
             "name": "High Interaction Board Games at Western Market Food Hall in DC",
             "startTime": "13:00",
@@ -229,7 +229,7 @@
           {
             "day": "Wednesday",
             "id": 2,
-            "location": "925 N Garfield St, Arlington, VA 22201",
+            "location": "925 N Garfield St,Arlington, VA 22201",
             "description": "Let's play board games. Not the ones your ancestors played but the really cool ones of the new millennium. We play everything from fun, social games to light to heavy strategy games.",
             "name": "Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00",
             "startTime": "18:30",
@@ -247,7 +247,7 @@
           {
             "day": "Friday",
             "id": 4,
-            "location": "2100 Crystal Drive, Arlington, VA 22202",
+            "location": "2100 Crystal Drive,Arlington, VA 22202",
             "description": "We play a variety of game with a focus on Eurogames",
             "name": "Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza",
             "startTime": "18:30",
@@ -466,7 +466,7 @@
           {
             "day": "Saturday",
             "id": 1,
-            "location": "See group on Meetup for location",
+            "location": "1234 Some Road,College Park,MD 20740",
             "description": "General day of games! Whatever folks feel like playing. Bring your own or learn a new one! If you want to play a longer game, you might want to propose it on the meetup discussion to judge interest. I'll have snacks and soda on hand. Additional snacks or soda welcome. We usually order out for dinner and then continue on till 10pm.\n\nThe games we usually play tend towards those requiring more thinking than typical family or party games and they are usually in the 2-4 hour range. Photos from past meet ups can give you a sense of them. We do sometimes play lighter games though.",
             "name": "Games Day",
             "startTime": "20:00",

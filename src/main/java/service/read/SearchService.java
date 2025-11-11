@@ -2,6 +2,7 @@ package service.read;
 
 import app.groups.Group;
 import app.result.listing.*;
+import app.users.User;
 import database.search.SearchParams;
 import database.search.SearchRepository;
 import org.apache.logging.log4j.Logger;
@@ -74,13 +75,29 @@ public class SearchService {
     return groups.getFirstGroup();
   }
 
+  public class EventSearchResultComparator implements Comparator<EventSearchResultItem> {
+    public int compare(EventSearchResultItem item1, EventSearchResultItem item2){
+      double compare = item1.getDistance().compareTo(item2.getDistance());
+      if(compare == 0.0){
+        compare = item1.getEventName().compareTo(item2.getEventName());
+      }
+      if(compare == 0.0){
+        compare = item1.getGroupName().compareTo(item2.getGroupName());
+      }
+      return (int)compare;
+    }
+  }
+
   private EventSearchResult filterAndSortEventSearchResultsByDistance(ArrayList<EventSearchResultItem> data, String searchCity, Integer maxDistance){
 
-    TreeMap<Double, EventSearchResultItem> sorted = new TreeMap<>();
+    TreeSet<EventSearchResultItem> sorted = new TreeSet<>(new EventSearchResultComparator());
 
+    System.out.println("Filtering");
     for(EventSearchResultItem item: data){
 
       String eventCity = item.getEventLocation().getCity();
+
+      System.out.println(searchCity+":"+eventCity);
       Optional<Double> distance = DistanceService.getDistance(searchCity, eventCity);
 
       if(!distance.isPresent()){
@@ -89,11 +106,17 @@ public class SearchService {
         logger.warn("Could not find distance between cities " + cityOutputA + " and " + cityOutputB);
       }
       else if(distance.get()<=maxDistance){
-        sorted.put(distance.get(), item);
+        item.setDistance(distance.get());
+        System.out.println("Adding");
+        sorted.add(item);
+      }
+
+      if(distance.isPresent()){
+        System.out.println(distance.get()+":"+maxDistance);
       }
     }
 
-    List<EventSearchResultItem> resultItemList = sorted.values().stream().toList();
+    List<EventSearchResultItem> resultItemList = sorted.stream().toList();
 
     return new EventSearchResult(resultItemList);
   }

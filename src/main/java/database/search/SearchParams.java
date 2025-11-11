@@ -75,21 +75,22 @@ public class SearchParams {
           groups.name groupName,
           groups.game_type_tags,
           events.name as eventName,
-          event_time.start_time,
-          event_time.day_of_week,
+          COALESCE(event_time.start_time::time,weekly_event_time.start_time) as start_time,
+          weekly_event_time.day_of_week as day_of_week,
           locations.state,
           locations.street_address,
           locations.zip_code,
           locations.city as city
-        FROM groups
-        LEFT JOIN event_group_map on groups.id = event_group_map.group_id
-        LEFT JOIN events on event_group_map.event_id = events.id
+        FROM events
+        LEFT JOIN event_group_map on events.id = event_group_map.event_id
+        LEFT JOIN groups on groups.id = event_group_map.group_id
         LEFT JOIN event_time on event_time.event_id = events.id
+        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
         LEFT JOIN locations on events.location_id = locations.id
         LEFT JOIN location_group_map on groups.id = location_group_map.group_id
         LEFT JOIN locations as locs on location_group_map.location_id = locs.id
       """;
-    return  generatePreparedStatement(query, conn);
+    return generatePreparedStatement(query, conn);
   }
 
 
@@ -152,12 +153,14 @@ public class SearchParams {
         for(int i=0; i<days.length;i++){
           paramData[i] = "CAST(? as dayofweek)";
         }
-        whereClauses.add("day_of_week IN("+String.join(",",paramData)+")");
+        whereClauses.add("weekly_event_time.day_of_week IN("+String.join(",",paramData)+")");
       } else {
+        System.out.println("Adding parameter:"+paramQueryMap.get(param));
         whereClauses.add(paramQueryMap.get(param));
       }
     }
     whereClauses.add("is_hidden IS NOT TRUE");
+    whereClauses.add("groups.name IS NOT NULL");
 
     query += " WHERE ";
     query += String.join( " AND ", whereClauses.toArray(new String[0]));
@@ -177,6 +180,7 @@ public class SearchParams {
         i++;
       }
     }
+    System.out.println(select);
     return select;
   }
 

@@ -3,6 +3,7 @@ package app.result.listing;
 import app.groups.EventLocation;
 import app.groups.GameTypeTag;
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -23,6 +24,8 @@ public class EventSearchResultItem {
 
   //Use the group tags for now.
   private GameTypeTag[] gameTypeTags;
+
+  private Double distance = 0.0;
 
   public void setEventLocation(EventLocation eventLocation){
     this.eventLocation = eventLocation;
@@ -87,6 +90,16 @@ public class EventSearchResultItem {
 
   public void setGameTypeTags(GameTypeTag[] gameTypeTags){
     this.gameTypeTags = gameTypeTags;
+  }
+
+  @JsonIgnore
+  public void setDistance(Double distance){
+    this.distance = distance;
+  }
+
+  @JsonIgnore
+  public Double getDistance(){
+    return distance;
   }
 
 }

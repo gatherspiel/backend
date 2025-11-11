@@ -54,4 +54,13 @@ public class DistanceServiceTest {
       ()->assertEquals(0, distance.get(), ""+distance.get())
     );
   }
+
+  @Test
+  public void testDistanceCalculations_SameCity2(){
+    Optional<Double> distance = DistanceService.getDistance("Arlington","Arlington");
+    assertTrue(distance.isPresent());
+    assertAll(
+      ()->assertEquals(0, distance.get(), ""+distance.get())
+    );
+  }
 }

@@ -95,14 +95,18 @@ public class SearchRepository {
       eventLocation.setZipCode(zipCode);
       eventLocation.setCity(city);
 
+      System.out.println(city);
       EventSearchResultItem resultItem = new EventSearchResultItem();
       resultItem.setEventLocation(eventLocation);
 
       if(dayOfWeek != null){
-        resultItem.setDayOfWeek(DayOfWeek.valueOf(dayOfWeek));
+        resultItem.setDayOfWeek(DayOfWeek.valueOf(dayOfWeek.toUpperCase()));
         resultItem.setNextEventDate(
-          DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek), startTime));
+          DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek.toUpperCase()), startTime));
+      } else {
+        resultItem.setNextEventDate(LocalDate.now());
       }
+
       resultItem.setNextEventTime(startTime);
 
       resultItem.setEventName(eventName);
