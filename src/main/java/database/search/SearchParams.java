@@ -40,15 +40,8 @@ public class SearchParams {
 
     params.keySet().forEach(param->{
       if(param.equals(DAYS_OF_WEEK)){
-
-        try {
-          SearchParameterValidator.validateDaysParameter(params.get(param));
-          this.params.put(param, params.get(param));
-
-        } catch (SearchParameterException e) {
-          throw new RuntimeException(e);
-        }
-
+        SearchParameterValidator.validateDaysParameter(params.get(param));
+        this.params.put(param, params.get(param));
       } else if(param.equals(CITY)) {
         this.params.put(param, params.get(param));
       } else if (param.equals(AREA)) {
@@ -180,7 +173,6 @@ public class SearchParams {
         i++;
       }
     }
-    System.out.println(select);
     return select;
   }
 

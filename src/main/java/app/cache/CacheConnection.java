@@ -1,6 +1,7 @@
 package app.cache;
 
 import app.result.group.GroupPageData;
+import app.result.listing.EventSearchResult;
 import app.result.listing.HomeResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import database.search.SearchParams;
@@ -19,7 +20,8 @@ public class CacheConnection {
 
   private static final Logger logger = LogUtils.getLogger();
 
-  private static final Map<String, String> searchResultCache = new ConcurrentHashMap<String, String>();
+  private static final Map<String, String> groupSearchResultCache = new ConcurrentHashMap<String, String>();
+  private static final Map<String, EventSearchResult> eventSearchResultCache = new ConcurrentHashMap<String, EventSearchResult>();
   private static final Map<String, GroupPageData> groupPageCache = new ConcurrentHashMap<>();
 
   public CacheConnection(Context ctx){
@@ -49,10 +51,18 @@ public class CacheConnection {
     this.objectMapper = new ObjectMapper();
   }
 
-  public Optional<HomeResult> getCachedSearchResult() throws Exception{
+
+  public Optional<EventSearchResult> getCachedEventSearchResult() throws Exception {
+    if(eventSearchResultCache.containsKey(cacheKey)){
+      return Optional.of(eventSearchResultCache.get(cacheKey));
+    }
+    return Optional.empty();
+  }
+
+  public Optional<HomeResult> getCachedGroupSearchResult() throws Exception{
 
     try {
-      String data = searchResultCache.get(cacheKey);
+      String data = groupSearchResultCache.get(cacheKey);
       if(data == null){
         return Optional.empty();
       }
@@ -66,19 +76,29 @@ public class CacheConnection {
     }
   }
 
+  public void cacheSearchResult(EventSearchResult eventSearchResult){
+    try {
+      eventSearchResultCache.put(cacheKey, eventSearchResult);
+      LogUtils.printDebugLog("Cached search result");
+    } catch(Exception e){
+      logger.warn("Failed to cache result because of error:"+e.getMessage());
+    }
+  }
+
   public void cacheSearchResult(HomeResult searchResult)  {
     try {
       CompressedHomepageSearchResult compressed = new CompressedHomepageSearchResult();
       compressed.addGroups(searchResult);
 
       String cacheData = objectMapper.writeValueAsString(compressed);
-      searchResultCache.put(cacheKey, cacheData);
+      groupSearchResultCache.put(cacheKey, cacheData);
 
       LogUtils.printDebugLog("Cached search result");
     } catch (Exception e){
       logger.warn("Failed to cache result because of error:"+e.getMessage());
     }
   }
+
 
   public Optional<GroupPageData> getCachedGroupPage() throws Exception {
     if(!groupPageCache.containsKey(cacheKey)){
@@ -94,7 +114,8 @@ public class CacheConnection {
 
   public static void clearCache(){
     logger.info("Clearing cache due to data update");
-    searchResultCache.clear();
+    eventSearchResultCache.clear();
+    groupSearchResultCache.clear();
     groupPageCache.clear();
   }
 }

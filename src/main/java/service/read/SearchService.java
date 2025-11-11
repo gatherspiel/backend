@@ -2,11 +2,11 @@ package service.read;
 
 import app.groups.Group;
 import app.result.listing.*;
-import app.users.User;
 import database.search.SearchParams;
 import database.search.SearchRepository;
 import org.apache.logging.log4j.Logger;
 import app.result.error.SearchParameterException;
+import service.data.SearchParameterValidator;
 import utils.LogUtils;
 
 import java.sql.Connection;
@@ -21,18 +21,26 @@ public class SearchService {
     this.logger = LogUtils.getLogger();
   }
 
-  public EventSearchResult getEventsFromHomePage(LinkedHashMap<String,String> searchParams) throws Exception{
+  public EventSearchResult getEventsForHomepage(LinkedHashMap<String,String> searchParamMap) throws Exception{
 
-    String searchCity = searchParams.get(SearchParams.CITY);
+    String searchCity = searchParamMap.get(SearchParams.CITY);
+    String distance = searchParamMap.get(SearchParams.DISTANCE);
 
-    SearchParams params = new SearchParams(searchParams);
-    ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResult(params);
-
-    String distance = searchParams.get(SearchParams.DISTANCE);
+    System.out.println(searchCity+":"+distance);
     if(distance != null){
-      return filterAndSortEventSearchResultsByDistance(results, searchCity, Integer.parseInt(distance));
+      LinkedHashMap<String, String> updatedParams = new LinkedHashMap<>(searchParamMap);
+      updatedParams.remove(SearchParams.CITY);
+      SearchParams params = new SearchParams(updatedParams);
+      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
+      return filterAndSortEventSearchResultsByDistance(
+        results,
+        searchCity,
+        SearchParameterValidator.validateAndRetrieveDistanceParameter(distance));
+    }else {
+      SearchParams params = new SearchParams(searchParamMap);
+      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
+      return new EventSearchResult(results);
     }
-    return new EventSearchResult(results);
   }
   public HomeResult getGroupsForHomepage(
     LinkedHashMap<String, String> searchParams
@@ -88,7 +96,7 @@ public class SearchService {
     }
   }
 
-  private EventSearchResult filterAndSortEventSearchResultsByDistance(ArrayList<EventSearchResultItem> data, String searchCity, Integer maxDistance){
+  private EventSearchResult filterAndSortEventSearchResultsByDistance(ArrayList<EventSearchResultItem> data, String searchCity, Double maxDistance){
 
     TreeSet<EventSearchResultItem> sorted = new TreeSet<>(new EventSearchResultComparator());
 
@@ -97,7 +105,6 @@ public class SearchService {
 
       String eventCity = item.getEventLocation().getCity();
 
-      System.out.println(searchCity+":"+eventCity);
       Optional<Double> distance = DistanceService.getDistance(searchCity, eventCity);
 
       if(!distance.isPresent()){

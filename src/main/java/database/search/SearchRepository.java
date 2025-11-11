@@ -2,7 +2,6 @@ package database.search;
 
 import app.groups.EventLocation;
 import app.groups.GameTypeTag;
-import app.result.listing.EventSearchResult;
 import app.result.listing.EventSearchResultItem;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
@@ -20,7 +19,6 @@ import java.util.Set;
 public class SearchRepository {
 
   private Connection conn;
-
 
   public SearchRepository(Connection conn){
     this.conn = conn;
@@ -53,19 +51,19 @@ public class SearchRepository {
 
       if (!(searchParams.hasLocationGroupParam() && !locationsWithTag.contains(groupCity))) {
         searchResult.addGroup(
-            groupId,
-            groupName,
-            url,
-            groupCity,
-            day != null ? DayOfWeek.valueOf(day.toUpperCase()) : null,
-            getTagsFromResultSet(rs)
+          groupId,
+          groupName,
+          url,
+          groupCity,
+          day != null ? DayOfWeek.valueOf(day.toUpperCase()) : null,
+          getTagsFromResultSet(rs)
         );
       }
     }
     return searchResult;
   }
 
-  public ArrayList<EventSearchResultItem> getEventSearchResult(SearchParams searchParams) throws Exception {
+  public ArrayList<EventSearchResultItem> getEventSearchResults(SearchParams searchParams) throws Exception {
 
     PreparedStatement statement = searchParams.generateEventSearchQuery(conn);
     ResultSet rs = statement.executeQuery();
@@ -95,7 +93,6 @@ public class SearchRepository {
       eventLocation.setZipCode(zipCode);
       eventLocation.setCity(city);
 
-      System.out.println(city);
       EventSearchResultItem resultItem = new EventSearchResultItem();
       resultItem.setEventLocation(eventLocation);
 
