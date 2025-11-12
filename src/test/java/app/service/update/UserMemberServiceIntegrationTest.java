@@ -169,7 +169,7 @@ public class UserMemberServiceIntegrationTest {
 
     LocalDate expectedDate = LocalDate.now();
     LocalDate startDate = eventFromDb.getStartDate();
-    assertEquals(expectedDate, startDate);
+    assertEquals(expectedDate, startDate, "Start time:"+startTime);
   }
 
   @Test
