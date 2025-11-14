@@ -170,8 +170,12 @@ public class GroupPageData {
     this.gameTypeTags = gameTypeTags;
   }
 
-  public GameTypeTag[] getGameTypeTags(){
-    return gameTypeTags;
+  public String[] getGameTypeTags(){
+    String[] tagData = new String[gameTypeTags.length];
+    for(int i=0; i<gameTypeTags.length; i++){
+      tagData[i] = gameTypeTags[i].toString();
+    }
+    return tagData;
   }
 
   public String getImagePath(){

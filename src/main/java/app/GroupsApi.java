@@ -12,7 +12,7 @@ import app.result.error.PermissionError;
 import app.result.group.GroupPageData;
 import app.users.SessionContext;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
@@ -45,7 +45,7 @@ public class GroupsApi {
             data = cacheConnection.getCachedGroupPage();
           }
           if(data.isEmpty()){
-            var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+            var searchParams = SearchParams.generateParameterMapFromQueryString(
                 ctx
             );
             var groupService = sessionContext.createReadGroupService();

@@ -10,7 +10,7 @@ import app.database.utils.IntegrationTestConnectionProvider;
 import app.users.UserType;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -74,8 +74,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testInvalidNameAndTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "test");
-    params.put(GroupSearchParams.NAME, "test2");
+    params.put(SearchParams.AREA, "test");
+    params.put(SearchParams.NAME, "test2");
 
     Exception exception = assertThrows(
       Exception.class,
@@ -91,8 +91,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testInvalidNameAndValidTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "test2");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "test2");
 
     Exception exception = assertThrows(
       Exception.class,
@@ -107,8 +107,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testValidNameAndInvalidTag() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "test");
-    params.put(GroupSearchParams.NAME, "Game_Nights_at_Crossroads");
+    params.put(SearchParams.AREA, "test");
+    params.put(SearchParams.NAME, "Game_Nights_at_Crossroads");
 
     Exception exception = assertThrows(
       Exception.class,
@@ -122,8 +122,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testValidNameAndValidTag_CorrectGroupInformation() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Alexandria_Board_Game_Group");
 
     GroupPageData result = groupService.getGroupPageData(
         params
@@ -137,8 +137,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testEventsWithoutValidLocations_areNotVisibleInGroupData() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Alexandria-Arlington Regional Gaming Group");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Alexandria-Arlington Regional Gaming Group");
 
     GroupPageData result = adminContext.createReadGroupService().getGroupPageData(
         params
@@ -150,8 +150,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testValidNameAndValidTag_Group_ValidRecurringEventsWithOneEventEachWeek() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Alexandria_Board_Game_Group");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Alexandria_Board_Game_Group");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
@@ -179,8 +179,8 @@ public class ReadGroupServiceIntegrationTest {
   @Test
   public void testValidNameAndValidTag_Group_CorrectNumberOfEventsWithFourEventsEachWeek() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
@@ -250,8 +250,8 @@ public class ReadGroupServiceIntegrationTest {
     groupService = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
     GroupPageData result = groupService.getGroupPageData(
         params
     );
@@ -265,8 +265,8 @@ public class ReadGroupServiceIntegrationTest {
     groupService = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
     GroupPageData result = groupService.getGroupPageData(
         params
     );
@@ -287,7 +287,7 @@ public class ReadGroupServiceIntegrationTest {
     ReadGroupService groupService1 = sessionContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
+    params.put(SearchParams.NAME, group.getName());
     GroupPageData result = groupService1.getGroupPageData(
         params
     );
@@ -316,7 +316,7 @@ public class ReadGroupServiceIntegrationTest {
     adminEditService.setGroupToVisible(group.getId());
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
+    params.put(SearchParams.NAME, group.getName());
     GroupPageData result = readGroupService.getGroupPageData(
         params
     );
@@ -329,8 +329,8 @@ public class ReadGroupServiceIntegrationTest {
     var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
 
    GroupPageData result = readOnlyContext.createReadGroupService().getGroupPageData(
         params
@@ -358,8 +358,8 @@ public class ReadGroupServiceIntegrationTest {
     query5.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
@@ -411,8 +411,8 @@ public class ReadGroupServiceIntegrationTest {
     query5.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
         params
@@ -454,8 +454,8 @@ public class ReadGroupServiceIntegrationTest {
     query5.execute();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.AREA, "dmv");
-    params.put(GroupSearchParams.NAME, "Beer_&_Board_Games");
+    params.put(SearchParams.AREA, "dmv");
+    params.put(SearchParams.NAME, "Beer_&_Board_Games");
 
     GroupPageData result = sessionContext.createReadGroupService().getGroupPageData(
       params

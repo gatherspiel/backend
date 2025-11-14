@@ -7,6 +7,7 @@ import app.result.error.group.InvalidEventParameterError;
 import app.users.*;
 import database.BaseRepository;
 import org.apache.logging.log4j.Logger;
+import utils.DateUtils;
 import utils.LogUtils;
 
 import java.sql.Connection;
@@ -274,11 +275,14 @@ public class UserRepository extends BaseRepository {
           logger.error("Event RSVPS are not fully supported for one time events");
         }
 
-        LocalDate nextEventDate = LocalDate.now();
-        DayOfWeek eventDayValue = DayOfWeek.valueOf(eventDay.toUpperCase());
-        if(!eventDayValue.equals(nextEventDate.getDayOfWeek())){
-          nextEventDate = nextEventDate.with(TemporalAdjusters.next(eventDayValue));
-        }
+        LocalTime eventTime =
+          rs2.getTimestamp("start_time")
+            .toLocalDateTime().toLocalTime();
+
+        LocalDate nextEventDate = DateUtils.getNextOccurrence(
+          DayOfWeek.valueOf(eventDay.toUpperCase()),
+          eventTime
+        );
 
         LocalDateTime pastEventDate =
           LocalDateTime.now()
@@ -288,9 +292,7 @@ public class UserRepository extends BaseRepository {
         event.setDay(eventDay);
         event.setGroupId(rs2.getInt("group_id"));
 
-        LocalTime eventTime =
-          rs2.getTimestamp("start_time")
-              .toLocalDateTime().toLocalTime();
+
         event.setStartTime(eventTime);
 
         if(rs2.getString("event_admin_level").equals(EventAdminType.EVENT_RSVP.toString())){

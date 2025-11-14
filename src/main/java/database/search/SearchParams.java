@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public class GroupSearchParams {
+public class SearchParams {
   public static final String DAYS_OF_WEEK = "days";
   public static final String CITY = "city";
   public static final String AREA = "area";
@@ -33,22 +33,15 @@ public class GroupSearchParams {
     paramQueryMap.put(NAME, "groups.name = ?");
   }
 
-  public GroupSearchParams(LinkedHashMap<String, String> params) throws SearchParameterException {
+  public SearchParams(LinkedHashMap<String, String> params) throws SearchParameterException {
 
     this.logger = LogUtils.getLogger();
     this.params = new LinkedHashMap<>();
 
     params.keySet().forEach(param->{
       if(param.equals(DAYS_OF_WEEK)){
-
-        try {
-          SearchParameterValidator.validateDaysParameter(params.get(param));
-          this.params.put(param, params.get(param));
-
-        } catch (SearchParameterException e) {
-          throw new RuntimeException(e);
-        }
-
+        SearchParameterValidator.validateDaysParameter(params.get(param));
+        this.params.put(param, params.get(param));
       } else if(param.equals(CITY)) {
         this.params.put(param, params.get(param));
       } else if (param.equals(AREA)) {
@@ -63,48 +56,38 @@ public class GroupSearchParams {
     });
   }
 
-  public PreparedStatement generateSearchQuery(Connection conn, boolean isHomepage) throws Exception {
-
+  public PreparedStatement generateGroupSearchQuery(Connection conn, boolean isHomepage) throws Exception {
     String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
-    ArrayList<String> whereClauses = new ArrayList<>();
-
-    for(String param: params.keySet()){
-      if(param.equals(DAYS_OF_WEEK)){
-        String[] days = params.get(param).split(",");
-        String[] paramData = new String[days.length];
-
-        for(int i=0; i<days.length;i++){
-          paramData[i] = "CAST(? as dayofweek)";
-        }
-        whereClauses.add("day_of_week IN("+String.join(",",paramData)+")");
-      } else {
-        whereClauses.add(paramQueryMap.get(param));
-      }
-    }
-    whereClauses.add("is_hidden IS NOT TRUE");
-
-    query = query + " WHERE ";
-    query = query + String.join( " AND ", whereClauses.toArray(new String[0]));
-
-
-    PreparedStatement select = conn.prepareStatement(query);
-    int i = 1;
-    for(String param: params.keySet()){
-
-      if(param.equals(DAYS_OF_WEEK)){
-        String[] days = params.get(param).split(",");
-        for (String day : days) {
-          select.setString(i, day.toLowerCase());
-          i++;
-        }
-      } else {
-        select.setString(i, params.get(param));
-        i++;
-      }
-
-    }
-    return select;
+    return generatePreparedStatement(query, conn);
   }
+
+  public PreparedStatement generateEventSearchQuery(Connection conn) throws Exception {
+    String query = """
+        SELECT
+        DISTINCT ON (events.id, groups.id, groups.name)
+          groups.id as groupId,
+          groups.name as groupName,
+          groups.game_type_tags,
+          events.name as eventName,
+          events.id as eventId,
+          COALESCE(event_time.start_time::time,weekly_event_time.start_time) as start_time,
+          weekly_event_time.day_of_week as day_of_week,
+          locations.state,
+          locations.street_address,
+          locations.zip_code,
+          locations.city as city
+        FROM events
+        LEFT JOIN event_group_map on events.id = event_group_map.event_id
+        LEFT JOIN groups on groups.id = event_group_map.group_id
+        LEFT JOIN event_time on event_time.event_id = events.id
+        LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
+        LEFT JOIN locations on events.location_id = locations.id
+        LEFT JOIN location_group_map on groups.id = location_group_map.group_id
+        LEFT JOIN locations as locs on location_group_map.location_id = locs.id
+      """;
+    return generatePreparedStatement(query, conn);
+  }
+
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
     String query = """
@@ -152,7 +135,46 @@ public class GroupSearchParams {
       i++;
     }
     return select;
+  }
 
+  private PreparedStatement generatePreparedStatement(String query, Connection conn) throws Exception{
+    ArrayList<String> whereClauses = new ArrayList<>();
+
+    for(String param: params.keySet()){
+      if(param.equals(DAYS_OF_WEEK)){
+        String[] days = params.get(param).split(",");
+        String[] paramData = new String[days.length];
+
+        for(int i=0; i<days.length;i++){
+          paramData[i] = "CAST(? as dayofweek)";
+        }
+        whereClauses.add("weekly_event_time.day_of_week IN("+String.join(",",paramData)+")");
+      } else {
+        whereClauses.add(paramQueryMap.get(param));
+      }
+    }
+    whereClauses.add("is_hidden IS NOT TRUE");
+    whereClauses.add("groups.name IS NOT NULL");
+
+    query += " WHERE ";
+    query += String.join( " AND ", whereClauses.toArray(new String[0]));
+
+    PreparedStatement select = conn.prepareStatement(query);
+    int i = 1;
+    for(String param: params.keySet()){
+
+      if(param.equals(DAYS_OF_WEEK)){
+        String[] days = params.get(param).split(",");
+        for (String day : days) {
+          select.setString(i, day.toLowerCase());
+          i++;
+        }
+      } else {
+        select.setString(i, params.get(param));
+        i++;
+      }
+    }
+    return select;
   }
 
   private static String getQueryForHomepageSearchResult(){
@@ -231,29 +253,29 @@ public class GroupSearchParams {
   public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
     LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
 
-    String day = ctx.queryParam(GroupSearchParams.DAYS_OF_WEEK);
+    String day = ctx.queryParam(SearchParams.DAYS_OF_WEEK);
     if(day != null && !day.isEmpty()){
-      paramMap.put(GroupSearchParams.DAYS_OF_WEEK, day);
+      paramMap.put(SearchParams.DAYS_OF_WEEK, day);
     }
 
-    String location = ctx.queryParam(GroupSearchParams.CITY);
+    String location = ctx.queryParam(SearchParams.CITY);
     if(location != null && !location.isEmpty()){
-      paramMap.put(GroupSearchParams.CITY, location);
+      paramMap.put(SearchParams.CITY, location);
     }
 
-    String area = ctx.queryParam(GroupSearchParams.AREA);
+    String area = ctx.queryParam(SearchParams.AREA);
     if(area != null && !area.isEmpty()){
-      paramMap.put(GroupSearchParams.AREA, area);
+      paramMap.put(SearchParams.AREA, area);
     }
 
-    String name = ctx.queryParam(GroupSearchParams.NAME);
+    String name = ctx.queryParam(SearchParams.NAME);
     if(name != null && !name.isEmpty()){
-      paramMap.put(GroupSearchParams.NAME, name);
+      paramMap.put(SearchParams.NAME, name);
     }
 
-    String distance = ctx.queryParam(GroupSearchParams.DISTANCE);
+    String distance = ctx.queryParam(SearchParams.DISTANCE);
     if(distance != null && !distance.isEmpty()){
-      paramMap.put(GroupSearchParams.DISTANCE, distance);
+      paramMap.put(SearchParams.DISTANCE, distance);
     }
 
     return paramMap;
