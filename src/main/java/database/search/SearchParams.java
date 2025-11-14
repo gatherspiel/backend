@@ -150,7 +150,6 @@ public class SearchParams {
         }
         whereClauses.add("weekly_event_time.day_of_week IN("+String.join(",",paramData)+")");
       } else {
-        System.out.println("Adding parameter:"+paramQueryMap.get(param));
         whereClauses.add(paramQueryMap.get(param));
       }
     }

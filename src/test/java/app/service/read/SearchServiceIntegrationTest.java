@@ -668,11 +668,26 @@ public class SearchServiceIntegrationTest {
 
   @Test
   @Order(4)
-  public void testCorrectNumberOfEventsVisibleInSearchResults_noLocationOrDayFilter() throws Exception{
+  public void testCorrectNumberOfEventsVisibleInSearchResults_sortedByNextOccurrence_noLocationOrDayFilter() throws Exception{
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
     assertEquals(37, eventSearchResult.getEventData().size());
+
+    LocalDate startDate = LocalDate.MIN;
+    LocalTime startTime = LocalTime.MIN;
+
+    for(EventSearchResultItem resultItem: eventSearchResult.getEventData()){
+
+      LocalDate eventStartDate = resultItem.getNextEventDate();
+      LocalTime eventStartTime = resultItem.getNextEventTime();
+      assertTrue(
+        eventStartDate.isAfter(startDate) ||
+          (eventStartDate.equals(startDate) && !eventStartTime.isBefore(startTime))
+        );
+      startDate = eventStartDate;
+      startTime = eventStartTime;
+    }
   }
 
   @Test
@@ -687,7 +702,6 @@ public class SearchServiceIntegrationTest {
 
     for(EventSearchResultItem eventItem: eventSearchResult.getEventData()){
       EventLocation location = eventItem.getEventLocation();
-      System.out.println("Event name:"+eventItem.getEventName());
       assertFalse(location.getCity().isEmpty(),eventItem.getEventName());
       assertFalse(location.getState().isEmpty());
       assertFalse(location.getStreetAddress().isEmpty());
@@ -722,7 +736,7 @@ public class SearchServiceIntegrationTest {
 
   @Test
   @Order(4)
-  public void testCorrectDataForEventsVisibleInSearchResults_onlyLocationFilter() throws Exception{
+  public void testCorrectDataForEventsVisibleInSearchResults_onlyLocationFilter_resultsSortedByDistance() throws Exception{
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(SearchParams.CITY, "Arlington");
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
@@ -877,15 +891,33 @@ public class SearchServiceIntegrationTest {
 
     double distance = 0.0;
 
+    LocalDate startDate = LocalDate.MIN;
+    LocalTime startTime = LocalTime.MIN;
+
     for(EventSearchResultItem item: data){
       String eventCity = item.getEventLocation().getCity();
       Optional<Double> eventDistance = DistanceService.getDistance(city, eventCity);
 
       assertTrue(eventDistance.isPresent());
       assertTrue(eventDistance.get() >= distance);
+
+      LocalDate eventStartDate = item.getNextEventDate();
+      LocalTime eventStartTime = item.getNextEventTime();
+
+      if(distance == eventDistance.get()){
+        assertTrue(
+            eventStartDate.isAfter(startDate) ||
+                (eventStartDate.equals(startDate) && !eventStartTime.isBefore(startTime)));
+      }
+
+      startDate = eventStartDate;
+      startTime = eventStartTime;
       distance = eventDistance.get();
+
     }
 
     assertTrue(distance < 200);
   }
+
+
  }

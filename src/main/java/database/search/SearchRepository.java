@@ -114,6 +114,8 @@ public class SearchRepository {
       resultItem.setGameTypeTags(getTagsFromResultSet(rs));
 
       eventResults.add(resultItem);
+
+
     }
 
     return eventResults;

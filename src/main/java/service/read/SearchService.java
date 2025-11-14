@@ -26,20 +26,23 @@ public class SearchService {
     String searchCity = searchParamMap.get(SearchParams.CITY);
     String distance = searchParamMap.get(SearchParams.DISTANCE);
 
-    System.out.println(searchCity+":"+distance);
     if(distance != null){
       LinkedHashMap<String, String> updatedParams = new LinkedHashMap<>(searchParamMap);
       updatedParams.remove(SearchParams.CITY);
       SearchParams params = new SearchParams(updatedParams);
       ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
-      return filterAndSortEventSearchResultsByDistance(
+      return filterAndSortEventSearchResults(
         results,
         searchCity,
         SearchParameterValidator.validateAndRetrieveDistanceParameter(distance));
     }else {
       SearchParams params = new SearchParams(searchParamMap);
       ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
-      return new EventSearchResult(results);
+
+      TreeSet<EventSearchResultItem> sorted = new TreeSet<>(new EventSearchResultComparator());
+      sorted.addAll(results);
+
+      return new EventSearchResult(sorted.stream().toList());
     }
   }
   public HomeResult getGroupsForHomepage(
@@ -86,6 +89,13 @@ public class SearchService {
   public class EventSearchResultComparator implements Comparator<EventSearchResultItem> {
     public int compare(EventSearchResultItem item1, EventSearchResultItem item2){
       double compare = item1.getDistance().compareTo(item2.getDistance());
+
+      if(compare == 0.0){
+        compare = item1.getNextEventDate().compareTo(item2.getNextEventDate());
+      }
+      if(compare == 0.0){
+        compare = item1.getNextEventTime().compareTo(item2.getNextEventTime());
+      }
       if(compare == 0.0){
         compare = item1.getEventName().compareTo(item2.getEventName());
       }
@@ -96,15 +106,13 @@ public class SearchService {
     }
   }
 
-  private EventSearchResult filterAndSortEventSearchResultsByDistance(ArrayList<EventSearchResultItem> data, String searchCity, Double maxDistance){
+  private EventSearchResult filterAndSortEventSearchResults(ArrayList<EventSearchResultItem> data, String searchCity, Double maxDistance){
 
     TreeSet<EventSearchResultItem> sorted = new TreeSet<>(new EventSearchResultComparator());
 
-    System.out.println("Filtering");
     for(EventSearchResultItem item: data){
 
       String eventCity = item.getEventLocation().getCity();
-
       Optional<Double> distance = DistanceService.getDistance(searchCity, eventCity);
 
       if(!distance.isPresent()){
@@ -114,17 +122,11 @@ public class SearchService {
       }
       else if(distance.get()<=maxDistance){
         item.setDistance(distance.get());
-        System.out.println("Adding");
         sorted.add(item);
-      }
-
-      if(distance.isPresent()){
-        System.out.println(distance.get()+":"+maxDistance);
       }
     }
 
     List<EventSearchResultItem> resultItemList = sorted.stream().toList();
-
     return new EventSearchResult(resultItemList);
   }
 
