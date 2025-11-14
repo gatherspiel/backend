@@ -229,7 +229,6 @@ public class Event {
   */
   @JsonGetter("startTime")
   public String getSerializedStartTime(){
-
     return startTime.format(DateTimeFormatter.ofPattern("hh:mm a"));
   }
 

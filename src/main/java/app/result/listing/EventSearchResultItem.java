@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
@@ -38,12 +39,22 @@ public class EventSearchResultItem {
     return eventLocation;
   }
 
+  @JsonGetter("nextEventTime")
+  public String getSerializedNextEventTime(){
+    return nextEventTime.format(DateTimeFormatter.ofPattern("hh:mm a"));
+  }
+
   public LocalTime getNextEventTime(){
     return nextEventTime;
   }
 
   public void setNextEventTime(LocalTime nextEventTime){
     this.nextEventTime = nextEventTime;
+  }
+
+  @JsonGetter("nextEventDate")
+  public String getSerializedNextEventDate(){
+    return nextEventDate.toString();
   }
 
   public LocalDate getNextEventDate(){
