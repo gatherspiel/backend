@@ -22,6 +22,9 @@ public class EventSearchResultItem {
   private String groupName;
   private String eventName;
 
+  private Integer eventId;
+  private Integer groupId;
+
   //Use the group tags for now.
   private GameTypeTag[] gameTypeTags;
 
@@ -100,6 +103,22 @@ public class EventSearchResultItem {
   @JsonIgnore
   public Double getDistance(){
     return distance;
+  }
+
+  public int getGroupId(){
+    return groupId;
+  }
+
+  public void setGroupId(int groupId){
+    this.groupId = groupId;
+  }
+
+  public int getEventId(){
+    return eventId;
+  }
+
+  public void setEventId(int eventId){
+    this.eventId = eventId;
   }
 
 }

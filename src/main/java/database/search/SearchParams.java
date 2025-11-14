@@ -65,9 +65,11 @@ public class SearchParams {
     String query = """
         SELECT
         DISTINCT ON (events.id, groups.id, groups.name)
-          groups.name groupName,
+          groups.id as groupId,
+          groups.name as groupName,
           groups.game_type_tags,
           events.name as eventName,
+          events.id as eventId,
           COALESCE(event_time.start_time::time,weekly_event_time.start_time) as start_time,
           weekly_event_time.day_of_week as day_of_week,
           locations.state,

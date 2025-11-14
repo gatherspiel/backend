@@ -53,6 +53,7 @@ public class HomepageGroup {
     for(DayOfWeek dayOfWeek: recurringEventDays){
       dayResult[i] = dayOfWeek.name().substring(0,1)+dayOfWeek.name().substring(1).toLowerCase();
       i++;
+
     }
     return dayResult;
   }

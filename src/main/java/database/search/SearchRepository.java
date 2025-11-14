@@ -72,7 +72,8 @@ public class SearchRepository {
     while(rs.next()){
       String groupName = rs.getString("groupName");
       String eventName = rs.getString("eventName");
-
+      int eventId = rs.getInt("eventId");
+      int groupId = rs.getInt("groupId");
       Timestamp startTimestamp = rs.getTimestamp("start_time");
       LocalTime startTime;
       if(startTimestamp != null){
@@ -106,6 +107,8 @@ public class SearchRepository {
 
       resultItem.setNextEventTime(startTime);
 
+      resultItem.setEventId(eventId);
+      resultItem.setGroupId(groupId);
       resultItem.setEventName(eventName);
       resultItem.setGroupName(groupName);
       resultItem.setGameTypeTags(getTagsFromResultSet(rs));

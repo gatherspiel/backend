@@ -682,7 +682,9 @@ public class SearchServiceIntegrationTest {
 
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
 
+    HashSet<Integer> eventIds = new HashSet<>();
     HashSet<String> nameData = new HashSet<>();
+
     for(EventSearchResultItem eventItem: eventSearchResult.getEventData()){
       EventLocation location = eventItem.getEventLocation();
       System.out.println("Event name:"+eventItem.getEventName());
@@ -697,9 +699,14 @@ public class SearchServiceIntegrationTest {
       assertFalse(eventItem.getGroupName().isEmpty());
       assertFalse(eventItem.getEventName().isEmpty());
 
+      assertNotEquals(0, eventItem.getEventId());
+      assertNotEquals(0, eventItem.getGroupId());
+
+      eventIds.add(eventItem.getEventId());
       nameData.add(eventItem.getGroupName()+"_"+eventItem.getEventName());
     }
 
+    assertEquals(eventSearchResult.getEventData().size(), eventIds.size());
     assertEquals(eventSearchResult.getEventData().size(), nameData.size());
 
   }
