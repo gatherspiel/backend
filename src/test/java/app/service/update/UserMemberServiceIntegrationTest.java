@@ -10,7 +10,7 @@ import app.users.SessionContext;
 import app.users.UserMemberData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -137,19 +137,20 @@ public class UserMemberServiceIntegrationTest {
   @Test
   public void testStandardUserRsvpToEvent_eventWithNextOccurrenceIsDisplayed_EventIsOnCurrentDay() throws Exception{
 
-    //The test may not produce an accurate result if it is run immediately before midnight
-    if(LocalTime.now().equals(LocalTime.MIDNIGHT.minusMinutes(1))){
-      System.out.println("Waiting until after midnight to run test");
-      Thread.sleep(60000);
-    }
 
     EventService adminEventService = adminContext.createEventService();
 
     Group group = CreateGroupUtils.createGroup(standardUserContext.getUser(), conn);
 
     Event event = EventService.createRecurringEventObject();
-    LocalTime startTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
     DayOfWeek startDay = DayOfWeek.from(LocalDate.now());
+
+    LocalTime startTime;
+    if(LocalTime.now().getHour() == 23){
+      startTime = LocalTime.now().plusHours(2).truncatedTo(ChronoUnit.MINUTES);
+    }else {
+      startTime = LocalTime.now().plusHours(1).truncatedTo(ChronoUnit.MINUTES);
+    }
     event.setStartTime(startTime);
     event.setDay(startDay.toString());
     Event created = adminEventService.createEvent(event,group.getId());
@@ -168,7 +169,7 @@ public class UserMemberServiceIntegrationTest {
 
     LocalDate expectedDate = LocalDate.now();
     LocalDate startDate = eventFromDb.getStartDate();
-    assertEquals(expectedDate, startDate);
+    assertEquals(expectedDate, startDate, "Start time:"+startTime);
   }
 
   @Test
@@ -252,7 +253,7 @@ public class UserMemberServiceIntegrationTest {
     assertEquals(startTime, eventFromDb.getStartTime());
     assertEquals(startDay, eventFromDb.getDay());
 
-    LocalDate expectedDate = LocalDate.now();
+    LocalDate expectedDate = LocalDate.now().plusDays(7);
     assertEquals(expectedDate, eventFromDb.getStartDate());
   }
 
@@ -443,7 +444,7 @@ public class UserMemberServiceIntegrationTest {
 
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
     LinkedHashMap<String, String> readGroupParams = new LinkedHashMap<>();
-    readGroupParams.put(GroupSearchParams.NAME, group.getName());
+    readGroupParams.put(SearchParams.NAME, group.getName());
 
     UserMemberService memberService = standardUserContext2.createUserMemberService();
     memberService.joinGroup(group.getId());

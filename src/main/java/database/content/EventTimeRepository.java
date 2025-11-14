@@ -39,6 +39,7 @@ public class EventTimeRepository {
   }
 
   public void createWeeklyRecurrence(Event event) throws Exception {
+
     String query =
         "INSERT into weekly_event_time (event_id, day_of_week, start_time,end_time) VALUES(?, cast(? AS dayofweek), ?, ?)";
 

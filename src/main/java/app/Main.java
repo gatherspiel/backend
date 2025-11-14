@@ -2,10 +2,11 @@ package app;
 
 import app.cache.CacheConnection;
 import app.feedback.Feedback;
+import app.result.listing.EventSearchResult;
 import app.result.listing.HomeResult;
 import app.users.SessionContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.utils.ConnectionProvider;
 import io.javalin.Javalin;
 import io.javalin.http.HandlerType;
@@ -114,17 +115,15 @@ public class Main {
       "/searchGroups",
       ctx -> {
 
-
         long start = System.currentTimeMillis();
         try {
 
           var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
-          var searchParams = GroupSearchParams.generateParameterMapFromQueryString(
+          var searchParams = SearchParams.generateParameterMapFromQueryString(
             ctx
           );
-
           var cacheConnection = new CacheConnection(ctx);
-          Optional<HomeResult> cachedData = cacheConnection.getCachedSearchResult();
+          Optional<HomeResult> cachedData = cacheConnection.getCachedGroupSearchResult();
           if(cachedData.isPresent()){
             ctx.json(cachedData.get());
             ctx.status(HttpStatus.OK);
@@ -137,8 +136,46 @@ public class Main {
             cacheConnection.cacheSearchResult(groupSearchResult);
             long end = System.currentTimeMillis();
 
-            logger.info("Search time:" + ((end - start) / 1000));
+            logger.info("Search time for groups:" + ((end - start) / 1000));
             ctx.json(groupSearchResult);
+            ctx.status(HttpStatus.OK);
+          }
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          ctx.result("Invalid search parameter");
+          ctx.status(HttpStatus.BAD_REQUEST);
+        }
+      }
+    );
+
+    app.get(
+      "/searchEvents",
+      ctx -> {
+
+        long start = System.currentTimeMillis();
+        try {
+
+          var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
+          var searchParams = SearchParams.generateParameterMapFromQueryString(
+            ctx
+          );
+          var cacheConnection = new CacheConnection(ctx);
+          Optional<EventSearchResult> cachedData = cacheConnection.getCachedEventSearchResult();
+          if(cachedData.isPresent()){
+            ctx.json(cachedData.get());
+            ctx.status(HttpStatus.OK);
+          } else {
+            var searchService = sessionContext.createSearchService();
+            var eventSearchResult = searchService.getEventsForHomepage(
+              searchParams
+            );
+
+            cacheConnection.cacheSearchResult(eventSearchResult);
+            long end = System.currentTimeMillis();
+
+            logger.info("Search time for groups:" + ((end - start) / 1000));
+            ctx.json(eventSearchResult);
             ctx.status(HttpStatus.OK);
           }
 

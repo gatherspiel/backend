@@ -12,7 +12,7 @@ import app.users.User;
 import app.users.UserData;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
-import database.search.GroupSearchParams;
+import database.search.SearchParams;
 import database.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -339,7 +339,7 @@ public class EventServiceIntegrationTest {
     var groupService = adminContext.createReadGroupService();
 
     LinkedHashMap<String,String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
+    params.put(SearchParams.NAME, group.getName());
 
     GroupPageData data = groupService.getGroupPageData(params);
 
@@ -904,7 +904,7 @@ public class EventServiceIntegrationTest {
     ReadGroupService readGroupService = adminContext.createReadGroupService();
 
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-    params.put(GroupSearchParams.NAME, group.getName());
+    params.put(SearchParams.NAME, group.getName());
     GroupPageData groupPageData = readGroupService.getGroupPageData(params);
 
     assertEquals(0,groupPageData.getWeeklyEventData().size());
