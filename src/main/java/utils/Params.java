@@ -17,9 +17,13 @@ public class Params {
   }
 
   public static String getAuthUrl(){
+    if(("prod").equals(System.getenv("ENV"))){
+      return "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/";
+    }
+
     var url = System.getenv("AUTH_URL");
     if(url == null || url.isBlank()){
-      return "https://karqyskuudnvfxohwkok.supabase.co/auth/v1/";
+      return "http://localhost:54321/auth/v1/";
     }
     return url;
   }

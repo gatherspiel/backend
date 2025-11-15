@@ -81,7 +81,7 @@ public class Group {
   }
 
   public void setImage(String imageData){
-    if(imageData != null){
+    if(imageData != null && !imageData.isEmpty()){
       var imageSplit = imageData.split(";");
 
       if(imageSplit.length == 1){
