@@ -62,12 +62,7 @@ public class GroupEditServiceIntegrationTest {
   private static LocalDateTime START_TIME_2 = LocalDateTime.now().plusHours(1).plusDays(1);
   private static LocalDateTime END_TIME_2 = LocalDateTime.now().plusHours(5).plusDays(1);
 
-  private static void assertGroupsAreEqual(Group group1, Group group2){
-    assertEquals(group1.getId(), group2.getId());
-    assertEquals(group1.getUrl(), group2.getUrl());
-    assertEquals(group1.getName(), group2.getName());
-    assertEquals(group1.getDescription(), group2.getDescription());
-  }
+
 
   @BeforeAll
   static void setup() throws Exception{
@@ -128,6 +123,25 @@ public class GroupEditServiceIntegrationTest {
     assertTrue(exception.getMessage().contains("Cannot create multiple groups with the same name"));
   }
 
+  //Test creating group with empty image key
+  @Test
+  public void testCreateAndEditGroupWithBlankImageKey() throws Exception{
+    GroupEditService groupEditService = adminContext.createGroupEditService();
+
+    Group group = CreateGroupUtils.createGroupObject();
+    group.setImage("");
+    Group createdGroup = groupEditService.insertGroup(group);
+    assertGroupsAreEqual(group, createdGroup);
+
+    Group update = CreateGroupUtils.createGroupObject();
+    update.setImage("");
+    update.setId(createdGroup.getId());
+    groupEditService.editGroup(update);
+
+    Optional<Group> updatedFromDb = adminContext.createReadGroupService().getGroupWithOneTimeEvents(createdGroup.getId());
+    assertTrue(updatedFromDb.isPresent());
+    assertGroupsAreEqual(update, updatedFromDb.get());
+  }
   @Test
   public void testUserCannotEditGroup_whenNotLoggedIn() throws Exception {
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
@@ -184,7 +198,6 @@ public class GroupEditServiceIntegrationTest {
     Optional<Group> updatedFromDb = standardUserContext.createReadGroupService().getGroupWithOneTimeEvents(group.getId());
     assertGroupsAreEqual(updatedFromDb.orElseThrow(), updated);
   }
-
 
   @Test
   public void testUserCannotEditGroupThatDoesNotExist() throws Exception{
@@ -370,5 +383,15 @@ public class GroupEditServiceIntegrationTest {
     GroupPageData groupData2  = readGroupService.getGroupPageData(params);
     assertEquals(group.getId(), groupData2.getId());
     assertArrayEquals(new GameTypeTag[0],groupData2.getGameTypeTags());
+  }
+
+  private static void assertGroupsAreEqual(Group group1, Group group2){
+    assertEquals(group1.getId(), group2.getId());
+    assertEquals(group1.getUrl(), group2.getUrl());
+    assertEquals(group1.getName(), group2.getName());
+    assertEquals(group1.getDescription(), group2.getDescription());
+    assertEquals(group1.getImage(), group2.getImage());
+    assertEquals(group1.getImageFilePath(), group2.getImageFilePath());
+
   }
 }
