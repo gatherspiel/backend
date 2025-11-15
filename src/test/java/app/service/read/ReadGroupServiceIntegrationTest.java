@@ -239,8 +239,6 @@ public class ReadGroupServiceIntegrationTest {
 
     assertEquals(4,correctEventNames);
     assertEquals(0, result.getOneTimeEventData().size());
-
-
   }
 
   @Test
@@ -256,6 +254,7 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertTrue(result.userCanEdit());
+    assertTrue(result.userCanUpdateGroupMembership());
   }
 
   @Test
@@ -271,6 +270,8 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
+    assertTrue(result.userCanUpdateGroupMembership());
+
   }
 
   @Test
@@ -352,7 +353,7 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
-  public void testGetGroupData_doesNotShowEditPermissions_rsvpsDisabled_whenUserIsNotLoggedIn() throws Exception{
+  public void testGetGroupData_doesNotShowPermissions_rsvpsDisabled_whenUserIsNotLoggedIn() throws Exception{
 
     var readOnlyContext = SessionContext.createContextWithoutUser(testConnectionProvider);
 
@@ -364,6 +365,8 @@ public class ReadGroupServiceIntegrationTest {
         params
     );
     assertFalse(result.userCanEdit());
+    assertFalse(result.userCanUpdateGroupMembership());
+
     assertEquals(4,result.getWeeklyEventData().size());
 
     for(Event event: result.getWeeklyEventData()) {
