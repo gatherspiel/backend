@@ -860,6 +860,30 @@ public class EventServiceIntegrationTest {
   }
 
   @Test
+  public void testAddTwoModeratorsToEvent() throws Exception {
+    Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
+    EventService eventService = groupAdminContext.createEventService();
+
+    Event eventObj = EventService.createOneTimeEventObjectWithData();
+
+    Event created = eventService.createEvent(eventObj,group.getId());
+
+    Set<User> moderators = new HashSet<>();
+    moderators.add(standardUserContext.getUser());
+    moderators.add(standardUserContext2.getUser());
+
+    created.setModerators(moderators);
+    eventService.updateEvent(created);
+
+    Optional<Event> eventFromDb = eventService.getEvent(created.getId());
+    assertTrue(eventFromDb.isPresent());
+    assertTrue(eventFromDb.get().getPermissions().get(PermissionName.USER_CAN_EDIT));
+    assertTrue(eventFromDb.get().getModerators().contains(standardUserContext.getUser()));
+    assertTrue(eventFromDb.get().getModerators().contains(standardUserContext2.getUser()));
+    assertEquals(2,eventFromDb.get().getModerators().size());
+  }
+
+  @Test
   public void testUpdateModeratorPreviousModeratorIsReplaced() throws Exception {
     Group group = CreateGroupUtils.createGroup(groupAdminContext.getUser(), conn);
     EventService eventService = groupAdminContext.createEventService();
