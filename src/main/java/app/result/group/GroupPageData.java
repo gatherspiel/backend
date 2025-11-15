@@ -152,6 +152,13 @@ public class GroupPageData {
     this.permissions.put(permissionName, isEnabled);
   }
 
+  public boolean userCanUpdateGroupMembership(){
+    if(permissions == null){
+      return false;
+    }
+    return permissions.getOrDefault(PermissionName.USER_CAN_UPDATE_GROUP_MEMBERSHIP, false);
+  }
+
   public boolean userCanEdit(){
     if(permissions == null) {
       return false;

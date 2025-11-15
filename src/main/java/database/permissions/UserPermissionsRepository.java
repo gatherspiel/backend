@@ -84,6 +84,9 @@ public class UserPermissionsRepository
     if(user.isSiteAdmin()){
       permissions.put(PermissionName.USER_CAN_EDIT, true);
     }
+    if(user.isLoggedInUser()){
+      permissions.put(PermissionName.USER_CAN_UPDATE_GROUP_MEMBERSHIP, true);
+    }
 
     String query =  """
       SELECT group_admin_level from groups
