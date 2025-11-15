@@ -423,7 +423,8 @@ public class EventRepository {
       SELECT
         event_group_map.event_id,
         COUNT(rsvp_a.user_id),
-        rsvp_b.user_id,
+        rsvp_a.user_id as moderator_user_id,
+        rsvp_b.user_id as user_id,
         rsvp_a.event_admin_level as event_admin_level,
         users.username as username,
         users.image_path as image_path
@@ -432,8 +433,8 @@ public class EventRepository {
         LEFT JOIN event_admin_data as rsvp_b on rsvp_b.event_id = event_group_map.event_id  AND rsvp_b.user_id = ?
         LEFT JOIN users on rsvp_b.user_id = users.id
         
-      WHERE group_id =?
-        GROUP BY event_group_map.event_id,group_id,rsvp_b.user_id,rsvp_a.event_admin_level,users.image_path,users.username
+      WHERE group_id = ?
+        GROUP BY event_group_map.event_id,group_id,rsvp_a.user_id,rsvp_b.user_id,rsvp_a.event_admin_level,users.image_path,users.username
         ORDER BY event_group_map.event_id
       """;
 
@@ -458,7 +459,7 @@ public class EventRepository {
          EventAdminType.fromDatabaseString(eventAdminType).equals(EventAdminType.EVENT_MODERATOR)){
 
         User moderator = new User();
-        moderator.setId(rs.getInt("user_id"));
+        moderator.setId(rs.getInt("moderator_user_id"));
 
         UserData data = new UserData();
         data.setImageFilePath(rs.getString("image_path"));

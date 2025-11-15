@@ -301,6 +301,34 @@ public class ReadGroupServiceIntegrationTest {
   }
 
   @Test
+  public void testGroupPageData_eventHasTwoModerators() throws Exception{
+    SessionContext standardUserContext2 =
+        CreateUserUtils.createContextWithNewStandardUser("user_"+UUID.randomUUID(),testConnectionProvider);
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+    EventService eventService = adminContext.createEventService();
+
+    Event eventObj = EventService.createRecurringEventObject();
+
+    Event created = eventService.createEvent(eventObj,group.getId());
+
+    Set<User> moderators = new HashSet<>();
+    moderators.add(standardUserContext.getUser());
+    moderators.add(standardUserContext2.getUser());
+
+    created.setModerators(moderators);
+    eventService.updateEvent(created);
+
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(SearchParams.NAME, group.getName());
+
+    ReadGroupService readGroupService = sessionContext.createReadGroupService();
+    GroupPageData groupPageData = readGroupService.getGroupPageData(params);
+
+    assertEquals(1,groupPageData.getWeeklyEventData().size());
+    assertEquals(2, groupPageData.getWeeklyEventData().first().getModerators().size());
+  }
+
+  @Test
   public void testGetGroupData_showsEditPermissions_whenUserIsGroupModerator() throws Exception{
 
     var sessionContext = CreateUserUtils.createContextWithNewStandardUser("test_5",testConnectionProvider);

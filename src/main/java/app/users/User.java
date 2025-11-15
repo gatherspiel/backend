@@ -1,7 +1,7 @@
 package app.users;
 
 public class User {
-  private String email;
+  private String email = "";
   private UserType userType;
   private int id;
   private UserData userData = new UserData();
