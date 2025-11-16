@@ -58,7 +58,7 @@ public class SearchParams {
 
   public PreparedStatement generateGroupSearchQuery(Connection conn, boolean isHomepage) throws Exception {
     String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
-    return generatePreparedStatement(query, conn);
+    return generatePreparedStatement(query, conn, paramQueryMap.get(CITY));
   }
 
   public PreparedStatement generateEventSearchQuery(Connection conn) throws Exception {
@@ -82,12 +82,9 @@ public class SearchParams {
         LEFT JOIN event_time on event_time.event_id = events.id
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
         LEFT JOIN locations on events.location_id = locations.id
-        LEFT JOIN location_group_map on groups.id = location_group_map.group_id
-        LEFT JOIN locations as locs on location_group_map.location_id = locs.id
       """;
-    return generatePreparedStatement(query, conn);
+    return generatePreparedStatement(query, conn, "locations.city=?");
   }
-
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
     String query = """
@@ -137,7 +134,7 @@ public class SearchParams {
     return select;
   }
 
-  private PreparedStatement generatePreparedStatement(String query, Connection conn) throws Exception{
+  private PreparedStatement generatePreparedStatement(String query, Connection conn,String cityQuery) throws Exception{
     ArrayList<String> whereClauses = new ArrayList<>();
 
     for(String param: params.keySet()){
@@ -149,7 +146,9 @@ public class SearchParams {
           paramData[i] = "CAST(? as dayofweek)";
         }
         whereClauses.add("weekly_event_time.day_of_week IN("+String.join(",",paramData)+")");
-      } else {
+      } else if (param.equals(CITY)) {
+        whereClauses.add(cityQuery);
+      }else {
         whereClauses.add(paramQueryMap.get(param));
       }
     }
