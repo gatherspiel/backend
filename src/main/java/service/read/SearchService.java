@@ -99,9 +99,6 @@ public class SearchService {
       if(compare == 0.0){
         compare = item1.getEventName().compareTo(item2.getEventName());
       }
-      if(compare == 0.0){
-        compare = item1.getGroupName().compareTo(item2.getGroupName());
-      }
       return (int)compare;
     }
   }
