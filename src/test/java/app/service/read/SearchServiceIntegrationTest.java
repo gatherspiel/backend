@@ -13,6 +13,7 @@ import app.result.listing.EventSearchResult;
 import app.result.listing.EventSearchResultItem;
 import app.result.listing.HomepageGroup;
 import app.result.listing.HomeResult;
+import app.users.SessionContext;
 import app.utils.CreateGroupUtils;
 import app.utils.CreateUserUtils;
 import database.search.SearchParams;
@@ -670,24 +671,58 @@ public class SearchServiceIntegrationTest {
   @Order(4)
   public void testCorrectNumberOfEventsVisibleInSearchResults_sortedByNextOccurrence_noLocationOrDayFilter() throws Exception{
 
+    SessionContext adminUserContext = CreateUserUtils.createContextWithNewAdminUser(
+        "admin_"+UUID.randomUUID(), testConnectionProvider);
+
+    Group group = CreateGroupUtils.createGroupWithName(
+        adminUserContext.getUser(),
+        "Test Group"+UUID.randomUUID(),
+        testConnectionProvider.getDatabaseConnection());
+
+    Event event = EventService.createRecurringEventObject();
+    event.setStartTime(LocalTime.now().minusHours(1));
+    event.setDay(LocalDate.now().getDayOfWeek().toString());
+
+    Event event2 = EventService.createRecurringEventObject();
+    event2.setStartTime(LocalTime.now().minusHours(13));
+    event2.setDay(LocalDate.now().getDayOfWeek().toString());
+
+    EventService eventService = adminUserContext.createEventService();
+    eventService.createEvent(event, group.getId());
+    eventService.createEvent(event2, group.getId());
+
+
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
-    assertEquals(37, eventSearchResult.getEventData().size());
+    assertEquals(39, eventSearchResult.getEventData().size());
 
-    LocalDate startDate = LocalDate.MIN;
-    LocalTime startTime = LocalTime.MIN;
 
+    LocalDate startDate = LocalDate.now();
+    LocalTime startTime = LocalTime.now();
+
+    boolean timesInOrder = true;
     for(EventSearchResultItem resultItem: eventSearchResult.getEventData()){
 
       LocalDate eventStartDate = resultItem.getNextEventDate();
       LocalTime eventStartTime = resultItem.getNextEventTime();
-      assertTrue(
-        eventStartDate.isAfter(startDate) ||
-          (eventStartDate.equals(startDate) && !eventStartTime.isBefore(startTime))
-        );
+      timesInOrder = timesInOrder && (eventStartDate.isAfter(startDate) ||
+          (eventStartDate.equals(startDate) && !eventStartTime.isBefore(startTime)));
+
+      if(!timesInOrder){
+        break;
+      }
       startDate = eventStartDate;
       startTime = eventStartTime;
     }
+
+    eventService.deleteEvent(event.getId(), group.getId());
+    eventService.deleteEvent(event2.getId(), group.getId());
+
+    GroupEditService groupEditService = adminUserContext.createGroupEditService();
+    groupEditService.deleteGroup(group.getId());
+
+    assertTrue(timesInOrder);
+
   }
 
   @Test
@@ -891,8 +926,8 @@ public class SearchServiceIntegrationTest {
 
     double distance = 0.0;
 
-    LocalDate startDate = LocalDate.MIN;
-    LocalTime startTime = LocalTime.MIN;
+    LocalDate startDate = LocalDate.now();
+    LocalTime startTime = LocalTime.now();
 
     for(EventSearchResultItem item: data){
       String eventCity = item.getEventLocation().getCity();
@@ -915,9 +950,7 @@ public class SearchServiceIntegrationTest {
       distance = eventDistance.get();
 
     }
-
     assertTrue(distance < 200);
   }
-
 
  }

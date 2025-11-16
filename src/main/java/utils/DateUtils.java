@@ -8,13 +8,18 @@ import java.time.temporal.TemporalAdjusters;
 
 public class DateUtils
 {
-  public static LocalDate getNextOccurrence(DayOfWeek dayOfWeek, LocalTime localTime){
 
-    LocalDateTime nextEventOccurrence = LocalDateTime.now();
-    if(!dayOfWeek.equals(nextEventOccurrence.getDayOfWeek()) ||
-      nextEventOccurrence.toLocalTime().isAfter(localTime)){
-      nextEventOccurrence = nextEventOccurrence.with(TemporalAdjusters.next(dayOfWeek));
+  public static LocalDate getNextOccurrenceFromTime(DayOfWeek occurrenceDay, LocalTime occurrenceTime, LocalDateTime fromTime){
+
+    if(!occurrenceDay.equals(fromTime.getDayOfWeek()) ||
+        fromTime.toLocalTime().isAfter(occurrenceTime)){
+
+      fromTime = fromTime.with(TemporalAdjusters.next(occurrenceDay));
     }
-    return nextEventOccurrence.toLocalDate();
+    return fromTime.toLocalDate();
+  }
+
+  public static LocalDate getNextOccurrence(DayOfWeek dayOfWeek, LocalTime localTime){
+    return getNextOccurrenceFromTime(dayOfWeek, localTime, LocalDateTime.now());
   }
 }

@@ -5,7 +5,9 @@ import app.groups.GameTypeTag;
 import app.result.listing.EventSearchResultItem;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
+import org.apache.logging.log4j.Logger;
 import utils.DateUtils;
+import utils.LogUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +25,8 @@ public class SearchRepository {
   public SearchRepository(Connection conn){
     this.conn = conn;
   }
+
+  private static Logger logger = LogUtils.getLogger();
 
   public HomeResult getGroupsForHomepage(
     SearchParams searchParams
@@ -75,11 +79,11 @@ public class SearchRepository {
       int eventId = rs.getInt("eventId");
       int groupId = rs.getInt("groupId");
       Timestamp startTimestamp = rs.getTimestamp("start_time");
-      LocalTime startTime;
+      LocalDateTime startDateTime;
       if(startTimestamp != null){
-        startTime = startTimestamp.toLocalDateTime().toLocalTime();
+        startDateTime = startTimestamp.toLocalDateTime();
       } else {
-        startTime = LocalTime.now();
+        startDateTime = LocalDateTime.now();
       }
       String dayOfWeek = rs.getString("day_of_week");
 
@@ -100,12 +104,12 @@ public class SearchRepository {
       if(dayOfWeek != null){
         resultItem.setDayOfWeek(DayOfWeek.valueOf(dayOfWeek.toUpperCase()));
         resultItem.setNextEventDate(
-          DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek.toUpperCase()), startTime));
+          DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek.toUpperCase()), startDateTime.toLocalTime()));
       } else {
-        resultItem.setNextEventDate(LocalDate.now());
+        resultItem.setNextEventDate(startDateTime.toLocalDate());
       }
 
-      resultItem.setNextEventTime(startTime);
+      resultItem.setNextEventTime(startDateTime.toLocalTime());
 
       resultItem.setEventId(eventId);
       resultItem.setGroupId(groupId);
@@ -114,8 +118,6 @@ public class SearchRepository {
       resultItem.setGameTypeTags(getTagsFromResultSet(rs));
 
       eventResults.add(resultItem);
-
-
     }
 
     return eventResults;
