@@ -806,6 +806,20 @@ public class SearchServiceIntegrationTest {
 
   @Test
   @Order(4)
+  public void testNoEvents_UserGroupsSearchParameterAndDayParameter_UserDidNotJoinGroups() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(USER_GROUP_EVENTS, "true");
+    params.put(SearchParams.DAYS_OF_WEEK,"Monday,Wednesday");
+
+    SessionContext userContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
+    EventSearchResult result = userContext.createSearchService().getEventsForHomepage(params);
+    assertEquals(0, result.getEventData().size());
+  }
+
+  @Test
+  @Order(4)
   public void testCorrectEvents_onyUserGroupsSearchParameter() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
     params.put(USER_GROUP_EVENTS, "true");

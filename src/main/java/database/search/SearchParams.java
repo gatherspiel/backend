@@ -91,13 +91,10 @@ public class SearchParams {
 
     User searchWithUser = null;
     String userGroupEvents = getUserGroupEventsParam;
-    System.out.println(userGroupEvents);
-    System.out.println(user.isLoggedInUser());
     if(user.isLoggedInUser() && userGroupEvents != null && Boolean.valueOf(userGroupEvents)){
       searchWithUser = user;
     }
 
-    System.out.println(searchWithUser);
     return generatePreparedStatement(
         query,
         conn,
@@ -186,11 +183,7 @@ public class SearchParams {
     PreparedStatement select = conn.prepareStatement(query);
     int i = 1;
 
-    //Add a query parameter for the user.
-    if(user != null){
-      select.setInt(i, user.getId());
-      i++;
-    }
+
 
     for(String param: params.keySet()){
 
@@ -205,6 +198,12 @@ public class SearchParams {
         i++;
       }
     }
+
+    //Add a query parameter for the user.
+    if(user != null){
+      select.setInt(i, user.getId());
+    }
+
     return select;
   }
 
@@ -288,7 +287,7 @@ public class SearchParams {
     if(userGroupEvents != null && !userGroupEvents.isEmpty()){
       paramMap.put(SearchParams.USER_GROUP_EVENTS, userGroupEvents);
     }
-    
+
     String day = ctx.queryParam(SearchParams.DAYS_OF_WEEK);
     if(day != null && !day.isEmpty()){
       paramMap.put(SearchParams.DAYS_OF_WEEK, day);
