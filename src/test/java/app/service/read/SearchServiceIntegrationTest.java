@@ -793,6 +793,16 @@ public class SearchServiceIntegrationTest {
 
   }
 
+  @Test
+  public void testCorrectEvents_userGroupsSearchParameterIsNotTrue() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(USER_GROUP_EVENTS, "false");
+    SessionContext userContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
+    EventSearchResult result = userContext.createSearchService().getEventsForHomepage(new LinkedHashMap<>());
+    assertEquals(37, result.getEventData().size());
+  }
 
   @Test
   @Order(4)

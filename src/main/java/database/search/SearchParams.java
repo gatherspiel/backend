@@ -28,6 +28,8 @@ public class SearchParams {
 
   private final Logger logger;
 
+  private String getUserGroupEventsParam = null;
+
   static {
     paramQueryMap = new HashMap<>();
     paramQueryMap.put(CITY, "COALESCE(locations.city,locs.city) = ?");
@@ -49,8 +51,10 @@ public class SearchParams {
         locationGroupFilter = params.get(param);
       } else if (param.equals(NAME)){
         this.params.put(param, params.get(param).replace("_", " "));
-      }else {
-        if (!param.equals(DISTANCE) && !param.equals(USER_GROUP_EVENTS)) {
+      } else if (param.equals(USER_GROUP_EVENTS)) {
+        this.getUserGroupEventsParam =  params.get(USER_GROUP_EVENTS);
+      } else {
+        if (!param.equals(DISTANCE)) {
           logger.warn("Invalid parameter {} submitted. It will not be used in the search query", param);
         }
       }
@@ -85,11 +89,20 @@ public class SearchParams {
         LEFT JOIN locations on events.location_id = locations.id
       """;
 
+    User searchWithUser = null;
+    String userGroupEvents = getUserGroupEventsParam;
+    System.out.println(userGroupEvents);
+    System.out.println(user.isLoggedInUser());
+    if(user.isLoggedInUser() && userGroupEvents != null && Boolean.valueOf(userGroupEvents)){
+      searchWithUser = user;
+    }
+
+    System.out.println(searchWithUser);
     return generatePreparedStatement(
         query,
         conn,
         "locations.city=?",
-        user.isLoggedInUser() ? user : null);
+        searchWithUser);
   }
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
@@ -271,6 +284,11 @@ public class SearchParams {
   public static LinkedHashMap<String, String> generateParameterMapFromQueryString(Context ctx) {
     LinkedHashMap<String, String> paramMap = new LinkedHashMap<>();
 
+    String userGroupEvents = ctx.queryParam(SearchParams.USER_GROUP_EVENTS);
+    if(userGroupEvents != null && !userGroupEvents.isEmpty()){
+      paramMap.put(SearchParams.USER_GROUP_EVENTS, userGroupEvents);
+    }
+    
     String day = ctx.queryParam(SearchParams.DAYS_OF_WEEK);
     if(day != null && !day.isEmpty()){
       paramMap.put(SearchParams.DAYS_OF_WEEK, day);
