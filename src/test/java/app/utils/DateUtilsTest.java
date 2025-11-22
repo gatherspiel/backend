@@ -33,4 +33,26 @@ public class DateUtilsTest {
           fromTime.toLocalDate().toString() +" "+nextOccurrenceDate.toString());
     }
   }
+
+  @Test
+  public void testEveningDate_OccurrencesInPrevious24HoursAreInFuture(){
+    LocalDateTime current = LocalDateTime.now();
+
+    LocalDateTime fromTime = current.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+    fromTime = fromTime.withHour(18);
+    fromTime = fromTime.withMinute(45);
+
+    for(int i=1;i<=24;i++){
+      LocalDateTime localDateTime = fromTime.minusHours(i);
+
+      DayOfWeek occurrenceDay = localDateTime.getDayOfWeek();
+      LocalTime occurrenceTime = localDateTime.toLocalTime();
+
+      LocalDate nextOccurrenceDate = DateUtils.getNextOccurrenceFromTime(occurrenceDay, occurrenceTime,fromTime);
+
+      assertTrue(
+          nextOccurrenceDate.isAfter(fromTime.toLocalDate()),
+          fromTime.toLocalDate().toString() +" "+nextOccurrenceDate.toString());
+    }
+  }
 }
