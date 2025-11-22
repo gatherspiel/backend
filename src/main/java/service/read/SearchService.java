@@ -2,6 +2,7 @@ package service.read;
 
 import app.groups.Group;
 import app.result.listing.*;
+import app.users.User;
 import database.search.SearchParams;
 import database.search.SearchRepository;
 import org.apache.logging.log4j.Logger;
@@ -16,9 +17,11 @@ public class SearchService {
 
   private final SearchRepository searchRepository;
   private final Logger logger;
-  public SearchService(Connection conn){
+  private final User user;
+  public SearchService(Connection conn, User user){
     this.searchRepository = new SearchRepository(conn);
     this.logger = LogUtils.getLogger();
+    this.user = user;
   }
 
   public EventSearchResult getEventsForHomepage(LinkedHashMap<String,String> searchParamMap) throws Exception{
@@ -30,14 +33,14 @@ public class SearchService {
       LinkedHashMap<String, String> updatedParams = new LinkedHashMap<>(searchParamMap);
       updatedParams.remove(SearchParams.CITY);
       SearchParams params = new SearchParams(updatedParams);
-      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
+      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params,user);
       return filterAndSortEventSearchResults(
         results,
         searchCity,
         SearchParameterValidator.validateAndRetrieveDistanceParameter(distance));
     }else {
       SearchParams params = new SearchParams(searchParamMap);
-      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params);
+      ArrayList<EventSearchResultItem> results = searchRepository.getEventSearchResults(params,user);
 
       TreeSet<EventSearchResultItem> sorted = new TreeSet<>(new EventSearchResultComparator());
       sorted.addAll(results);
@@ -86,7 +89,7 @@ public class SearchService {
     return groups.getFirstGroup();
   }
 
-  public class EventSearchResultComparator implements Comparator<EventSearchResultItem> {
+  public static class EventSearchResultComparator implements Comparator<EventSearchResultItem> {
     public int compare(EventSearchResultItem item1, EventSearchResultItem item2){
       double compare = item1.getDistance().compareTo(item2.getDistance());
 

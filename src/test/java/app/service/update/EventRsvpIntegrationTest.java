@@ -407,6 +407,30 @@ public class EventRsvpIntegrationTest {
   }
 
   @Test
+  public void testRsvpBeforeLastEvent_noRsvpAfterEvent() throws Exception{
+    Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
+
+    Event event = EventService.createRecurringEventObject();
+    Event created = adminEventService.createEvent(event, group.getId());
+
+    EventService standardUserEventService = standardUserContext.createEventService();
+
+    standardUserEventService.rsvpToEvent(created.getId());
+
+    Thread.sleep(1000);
+
+    LocalDateTime now = LocalDateTime.now();
+    created.setDay(now.getDayOfWeek().toString());
+    created.setStartTime(now.toLocalTime());
+    created.setEndTime(now.toLocalTime().plusHours(2));
+    adminEventService.updateEvent(created);
+
+    Thread.sleep(1000);
+
+    verifyRsvpCount(created.getId(),0);
+  }
+
+  @Test
   public void testRsvpBeforeLastEvent_updateRsvpAfterEventOneRsvp() throws Exception{
     Group group = CreateGroupUtils.createGroup(adminContext.getUser(), conn);
 

@@ -53,7 +53,7 @@ public class SessionContext {
   }
 
   public SearchService createSearchService() {
-    return new SearchService(conn);
+    return new SearchService(conn,user);
   }
 
   public void setUser(User user){
