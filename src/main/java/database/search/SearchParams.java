@@ -18,7 +18,7 @@ public class SearchParams {
   public static final String AREA = "area";
   public static final String NAME = "name";
   public static final String DISTANCE = "distance";
-
+  public static final String USER_GROUP_EVENTS = "true";
   //Query parameters for filtering results by a specific field value.
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
