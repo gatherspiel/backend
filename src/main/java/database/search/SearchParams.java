@@ -1,5 +1,6 @@
 package database.search;
 
+import app.users.User;
 import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
 import app.result.error.SearchParameterException;
@@ -18,7 +19,7 @@ public class SearchParams {
   public static final String AREA = "area";
   public static final String NAME = "name";
   public static final String DISTANCE = "distance";
-  public static final String USER_GROUP_EVENTS = "true";
+  public static final String USER_GROUP_EVENTS = "userGroupEvents";
   //Query parameters for filtering results by a specific field value.
   private final LinkedHashMap<String, String> params;
   private static final HashMap<String, String> paramQueryMap;
@@ -49,7 +50,7 @@ public class SearchParams {
       } else if (param.equals(NAME)){
         this.params.put(param, params.get(param).replace("_", " "));
       }else {
-        if (!param.equals(DISTANCE)) {
+        if (!param.equals(DISTANCE) && !param.equals(USER_GROUP_EVENTS)) {
           logger.warn("Invalid parameter {} submitted. It will not be used in the search query", param);
         }
       }
@@ -58,10 +59,10 @@ public class SearchParams {
 
   public PreparedStatement generateGroupSearchQuery(Connection conn, boolean isHomepage) throws Exception {
     String query = isHomepage ? getQueryForHomepageSearchResult() : getQueryForAllResultsWithRecurringEvents();
-    return generatePreparedStatement(query, conn, paramQueryMap.get(CITY));
+    return generatePreparedStatement(query, conn, paramQueryMap.get(CITY), null);
   }
 
-  public PreparedStatement generateEventSearchQuery(Connection conn) throws Exception {
+  public PreparedStatement generateEventSearchQuery(Connection conn, User user) throws Exception {
     String query = """
         SELECT
         DISTINCT ON (events.id, groups.id, groups.name)
@@ -83,7 +84,12 @@ public class SearchParams {
         LEFT JOIN weekly_event_time on weekly_event_time.event_id = events.id
         LEFT JOIN locations on events.location_id = locations.id
       """;
-    return generatePreparedStatement(query, conn, "locations.city=?");
+
+    return generatePreparedStatement(
+        query,
+        conn,
+        "locations.city=?",
+        user.isLoggedInUser() ? user : null);
   }
 
   public PreparedStatement generateQueryForOneTimeEvents(Connection conn) throws Exception {
@@ -134,7 +140,7 @@ public class SearchParams {
     return select;
   }
 
-  private PreparedStatement generatePreparedStatement(String query, Connection conn,String cityQuery) throws Exception{
+  private PreparedStatement generatePreparedStatement(String query, Connection conn,String cityQuery,User user) throws Exception{
     ArrayList<String> whereClauses = new ArrayList<>();
 
     for(String param: params.keySet()){
@@ -155,11 +161,24 @@ public class SearchParams {
     whereClauses.add("is_hidden IS NOT TRUE");
     whereClauses.add("groups.name IS NOT NULL");
 
+    //This query is necessary to filter by user.
+    if(user != null){
+      query = query + "LEFT JOIN group_admin_data on group_admin_data.group_id = groups.id";
+      whereClauses.add("group_admin_data.user_id = ?");
+    }
+
     query += " WHERE ";
     query += String.join( " AND ", whereClauses.toArray(new String[0]));
 
     PreparedStatement select = conn.prepareStatement(query);
     int i = 1;
+
+    //Add a query parameter for the user.
+    if(user != null){
+      select.setInt(i, user.getId());
+      i++;
+    }
+
     for(String param: params.keySet()){
 
       if(param.equals(DAYS_OF_WEEK)){

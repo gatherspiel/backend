@@ -27,6 +27,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.opentest4j.AssertionFailedError;
+import service.auth.AuthService;
 import service.read.DistanceService;
 import service.read.SearchService;
 import service.update.EventService;
@@ -46,7 +47,7 @@ public class SearchServiceIntegrationTest {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService(conn);
+      searchService = new SearchService(conn, AuthService.getReadOnlyUser());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing data:" + e.getMessage());
@@ -790,7 +791,6 @@ public class SearchServiceIntegrationTest {
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
     assertEquals(2, eventSearchResult.getEventData().size());
 
-
   }
 
 
@@ -825,7 +825,7 @@ public class SearchServiceIntegrationTest {
     eventNames.add("High Interaction Board Games at Western Market Food Hall in DC");
     eventNames.add("Game Night at Glory Days");
 
-
+    assertEquals(5, eventSearchResult.getEventData().size());
     for(EventSearchResultItem eventSearchResultItem: eventSearchResult.getEventData()){
       assertTrue(eventNames.contains(eventSearchResultItem.getEventName()));
       eventNames.remove(eventSearchResultItem.getEventName());
@@ -833,7 +833,7 @@ public class SearchServiceIntegrationTest {
     assertEquals(0, eventNames.size());
 
     EventSearchResult otherUserSearchResult = otherUserContext.createSearchService().getEventsForHomepage(params);
-    assertEquals(0, otherUserSearchResult.getEventData());
+    assertEquals(0, otherUserSearchResult.getEventData().size());
 
 
   }

@@ -5,6 +5,7 @@ import app.groups.GameTypeTag;
 import app.result.listing.EventSearchResultItem;
 import app.result.listing.GroupSearchResult;
 import app.result.listing.HomeResult;
+import app.users.User;
 import org.apache.logging.log4j.Logger;
 import utils.DateUtils;
 import utils.LogUtils;
@@ -67,9 +68,9 @@ public class SearchRepository {
     return searchResult;
   }
 
-  public ArrayList<EventSearchResultItem> getEventSearchResults(SearchParams searchParams) throws Exception {
+  public ArrayList<EventSearchResultItem> getEventSearchResults(SearchParams searchParams, User user) throws Exception {
 
-    PreparedStatement statement = searchParams.generateEventSearchQuery(conn);
+    PreparedStatement statement = searchParams.generateEventSearchQuery(conn, user);
     ResultSet rs = statement.executeQuery();
 
     ArrayList<EventSearchResultItem> eventResults = new ArrayList<>();
