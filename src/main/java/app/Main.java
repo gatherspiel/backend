@@ -168,8 +168,14 @@ public class Main {
           var searchParams = SearchParams.generateParameterMapFromQueryString(
             ctx
           );
-          var cacheConnection = new CacheConnection(ctx);
-          Optional<EventSearchResult> cachedData = cacheConnection.getCachedEventSearchResult();
+
+          Optional<EventSearchResult> cachedData = Optional.empty();
+          CacheConnection cacheConnection = null;
+          if(!sessionContext.getUser().isLoggedInUser()){
+            cacheConnection = new CacheConnection(ctx);
+            cachedData = (cacheConnection.getCachedEventSearchResult());
+          }
+
           if(cachedData.isPresent()){
             ctx.json(cachedData.get());
             ctx.status(HttpStatus.OK);
@@ -179,7 +185,9 @@ public class Main {
               searchParams
             );
 
-            cacheConnection.cacheSearchResult(eventSearchResult);
+            if(!sessionContext.getUser().isLoggedInUser()) {
+              cacheConnection.cacheSearchResult(eventSearchResult);
+            }
             long end = System.currentTimeMillis();
 
             logger.info("Search time for groups:" + ((end - start) / 1000));
