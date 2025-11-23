@@ -1,5 +1,6 @@
 package app.service.read;
 
+import static database.search.SearchParams.USER_GROUP_EVENTS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import app.database.utils.DbUtils;
@@ -26,10 +27,12 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.opentest4j.AssertionFailedError;
+import service.auth.AuthService;
 import service.read.DistanceService;
 import service.read.SearchService;
 import service.update.EventService;
 import service.update.GroupEditService;
+import service.update.UserMemberService;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SearchServiceIntegrationTest {
@@ -44,7 +47,7 @@ public class SearchServiceIntegrationTest {
       Connection conn = testConnectionProvider.getDatabaseConnection();
       DbUtils.createTables(conn);
       DbUtils.initializeData(testConnectionProvider);
-      searchService = new SearchService(conn);
+      searchService = new SearchService(conn, AuthService.getReadOnlyUser());
     } catch (Exception e) {
       e.printStackTrace();
       fail("Error initializing data:" + e.getMessage());
@@ -652,7 +655,7 @@ public class SearchServiceIntegrationTest {
 
     Group inserted = adminUserGroupService.insertGroup(group);
 
-    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<String,String>());
+    HomeResult result = searchService.getGroupsForHomepage(new LinkedHashMap<>());
     HomepageGroup foundGroup = null;
     for(HomepageGroup homepageGroup: result.getGroupDataMap().values()) {
       if(homepageGroup.getName().equals(GROUP_NAME)) {
@@ -729,7 +732,7 @@ public class SearchServiceIntegrationTest {
   @Order(4)
   public void testCorrectDataForEventsVisibleInSearchResults_noLocationOrDayFilter() throws Exception {
     LinkedHashMap<String, String> params = new LinkedHashMap<>();
-
+    params.put("USER_GROUP_EVENTS", "false");
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
 
     HashSet<Integer> eventIds = new HashSet<>();
@@ -787,6 +790,74 @@ public class SearchServiceIntegrationTest {
     params.put(SearchParams.DAYS_OF_WEEK,"Monday,Wednesday");
     EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
     assertEquals(2, eventSearchResult.getEventData().size());
+
+  }
+
+  @Test
+  public void testCorrectEvents_userGroupsSearchParameterIsNotTrue() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(USER_GROUP_EVENTS, "false");
+    SessionContext userContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
+    EventSearchResult result = userContext.createSearchService().getEventsForHomepage(new LinkedHashMap<>());
+    assertEquals(37, result.getEventData().size());
+  }
+
+  @Test
+  @Order(4)
+  public void testNoEvents_UserGroupsSearchParameterAndDayParameter_UserDidNotJoinGroups() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(USER_GROUP_EVENTS, "true");
+    params.put(SearchParams.DAYS_OF_WEEK,"Monday,Wednesday");
+
+    SessionContext userContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
+    EventSearchResult result = userContext.createSearchService().getEventsForHomepage(params);
+    assertEquals(0, result.getEventData().size());
+  }
+
+  @Test
+  @Order(4)
+  public void testCorrectEvents_onyUserGroupsSearchParameter() throws Exception {
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(USER_GROUP_EVENTS, "true");
+    SessionContext userContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+    SessionContext otherUserContext =
+        CreateUserUtils.createContextWithNewAdminUser("user_"+UUID.randomUUID(),testConnectionProvider);
+
+    UserMemberService memberService = userContext.createUserMemberService();
+    HomeResult result = userContext.createSearchService().getGroupsForHomepage(new LinkedHashMap<>());
+
+    for(HomepageGroup group: result.getGroupData()){
+      if(group.getName().equals("Alexandria Board Game Group")||
+          group.getName().equals("Beer & Board Games")){
+
+        memberService.joinGroup(group.getId());
+      }
+
+    }
+
+
+    EventSearchResult eventSearchResult = userContext.createSearchService().getEventsForHomepage(params);
+    HashSet<String> eventNames = new HashSet<>();
+    eventNames.add("Bring Your Own Eurogames Night at the Crystal City Shops next to We the Pizza");
+    eventNames.add("Bring Your Own Game Night in DC at Nanny O’Briens");
+    eventNames.add("Board Game Night @ Board Room in Clarendon, Wed, 6:30-10:00");
+    eventNames.add("High Interaction Board Games at Western Market Food Hall in DC");
+    eventNames.add("Game Night at Glory Days");
+
+    assertEquals(5, eventSearchResult.getEventData().size());
+    for(EventSearchResultItem eventSearchResultItem: eventSearchResult.getEventData()){
+      assertTrue(eventNames.contains(eventSearchResultItem.getEventName()));
+      eventNames.remove(eventSearchResultItem.getEventName());
+    }
+    assertEquals(0, eventNames.size());
+
+    EventSearchResult otherUserSearchResult = otherUserContext.createSearchService().getEventsForHomepage(params);
+    assertEquals(0, otherUserSearchResult.getEventData().size());
 
 
   }

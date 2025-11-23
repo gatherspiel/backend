@@ -24,6 +24,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static database.search.SearchParams.USER_GROUP_EVENTS;
+
 public class Main {
 
   public static String[] agents = {
@@ -156,7 +158,13 @@ public class Main {
         long start = System.currentTimeMillis();
         try {
 
-          var sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
+          SessionContext sessionContext;
+          if(ctx.queryParam(USER_GROUP_EVENTS) != null){
+            sessionContext = SessionContext.createContextWithUser(ctx,new ConnectionProvider());
+          } else {
+            sessionContext = SessionContext.createContextWithoutUser(new ConnectionProvider());
+          }
+
           var searchParams = SearchParams.generateParameterMapFromQueryString(
             ctx
           );

@@ -39,7 +39,7 @@ public class ReadGroupDataProvider {
     return user;
   }
   public static ReadGroupDataProvider create(Connection conn, User user){
-    var searchService = new SearchService(conn);
+    var searchService = new SearchService(conn,user);
     var groupPermissionService = new GroupPermissionService(conn, user);
     var groupRepository = new GroupsRepository(conn);
     return new ReadGroupDataProvider(searchService,groupPermissionService, groupRepository, user);
