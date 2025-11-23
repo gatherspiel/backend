@@ -39,20 +39,20 @@ public class UserService {
     endpoint
    */
   public User createAdmin(String email) throws Exception{
-    return dataProvider.getRepository().createAdmin(email);
+    return dataProvider.getRepository().createAdmin(email.toLowerCase());
   }
 
 
   public User createStandardUser(String email) throws Exception{
-    return dataProvider.getRepository().createStandardUser(email);
+    return dataProvider.getRepository().createStandardUser(email.toLowerCase());
   }
 
   public User createTester(String email) throws Exception{
-    return dataProvider.getRepository().createTester(email);
+    return dataProvider.getRepository().createTester(email.toLowerCase());
   }
 
   public User getUser(String email) throws Exception{
-    return dataProvider.getRepository().getUserFromEmail(email);
+    return dataProvider.getRepository().getUserFromEmail(email.toLowerCase());
   }
 
   public UserData getLoggedInUserData() throws Exception{

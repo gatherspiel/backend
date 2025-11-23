@@ -33,6 +33,9 @@ public class User {
   }
 
   public String getEmail(){
+    if(email != null){
+      return email.toLowerCase();
+    }
     return email;
   }
 
