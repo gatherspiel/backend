@@ -30,7 +30,7 @@ public class CacheConnection {
     String area = ctx.queryParam(SearchParams.AREA);
     String name = ctx.queryParam(SearchParams.NAME);
     String distance = ctx.queryParam(SearchParams.DISTANCE);
-
+    String userGroupEvents = ctx.queryParam(SearchParams.USER_GROUP_EVENTS);
     String key = "";
     if(day != null){
       key+= SearchParams.DAYS_OF_WEEK +"_"+day+"_";
@@ -46,6 +46,9 @@ public class CacheConnection {
     }
     if(distance !=null){
       key+= SearchParams.DISTANCE+"_"+distance;
+    }
+    if(userGroupEvents !=null){
+      key+= SearchParams.USER_GROUP_EVENTS+"_"+userGroupEvents;
     }
     this.cacheKey = key;
     this.objectMapper = new ObjectMapper();
