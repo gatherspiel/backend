@@ -556,7 +556,6 @@ public class EventServiceIntegrationTest {
     EventService adminEventService = adminContext.createEventService();
     Event event = adminEventService.createEvent(event1, group.getId());
 
-
     User moderator = new User();
     moderator.setEmail(standardUserContext.getUser().getEmail());
     adminEventService.addEventModerator(event1,moderator);
