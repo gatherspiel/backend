@@ -94,7 +94,7 @@ public class GameLocationServiceIntegrationTest {
 
     Assertions.assertAll(
         () -> assertEquals(5, conventions.size()),
-        () -> assertEquals(14, gameStores.size()),
+        () -> assertEquals(15, gameStores.size()),
         () -> assertEquals(4, gameRestaurants.size())
     );
   }
