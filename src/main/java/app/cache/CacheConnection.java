@@ -1,5 +1,6 @@
 package app.cache;
 
+import app.groups.Event;
 import app.result.group.GroupPageData;
 import app.result.listing.EventSearchResult;
 import app.result.listing.HomeResult;
@@ -9,6 +10,10 @@ import io.javalin.http.Context;
 import org.apache.logging.log4j.Logger;
 import utils.LogUtils;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +28,8 @@ public class CacheConnection {
   private static final Map<String, String> groupSearchResultCache = new ConcurrentHashMap<String, String>();
   private static final Map<String, EventSearchResult> eventSearchResultCache = new ConcurrentHashMap<String, EventSearchResult>();
   private static final Map<String, GroupPageData> groupPageCache = new ConcurrentHashMap<>();
+
+  private static LocalDateTime lastSearchTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
 
   public CacheConnection(Context ctx){
     String day = ctx.queryParam(SearchParams.DAYS_OF_WEEK);
@@ -56,6 +63,15 @@ public class CacheConnection {
 
 
   public Optional<EventSearchResult> getCachedEventSearchResult() throws Exception {
+
+    LocalDateTime currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+
+    //Event search cache should only last for one minute.
+    if(currentTime.isAfter(lastSearchTime)){
+      eventSearchResultCache.clear();
+      return Optional.empty();
+    }
+
     if(eventSearchResultCache.containsKey(cacheKey)){
       return Optional.of(eventSearchResultCache.get(cacheKey));
     }
