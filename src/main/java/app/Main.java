@@ -177,7 +177,6 @@ public class Main {
           }
 
           if(cachedData.isPresent()){
-            System.out.println("Retrieving cached data");
             ctx.json(cachedData.get());
             ctx.status(HttpStatus.OK);
           } else {
