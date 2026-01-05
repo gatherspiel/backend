@@ -46,7 +46,7 @@ public class SearchParams {
         SearchParameterValidator.validateDaysParameter(params.get(param));
         this.params.put(param, params.get(param));
       } else if(param.equals(CITY)) {
-        this.params.put(param, params.get(param));
+        this.params.put(param, SameLocationData.getDatabaseCityName(params.get(param)));
       } else if (param.equals(AREA)) {
         locationGroupFilter = params.get(param);
       } else if (param.equals(NAME)){
