@@ -672,6 +672,21 @@ public class SearchServiceIntegrationTest {
 
   @Test
   @Order(4)
+  public void testCorrectEventsVisible_CityCalledByMultipleNames() throws Exception{
+    LinkedHashMap<String, String> params = new LinkedHashMap<>();
+    params.put(SearchParams.CITY, "DC");
+
+    EventSearchResult eventSearchResult = searchService.getEventsForHomepage(params);
+    assertEquals(2,eventSearchResult.getEventData().size());
+
+    params.put(SearchParams.CITY, "Washington");
+
+    eventSearchResult = searchService.getEventsForHomepage(params);
+    assertEquals(2,eventSearchResult.getEventData().size());
+  }
+
+  @Test
+  @Order(4)
   public void testCorrectNumberOfEventsVisibleInSearchResults_sortedByNextOccurrence_noLocationOrDayFilter() throws Exception{
 
     SessionContext adminUserContext = CreateUserUtils.createContextWithNewAdminUser(
