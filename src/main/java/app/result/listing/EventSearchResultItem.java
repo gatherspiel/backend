@@ -14,6 +14,7 @@ import java.util.Locale;
 
 public class EventSearchResultItem {
 
+  private Boolean isRecurring = false;
   private EventLocation eventLocation;
   private LocalTime nextEventTime;
   private LocalDate nextEventDate;
@@ -39,6 +40,14 @@ public class EventSearchResultItem {
     return eventLocation;
   }
 
+  public Boolean getIsRecurring(){
+    return isRecurring;
+  }
+  
+  public void setIsRecurring(Boolean isRecurring){
+    this.isRecurring = isRecurring;
+  }
+  
   @JsonGetter("nextEventTime")
   public String getSerializedNextEventTime(){
     return nextEventTime.format(DateTimeFormatter.ofPattern("hh:mm a"));

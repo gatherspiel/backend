@@ -80,11 +80,19 @@ public class SearchRepository {
       int eventId = rs.getInt("eventId");
       int groupId = rs.getInt("groupId");
       Timestamp startTimestamp = rs.getTimestamp("start_time");
+      
       LocalDateTime startDateTime;
+     
       if(startTimestamp != null){
         startDateTime = startTimestamp.toLocalDateTime();
       } else {
-        startDateTime = LocalDateTime.now();
+        
+        startTimestamp = rs.getTimestamp("one_time_start_time");
+        if(startTimestamp == null){
+          startDateTime = LocalDateTime.now();
+        } else {
+          startDateTime = startTimestamp.toLocalDateTime();
+        }
       }
       String dayOfWeek = rs.getString("day_of_week");
 
@@ -104,9 +112,11 @@ public class SearchRepository {
 
       if(dayOfWeek != null){
         resultItem.setDayOfWeek(DayOfWeek.valueOf(dayOfWeek.toUpperCase()));
+        resultItem.setIsRecurring(true);
         resultItem.setNextEventDate(
           DateUtils.getNextOccurrence(DayOfWeek.valueOf(dayOfWeek.toUpperCase()), startDateTime.toLocalTime()));
       } else {
+        resultItem.setIsRecurring(false);
         resultItem.setNextEventDate(startDateTime.toLocalDate());
       }
 
