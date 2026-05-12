@@ -30,6 +30,9 @@ This repo contains backend services for dmvboardgames.com. Data is stored in Pos
 - In the UI, register a user with the email test@dmvboardgames.com and the password 123456.
 - Access the database at http://localhost:54323. Navigate to the user table in the public schema. For the user with the email test@dmvboardgames.com,
   set the user_role_level to site_admin and set the "IS_ACTIVE" flag to true.
+-Navigate to local mail server at http://localhost:54324/, and click on the
+confirmation email link.
+
 
 # Contribution guidelines
 
@@ -42,10 +45,7 @@ Also, follow the guidelines below:
 
 ### Running the backend
 - Run using `java -jar target/app.jar`. The API will be available at http://localhost:7070/
-  
-### Viewing automated emails related to authentication
 
-Navigate to local mail server at http://localhost:54324
 
 ### Running integration tests
 
